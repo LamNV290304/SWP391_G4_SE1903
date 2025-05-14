@@ -20,43 +20,72 @@
                 <div class="col-md-6">
                     <div class="card shadow-sm">
                         <div class="card-body">
-                            <h3 class="text-center mb-4">Create Your Account</h3>
+                            <h3 class="text-center mb-4">Tạo tài khoản</h3>
 
-                            <!-- Register Form -->
                             <form method="POST" action="register">
-                                <c:if test="${requestScope.error != null && requestScope.error}">
+                                <c:if test="${requestScope.error != null}">
                                     <div class="alert alert-danger">
                                         ${requestScope.error}
                                     </div>
                                 </c:if>
 
-                                <div class="mb-3">
-                                    <label for="name" class="form-label">Full Name</label>
-                                    <input type="text" class="form-control" id="name" name="name" placeholder="Enter your full name" required>
+                                <div class="row">
+                                    <!-- Cột 1 -->
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="name" class="form-label">Họ và tên</label>
+                                            <input type="text" class="form-control" id="name" name="name" placeholder="Nhập họ và tên" required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="password" class="form-label">Mật khẩu</label>
+                                            <input type="password" class="form-control" id="password" name="password" placeholder="Nhập mật khẩu" required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="phone" class="form-label">Số điện thoại</label>
+                                            <input type="text" class="form-control" id="phone" name="phone" placeholder="Nhập số điện thoại" required>
+                                        </div>
+                                    </div>
+
+                                    <!-- Cột 2 -->
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="email" class="form-label">Email</label>
+                                            <input type="email" class="form-control" id="email" name="email" placeholder="Nhập email của bạn" required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="confirm-password" class="form-label">Xác nhận mật khẩu</label>
+                                            <input type="password" class="form-control" id="confirm-password" name="confirmPassword" placeholder="Xác nhận lại mật khẩu" required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="address" class="form-label">Địa chỉ</label>
+                                            <input type="text" class="form-control" id="address" name="address" placeholder="Nhập địa chỉ của bạn" required>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="email" class="form-label">Email address</label>
-                                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="password" class="form-label">Password</label>
-                                    <input type="password" class="form-control" id="password" name="password" placeholder="Create a password" required>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="confirm-password" class="form-label">Confirm Password</label>
-                                    <input type="password" class="form-control" id="confirm-password" name="confirmPassword" placeholder="Confirm your password" required>
+                                    <label for="roleId" class="form-label">Vai trò</label>
+                                    <select class="form-select" id="roleId" name="roleId" required>
+                                        <option value="" disabled selected>Chọn vai trò</option>
+                                        <option value="1">Admin</option>
+                                        <option value="2" selected>User</option>
+                                        <option value="3">Nhân viên</option>
+                                        <!-- Thêm vai trò khác nếu cần -->
+                                    </select>
                                 </div>
 
                                 <div class="text-center">
-                                    <button type="submit" class="btn btn-primary w-100">Register</button>
+                                    <button type="submit" class="btn btn-primary w-100">Đăng ký</button>
                                 </div>
                             </form>
 
+
                             <div class="text-center mt-3">
-                                <p>Already have an account? <a href="Login.jsp">Login here</a></p>
+                                <p>Đã có tài khoản? <a href="Login.jsp"> Đăng nhập ở đây</a></p>
                             </div>
                         </div>
                     </div>

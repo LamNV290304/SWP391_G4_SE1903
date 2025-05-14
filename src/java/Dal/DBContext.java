@@ -35,5 +35,9 @@ public class DBContext {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    public Connection getConnection(){
+        return connection;
+    }
 }
 

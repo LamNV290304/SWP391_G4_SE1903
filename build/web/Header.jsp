@@ -37,9 +37,15 @@
                         </c:if>
                         <c:if test="${empty sessionScope.user}">
                             <li class="nav-item">
-                                <a class="nav-link" href="login.jsp">Login</a>
+                                <a class="nav-link" href="Login.jsp">Đăng nhập</a>
                             </li>
                         </c:if>
+                        <c:if test="${empty sessionScope.user}">
+                            <li class="nav-item">
+                                <a class="nav-link" href="Register.jsp">Đăng ký</a>
+                            </li>
+                        </c:if>
+
                     </ul>
                 </div>
             </div>
