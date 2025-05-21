@@ -19,7 +19,7 @@ public class TransferReceipt {
     private Date TransferDate;
     private String Note;
 
-    public TransferReceipt() {
+    public TransferReceipt(String string, String string1, String string2, String string3, double aDouble, String string4, int aInt, Date date, String string5) {
     }
 
     public TransferReceipt(String TransferReceiptID, String ProductID, String FromInventoryID, String ToInventoryID, int Quantity, Date TransferDate, String Note) {
