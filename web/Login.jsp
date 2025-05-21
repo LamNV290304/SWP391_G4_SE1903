@@ -11,7 +11,10 @@
     <link rel="stylesheet" href="css/LoginStyle.css">
 </head>
 <body>
-    <%@include file="Header.jsp" %>
+<<<<<<< HEAD
+=======
+    
+>>>>>>> 61dc206 (InvoiceDAO)
 
 <!--    <div class="banner">
         <img src="images/banner.png" alt="Banner">
@@ -44,6 +47,5 @@
         </div>
     </div>
 
-    <%@include file="Footer.jsp" %>
 </body>
 </html>
