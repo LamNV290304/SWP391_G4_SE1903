@@ -17,7 +17,7 @@ import Models.TransferReceipt;
  */
 public class TransferReceiptDAO extends DBContext {
 
-    public Vector<TransferReceipt> getAllProduct(String sql) {
+    public Vector<TransferReceipt> getAllTransferReceipt(String sql) {
         Vector<TransferReceipt> listTransferReceipt = new Vector<>();
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);

@@ -1,9 +1,13 @@
+package Controller;
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
 
+import Models.TransferReceipt;
+import dal.TransferReceiptDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -11,13 +15,14 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Vector;
 
 /**
  *
  * @author ADMIN
  */
 @WebServlet(urlPatterns={"/Transfer"})
-public class TransferReceiptServlet extends HttpServlet {
+public class ServletTransferReceipt extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -26,21 +31,32 @@ public class TransferReceiptServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    private static final String SQL = "SELECT * FROM [dbo].[TransferReceipt]";
+    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet TransferReceiptServlet</title>");  
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet TransferReceiptServlet at " + request.getContextPath () + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
+        
+        TransferReceiptDAO dao = new TransferReceiptDAO();
+        String service = request.getParameter("service");
+        if (service == null) {
+            service = "listTransferReceipt";
         }
+        
+        
+        
+        if (service.equals("listProduct")) {
+            String submit = request.getParameter("submit");
+            
+            Vector<TransferReceipt> list = dao.getAllTransferReceipt(SQL);
+            
+            request.setAttribute("data", list);
+            request.setAttribute("pageTitle", "TransferReceipt Manager");
+            request.setAttribute("tableTitle", "List of TransferReceipt");
+            request.getRequestDispatcher("jsp/TransferReceipt.jsp").forward(request, response);
+
+        }
+        
     } 
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
