@@ -11,17 +11,18 @@ import java.util.Date;
  * @author ADMIN
  */
 public class Product {
-    private String ProductID;
-    private String ProductName;
-    private String CategoryID;
-    private String UnitID;
+
+    private String ProductID,
+            ProductName,
+            CategoryID,
+            UnitID;
     private double Price;
     private String Description;
-    private int Status;
-    private Date CreatedDate;
+    private boolean Status;
+    private String CreatedDate;
     private String CreatedBy;
 
-    public Product(String ProductID, String ProductName, String CategoryID, String UnitID, double Price, String Description, int Status, Date CreatedDate, String CreatedBy) {
+    public Product(String ProductID, String ProductName, String CategoryID, String UnitID, double Price, String Description, boolean Status, String CreatedDate, String CreatedBy) {
         this.ProductID = ProductID;
         this.ProductName = ProductName;
         this.CategoryID = CategoryID;
@@ -33,12 +34,7 @@ public class Product {
         this.CreatedBy = CreatedBy;
     }
 
-    public String getCreatedBy() {
-        return CreatedBy;
-    }
-
-    public void setCreatedBy(String CreatedBy) {
-        this.CreatedBy = CreatedBy;
+    public Product() {
     }
 
     public String getProductID() {
@@ -89,19 +85,34 @@ public class Product {
         this.Description = Description;
     }
 
-    public int getStatus() {
+    public boolean isStatus() {
         return Status;
     }
 
-    public void setStatus(int Status) {
+    public void setStatus(boolean Status) {
         this.Status = Status;
     }
 
-    public Date getCreatedDate() {
+    public String getCreatedDate() {
         return CreatedDate;
     }
 
-    public void setCreatedDate(Date CreatedDate) {
+    public void setCreatedDate(String CreatedDate) {
         this.CreatedDate = CreatedDate;
     }
+
+    public String getCreatedBy() {
+        return CreatedBy;
+    }
+
+    public void setCreatedBy(String CreatedBy) {
+        this.CreatedBy = CreatedBy;
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" + "ProductID=" + ProductID + ", ProductName=" + ProductName + ", CategoryID=" + CategoryID + ", UnitID=" + UnitID + ", Price=" + Price + ", Description=" + Description + ", Status=" + Status + ", CreatedDate=" + CreatedDate + ", CreatedBy=" + CreatedBy + '}';
+    }
+    
+
 }
