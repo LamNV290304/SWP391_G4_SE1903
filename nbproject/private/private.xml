@@ -3,9 +3,15 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+<<<<<<< HEAD
             <file>file:/D:/SWP/SWP391_G4_SE1903/src/java/Models/Product.java</file>
             <file>file:/D:/SWP/SWP391_G4_SE1903/src/java/Models/TransferReceipt.java</file>
             <file>file:/D:/SWP/SWP391_G4_SE1903/src/java/Dal/TransferReceiptDAO.java</file>
+=======
+            <file>file:/C:/Users/duckh/OneDrive/Desktop/SWP/SWP391_G4_SE1903/src/java/Models/Invoice.java</file>
+            <file>file:/C:/Users/duckh/OneDrive/Desktop/SWP/SWP391_G4_SE1903/src/java/Dal/InvoiceDAO.java</file>
+            <file>file:/C:/Users/duckh/OneDrive/Desktop/SWP/SWP391_G4_SE1903/src/java/Dal/ProductDAO.java</file>
+>>>>>>> 61dc206 (InvoiceDAO)
         </group>
     </open-files>
 </project-private>

@@ -11,6 +11,10 @@
     <link rel="stylesheet" href="css/LoginStyle.css">
 </head>
 <body>
+<<<<<<< HEAD
+=======
+    
+>>>>>>> 61dc206 (InvoiceDAO)
 
 <!--    <div class="banner">
         <img src="images/banner.png" alt="Banner">
