@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Context;
-
+import java.sql.*;
 /**
  *
  * @author Admin
@@ -41,4 +41,19 @@ public final class DatabaseHelper {
                     .replace("'", "''");
     }
 
+    public static String getDatabaseNameByShopCode(String shopCode) {
+        String sql = "SELECT DatabaseName FROM ShopOwners WHERE ShopCode = ?";
+        try (Connection conn = DBContext.getCentralConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, shopCode);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("database_name");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
