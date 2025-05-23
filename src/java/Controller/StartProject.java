@@ -10,6 +10,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import Context.DatabaseHelper;
 
 /**
  *
@@ -34,7 +35,7 @@ public class StartProject extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet StartProject</title>");            
+            out.println("<title>Servlet StartProject</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet StartProject at " + request.getContextPath() + "</h1>");
@@ -55,7 +56,31 @@ public class StartProject extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+
+        String uri = request.getRequestURI();
+        String context = request.getContextPath();
+        String path = uri.substring(context.length());
+        
+        if (path.equals("/SaleSphere") || path.equals("/StartProject")) {
+            String shopName = "SaleSphere";
+            request.getSession().setAttribute("shopName", shopName);
+            request.getRequestDispatcher("login.jsp").forward(request, response);
+            return;
+        }
+
+        String shopCode = path.replaceAll("^/+", "").split("/")[0];
+        String databaseName = DatabaseHelper.getDatabaseNameByShopCode(shopCode);
+
+        if (databaseName == null) {
+            response.sendRedirect("error.jsp");
+            return;
+        }
+
+        String shopName = DatabaseHelper.getShopNameByShopCode(shopCode);
+
+        request.getSession().setAttribute("databaseName", databaseName);
+        request.getSession().setAttribute("shopName", shopName);
+        request.getRequestDispatcher("login.jsp").forward(request, response);
     }
 
     /**

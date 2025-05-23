@@ -49,7 +49,23 @@ public final class DatabaseHelper {
             ps.setString(1, shopCode);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return rs.getString("database_name");
+                return rs.getString("DatabaseName");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public static String getShopNameByShopCode(String shopCode) {
+        String sql = "SELECT ShopName FROM ShopOwners WHERE ShopCode = ?";
+        try (Connection conn = DBContext.getCentralConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, shopCode);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("ShopName");
             }
         } catch (Exception e) {
             e.printStackTrace();

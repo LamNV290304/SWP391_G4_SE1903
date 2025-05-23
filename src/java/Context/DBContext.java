@@ -63,26 +63,4 @@ public class DBContext {
     public static Connection getMasterConnection() throws ClassNotFoundException, SQLException {
         return getConnection("master");
     }
-    
-    public static void main(String[] args) {
-        try {
-            // Kết nối đến database trung tâm (CentralDB)
-            DBContext db = new DBContext(); // mặc định là CentralDB
-            Connection conn = db.getConnection();
-
-            if (conn != null && !conn.isClosed()) {
-                System.out.println("Kết nối đến CentralDB thành công!");
-            } else {
-                System.out.println("Kết nối thất bại.");
-            }
-
-            // Đóng kết nối nếu cần
-            if (conn != null) {
-                conn.close();
-            }
-        } catch (Exception e) {
-            System.out.println("Có lỗi xảy ra khi kết nối:");
-            e.printStackTrace();
-        }
-    }
 }
