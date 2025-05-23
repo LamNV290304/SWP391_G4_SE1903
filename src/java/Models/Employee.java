@@ -16,16 +16,16 @@ public class Employee extends User{
     private int shopId;
     private Shop shop;
 
-    public Employee(int roleId, Role role, int shopId, Shop shop, int Id, String Username, String Password, String Fullname, String Phone, boolean Status, Date CreateDate) {
-        super(Id, Username, Password, Fullname, Phone, Status, CreateDate);
+    public Employee(int roleId, Role role, int shopId, Shop shop, int Id, String Username, String Password, String Fullname, String Phone, String Email, boolean Status, Date CreateDate) {
+        super(Id, Username, Password, Fullname, Phone, Email, Status, CreateDate);
         this.roleId = roleId;
         this.role = role;
         this.shopId = shopId;
         this.shop = shop;
     }
 
-    public Employee(int roleId, int shopId, int Id, String Username, String Password, String Fullname, String Phone, boolean Status, Date CreateDate) {
-        super(Id, Username, Password, Fullname, Phone, Status, CreateDate);
+    public Employee(int roleId, int shopId, int Id, String Username, String Password, String Fullname, String Phone, String Email, boolean Status, Date CreateDate) {
+        super(Id, Username, Password, Fullname, Phone, Email, Status, CreateDate);
         this.roleId = roleId;
         this.role = null;
         this.shopId = shopId;

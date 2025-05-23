@@ -19,8 +19,8 @@ public class ShopOwner extends User{
         super();
     }
 
-    public ShopOwner(String DatabaseName, String ShopCode, String ShopName, int Id, String Username, String Password, String Fullname, String Phone, boolean Status, Date CreateDate) {
-        super(Id, Username, Password, Fullname, Phone, Status, CreateDate);
+    public ShopOwner(String DatabaseName, String ShopCode, String ShopName, int Id, String Username, String Password, String Fullname, String Phone, String Email, boolean Status, Date CreateDate) {
+        super(Id, Username, Password, Fullname, Phone, Email, Status, CreateDate);
         this.DatabaseName = DatabaseName;
         this.ShopCode = ShopCode;
         this.ShopName = ShopName;

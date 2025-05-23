@@ -16,18 +16,22 @@ public class User {
     private String Password;
     private String Fullname;
     private String Phone;
+    private String Email;
     private boolean Status;
     private Date CreateDate;
 
-    public User(int Id, String Username, String Password, String Fullname, String Phone, boolean Status, Date CreateDate) {
+    public User(int Id, String Username, String Password, String Fullname, String Phone, String Email, boolean Status, Date CreateDate) {
         this.Id = Id;
         this.Username = Username;
         this.Password = Password;
         this.Fullname = Fullname;
         this.Phone = Phone;
+        this.Email = Email;
         this.Status = Status;
         this.CreateDate = CreateDate;
     }
+
+
 
     public User() {
     }
@@ -87,4 +91,13 @@ public class User {
     public void setCreateDate(Date CreateDate) {
         this.CreateDate = CreateDate;
     }
+
+    public String getEmail() {
+        return Email;
+    }
+
+    public void setEmail(String Email) {
+        this.Email = Email;
+    }
+    
 }
