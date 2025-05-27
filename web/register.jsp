@@ -65,7 +65,7 @@
         </style>
     </head>
 
-    <body>
+    <body class="custom-bg">
         <!-- Content -->
 
         <div class="container-xxl">
