@@ -2,7 +2,11 @@ package Context;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DBContext {
     protected Connection connection;
@@ -33,7 +37,7 @@ public class DBContext {
     public DBContext() {
         this("CentralDB");
     }
-
+    
     /**
      * Getter cho connection nếu các class con cần truy cập.
      */
@@ -48,6 +52,18 @@ public class DBContext {
         Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
         String url = "jdbc:sqlserver://" + SERVER_NAME + ":" + PORT + ";databaseName=" + databaseName + ";encrypt=false";
         return DriverManager.getConnection(url, USERNAME, PASSWORD);
+    }
+    public ResultSet getData(String sql) {
+        ResultSet rs = null;
+
+        try {
+            Statement state = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+                    ResultSet.CONCUR_UPDATABLE);
+            rs = state.executeQuery(sql);
+        } catch (SQLException ex) {
+            Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return rs;
     }
 
     /**

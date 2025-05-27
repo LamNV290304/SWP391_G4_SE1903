@@ -102,7 +102,7 @@
 
                             <p class="text-center">
                                 <span>New on our platform?</span>
-                                <a href="auth-register-basic.html">
+                                <a href="register.jsp">
                                     <span>Create an account</span>
                                 </a>
                             </p>
