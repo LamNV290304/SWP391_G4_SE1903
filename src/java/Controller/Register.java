@@ -4,19 +4,23 @@
  */
 package Controller;
 
+import java.sql.*;
+import Context.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import Context.DatabaseHelper;
+import Models.*;
+import Dal.*;
+import Utils.MailUtil;
 
 /**
  *
  * @author Admin
  */
-public class StartProject extends HttpServlet {
+public class Register extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -35,10 +39,10 @@ public class StartProject extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet StartProject</title>");
+            out.println("<title>Servlet Register</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet StartProject at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet Register at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -56,35 +60,7 @@ public class StartProject extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        String uri = request.getRequestURI();
-        String context = request.getContextPath();
-        String path = uri.substring(context.length());
-
-        if (path.equals("/SaleSphere") || path.equals("/StartProject")) {
-            String shopName = "SaleSphere";
-            request.getSession().setAttribute("shopName", shopName);
-            request.getRequestDispatcher("login.jsp").forward(request, response);
-            return;
-        }
-
-        String shopInf = path.replaceAll("^/+", "").split("/")[0];
-        String databaseName = DatabaseHelper.getDatabaseNameByShopCode(shopInf);
-        String shopName = DatabaseHelper.getShopNameByShopCode(shopInf);
-
-        if (databaseName == null) {
-            databaseName = DatabaseHelper.getDatabaseNameByShopName(shopInf);
-            shopName = shopInf;
-        }
-
-        if (databaseName == null && shopName == null) {
-            response.sendRedirect("error.jsp");
-            return;
-        }
-
-        request.getSession().setAttribute("databaseName", databaseName);
-        request.getSession().setAttribute("shopName", shopName);
-        request.getRequestDispatcher("login.jsp").forward(request, response);
+        processRequest(request, response);
     }
 
     /**
@@ -98,7 +74,54 @@ public class StartProject extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        request.setCharacterEncoding("UTF-8");
+        try {
+            DBContext dbContext = new DBContext("CentralDB");
+            Connection conn = dbContext.getConnection();
+            ShopOwnerDAO shopOwnerDAO = new ShopOwnerDAO(conn);
+
+            String username = request.getParameter("username");
+            String password = request.getParameter("password");
+            String repassword = request.getParameter("re-password");
+            String fullname = request.getParameter("fullname");
+            String email = request.getParameter("email");
+            String phone = request.getParameter("phone");
+            String shopName = request.getParameter("shopName");
+
+            if (!password.equals(repassword)) {
+                request.setAttribute("error", "Password và Re-password không khớp!");
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+                return;
+            }
+
+            if (shopOwnerDAO.isUsernameExist(username)) {
+                request.setAttribute("error", "Username đã tồn tại, vui lòng chọn username khác!");
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+                return;
+            }
+
+            if (shopOwnerDAO.isShopNameExist(shopName)) {
+                request.setAttribute("error", "shop đã tồn tại, vui lòng chọn tên khác!");
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+                return;
+            }
+
+            String otp = DatabaseHelper.generateOTP();
+            
+            String dataBaseName = DatabaseHelper.generateSafeDatabaseName(shopName);
+            String shopCode = DatabaseHelper.generateShopCode(shopName);
+            ShopOwner shopOwner = new ShopOwner(dataBaseName, shopCode, shopName, 0, username, password, fullname, phone, email, false, null);
+
+            shopOwnerDAO.addShopOwner(shopOwner);
+            
+            shopOwnerDAO.saveOTP(email, otp);
+            
+            MailUtil.sendCode(email, otp);
+            response.sendRedirect("verificationOTP.jsp");
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage() + ex.getStackTrace());
+        }
+
     }
 
     /**

@@ -9,6 +9,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.*;
 import Models.*;
+import java.util.Arrays;
 
 /**
  *
@@ -22,20 +23,23 @@ public class EmployeeDAO {
         this.connection = connection;
     }
 
-    public void addEmployee(Employee employee) throws SQLException {
-        String sql = "INSERT INTO Employee (Username, Password, Fullname, Phone, Status, CreateDate, RoleId, ShopId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    public boolean addEmployee(Employee employee) throws SQLException {
+        String sql = "INSERT INTO Employee (Username, Password, Fullname, Phone, Email, Status, CreateDate, RoleId, ShopId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, employee.getUsername());
             stmt.setString(2, employee.getPassword());
             stmt.setString(3, employee.getFullname());
             stmt.setString(4, employee.getPhone());
-            stmt.setBoolean(5, employee.isStatus());
-            stmt.setDate(6, new java.sql.Date(employee.getCreateDate().getTime()));
-            stmt.setInt(7, employee.getRole().getId());
-            stmt.setInt(8, employee.getShop().getId());
+            stmt.setString(5, employee.getEmail());  // thêm email ở vị trí thứ 5
+            stmt.setBoolean(6, employee.isStatus());
+            stmt.setDate(7, new java.sql.Date(employee.getCreateDate().getTime()));
+            stmt.setInt(8, employee.getRole().getId());
+            stmt.setInt(9, employee.getShop().getId());
             stmt.executeUpdate();
+            return true;
         } catch (Exception ex) {
-            ex.getStackTrace();
+            System.out.println("Error: " + ex.getMessage() + ex.getStackTrace());
+            return false;
         }
     }
 
@@ -46,7 +50,7 @@ public class EmployeeDAO {
             stmt.setString(1, username);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    emp.setId(rs.getInt("Id"));
+                    emp.setId(rs.getInt("EmployeeID"));
                     emp.setUsername(rs.getString("Username"));
                     emp.setPassword(rs.getString("Password"));
                     emp.setFullname(rs.getString("Fullname"));
@@ -54,17 +58,17 @@ public class EmployeeDAO {
                     emp.setStatus(rs.getBoolean("Status"));
                     emp.setCreateDate(rs.getDate("CreateDate"));
 
-                    Role role = new Role();
-                    role.setId(rs.getInt("RoleId"));
-                    emp.setRole(role);
-
-                    Shop shop = new Shop();
-                    shop.setId(rs.getInt("ShopId"));
-                    emp.setShop(shop);
-
+                    emp.setRoleId(rs.getInt("RoleID"));
+                    emp.setShopId(rs.getInt("ShopID"));
                     return emp;
                 }
+            } catch (Exception ex) {
+                System.out.println("Error: " + ex.getMessage() + ex.getStackTrace());
+                return emp;
             }
+        } catch (SQLException ex) {
+            System.out.println("Error: " + ex.getMessage() + ex.getStackTrace());
+            return emp;
         }
         return emp;
     }
