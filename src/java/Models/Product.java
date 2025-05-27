@@ -12,10 +12,10 @@ import java.util.Date;
  */
 public class Product {
 
-    private String ProductID,
-            ProductName,
-            CategoryID,
-            UnitID;
+    private String ProductID;
+    private String ProductName;
+    private String CategoryID;
+    private String UnitID;
     private double Price;
     private String Description;
     private boolean Status;
@@ -113,6 +113,5 @@ public class Product {
     public String toString() {
         return "Product{" + "ProductID=" + ProductID + ", ProductName=" + ProductName + ", CategoryID=" + CategoryID + ", UnitID=" + UnitID + ", Price=" + Price + ", Description=" + Description + ", Status=" + Status + ", CreatedDate=" + CreatedDate + ", CreatedBy=" + CreatedBy + '}';
     }
-    
 
 }
