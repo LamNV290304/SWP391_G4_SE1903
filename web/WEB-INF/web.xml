@@ -12,11 +12,14 @@
         <servlet-name>Login</servlet-name>
         <servlet-class>Controller.Login</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>InvoiceServlet</servlet-name>
+        <servlet-class>Controller.InvoiceServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>StartProject</servlet-name>
         <url-pattern>/StartProject</url-pattern>
         <url-pattern>/SaleSphere</url-pattern>
-        <url-pattern>/SaleSphere/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ErrorPage</servlet-name>
@@ -25,6 +28,10 @@
     <servlet-mapping>
         <servlet-name>Login</servlet-name>
         <url-pattern>/Login</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>InvoiceServlet</servlet-name>
+        <url-pattern>/InvoiceServlet</url-pattern>
     </servlet-mapping>
     <error-page>
         <error-code>404</error-code>
