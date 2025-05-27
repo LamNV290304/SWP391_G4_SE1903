@@ -26,7 +26,7 @@
     </servlet>
     <servlet>
         <servlet-name>Verify</servlet-name>
-        <servlet-class>Controller.Verify</servlet-class
+        <servlet-class>Controller.Verify</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>StartProject</servlet-name>
@@ -44,7 +44,7 @@
     <servlet-mapping>
         <servlet-name>InvoiceServlet</servlet-name>
         <url-pattern>/InvoiceServlet</url-pattern>
-</servlet-mapping>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ProductController</servlet-name>
         <url-pattern>/ProductURL</url-pattern>
