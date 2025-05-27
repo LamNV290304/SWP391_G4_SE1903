@@ -84,6 +84,16 @@ public class ShopOwnerDAO {
         }
     }
 
+    public boolean isEmailExist(String username) throws SQLException {
+        String sql = "SELECT 1 FROM ShopOwners WHERE Email = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
     public boolean saveOTP(String email, String otp) {
         String sql = "MERGE INTO OTPs AS target "
                 + "USING (SELECT ? AS Email, ? AS OTP, DATEADD(MINUTE, 15, GETDATE()) AS ExpiredAt) AS source "
@@ -114,4 +124,15 @@ public class ShopOwnerDAO {
         }
         return false;
     }
+    
+    public boolean updateStatusByUsername(String email) throws SQLException {
+    String sql = "UPDATE ShopOwners SET Status = ? WHERE Username = ?";
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        stmt.setBoolean(1, true);
+        stmt.setString(2, email);
+        int rowsAffected = stmt.executeUpdate();
+        return rowsAffected > 0;
+    }
+}
+
 }

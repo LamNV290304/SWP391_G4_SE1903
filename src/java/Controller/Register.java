@@ -106,18 +106,28 @@ public class Register extends HttpServlet {
                 return;
             }
 
+            if (shopOwnerDAO.isEmailExist(shopName)) {
+                request.setAttribute("error", "shop đã tồn tại, vui lòng chọn tên khác!");
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+                return;
+            }
+
             String otp = DatabaseHelper.generateOTP();
-            
-            String dataBaseName = DatabaseHelper.generateSafeDatabaseName(shopName);
+
+            String databaseName = DatabaseHelper.generateSafeDatabaseName(shopName);
             String shopCode = DatabaseHelper.generateShopCode(shopName);
-            ShopOwner shopOwner = new ShopOwner(dataBaseName, shopCode, shopName, 0, username, password, fullname, phone, email, false, null);
+            ShopOwner shopOwner = new ShopOwner(databaseName, shopCode, shopName, 0, username, password, fullname, phone, email, false, null);
 
             shopOwnerDAO.addShopOwner(shopOwner);
-            
+
             shopOwnerDAO.saveOTP(email, otp);
-            
+
             MailUtil.sendCode(email, otp);
-            response.sendRedirect("verificationOTP.jsp");
+
+            request.setAttribute("email", email);
+            request.setAttribute("shopCode", shopCode);
+            request.setAttribute("databaseName", databaseName);
+            request.getRequestDispatcher("Verify").forward(request, response);
         } catch (SQLException ex) {
             System.out.println(ex.getMessage() + ex.getStackTrace());
         }

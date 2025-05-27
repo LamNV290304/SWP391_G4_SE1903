@@ -53,6 +53,37 @@ public class MailUtil {
             e.printStackTrace();
         }
     }
+    
+    public static void sendLink(String toEmail, String link) {
+        Properties pros = new Properties();
+        pros.put("mail.smtp.host", "smtp.gmail.com"); //using SMTP host of gmail
+        pros.put("mail.smtp.port", "587"); //using TLS: port 587, if use SSL port: 465
+        pros.put("mail.smtp.auth", "true"); // require authentication step
+        pros.put("mail.smtp.starttls.enable", "true"); // encode with tls
+
+        // method for logging in email
+        Authenticator auth = new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(FROM, PASSWORD); 
+            }
+        };
+        // create a java mail session
+        Session session = Session.getInstance(pros, auth);
+        MimeMessage msg = new MimeMessage(session);
+        try {
+            msg.addHeader("Content-type", "text/HTML; charset=UTF-8");
+            msg.setFrom(FROM);
+            msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail, false));
+            msg.setSubject("Register verification");
+            msg.setSentDate(new Date());
+            msg.setText("Your web's link: " + link);
+            Transport.send(msg); //send email with the message
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     public static void main(String[] args){
         sendCode("vietlam2k4@gmail.com", "203817");
     }

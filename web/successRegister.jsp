@@ -1,12 +1,10 @@
 <%-- 
-    Document   : register
-    Created on : May 24, 2025, 1:44:49 AM
+    Document   : successRegister
+    Created on : May 28, 2025, 12:54:37 AM
     Author     : Admin
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-
 <!DOCTYPE html>
 <html
     lang="en"
@@ -74,31 +72,12 @@
                             <div class="">
                                 <div class="card mb-4">
                                     <div class="card-header d-flex align-items-center justify-content-between">
-                                        <h5 class="mb-0">Register</h5>
+                                        <h2 class="mb-0" style="color: green">Verify Successfully</h2>
+                                        
                                     </div>
                                     <div class="card-body">
-                                        <c:if test="${not empty error}">
-                                            <div class="alert alert-danger" role="alert">
-                                                ${error}
-                                            </div>
-                                        </c:if>
-                                        <form method="post" action="Verify">
-                                            <div class="row mb-3">
-                                                <label class="col-sm-2 col-form-label" for="otp">OTP</label>
-                                                <div class="col-sm-10">
-                                                    <input type="text" class="form-control" id="otp" name="otp" placeholder="OTP Code" required />
-                                                    <input type="text" class="form-control" name="email" hidden required value="${email}"/>
-                                                    <input type="text" class="form-control" name="email" hidden required value="${databaseName}"/>
-                                                    <input type="text" class="form-control" name="email" hidden required value="${shopCode}"/>
-                                                </div>
-                                            </div>
-
-                                            <div class="row justify-content-end">
-                                                <div class="col-sm-10">
-                                                    <button type="submit" class="btn btn-primary d-grid w-100">Verify</button>
-                                                </div>
-                                            </div>
-                                        </form>
+                                        <h3 class="mt-2">Please check your email</h3>
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -129,3 +108,4 @@
         <script async defer src="https://buttons.github.io/buttons.js"></script>
     </body>
 </html>
+

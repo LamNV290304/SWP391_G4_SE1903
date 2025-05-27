@@ -9,8 +9,10 @@
             <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Context/DatabaseHelper.java</file>
             <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Dal/EmployeeDAO.java</file>
             <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Utils/MailUtil.java</file>
-            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/web/emailTemplateOTP.jsp</file>
             <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Controller/Register.java</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/web/login.jsp</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Dal/ContextPathDAO.java</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/web/WEB-INF/web.xml</file>
             <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/web/register.jsp</file>
             <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/web/verificationOTP.jsp</file>
         </group>
