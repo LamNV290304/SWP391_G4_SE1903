@@ -39,10 +39,9 @@ public class ProductDAO {
                 + "SELECT ProductID FROM Inventory WHERE ProductID =  '"+pid+"'"
                 + "\nUNION "
                 + "SELECT ProductID FROM TransferReceipt WHERE ProductID = '"+pid+"'";
-        System.out.println(sql);
-        System.out.println(sqlSelect);
-        ResultSet rs = con.getData(sqlSelect);
+        
         try {
+            ResultSet rs = connection.prepareStatement(sqlSelect).executeQuery();
             if(rs.next()){
                 return -1;
             }
