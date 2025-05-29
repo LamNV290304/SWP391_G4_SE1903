@@ -1,0 +1,64 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package Models;
+
+import java.util.Date;
+
+/**
+ *
+ * @author Thai Anh
+ */
+public class Inventory {
+     private String inventoryID;
+    private Product product;
+    private Shop shop;
+    private int quantity;
+    private Date lastUpdated;
+
+    // Getter & Setter cho inventoryID
+    public String getInventoryID() {
+        return inventoryID;
+    }
+
+    public void setInventoryID(String inventoryID) {
+        this.inventoryID = inventoryID;
+    }
+
+    // ✅ Getter & Setter cho Product
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    // ✅ Getter & Setter cho Shop
+    public Shop getShop() {
+        return shop;
+    }
+
+    public void setShop(Shop shop) {
+        this.shop = shop;
+    }
+
+    // Getter & Setter cho quantity
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    // Getter & Setter cho lastUpdated
+    public Date getLastUpdated() {
+        return lastUpdated;
+    }
+
+    public void setLastUpdated(Date lastUpdated) {
+        this.lastUpdated = lastUpdated;
+    }
+}
