@@ -78,7 +78,7 @@ public class ProductController extends HttpServlet {
             String pId = request.getParameter("pId");
             int n = dao.deleteProduct(pId, "swp2");
             String message = "";
-                //display message on JSP
+                
                 if (n == 0) {
                     message = "delete failed";
                     request.getSession().setAttribute("message", message);
