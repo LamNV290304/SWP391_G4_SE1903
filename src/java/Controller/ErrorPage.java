@@ -4,6 +4,7 @@
  */
 package Controller;
 
+import Context.DatabaseHelper;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -43,7 +44,27 @@ public class ErrorPage extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        String requestUri = (String) request.getAttribute("jakarta.servlet.error.request_uri");
+        if (requestUri == null) {
+            response.sendRedirect("error.jsp");
+            return;
+        }
+
+        String shopCode  = requestUri.substring(requestUri.lastIndexOf("/") + 1);
+        
+        
+        String databaseName = DatabaseHelper.getDatabaseNameByShopCode(shopCode);
+        String shopName = DatabaseHelper.getShopNameByShopCode(shopCode);
+
+        if (databaseName == null) {
+            response.sendRedirect("error.jsp");
+            return;
+        }
+
+        request.getSession().setAttribute("databaseName", databaseName);
+        request.getSession().setAttribute("shopName", shopName);
+        request.getRequestDispatcher("login.jsp").forward(request, response);
+
     }
 
     /**
@@ -57,7 +78,7 @@ public class ErrorPage extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        doGet(request, response);
     }
 
     /**

@@ -78,21 +78,6 @@ public final class DatabaseHelper {
         return null;
     }
 
-    public static String getDatabaseNameByShopName(String shopName) {
-        String sql = "SELECT DatabaseName FROM ShopOwners WHERE ShopName = ?";
-        try (Connection conn = DBContext.getCentralConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, shopName);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getString("DatabaseName");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public static String generateShopCode(String shopName) {
         if (shopName == null || shopName.isEmpty()) {
             throw new IllegalArgumentException("Shop name không được null hoặc rỗng.");

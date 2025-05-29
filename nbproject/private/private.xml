@@ -4,18 +4,23 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
 <<<<<<< Updated upstream
         <group>
-            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Controller/Login.java</file>
             <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Dal/ShopOwnerDAO.java</file>
-            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Controller/StartProject.java</file>
             <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Context/DatabaseHelper.java</file>
             <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Dal/EmployeeDAO.java</file>
-            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Utils/MailUtil.java</file>
             <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Controller/Register.java</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Context/DBContext.java</file>
             <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/web/login.jsp</file>
-            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Dal/ContextPathDAO.java</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/web/error.jsp</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/web/successRegister.jsp</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Controller/Verify.java</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Controller/ErrorPage.java</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/web/verificationOTP.jsp</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Controller/ProductController.java</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Controller/StartProject.java</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Utils/MailUtil.java</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Dal/ProductDAO.java</file>
             <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/web/WEB-INF/web.xml</file>
             <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/web/register.jsp</file>
-            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/web/verificationOTP.jsp</file>
         </group>
 =======
         <group/>

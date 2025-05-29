@@ -4,6 +4,7 @@
  */
 package Dal;
 
+import Context.DBContext;
 import java.sql.*;
 import Models.*;
 
@@ -84,10 +85,30 @@ public class ShopOwnerDAO {
         }
     }
 
-    public boolean isEmailExist(String username) throws SQLException {
+    public boolean isEmailExist(String email) throws SQLException {
         String sql = "SELECT 1 FROM ShopOwners WHERE Email = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, username);
+            stmt.setString(1, email);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+    
+    public boolean isDatabaseNameExist(String database) throws SQLException {
+        String sql = "SELECT 1 FROM ShopOwners WHERE DatabaseName = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, database);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+    
+    public boolean isPhoneExist(String phone) throws SQLException {
+        String sql = "SELECT 1 FROM ShopOwners WHERE Phone = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, phone);
             try (ResultSet rs = stmt.executeQuery()) {
                 return rs.next();
             }
@@ -124,15 +145,18 @@ public class ShopOwnerDAO {
         }
         return false;
     }
-    
-    public boolean updateStatusByUsername(String email) throws SQLException {
-    String sql = "UPDATE ShopOwners SET Status = ? WHERE Username = ?";
-    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-        stmt.setBoolean(1, true);
-        stmt.setString(2, email);
-        int rowsAffected = stmt.executeUpdate();
-        return rowsAffected > 0;
-    }
-}
 
+    public boolean updateStatusByUsername(String email) throws SQLException {
+        String sql = "UPDATE ShopOwners SET Status = ? WHERE Username = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setBoolean(1, true);
+            stmt.setString(2, email);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+    
+    public static void main(String[] args) {
+        
+    }
 }
