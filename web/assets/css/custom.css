@@ -1,0 +1,8 @@
+:root {
+  --bs-primary: #0d6efd; /* Xanh da trời Bootstrap */
+  --bs-primary-rgb: 13, 110, 253;
+
+  /* Nếu Sneat dùng biến CSS riêng */
+  --primary: #0d6efd;
+  --primary-rgb: 13, 110, 253;
+}
