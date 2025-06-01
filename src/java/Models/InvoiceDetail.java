@@ -12,17 +12,21 @@ public class InvoiceDetail {
 
     private int invoiceDetailID;
     private String invoiceID;
+    private String produtctID;
     private int quantity;
     private Double discount;
+    private Double finalPrice;
 
     public InvoiceDetail() {
     }
 
-    public InvoiceDetail(int invoiceDetailID, String invoiceID, int quantity, Double discount) {
+    public InvoiceDetail(int invoiceDetailID, String invoiceID, String produtctID, int quantity, Double discount, Double finalPrice) {
         this.invoiceDetailID = invoiceDetailID;
         this.invoiceID = invoiceID;
+        this.produtctID = produtctID;
         this.quantity = quantity;
         this.discount = discount;
+        this.finalPrice = finalPrice;
     }
 
     public int getInvoiceDetailID() {
@@ -41,6 +45,14 @@ public class InvoiceDetail {
         this.invoiceID = invoiceID;
     }
 
+    public String getProdutctID() {
+        return produtctID;
+    }
+
+    public void setProdutctID(String produtctID) {
+        this.produtctID = produtctID;
+    }
+
     public int getQuantity() {
         return quantity;
     }
@@ -56,6 +68,14 @@ public class InvoiceDetail {
     public void setDiscount(Double discount) {
         this.discount = discount;
     }
-    
+
+    public Double getFinalPrice() {
+        return finalPrice;
+    }
+
+    public void setFinalPrice(Double finalPrice) {
+        this.finalPrice = finalPrice;
+    }
+
     
 }
