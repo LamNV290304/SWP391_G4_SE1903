@@ -13,6 +13,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -26,8 +28,8 @@ public class InvoiceDAO {
         this.connection = connection;
     }
 
-    public Vector<Invoice> getAllInvoices(String sql) {
-        Vector<Invoice> list = new Vector<>();
+    public List<Invoice> getAllInvoices(String sql) {
+        List<Invoice> list = new ArrayList<>();
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);
             ResultSet rs = ptm.executeQuery();
@@ -119,57 +121,7 @@ public class InvoiceDAO {
         }
         return null;
     }
-
-    public Vector<Invoice> searchInvoices(String invoiceID, String customerID, String employeeID, String shopID) {
-        Vector<Invoice> list = new Vector<>();
-        StringBuilder sql = new StringBuilder("SELECT * FROM Invoice WHERE 1=1");
-
-        if (invoiceID != null && !invoiceID.isEmpty()) {
-            sql.append(" AND InvoiceID LIKE ?");
-        }
-        if (customerID != null && !customerID.isEmpty()) {
-            sql.append(" AND CustomerID LIKE ?");
-        }
-        if (employeeID != null && !employeeID.isEmpty()) {
-            sql.append(" AND EmployeeID LIKE ?");
-        }
-        if (shopID != null && !shopID.isEmpty()) {
-            sql.append(" AND ShopID LIKE ?");
-        }
-
-        try {
-            PreparedStatement ptm = connection.prepareStatement(sql.toString());
-            int index = 1;
-            if (invoiceID != null && !invoiceID.isEmpty()) {
-                ptm.setString(index++, "%" + invoiceID + "%");
-            }
-            if (customerID != null && !customerID.isEmpty()) {
-                ptm.setString(index++, "%" + customerID + "%");
-            }
-            if (employeeID != null && !employeeID.isEmpty()) {
-                ptm.setString(index++, "%" + employeeID + "%");
-            }
-            if (shopID != null && !shopID.isEmpty()) {
-                ptm.setString(index++, "%" + shopID + "%");
-            }
-
-            ResultSet rs = ptm.executeQuery();
-            while (rs.next()) {
-                list.add(new Invoice(rs.getString(1),
-                        rs.getString(2),
-                        rs.getString(3),
-                        rs.getString(4),
-                        rs.getTimestamp(5),
-                        rs.getDouble(6),
-                        rs.getString(7),
-                        rs.getBoolean(8)));
-            }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-        return list;
-    }
-
+    
     public void updateInvoice(Invoice i) {
         String sql = "UPDATE [dbo].[Invoice]\n"
                 + "   SET \n"
@@ -202,7 +154,7 @@ public class InvoiceDAO {
     }
 
     public static void main(String[] args) {
-        DBContext connection = new DBContext("SaleSphere");
+        DBContext connection = new DBContext("SWP1");
         InvoiceDAO dao = new InvoiceDAO(connection.getConnection());
 
 //        Invoice newInvoice = new Invoice(

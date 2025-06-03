@@ -21,6 +21,16 @@ public class InvoiceDetail {
     public InvoiceDetail() {
     }
 
+    public InvoiceDetail(String invoiceID, String productID, Double unitPrice, int quantity, Double discount) {
+        this.invoiceID = invoiceID;
+        this.productID = productID;
+        this.unitPrice = unitPrice;
+        this.quantity = quantity;
+        this.discount = (discount != null) ? discount : 0.0;
+        calculateTotalPrice();
+    }
+    
+    
     public InvoiceDetail(int invoiceDetailID, String invoiceID, String productID, Double unitPrice, int quantity, Double discount) {
         this.invoiceDetailID = invoiceDetailID;
         this.invoiceID = invoiceID;
