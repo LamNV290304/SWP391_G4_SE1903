@@ -10,51 +10,44 @@ import java.util.Date;
  *
  * @author Thai Anh
  */
-public class Shop {
-   private String shopID;
-    private String shopName;
-    private String address;
+public class Supplier {
+    private String supplierID;
+    private String supplierName;
     private String phone;
     private String email;
+    private String address;
     private boolean status;
-    private Date createdDate;
+    private java.util.Date createdDate;
     private String createdBy;
- public Shop() {
+
+    public Supplier() {
     }
 
-    public Shop(String shopID, String shopName, String address, String phone, String email, boolean status, Date createdDate, String createdBy) {
-        this.shopID = shopID;
-        this.shopName = shopName;
-        this.address = address;
+    public Supplier(String supplierID, String supplierName, String phone, String email, String address, boolean status, Date createdDate, String createdBy) {
+        this.supplierID = supplierID;
+        this.supplierName = supplierName;
         this.phone = phone;
         this.email = email;
+        this.address = address;
         this.status = status;
         this.createdDate = createdDate;
         this.createdBy = createdBy;
     }
 
-    public String getShopID() {
-        return shopID;
+    public String getSupplierID() {
+        return supplierID;
     }
 
-    public void setShopID(String shopID) {
-        this.shopID = shopID;
+    public void setSupplierID(String supplierID) {
+        this.supplierID = supplierID;
     }
 
-    public String getShopName() {
-        return shopName;
+    public String getSupplierName() {
+        return supplierName;
     }
 
-    public void setShopName(String shopName) {
-        this.shopName = shopName;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
+    public void setSupplierName(String supplierName) {
+        this.supplierName = supplierName;
     }
 
     public String getPhone() {
@@ -71,6 +64,14 @@ public class Shop {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public boolean isStatus() {
@@ -96,4 +97,5 @@ public class Shop {
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
+    
 }

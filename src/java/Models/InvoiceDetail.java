@@ -12,17 +12,34 @@ public class InvoiceDetail {
 
     private int invoiceDetailID;
     private String invoiceID;
+    private String productID;
+    private Double unitPrice;
     private int quantity;
     private Double discount;
+    private Double totalPrice;
 
     public InvoiceDetail() {
     }
 
-    public InvoiceDetail(int invoiceDetailID, String invoiceID, int quantity, Double discount) {
+    public InvoiceDetail(int invoiceDetailID, String invoiceID, String productID, Double unitPrice, int quantity, Double discount) {
         this.invoiceDetailID = invoiceDetailID;
         this.invoiceID = invoiceID;
+        this.productID = productID;
+        this.unitPrice = unitPrice;
         this.quantity = quantity;
-        this.discount = discount;
+        this.discount = (discount != null) ? discount : 0.0;
+        calculateTotalPrice();
+    }
+
+    
+    public void calculateTotalPrice(){
+        if(unitPrice!=null){
+            double  discountValue = (discount !=null ) ? discount : 0.0;
+            double discountRate = 1 - discountValue / 100.0;
+            this.totalPrice = unitPrice * quantity * discountRate;
+        }else{
+            this.totalPrice =0.0;
+        }
     }
 
     public int getInvoiceDetailID() {
@@ -41,12 +58,30 @@ public class InvoiceDetail {
         this.invoiceID = invoiceID;
     }
 
+    public String getProductID() {
+        return productID;
+    }
+
+    public void setProductID(String productID) {
+        this.productID = productID;
+    }
+
+    public Double getUnitPrice() {
+        return unitPrice;
+    }
+
+    public void setUnitPrice(Double unitPrice) {
+        this.unitPrice = unitPrice;
+        calculateTotalPrice();
+    }
+
     public int getQuantity() {
         return quantity;
     }
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+         calculateTotalPrice();
     }
 
     public Double getDiscount() {
@@ -55,7 +90,10 @@ public class InvoiceDetail {
 
     public void setDiscount(Double discount) {
         this.discount = discount;
+         calculateTotalPrice();
     }
-    
-    
+
+    public Double getTotalPrice() {
+        return totalPrice;
+    }
 }

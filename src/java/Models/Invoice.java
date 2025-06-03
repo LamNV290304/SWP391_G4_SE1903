@@ -3,7 +3,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Models;
+
 import java.sql.Timestamp;
+
 /**
  *
  * @author duckh
@@ -12,9 +14,9 @@ public class Invoice {
 
     private String invoiceID;
     private String customerID;
-    private String EmployeeID;
-    private String ShopID;
-    private Timestamp InvoiceDate;
+    private String employeeID;
+    private String shopID;
+    private Timestamp invoiceDate;
     private Double totalAmount;
     private String note;
     private boolean status;
@@ -22,17 +24,16 @@ public class Invoice {
     public Invoice() {
     }
 
-    public Invoice(String invoiceID, String customerID, String EmployeeID, String ShopID, Timestamp InvoiceDate, Double totalAmount, String note, boolean status) {
+    public Invoice(String invoiceID, String customerID, String employeeID, String shopID, Timestamp invoiceDate, Double totalAmount, String note, boolean status) {
         this.invoiceID = invoiceID;
         this.customerID = customerID;
-        this.EmployeeID = EmployeeID;
-        this.ShopID = ShopID;
-        this.InvoiceDate = InvoiceDate;
+        this.employeeID = employeeID;
+        this.shopID = shopID;
+        this.invoiceDate = invoiceDate;
         this.totalAmount = totalAmount;
         this.note = note;
         this.status = status;
     }
-
 
     public String getInvoiceID() {
         return invoiceID;
@@ -51,37 +52,35 @@ public class Invoice {
     }
 
     public String getEmployeeID() {
-        return EmployeeID;
+        return employeeID;
     }
 
-    public void setEmployeeID(String EmployeeID) {
-        this.EmployeeID = EmployeeID;
+    public void setEmployeeID(String employeeID) {
+        this.employeeID = employeeID;
     }
 
     public String getShopID() {
-        return ShopID;
+        return shopID;
     }
 
-    public void setShopID(String ShopID) {
-        this.ShopID = ShopID;
+    public void setShopID(String shopID) {
+        this.shopID = shopID;
     }
 
     public Timestamp getInvoiceDate() {
-        return InvoiceDate;
+        return invoiceDate;
     }
 
-    public void setInvoiceDate(Timestamp InvoiceDate) {
-        this.InvoiceDate = InvoiceDate;
+    public void setInvoiceDate(Timestamp invoiceDate) {
+        this.invoiceDate = invoiceDate;
     }
-
-
 
     public Double getTotalAmount() {
         return totalAmount;
     }
 
     public void setTotalAmount(Double totalAmount) {
-        this.totalAmount = totalAmount;
+        this.totalAmount = (totalAmount != null) ? totalAmount : 0.0;
     }
 
     public String getNote() {
@@ -100,9 +99,4 @@ public class Invoice {
         this.status = status;
     }
 
-   
-
-   
-
-    
 }
