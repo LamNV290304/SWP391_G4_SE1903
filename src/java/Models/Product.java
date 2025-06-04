@@ -1,117 +1,148 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Models;
 
-import java.util.Date;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
-/**
- *
- * @author ADMIN
- */
 public class Product {
 
-    private String ProductID;
-    private String ProductName;
-    private String CategoryID;
-    private String UnitID;
-    private double Price;
-    private String Description;
-    private boolean Status;
-    private String CreatedDate;
-    private String CreatedBy;
+    private String productID;
+    private String productName;
+    private String categoryID;
+    private String unitID;
+    private BigDecimal importPrice;
+    private BigDecimal sellingPrice;
+    private String description;
+    private boolean status;
+    private String imageUrl;
+    private LocalDateTime createdDate;
+    private String createdBy;
 
-    public Product(String ProductID, String ProductName, String CategoryID, String UnitID, double Price, String Description, boolean Status, String CreatedDate, String CreatedBy) {
-        this.ProductID = ProductID;
-        this.ProductName = ProductName;
-        this.CategoryID = CategoryID;
-        this.UnitID = UnitID;
-        this.Price = Price;
-        this.Description = Description;
-        this.Status = Status;
-        this.CreatedDate = CreatedDate;
-        this.CreatedBy = CreatedBy;
-    }
+    
+    private String categoryName;
+    private String unitDescription;
 
+    
     public Product() {
     }
 
-    public String getProductID() {
-        return ProductID;
+    public Product(String productID, String productName, String categoryID, String unitID,
+            BigDecimal importPrice, BigDecimal sellingPrice, String description,
+            boolean status, String imageUrl, String createdBy) {
+        this.productID = productID;
+        this.productName = productName;
+        this.categoryID = categoryID;
+        this.unitID = unitID;
+        this.importPrice = importPrice;
+        this.sellingPrice = sellingPrice;
+        this.description = description;
+        this.status = status;
+        this.imageUrl = imageUrl;
+        this.createdBy = createdBy;
+        this.createdDate = LocalDateTime.now();
     }
 
-    public void setProductID(String ProductID) {
-        this.ProductID = ProductID;
+    
+    public String getProductID() {
+        return productID;
+    }
+
+    public void setProductID(String productID) {
+        this.productID = productID;
     }
 
     public String getProductName() {
-        return ProductName;
+        return productName;
     }
 
-    public void setProductName(String ProductName) {
-        this.ProductName = ProductName;
+    public void setProductName(String productName) {
+        this.productName = productName;
     }
 
     public String getCategoryID() {
-        return CategoryID;
+        return categoryID;
     }
 
-    public void setCategoryID(String CategoryID) {
-        this.CategoryID = CategoryID;
+    public void setCategoryID(String categoryID) {
+        this.categoryID = categoryID;
     }
 
     public String getUnitID() {
-        return UnitID;
+        return unitID;
     }
 
-    public void setUnitID(String UnitID) {
-        this.UnitID = UnitID;
+    public void setUnitID(String unitID) {
+        this.unitID = unitID;
     }
 
-    public double getPrice() {
-        return Price;
+    public BigDecimal getImportPrice() {
+        return importPrice;
     }
 
-    public void setPrice(double Price) {
-        this.Price = Price;
+    public void setImportPrice(BigDecimal importPrice) {
+        this.importPrice = importPrice;
+    }
+
+    public BigDecimal getSellingPrice() {
+        return sellingPrice;
+    }
+
+    public void setSellingPrice(BigDecimal sellingPrice) {
+        this.sellingPrice = sellingPrice;
     }
 
     public String getDescription() {
-        return Description;
+        return description;
     }
 
-    public void setDescription(String Description) {
-        this.Description = Description;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public boolean isStatus() {
-        return Status;
+        return status;
     }
 
-    public void setStatus(boolean Status) {
-        this.Status = Status;
+    public void setStatus(boolean status) {
+        this.status = status;
     }
 
-    public String getCreatedDate() {
-        return CreatedDate;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setCreatedDate(String CreatedDate) {
-        this.CreatedDate = CreatedDate;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
     }
 
     public String getCreatedBy() {
-        return CreatedBy;
+        return createdBy;
     }
 
-    public void setCreatedBy(String CreatedBy) {
-        this.CreatedBy = CreatedBy;
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
 
-    @Override
-    public String toString() {
-        return "Product{" + "ProductID=" + ProductID + ", ProductName=" + ProductName + ", CategoryID=" + CategoryID + ", UnitID=" + UnitID + ", Price=" + Price + ", Description=" + Description + ", Status=" + Status + ", CreatedDate=" + CreatedDate + ", CreatedBy=" + CreatedBy + '}';
+    public String getCategoryName() {
+        return categoryName;
     }
 
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
+    public String getUnitDescription() {
+        return unitDescription;
+    }
+
+    public void setUnitDescription(String unitDescription) {
+        this.unitDescription = unitDescription;
+    }
 }

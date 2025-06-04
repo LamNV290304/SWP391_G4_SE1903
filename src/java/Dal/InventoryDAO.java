@@ -81,7 +81,7 @@ public class InventoryDAO {
     public Inventory getInventoryByShopAndProduct(String productID, String shopID) {
         String sql = "SELECT i.InventoryID, i.ProductID,p.ProductName, i.ShopID,s.ShopName, i.Quantity, i.LastUpdated\n"
                 + "  FROM Inventory i join Product p on i.ProductID = p.ProductID LEFT join Shop s on i.ShopID = s.ShopID\n"
-                + "WHERE i.ProductID	= 'P01' and i.ShopID ='S01'";
+                + "WHERE i.ProductID= ? and i.ShopID =?";
         PreparedStatement ptm;
         try {
             ptm = connection.prepareStatement(sql);
@@ -90,7 +90,7 @@ public class InventoryDAO {
             ResultSet rs = ptm.executeQuery();
             if (rs.next()) {
                 Inventory i = new Inventory();
-                i.setInventoryID(rs.getString("invenetoryID"));
+                i.setInventoryID(rs.getString("inventoryID"));
 
                 Product p = new Product();
                 p.setProductID(rs.getString("ProductID"));
@@ -185,9 +185,9 @@ public class InventoryDAO {
     }
 
     public static void main(String[] args) {
-        try (Connection conn = new DBContext("SaleSphere").getConnection()) {
+        try (Connection conn = new DBContext("SWP1").getConnection()) {
             InventoryDAO dao = new InventoryDAO(conn);
-            List<Inventory> inventories = dao.getAllInventoriesInStore("S01");
+            List<Inventory> inventories = dao.getAllInventoriesInStore("S002");
             if (inventories.isEmpty()) {
                 System.out.println("❌ Không có hàng tồn kho nào.");
             } else {

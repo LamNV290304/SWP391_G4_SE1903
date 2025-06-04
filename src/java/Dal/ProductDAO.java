@@ -4,21 +4,14 @@
  */
 package Dal;
 
-import Context.DBContext;
+import Models.Category;
 import Models.Product;
+import Models.Unit;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- *
- * @author Admin
- */
 public class ProductDAO {
     
     private Connection connection;
@@ -26,123 +19,263 @@ public class ProductDAO {
     public ProductDAO(Connection connection) {
         this.connection = connection;
     }
-
-    public int deleteProduct(String pid,String databaseName) {
-        int n = 0;
-        DBContext con = new DBContext(databaseName);
-        String sql = "DELETE FROM [dbo].[Product]\n" +
-"      WHERE ProductID = '"+pid+"'";
-        String sqlSelect = "SELECT ProductID FROM InvoiceDetail WHERE ProductID =  '"+pid+"'"
-                + "\nUNION "
-                + "SELECT ProductID FROM ImportReceiptDetail WHERE ProductID =  '"+pid+"'"
-                + "\nUNION "
-                + "SELECT ProductID FROM Inventory WHERE ProductID =  '"+pid+"'"
-                + "\nUNION "
-                + "SELECT ProductID FROM TransferReceipt WHERE ProductID = '"+pid+"'";
+    
+    public List<Product> getAllProducts(int page, int pageSize, String search, String categoryFilter) {
+        List<Product> products = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+            "SELECT p.*, c.CategoryName, u.Description as UnitDescription " +
+            "FROM Product p " +
+            "LEFT JOIN Category c ON p.CategoryID = c.CategoryID " +
+            "LEFT JOIN Unit u ON p.UnitID = u.UnitID " +
+            "WHERE 1=1 ");
         
-        try {
-            ResultSet rs = connection.prepareStatement(sqlSelect).executeQuery();
-            if(rs.next()){
-                return -1;
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND p.ProductName LIKE ? ");
+        }
+        
+        if (categoryFilter != null && !categoryFilter.trim().isEmpty()) {
+            sql.append("AND p.CategoryID = ? ");
+        }
+        
+        sql.append("ORDER BY p.CreatedDate DESC ");
+        sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
+            
+            int paramIndex = 1;
+            
+            if (search != null && !search.trim().isEmpty()) {
+                stmt.setString(paramIndex++, "%" + search + "%");
             }
-            n = connection.createStatement().executeUpdate(sql);
-        } catch (SQLException ex) {
-            Logger.getLogger(ProductDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return n;
-    }
-
-    public int updateProduct(Product pro) {
-        int n = 0;
-        String sql = """
-                 UPDATE [Product]
-                 SET 
-                    [ProductName] = ?, [CategoryID] = ?, [UnitID] = ?, 
-                    [Price] = ?, [Description] = ?, [Status] = ?, 
-                    [CreatedDate] = ?, [CreatedBy] = ?
-                 WHERE [ProductID] = ?
-                 """;
-        try {
-            PreparedStatement pre = connection.prepareStatement(sql);
-            pre.setString(1, pro.getProductName());
-            pre.setString(2, pro.getCategoryID());
-            pre.setString(3, pro.getUnitID());
-            pre.setDouble(4, pro.getPrice());
-            pre.setString(5, pro.getDescription());
-            pre.setBoolean(6, pro.isStatus());
-            pre.setString(7, pro.getCreatedDate());
-            pre.setString(8, pro.getCreatedBy());
-            pre.setString(9, pro.getProductID());
-
-            n = pre.executeUpdate();
-        } catch (SQLException ex) {
-            Logger.getLogger(ProductDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return n;
-    }
-
-    public int addProduct(Product pro) {
-        int n = 0;
-        String sql = "INSERT INTO [Product]([ProductID],[ProductName],[CategoryID],[UnitID]\n"
-                + "           ,[Price],[Description],[Status],[CreatedDate],[CreatedBy])\n"
-                + "     VALUES\n"
-                + "           (?,?,?,?,?,?,?,?,?)";
-
-        try {
-            PreparedStatement pre = connection.prepareStatement(sql);
-            pre.setString(1, pro.getProductID());
-            pre.setString(2, pro.getProductName());
-            pre.setString(3, pro.getCategoryID());
-            pre.setString(4, pro.getUnitID());
-            pre.setDouble(5, pro.getPrice());
-            pre.setString(6, pro.getDescription());
-            pre.setBoolean(7, pro.isStatus());
-            pre.setString(8, pro.getCreatedDate());
-            pre.setString(9, pro.getCreatedBy());
-            n = pre.executeUpdate();
-        } catch (SQLException ex) {
-            Logger.getLogger(ProductDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return n;
-    }
-
-    public Vector<Product> getProduct(String sql) {
-        Vector<Product> vector = new Vector<Product>();
-
-        PreparedStatement pre;
-        try {
-            pre = connection.prepareStatement(sql);
-            ResultSet rs = pre.executeQuery();
+            
+            if (categoryFilter != null && !categoryFilter.trim().isEmpty()) {
+                stmt.setString(paramIndex++, categoryFilter);
+            }
+            
+            stmt.setInt(paramIndex++, (page - 1) * pageSize);
+            stmt.setInt(paramIndex, pageSize);
+            
+            ResultSet rs = stmt.executeQuery();
+            
             while (rs.next()) {
-                String ProductID = rs.getString(1);
-                String ProductName = rs.getString(2);
-                String CategoryID = rs.getString(3);
-                String UnitID = rs.getString(4);
-                double Price = rs.getDouble(5);
-                String Description = rs.getString(6);
-                boolean Status = rs.getBoolean(7);
-                String CreatedDate = rs.getString(8);
-                String CreatedBy = rs.getString(9);
-                Product pro = new Product(ProductID, ProductName, CategoryID, UnitID, Price, Description, Status, CreatedDate, CreatedBy);
-                vector.add(pro);
+                Product product = new Product();
+                product.setProductID(rs.getString("ProductID"));
+                product.setProductName(rs.getString("ProductName"));
+                product.setCategoryID(rs.getString("CategoryID"));
+                product.setUnitID(rs.getString("UnitID"));
+                product.setImportPrice(rs.getBigDecimal("ImportPrice"));
+                product.setSellingPrice(rs.getBigDecimal("SellingPrice"));
+                product.setDescription(rs.getString("Description"));
+                product.setStatus(rs.getBoolean("Status"));
+                product.setImageUrl(rs.getString("ImageUrl"));
+                product.setCreatedDate(rs.getTimestamp("CreatedDate").toLocalDateTime());
+                product.setCreatedBy(rs.getString("CreatedBy"));
+                product.setCategoryName(rs.getString("CategoryName"));
+                product.setUnitDescription(rs.getString("UnitDescription"));
+                
+                products.add(product);
             }
-        } catch (SQLException ex) {
-            Logger.getLogger(ProductDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return vector;
+        
+        return products;
     }
-
-    public static void main(String[] args) {
-
-        DBContext db = new DBContext("swp2"); // hoặc dùng constructor mặc định nếu bạn đã sửa
-        Connection connection = db.getConnection();
-        ProductDAO dao = new ProductDAO(connection);
-        //int n = dao.deleteProduct("P002", "swp2");
-        int n = dao.addProduct(new Product("P003", "Ao thun", "C001", "U001", 100, "none", true, "10-10-2000", "10-10-2000"));
-        //int n = dao.updateProduct(new Product("P002", "Quan dui", "C001", "U001", 100, "none", true, "10-10-2000", "10-10-2000"));
-        Vector<Product> vector = dao.getProduct("select * from Product");
-        for (Product product : vector) {
-            System.out.println(product);
+    
+    public int getTotalProducts(String search, String categoryFilter) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM Product WHERE 1=1 ");
+        
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND ProductName LIKE ? ");
         }
+        
+        if (categoryFilter != null && !categoryFilter.trim().isEmpty()) {
+            sql.append("AND CategoryID = ? ");
+        }
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
+            
+            int paramIndex = 1;
+            
+            if (search != null && !search.trim().isEmpty()) {
+                stmt.setString(paramIndex++, "%" + search + "%");
+            }
+            
+            if (categoryFilter != null && !categoryFilter.trim().isEmpty()) {
+                stmt.setString(paramIndex, categoryFilter);
+            }
+            
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return 0;
+    }
+    
+    public Product getProductById(String productId) {
+        String sql = "SELECT p.*, c.CategoryName, u.Description as UnitDescription " +
+                    "FROM Product p " +
+                    "LEFT JOIN Category c ON p.CategoryID = c.CategoryID " +
+                    "LEFT JOIN Unit u ON p.UnitID = u.UnitID " +
+                    "WHERE p.ProductID = ?";
+        
+        try (
+            PreparedStatement stmt = connection.prepareStatement(sql)) {
+            
+            stmt.setString(1, productId);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                Product product = new Product();
+                product.setProductID(rs.getString("ProductID"));
+                product.setProductName(rs.getString("ProductName"));
+                product.setCategoryID(rs.getString("CategoryID"));
+                product.setUnitID(rs.getString("UnitID"));
+                product.setImportPrice(rs.getBigDecimal("ImportPrice"));
+                product.setSellingPrice(rs.getBigDecimal("SellingPrice"));
+                product.setDescription(rs.getString("Description"));
+                product.setStatus(rs.getBoolean("Status"));
+                product.setImageUrl(rs.getString("ImageUrl"));
+                product.setCreatedDate(rs.getTimestamp("CreatedDate").toLocalDateTime());
+                product.setCreatedBy(rs.getString("CreatedBy"));
+                product.setCategoryName(rs.getString("CategoryName"));
+                product.setUnitDescription(rs.getString("UnitDescription"));
+                
+                return product;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return null;
+    }
+    
+    public boolean createProduct(Product product) {
+        String sql = "INSERT INTO Product (ProductID, ProductName, CategoryID, UnitID, " +
+                    "ImportPrice, SellingPrice, Description, Status, ImageUrl, CreatedBy) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            
+            stmt.setString(1, product.getProductID());
+            stmt.setString(2, product.getProductName());
+            stmt.setString(3, product.getCategoryID());
+            stmt.setString(4, product.getUnitID());
+            stmt.setBigDecimal(5, product.getImportPrice());
+            stmt.setBigDecimal(6, product.getSellingPrice());
+            stmt.setString(7, product.getDescription());
+            stmt.setBoolean(8, product.isStatus());
+            stmt.setString(9, product.getImageUrl());
+            stmt.setString(10, product.getCreatedBy());
+            
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return false;
+    }
+    
+    public boolean updateProduct(Product product) {
+        String sql = "UPDATE Product SET ProductName = ?, CategoryID = ?, UnitID = ?, " +
+                    "ImportPrice = ?, SellingPrice = ?, Description = ?, Status = ?, ImageUrl = ? " +
+                    "WHERE ProductID = ?";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            
+            stmt.setString(1, product.getProductName());
+            stmt.setString(2, product.getCategoryID());
+            stmt.setString(3, product.getUnitID());
+            stmt.setBigDecimal(4, product.getImportPrice());
+            stmt.setBigDecimal(5, product.getSellingPrice());
+            stmt.setString(6, product.getDescription());
+            stmt.setBoolean(7, product.isStatus());
+            stmt.setString(8, product.getImageUrl());
+            stmt.setString(9, product.getProductID());
+            
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return false;
+    }
+    
+    public boolean deleteProduct(String productId) {
+        String sql = "DELETE FROM Product WHERE ProductID = ?";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            
+            stmt.setString(1, productId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return false;
+    }
+    
+    public List<Category> getAllCategories() {
+        List<Category> categories = new ArrayList<>();
+        String sql = "SELECT * FROM Category WHERE Status = 1 ORDER BY CategoryName";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            
+            while (rs.next()) {
+                Category category = new Category();
+                category.setCategoryID(rs.getString("CategoryID"));
+                category.setCategoryName(rs.getString("CategoryName"));
+                category.setDescription(rs.getString("Description"));
+                category.setStatus(rs.getBoolean("Status"));
+                categories.add(category);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return categories;
+    }
+    
+    public List<Unit> getAllUnits() {
+        List<Unit> units = new ArrayList<>();
+        String sql = "SELECT * FROM Unit ORDER BY Description";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            
+            while (rs.next()) {
+                Unit unit = new Unit();
+                unit.setUnitID(rs.getString("UnitID"));
+                unit.setDescription(rs.getString("Description"));
+                units.add(unit);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return units;
+    }
+    
+    public boolean isProductIdExists(String productId) {
+        String sql = "SELECT COUNT(*) FROM Product WHERE ProductID = ?";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            
+            stmt.setString(1, productId);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return false;
     }
 }

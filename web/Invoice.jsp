@@ -5,149 +5,146 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="UTF-8" />
+        <meta charset="UTF-8">
         <title>Danh sách Hóa đơn</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
     </head>
-    <body class="container py-4">
+    <body>
 
-        <hr class="my-5"/>
+        <h2>Quản lý Hóa đơn</h2>
+
         <!-- Form thêm hóa đơn -->
-        <div class="card mb-4">
-            <h5 class="card-header">Thêm hóa đơn mới</h5>
-            <div class="card-body">
-                <form method="post" action="InvoiceServlet" class="row g-3">
-                    <input type="hidden" name="action" value="add" />
-                    <div class="col-md-2">
-                        <input type="text" name="invoiceID" class="form-control" placeholder="Mã HĐ" required/>
-                    </div>
-                    <div class="col-md-2">
-                        <input type="text" name="customerID" class="form-control" placeholder="Mã KH" required/>
-                    </div>
-                    <div class="col-md-2">
-                        <input type="text" name="employeeID" class="form-control" placeholder="Mã NV" required/>
-                    </div>
-                    <div class="col-md-2">
-                        <input type="text" name="shopID" class="form-control" placeholder="Mã Shop" required/>
-                    </div>
-                    <div class="col-md-2">
-                        <input type="number" name="totalAmount" class="form-control" placeholder="Tổng tiền" required/>
-                    </div>
-                    <div class="col-md-2">
-                        <select name="status" class="form-select" required>
-                            <option value="true">Đã thanh toán</option>
-                            <option value="false">Chưa thanh toán</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <input type="text" name="note" class="form-control" placeholder="Ghi chú"/>
-                    </div>
-                    <div class="col-md-auto">
-                        <button type="submit" class="btn btn-success">Thêm</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        <h3>Thêm hóa đơn mới</h3>
+        <form method="post" action="InvoiceServlet">
+            <input type="hidden" name="action" value="add" />
+            Mã HĐ: <input type="text" name="invoiceID" required/><br/>
+            Mã KH: <input type="text" name="customerID" required/><br/>
+            Mã NV: <input type="text" name="employeeID" required/><br/>
+            Mã Shop: <input type="text" name="shopID" required/><br/>
+            <!-- Tổng tiền do servlet tính, không cho nhập -->
+            <input type="hidden" name="totalAmount" value="0"/>
+            Trạng thái:
+            <select name="status" required>
+                <option value="true">Đã thanh toán</option>
+                <option value="false">Chưa thanh toán</option>
+            </select><br/>
+            Ghi chú: <input type="text" name="note"/><br/>
+            <input type="submit" value="Thêm"/>
+        </form>
 
-        <div class="card">
-            <h5 class="card-header">Danh sách Hóa đơn</h5>
-            <div class="table-responsive text-nowrap">
-                <table class="table table-dark table-hover mb-0 align-middle">
-                    <thead>
-                        <tr>
-                            <th>Mã HĐ</th>
-                            <th>Khách hàng</th>
-                            <th>Nhân viên</th>
-                            <th>Shop</th>
-                            <th>Ngày tạo</th>
-                            <th>Tổng tiền</th>
-                            <th>Trạng thái</th>
-                            <th>Ghi chú</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody class="table-border-bottom-0">
-                        <c:forEach var="inv" items="${invoiceList}">
-                            <tr>
-                                <c:choose>
-                                    <c:when test="${param.editId == inv.invoiceID}">
-                                <form method="post" action="InvoiceServlet">
-                                    <input type="hidden" name="action" value="update" />
-                                    <td>
-                                        ${inv.invoiceID}
-                                        <input type="hidden" name="invoiceID" value="${inv.invoiceID}" />
-                                    </td>
-                                    <td><input type="text" name="customerID" class="form-control form-control-sm" value="${inv.customerID}" required/></td>
-                                    <td><input type="text" name="employeeID" class="form-control form-control-sm" value="${inv.employeeID}" required/></td>
-                                    <td><input type="text" name="shopID" class="form-control form-control-sm" value="${inv.shopID}" required/></td>
-                                    <td><fmt:formatDate value="${inv.invoiceDate}" pattern="dd/MM/yyyy HH:mm:ss"/></td>
-                                    <td>
-                                        <input type="number" step="1" name="totalAmount" class="form-control form-control-sm" value="${inv.totalAmount}" required/>
-                                    </td>
-                                    <td>
-                                        <select name="status" class="form-select form-select-sm" required>
-                                            <option value="true" <c:if test="${inv.status}">selected</c:if>>Đã thanh toán</option>
-                                            <option value="false" <c:if test="${!inv.status}">selected</c:if>>Chưa thanh toán</option>
-                                            </select>
-                                        </td>
-                                        <td><input type="text" name="note" class="form-control form-control-sm" value="${inv.note}"/></td>
-                                    <td>
-                                        <button type="submit" class="btn btn-sm btn-success mb-1">Lưu</button>
-                                        <a href="InvoiceServlet" class="btn btn-sm btn-secondary mb-1">Hủy</a>
-                                    </td>
-                                </form>
-                            </c:when>
-                            <c:otherwise>
-                                <td><strong>${inv.invoiceID}</strong></td>
-                                <td>${inv.customerID}</td>
-                                <td>${inv.employeeID}</td>
-                                <td>${inv.shopID}</td>
-                                <td><fmt:formatDate value="${inv.invoiceDate}" pattern="dd/MM/yyyy HH:mm:ss"/></td>
-                                <td>
+        <hr/>
 
-                                    <fmt:formatNumber value="${inv.totalAmount}" pattern="#,##0 '₫'"/>
+        <!-- Danh sách hóa đơn -->
+        <h3>Danh sách Hóa đơn</h3>
+        <table border="1" cellpadding="5" cellspacing="0">
+            <tr>
+                <th>Mã HĐ</th>
+                <th>Khách hàng</th>
+                <th>Nhân viên</th>
+                <th>Shop</th>
+                <th>Ngày tạo</th>
+                <th>Tổng tiền</th>
+                <th>Trạng thái</th>
+                <th>Ghi chú</th>
+                <th>Thao tác</th>
+            </tr>
 
+            <c:forEach var="inv" items="${invoiceList}">
+                <tr>
+                    <c:choose>
+                        <c:when test="${param.editId == inv.invoiceID}">
+                        <form method="post" action="InvoiceServlet">
+                            <input type="hidden" name="action" value="update"/>
+                            <td>${inv.invoiceID}
+                                <input type="hidden" name="invoiceID" value="${inv.invoiceID}"/>
+                            </td>
+                            <td><input type="text" name="customerID" value="${inv.customerID}" required/></td>
+                            <td><input type="text" name="employeeID" value="${inv.employeeID}" required/></td>
+                            <td><input type="text" name="shopID" value="${inv.shopID}" required/></td>
+                            <td><fmt:formatDate value="${inv.invoiceDate}" pattern="dd/MM/yyyy HH:mm:ss"/></td>
+                            <td><fmt:formatNumber value="${inv.totalAmount}" pattern="#,##0"/></td>
+                            <td>
+                                <select name="status">
+                                    <option value="true" <c:if test="${inv.status}">selected</c:if>>Đã thanh toán</option>
+                                    <option value="false" <c:if test="${!inv.status}">selected</c:if>>Chưa thanh toán</option>
+                                    </select>
                                 </td>
-                                <td>
-                                    <c:choose>
-                                        <c:when test="${inv.status}">
-                                            <span class="badge bg-success">Đã thanh toán</span>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <span class="badge bg-warning text-dark">Chưa thanh toán</span>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </td>
-                                <td>${inv.note}</td>
-                                <td>
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button"
-                                                data-bs-toggle="dropdown" aria-expanded="false">
-                                            Hành động
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="InvoiceServlet?editId=${inv.invoiceID}">Cập nhật</a></li>
-                                        </ul>
-                                    </div>
+                                <td><input type="text" name="note" value="${inv.note}"/></td>
+                            <td>
+                                <input type="submit" value="Lưu"/>
+                                <a href="InvoiceServlet">Hủy</a>
+                            </td>
+                        </form>
+                    </c:when>
 
-                                    <!-- Form xóa tách riêng -->
-                                    <form method="post" action="InvoiceServlet">
-                                        <input type="hidden" name="action" value="delete"/>
-                                        <input type="hidden" name="invoiceID" value="${inv.invoiceID}"/>
-                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa hóa đơn này không?');">
-                                            Xóa
-                                        </button>
-                                    </form>
-                                </td>
-                            </c:otherwise>
-                        </c:choose>
-                        </tr>
-                    </c:forEach>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                    <c:otherwise>
+                        <td>${inv.invoiceID}</td>
+                        <td>${inv.customerID}</td>
+                        <td>${inv.employeeID}</td>
+                        <td>${inv.shopID}</td>
+                        <td><fmt:formatDate value="${inv.invoiceDate}" pattern="dd/MM/yyyy HH:mm:ss"/></td>
+                        <td><fmt:formatNumber value="${inv.totalAmount}" pattern="#,##0"/></td>
+                        <td>
+                            <c:choose>
+                                <c:when test="${inv.status}">Đã thanh toán</c:when>
+                                <c:otherwise>Chưa thanh toán</c:otherwise>
+                            </c:choose>
+                        </td>
+                        <td>${inv.note}</td>
+                        <td>
+                            <a href="InvoiceServlet?editId=${inv.invoiceID}">Sửa</a> |
+                            <a href="InvoiceServlet?action=listDetail&invoiceID=${inv.invoiceID}">Xem chi tiết</a>
+                            <form method="post" action="InvoiceServlet" style="display:inline;">
+                                <input type="hidden" name="action" value="delete"/>
+                                <input type="hidden" name="invoiceID" value="${inv.invoiceID}"/>
+                                <input type="submit" value="Xóa" onclick="return confirm('Bạn có chắc muốn xóa?');"/>
+                            </form>
+                        </td>
+                    </c:otherwise>
+                </c:choose>
+            </tr>
+        </c:forEach>
+    </table>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    </body>
+    <!-- Chi tiết hóa đơn và form thêm chi tiết chỉ hiện khi có selectedInvoice -->
+    <c:if test="${not empty selectedInvoice}">
+        <h3>Chi tiết hóa đơn: ${selectedInvoice.invoiceID}</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Mã HĐ</th>
+                    <th>Mã SP</th>
+                    <th>Số lượng</th>
+                    <th>Giá bán</th>
+                    <th>Giảm giá (%)</th>
+                    <th>Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                <c:forEach var="detail" items="${invoiceDetails}">
+                    <tr>
+                        <td>${detail.invoiceID}</td>
+                        <td>${detail.productID}</td>
+                        <td>${detail.quantity}</td>
+                        <td>${detail.unitPrice}</td>
+                        <td>${detail.discount}</td>
+                        <td>${detail.totalPrice}</td>
+                    </tr>
+                </c:forEach>
+            </tbody>
+        </table>
+
+        <h4>Thêm chi tiết hóa đơn</h4>
+        <form action="InvoiceServlet" method="post">
+            <input type="hidden" name="action" value="addDetail"/>
+            <input type="hidden" name="invoiceID" value="${selectedInvoice.invoiceID}"/>
+            <input type="text" name="productID" placeholder="Mã SP" required/>
+            <input type="text" name="shopID" placeholder="Mã shop" required/>
+            <input type="number" name="quantity" placeholder="Số lượng" required/>
+            <input type="number" step="0.01" name="unitPrice" placeholder="Đơn giá" required/>
+            <input type="number" step="0.01" name="discount" placeholder="Giảm giá (%)"/>
+            <button type="submit">Thêm</button>
+        </form>
+    </c:if>
+
+</body>
 </html>

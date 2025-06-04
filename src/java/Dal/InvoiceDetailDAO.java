@@ -69,16 +69,84 @@ public class InvoiceDetailDAO {
             ptm.setDouble(5, detail.getDiscount());
             ptm.setDouble(6, detail.getTotalPrice());
             ptm.executeUpdate();
-            
+
             int newQuantity = currentQuantity - detail.getQuantity();
             boolean updateInven = iDAO.updateInventoryQuantity(inventory.getInventoryID(), newQuantity);
             return updateInven;
 
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            Logger.getLogger(InvoiceDetailDAO.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
 
+    }
+
+    public List<InvoiceDetail> getDetailByInvoiceID(String invoiceID) {
+        List<InvoiceDetail> list = new ArrayList<>();
+        String sql = "SELECT [InvoiceDetailID]\n"
+                + "      ,[InvoiceID]\n"
+                + "      ,[ProductID]\n"
+                + "      ,[UnitPrice]\n"
+                + "      ,[Quantity]\n"
+                + "      ,[Discount]\n"
+                + "      ,[TotalPrice]\n"
+                + "  FROM [dbo].[InvoiceDetail]\n"
+                + "  WHERE InvoiceID = ?";
+
+        PreparedStatement ptm;
+        try {
+            ptm = connection.prepareStatement(sql);
+            ptm.setString(1, invoiceID);
+            ResultSet rs = ptm.executeQuery();
+            while (rs.next()) {
+                InvoiceDetail i = new InvoiceDetail(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getDouble(4), rs.getInt(5), rs.getDouble(6));
+                list.add(i);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(InvoiceDetailDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return list;
+    }
+
+    public boolean deleteByDetailID(int invoiceDetailID) {
+        String sql = "DELETE FROM [dbo].[InvoiceDetail]\n"
+                + "      WHERE InvoiceDetailID=?";
+        PreparedStatement ptm;
+        try {
+            ptm = connection.prepareStatement(sql);
+            ptm.setInt(1, invoiceDetailID);
+            return ptm.executeUpdate() > 0;
+        } catch (SQLException ex) {
+            Logger.getLogger(InvoiceDetailDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+    }
+
+    public boolean updateInvoiceDetail(InvoiceDetail detail) {
+        detail.calculateTotalPrice();
+        String sql = "UPDATE [dbo].[InvoiceDetail]\n"
+                + "   SET [InvoiceID] = ?\n"
+                + "      ,[ProductID] = ?\n"
+                + "      ,[UnitPrice] = ?\n"
+                + "      ,[Quantity] = ?\n"
+                + "      ,[Discount] = ?\n"
+                + "      ,[TotalPrice] = ?\n"
+                + " WHERE InvoiceDetailID = ?";
+        try {
+            PreparedStatement ptm = connection.prepareStatement(sql);
+            ptm.setString(1, detail.getInvoiceID());
+            ptm.setString(2, detail.getProductID());
+            ptm.setDouble(3, detail.getUnitPrice());
+            ptm.setInt(4, detail.getQuantity());
+            ptm.setDouble(5, detail.getDiscount());
+            ptm.setDouble(6, detail.getTotalPrice());
+            ptm.setInt(7, detail.getInvoiceDetailID());
+            return ptm.executeUpdate() > 0;
+
+        } catch (SQLException ex) {
+            Logger.getLogger(InvoiceDetailDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
     }
 
 }
