@@ -9,7 +9,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.*;
 import Models.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -72,5 +74,34 @@ public class EmployeeDAO {
         }
         return emp;
     }
+public List<Employee> getAllEmployeesByShopID(int shopId) throws SQLException {
+    List<Employee> employees = new ArrayList<>();
+    String sql = "SELECT * FROM Employees WHERE ShopID = ?";
 
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        stmt.setInt(1, shopId);
+        try (ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Employee emp = new Employee();
+                emp.setId(rs.getInt("EmployeeID"));
+                emp.setUsername(rs.getString("Username"));
+                emp.setPassword(rs.getString("Password"));
+                emp.setFullname(rs.getString("Fullname"));
+                emp.setPhone(rs.getString("Phone"));
+                emp.setEmail(rs.getString("Email"));
+                emp.setStatus(rs.getBoolean("Status"));
+                emp.setCreateDate(rs.getDate("CreateDate"));
+                emp.setRoleId(rs.getInt("RoleID"));
+                emp.setShopId(rs.getInt("ShopID"));
+
+                employees.add(emp);
+            }
+        }
+    } catch (SQLException ex) {
+        System.out.println("Error retrieving employees by ShopID: " + ex.getMessage());
+        ex.printStackTrace();
+    }
+
+    return employees;
+}
 }

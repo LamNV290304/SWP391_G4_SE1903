@@ -73,10 +73,10 @@
                                         <option value="">All Categories</option>
                                         <c:forEach var="category" items="${categories}">
                                             <option value="${category.categoryID}" 
-                                                    ${categoryFilter == category.categoryID ? 'selected' : ''}>
+                                                    ${catego</c:forEach>ryFilter == category.categoryID ? 'selected' : ''}>
                                                 ${category.categoryName}
                                             </option>
-                                        </c:forEach>
+                                        
                                     </select>
                                     <label for="category">Category</label>
                                 </div>

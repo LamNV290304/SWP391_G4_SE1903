@@ -14,16 +14,18 @@ public class ImportReceiptDetail {
     private String productID;
     private int quantity;
     private double price;
+    private String note;
 
     public ImportReceiptDetail() {
     }
 
-    public ImportReceiptDetail(int importReceiptDetailID, int importReceiptID, String productID, int quantity, double price) {
+    public ImportReceiptDetail(int importReceiptDetailID, int importReceiptID, String productID, int quantity, double price,String note) {
         this.importReceiptDetailID = importReceiptDetailID;
         this.importReceiptID = importReceiptID;
         this.productID = productID;
         this.quantity = quantity;
         this.price = price;
+        this.note= note;
     }
 
     public int getImportReceiptDetailID() {
@@ -64,6 +66,14 @@ public class ImportReceiptDetail {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
     
 }

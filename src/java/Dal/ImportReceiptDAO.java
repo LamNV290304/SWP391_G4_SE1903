@@ -125,16 +125,17 @@ public class ImportReceiptDAO {
         );
     }
     public static void main(String[] args) {
-    try (Connection conn = new DBContext("SWP2").getConnection()) {
+    try (Connection conn = new DBContext("SWP4").getConnection()) {
         ImportReceiptDAO dao = new ImportReceiptDAO(conn);
 
         // Insert
+        /*
         ImportReceipt newReceipt = new ImportReceipt(
                 2001, "IMP2001", "S0068", "EMP001", "S01",
                 new Timestamp(System.currentTimeMillis()), 2500000f, "Test phiếu nhập", true
         );
         dao.insertImportReceipt(newReceipt);
-
+*/
         // Lấy tất cả
         dao.getAllImportReceipts().forEach(System.out::println);
 
@@ -151,6 +152,10 @@ public class ImportReceiptDAO {
 
         // Xóa
         dao.deleteImportReceipt(2001);
+        List<ImportReceipt> list = dao.getAllImportReceipts();
+        for(ImportReceipt im : list){
+            System.out.println("id:="+im.getImportReceiptID());
+        }
     } catch (SQLException e) {
         Logger.getLogger(ImportReceiptDAO.class.getName()).log(Level.SEVERE, null, e);
     }
