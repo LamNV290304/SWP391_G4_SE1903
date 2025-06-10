@@ -14,8 +14,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.sql.Connection;
 import Context.DatabaseHelper;
+import Models.Employee;
+import Models.ShopOwner;
 import Utils.MailUtil;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.sql.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -81,6 +85,8 @@ public class Verify extends HttpServlet {
             String otp = request.getParameter("otp");
             String email = request.getParameter("email");
             String databaseName = request.getParameter("databaseName");
+            Date createDate = Date.valueOf(java.time.LocalDate.now());
+            
             String shopCode = request.getParameter("shopCode");
             
             Connection conn = DBContext.getCentralConnection();
@@ -94,9 +100,11 @@ public class Verify extends HttpServlet {
                 return;
             }
             
-            DatabaseHelper.initializeShopDatabase(databaseName);
+            ShopOwner shopOwner = shopOwnerDAO.getShopOwnerByDatabaseName(databaseName);
+            Employee firstEmployee = new Employee(0, 0, 0, shopOwner.getUsername(), shopOwner.getPassword(), shopOwner.getFullname(), shopOwner.getPhone(), shopOwner.getEmail(), true, createDate);
+            DatabaseHelper.initializeShopDatabase(databaseName, firstEmployee);
             
-            shopOwnerDAO.updateStatusByUsername(email);
+            shopOwnerDAO.updateStatusByEmail(email);
             String link = "http://localhost:9999/SWP391_G4_SE1903/" + shopCode;
             
             MailUtil.sendLink(email, link);

@@ -25,10 +25,17 @@
         <servlet-class>Controller.Register</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>ForgotPassword</servlet-name>
+        <servlet-class>Controller.ForgotPassword</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ForgotPassVerify</servlet-name>
+        <servlet-class>Controller.ForgotPassVerify</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>Verify</servlet-name>
         <servlet-class>Controller.Verify</servlet-class>
     </servlet>
- 
     <servlet-mapping>
         <servlet-name>StartProject</servlet-name>
         <url-pattern>/StartProject</url-pattern>
@@ -53,6 +60,14 @@
     <servlet-mapping>
         <servlet-name>Register</servlet-name>
         <url-pattern>/Register</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ForgotPassword</servlet-name>
+        <url-pattern>/ForgotPassword</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ForgotPassVerify</servlet-name>
+        <url-pattern>/ForgotPassVerify</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>Verify</servlet-name>

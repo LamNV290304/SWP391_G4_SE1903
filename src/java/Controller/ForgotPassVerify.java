@@ -4,24 +4,18 @@
  */
 package Controller;
 
-import Context.DBContext;
-import Dal.EmployeeDAO;
-import Models.Employee;
-import java.sql.Connection;
 import java.io.IOException;
+import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author Admin
  */
-public class Login extends HttpServlet {
+public class ForgotPassVerify extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -35,7 +29,18 @@ public class Login extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        request.getRequestDispatcher("Home.jsp").forward(request, response);
+        try (PrintWriter out = response.getWriter()) {
+            /* TODO output your page here. You may use following sample code. */
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet ForgotPassVerify</title>");            
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet ForgotPassVerify at " + request.getContextPath() + "</h1>");
+            out.println("</body>");
+            out.println("</html>");
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -50,29 +55,7 @@ public class Login extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
-            String username = request.getParameter("email-username");
-            String password = request.getParameter("password");
-
-            String databaseName = (String) request.getSession().getAttribute("databaseName");
-            Connection con = DBContext.getConnection(databaseName);
-
-            EmployeeDAO employeeDAO = new EmployeeDAO(con);
-            Employee employee = employeeDAO.findEmployeeByUsernameAndPassword(username, password);
-
-            if (employee == null) {
-                request.setAttribute("error", "Wrong password or username");
-                request.getRequestDispatcher("login.jsp").forward(request, response);
-            }
-
-            request.getSession().setAttribute("Employee", employee);
-            request.getRequestDispatcher("Home.jsp").forward(request, response);
-
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        processRequest(request, response);
     }
 
     /**

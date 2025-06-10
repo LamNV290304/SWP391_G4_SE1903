@@ -94,7 +94,7 @@ public class ShopOwnerDAO {
             }
         }
     }
-    
+
     public boolean isDatabaseNameExist(String database) throws SQLException {
         String sql = "SELECT 1 FROM ShopOwners WHERE DatabaseName = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -104,7 +104,7 @@ public class ShopOwnerDAO {
             }
         }
     }
-    
+
     public boolean isPhoneExist(String phone) throws SQLException {
         String sql = "SELECT 1 FROM ShopOwners WHERE Phone = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -146,8 +146,8 @@ public class ShopOwnerDAO {
         return false;
     }
 
-    public boolean updateStatusByUsername(String email) throws SQLException {
-        String sql = "UPDATE ShopOwners SET Status = ? WHERE Username = ?";
+    public boolean updateStatusByEmail(String email) throws SQLException {
+        String sql = "UPDATE ShopOwners SET Status = ? WHERE Email = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setBoolean(1, true);
             stmt.setString(2, email);
@@ -155,8 +155,32 @@ public class ShopOwnerDAO {
             return rowsAffected > 0;
         }
     }
-    
+
+    public ShopOwner getShopOwnerByDatabaseName(String databaseName) throws SQLException {
+        String sql = "SELECT * FROM ShopOwners WHERE DatabaseName = ? AND Status = 0";
+        ShopOwner owner = null;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, databaseName);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    owner = new ShopOwner();
+                    owner.setId(rs.getInt("Id"));
+                    owner.setUsername(rs.getString("Username"));
+                    owner.setPassword(rs.getString("Password"));
+                    owner.setFullname(rs.getString("Fullname"));
+                    owner.setPhone(rs.getString("Phone"));
+                    owner.setEmail(rs.getString("Email"));
+                    owner.setDatabaseName(rs.getString("DatabaseName"));
+                    owner.setShopCode(rs.getString("ShopCode"));
+                    owner.setShopName(rs.getString("ShopName"));
+                }
+            }
+        }
+        return owner;
+    }
+
     public static void main(String[] args) {
-        
+
     }
 }
