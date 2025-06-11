@@ -1,26 +1,15 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Dal;
+
 import Models.ImportReceiptDetail;
 import Context.DBContext;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.sql.Timestamp;
-import java.time.Instant;
-/**
- *
- * @author Thai Anh
- */
+
 public class ImportReceiptDetailDAO {
-     private static final Logger LOGGER = Logger.getLogger(ImportReceiptDetailDAO.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ImportReceiptDetailDAO.class.getName());
     private Connection connection;
 
     public ImportReceiptDetailDAO(Connection connection) {
@@ -67,14 +56,15 @@ public class ImportReceiptDetailDAO {
 
     // Insert
     public void insertDetail(ImportReceiptDetail d) {
-        String sql = "INSERT INTO ImportReceiptDetail (ImportReceiptDetailID, ImportReceiptID, ProductID, Quantity, Price) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO ImportReceiptDetail (ImportReceiptDetailID, ImportReceiptID, ProductID, Quantity, Price, Note) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, d.getImportReceiptDetailID());
             ps.setInt(2, d.getImportReceiptID());
             ps.setString(3, d.getProductID());
             ps.setInt(4, d.getQuantity());
-            ps.setFloat(5, (float) d.getPrice());
+            ps.setDouble(5, d.getPrice());
+            ps.setString(6, d.getNote());
             ps.executeUpdate();
 
         } catch (SQLException e) {
@@ -102,45 +92,53 @@ public class ImportReceiptDetailDAO {
                 rs.getInt("ImportReceiptID"),
                 rs.getString("ProductID"),
                 rs.getInt("Quantity"),
-                rs.getFloat("Price")
+                rs.getDouble("Price"),
+                rs.getString("Note")
         );
     }
-    public static void main(String[] args) {
-        // Kết nối database (thay đổi URL, user, pass tùy cấu hình của bạn)
-        
 
-        try(Connection conn = new DBContext("SWP2").getConnection())  {
+    // Test main method
+    public static void main(String[] args) {
+        try (Connection conn = new DBContext("SWP4").getConnection()) {
             ImportReceiptDetailDAO dao = new ImportReceiptDetailDAO(conn);
 
             // Test insert
             ImportReceiptDetail newDetail = new ImportReceiptDetail(
-                    106,  // ImportReceiptDetailID (giả định)
-                    2,     // ImportReceiptID
-                    "P001",// ProductID
-                    10,    // Quantity
-                    150.0f // Price
-                    //(1, 1, 'P01', 100, 10000),
+                    106,
+                    4,
+                    "P001",
+                    10,
+                    150.0,
+                    "Hàng nhập đợt 1"
             );
-            dao.insertDetail(newDetail);
+          //  dao.insertDetail(newDetail);
             System.out.println("Inserted successfully.");
 
             // Test getAllDetails
             List<ImportReceiptDetail> allDetails = dao.getAllDetails();
             System.out.println("All Details:");
             for (ImportReceiptDetail detail : allDetails) {
-                System.out.println(detail);
+                System.out.println("ID: " + detail.getImportReceiptDetailID()
+                        + ", Product: " + detail.getProductID()
+                        + ", Qty: " + detail.getQuantity()
+                        + ", Price: " + detail.getPrice()
+                        + ", Note: " + detail.getNote());
             }
 
             // Test getDetailsByReceiptID
-            List<ImportReceiptDetail> receiptDetails = dao.getDetailsByReceiptID(1);
-            System.out.println("Details for ImportReceiptID = 1:");
+            List<ImportReceiptDetail> receiptDetails = dao.getDetailsByReceiptID(2);
+            System.out.println("Details for ImportReceiptID = 2:");
             for (ImportReceiptDetail detail : receiptDetails) {
-                System.out.println(detail);
+                System.out.println("ID: " + detail.getImportReceiptDetailID()
+                        + ", Product: " + detail.getProductID()
+                        + ", Qty: " + detail.getQuantity()
+                        + ", Price: " + detail.getPrice()
+                        + ", Note: " + detail.getNote());
             }
 
             // Test delete
-            dao.deleteDetail(1001);
-            System.out.println("Deleted detail with ID = 1001");
+            dao.deleteDetail(1231);
+            System.out.println("Deleted detail with ID = 106");
 
         } catch (SQLException e) {
             e.printStackTrace();

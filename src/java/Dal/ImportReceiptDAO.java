@@ -100,9 +100,11 @@ public class ImportReceiptDAO {
 
     // Xóa phiếu nhập
     public boolean deleteImportReceipt(int id) {
-        String sql = "DELETE FROM ImportReceipt WHERE ImportReceiptID = ?";
+        String sql = "DELETE FROM ImportReceiptDetail WHERE ImportReceiptID = ?;\n" +
+"DELETE FROM ImportReceipt WHERE ImportReceiptID = ?;";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
+            ps.setInt(2, id);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             Logger.getLogger(ImportReceiptDAO.class.getName()).log(Level.SEVERE, null, e);
@@ -124,35 +126,38 @@ public class ImportReceiptDAO {
                 rs.getBoolean("Status")
         );
     }
-    public static void main(String[] args) {
-    try (Connection conn = new DBContext("SWP2").getConnection()) {
+    public static void main(String[] args) throws SQLException {
+    try (Connection conn = new DBContext("SWP6").getConnection()) {
         ImportReceiptDAO dao = new ImportReceiptDAO(conn);
 
-        // Insert
+        
         ImportReceipt newReceipt = new ImportReceipt(
-                2001, "IMP2001", "S0068", "EMP001", "S01",
+                1234, "IMP1234", "SP001", "E001", "S001",
                 new Timestamp(System.currentTimeMillis()), 2500000f, "Test phiếu nhập", true
-        );
-        dao.insertImportReceipt(newReceipt);
-
+        );//dao.insertImportReceipt(newReceipt);
+        System.out.println("Cập nhật thành Công");
         // Lấy tất cả
-        dao.getAllImportReceipts().forEach(System.out::println);
+     //   dao.getAllImportReceipts().forEach(System.out::println);
 
         // Lấy theo ID
-        ImportReceipt r = dao.getImportReceiptByID(2001);
-        System.out.println("🔍 Tìm thấy: " + r);
+       // ImportReceipt r = dao.getImportReceiptByID(2001);
+       // System.out.println("🔍 Tìm thấy: " + r);
 
         // Cập nhật
-        if (r != null) {
-            r.setNote("Đã sửa nội dung");
-            r.setTotalAmount(2700000f);
-            dao.updateImportReceipt(r);
-        }
+     //  if (r != null) {
+      //      r.setNote("Đã sửa nội dung");
+     //       r.setTotalAmount(2700000f);
+    //        dao.updateImportReceipt(r);
+   //     }
 
         // Xóa
-        dao.deleteImportReceipt(2001);
-    } catch (SQLException e) {
-        Logger.getLogger(ImportReceiptDAO.class.getName()).log(Level.SEVERE, null, e);
+     dao.deleteImportReceipt(123);
+      List<ImportReceipt> list = dao.getAllImportReceipts();
+     for(ImportReceipt im : list){
+        System.out.println("id:="+im.getImportReceiptID());
+      }
+  //  } catch (SQLException e) {
+   //     Logger.getLogger(ImportReceiptDAO.class.getName()).log(Level.SEVERE, null, e);
     }
 }
 

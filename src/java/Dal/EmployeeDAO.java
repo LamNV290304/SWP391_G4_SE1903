@@ -71,6 +71,9 @@ public class EmployeeDAO {
         }
         return null; // Trả về null nếu không tìm thấy hoặc lỗi
     }
+public List<Employee> getAllEmployeesByShopID(int shopId) throws SQLException {
+    List<Employee> employees = new ArrayList<>();
+    String sql = "SELECT * FROM Employees WHERE ShopID = ?";
 
     public List<Employee> getEmployeesByPage(int page, int pageSize, String sortBy, String sortDirection, String searchKeyword) throws SQLException {
         List<Employee> employees = new ArrayList<>();
@@ -154,4 +157,5 @@ public class EmployeeDAO {
             return false;
         }
     }
+}
 }

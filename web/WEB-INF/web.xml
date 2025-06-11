@@ -36,6 +36,18 @@
         <servlet-name>Verify</servlet-name>
         <servlet-class>Controller.Verify</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ImportReceiptServlet</servlet-name>
+        <servlet-class>Controller.ImportReceiptServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddImportReceipt</servlet-name>
+        <servlet-class>Controller.AddImportReceipt</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ThemPhieuNhap</servlet-name>
+        <servlet-class>Controller.ThemPhieuNhap</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>StartProject</servlet-name>
         <url-pattern>/StartProject</url-pattern>
@@ -72,6 +84,18 @@
     <servlet-mapping>
         <servlet-name>Verify</servlet-name>
         <url-pattern>/Verify</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ImportReceiptServlet</servlet-name>
+        <url-pattern>/ImportReceiptServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddImportReceipt</servlet-name>
+        <url-pattern>/AddImportReceipt</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ThemPhieuNhap</servlet-name>
+        <url-pattern>/ThemPhieuNhap</url-pattern>
     </servlet-mapping>
     <error-page>
         <error-code>404</error-code>
