@@ -71,25 +71,50 @@ public class EmployeeDAO {
         }
         return null; // Trả về null nếu không tìm thấy hoặc lỗi
     }
-public List<Employee> getAllEmployeesByShopID(int shopId) throws SQLException {
-    List<Employee> employees = new ArrayList<>();
-    String sql = "SELECT * FROM Employees WHERE ShopID = ?";
+
+    public List<Employee> getAllEmployeesByShopID(int shopId) throws SQLException {
+        List<Employee> employees = new ArrayList<>();
+        String sql = "SELECT * FROM Employee WHERE ShopID = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, shopId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Employee emp = new Employee();
+                    emp.setId(rs.getInt("EmployeeID"));
+                    emp.setUsername(rs.getString("Username"));
+                    emp.setPassword(rs.getString("Password"));
+                    emp.setFullname(rs.getString("Fullname"));
+                    emp.setPhone(rs.getString("Phone"));
+                    emp.setEmail(rs.getString("Email"));
+                    emp.setStatus(rs.getBoolean("Status"));
+                    emp.setCreateDate(rs.getDate("CreatedDate"));
+                    emp.setRoleId(rs.getInt("RoleID"));
+                    emp.setShopId(rs.getInt("ShopID"));
+                    employees.add(emp);
+                }
+            }
+        }
+
+        return employees;
+    }
 
     public List<Employee> getEmployeesByPage(int page, int pageSize, String sortBy, String sortDirection, String searchKeyword) throws SQLException {
         List<Employee> employees = new ArrayList<>();
 
-        // Validate cột sắp xếp để tránh SQL Injection
-        List<String> validSortColumns = Arrays.asList("EmployeeID", "Username", "Fullname", "CreateDate");
+        // Chống SQL Injection - chỉ cho phép cột hợp lệ
+        List<String> validSortColumns = Arrays.asList("EmployeeID", "Username", "FullName", "CreatedDate");
         if (!validSortColumns.contains(sortBy)) {
             sortBy = "EmployeeID";
         }
 
-        // Validate thứ tự sắp xếp
         if (!"ASC".equalsIgnoreCase(sortDirection) && !"DESC".equalsIgnoreCase(sortDirection)) {
             sortDirection = "ASC";
         }
 
-        String sql = "SELECT * FROM Employee WHERE Fullname LIKE ? OR Username LIKE ? "
+        String sql = "SELECT * FROM Employee "
+                + "WHERE FullName LIKE ? OR Username LIKE ? "
                 + "ORDER BY " + sortBy + " " + sortDirection + " "
                 + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
@@ -110,7 +135,7 @@ public List<Employee> getAllEmployeesByShopID(int shopId) throws SQLException {
                     emp.setPhone(rs.getString("Phone"));
                     emp.setEmail(rs.getString("Email"));
                     emp.setStatus(rs.getBoolean("Status"));
-                    emp.setCreateDate(rs.getDate("CreateDate"));
+                    emp.setCreateDate(rs.getDate("CreatedDate"));
                     emp.setRoleId(rs.getInt("RoleID"));
                     emp.setShopId(rs.getInt("ShopID"));
                     employees.add(emp);
@@ -158,4 +183,4 @@ public List<Employee> getAllEmployeesByShopID(int shopId) throws SQLException {
         }
     }
 }
-}
+

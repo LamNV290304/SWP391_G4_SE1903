@@ -24,7 +24,7 @@
     class="light-style layout-menu-fixed"
     dir="ltr"
     data-theme="theme-default"
-    data-assets-path="../assets/"
+    data-assets-path="./assets/"
     data-template="vertical-menu-template-free"
     >
     <head>
@@ -40,7 +40,7 @@
 
         <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
         <!-- Favicon -->
-        <link rel="icon" type="image/x-icon" href="../assets/img/favicon/favicon.ico" />
+        <link rel="icon" type="image/x-icon" href="./assets/img/favicon/favicon.ico" />
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -51,53 +51,89 @@
             />
 
         <!-- Icons. Uncomment required icon fonts -->
-        <link rel="stylesheet" href="../assets/vendor/fonts/boxicons.css" />
+        <link rel="stylesheet" href="./assets/vendor/fonts/boxicons.css" />
 
         <!-- Core CSS -->
-        <link rel="stylesheet" href="../assets/vendor/css/core.css" class="template-customizer-core-css" />
-        <link rel="stylesheet" href="../assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
-        <link rel="stylesheet" href="../assets/css/demo.css" />
+        <link rel="stylesheet" href="./assets/vendor/css/core.css" class="template-customizer-core-css" />
+        <link rel="stylesheet" href="./assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
+        <link rel="stylesheet" href="./assets/css/demo.css" />
 
         <!-- Vendors CSS -->
-        <link rel="stylesheet" href="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+        <link rel="stylesheet" href="./assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
 
         <!-- Page CSS -->
 
         <!-- Helpers -->
-        <script src="../assets/vendor/js/helpers.js"></script>
+        <script src="./assets/vendor/js/helpers.js"></script>
 
         <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
         <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
-        <script src="../assets/js/config.js"></script>
+        <script src="./assets/js/config.js"></script>
     </head>
 
     <body>
         <!-- Layout wrapper -->
         <div class="layout-wrapper layout-content-navbar">
             <div class="layout-container">
+                <jsp:include page="sidebar.jsp" />
                 <!-- Layout container -->
                 <div class="layout-page">
+                    <jsp:include page="navBar.jsp" />
                     <!-- Content wrapper -->
                     <div class="content-wrapper">
                         <!-- Content -->
 
                         <div class="container-xxl flex-grow-1 container-p-y">
-
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <form method="get" action="showEmployeeDetails.jsp">
+                                        <div class="input-group">
+                                            <input type="text" name="search" class="form-control" placeholder="Tìm kiếm tên hoặc username..." value="${param.search}">
+                                            <button class="btn btn-outline-secondary" type="submit">Tìm</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="col-md-3">
+                                    <form method="get" action="showEmployeeDetails.jsp">
+                                        <select class="form-select" name="sortBy" onchange="this.form.submit()">
+                                            <option value="EmployeeID" ${param.sortBy == 'EmployeeID' ? 'selected' : ''}>Mã nhân viên</option>
+                                            <option value="Username" ${param.sortBy == 'Username' ? 'selected' : ''}>Username</option>
+                                            <option value="Fullname" ${param.sortBy == 'Fullname' ? 'selected' : ''}>Họ tên</option>
+                                            <option value="CreateDate" ${param.sortBy == 'CreateDate' ? 'selected' : ''}>Ngày tạo</option>
+                                        </select>
+                                        <input type="hidden" name="search" value="${param.search}">
+                                    </form>
+                                </div>
+                                <div class="col-md-2">
+                                    <form method="get" action="showEmployeeDetails.jsp">
+                                        <select class="form-select" name="sortDirection" onchange="this.form.submit()">
+                                            <option value="ASC" ${param.sortDirection == 'ASC' ? 'selected' : ''}>Tăng dần</option>
+                                            <option value="DESC" ${param.sortDirection == 'DESC' ? 'selected' : ''}>Giảm dần</option>
+                                        </select>
+                                        <input type="hidden" name="search" value="${param.search}">
+                                        <input type="hidden" name="sortBy" value="${param.sortBy}">
+                                    </form>
+                                </div>
+                            </div>
                             <!-- Basic Bootstrap Table -->
                             <div class="card">
                                 <div class="table-responsive text-nowrap">
                                     <table id="projectTable" class="table table-striped">
                                         <thead>
                                             <tr>
-                                                <th>Project</th>
-                                                <th>Client</th>
-                                                <th>Users</th>
+                                                <th>ID</th>
+                                                <th>Full name</th>
+                                                <th>Email</th>
+                                                <th>Phone</th>
+                                                <th>Role</th>
+                                                <th>Shop</th>
+                                                <th>Create At</th>
                                                 <th>Status</th>
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody class="table-border-bottom-0">
-                                        
+
                                             <tr>
                                                 <td><i class="fab fa-vuejs fa-lg text-success me-3"></i> <strong>VueJs Project</strong></td>
                                                 <td>Trevor Baker</td>
@@ -110,7 +146,7 @@
                                                             class="avatar avatar-xs pull-up"
                                                             title="Lilian Fuller"
                                                             >
-                                                            <img src="../assets/img/avatars/5.png" alt="Avatar" class="rounded-circle" />
+                                                            <img src="./assets/img/avatars/5.png" alt="Avatar" class="rounded-circle" />
                                                         </li>
                                                         <li
                                                             data-bs-toggle="tooltip"
@@ -119,7 +155,7 @@
                                                             class="avatar avatar-xs pull-up"
                                                             title="Sophia Wilkerson"
                                                             >
-                                                            <img src="../assets/img/avatars/6.png" alt="Avatar" class="rounded-circle" />
+                                                            <img src="./assets/img/avatars/6.png" alt="Avatar" class="rounded-circle" />
                                                         </li>
                                                         <li
                                                             data-bs-toggle="tooltip"
@@ -128,64 +164,11 @@
                                                             class="avatar avatar-xs pull-up"
                                                             title="Christina Parker"
                                                             >
-                                                            <img src="../assets/img/avatars/7.png" alt="Avatar" class="rounded-circle" />
+                                                            <img src="./assets/img/avatars/7.png" alt="Avatar" class="rounded-circle" />
                                                         </li>
                                                     </ul>
                                                 </td>
                                                 <td><span class="badge bg-label-info me-1">Scheduled</span></td>
-                                                <td>
-                                                    <div class="dropdown">
-                                                        <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                                        </button>
-                                                        <div class="dropdown-menu">
-                                                            <a class="dropdown-item" href="javascript:void(0);"
-                                                               ><i class="bx bx-edit-alt me-2"></i> Edit</a
-                                                            >
-                                                            <a class="dropdown-item" href="javascript:void(0);"
-                                                               ><i class="bx bx-trash me-2"></i> Delete</a
-                                                            >
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <i class="fab fa-bootstrap fa-lg text-primary me-3"></i> <strong>Bootstrap Project</strong>
-                                                </td>
-                                                <td>Jerry Milton</td>
-                                                <td>
-                                                    <ul class="list-unstyled users-list m-0 avatar-group d-flex align-items-center">
-                                                        <li
-                                                            data-bs-toggle="tooltip"
-                                                            data-popup="tooltip-custom"
-                                                            data-bs-placement="top"
-                                                            class="avatar avatar-xs pull-up"
-                                                            title="Lilian Fuller"
-                                                            >
-                                                            <img src="../assets/img/avatars/5.png" alt="Avatar" class="rounded-circle" />
-                                                        </li>
-                                                        <li
-                                                            data-bs-toggle="tooltip"
-                                                            data-popup="tooltip-custom"
-                                                            data-bs-placement="top"
-                                                            class="avatar avatar-xs pull-up"
-                                                            title="Sophia Wilkerson"
-                                                            >
-                                                            <img src="../assets/img/avatars/6.png" alt="Avatar" class="rounded-circle" />
-                                                        </li>
-                                                        <li
-                                                            data-bs-toggle="tooltip"
-                                                            data-popup="tooltip-custom"
-                                                            data-bs-placement="top"
-                                                            class="avatar avatar-xs pull-up"
-                                                            title="Christina Parker"
-                                                            >
-                                                            <img src="../assets/img/avatars/7.png" alt="Avatar" class="rounded-circle" />
-                                                        </li>
-                                                    </ul>
-                                                </td>
-                                                <td><span class="badge bg-label-warning me-1">Pending</span></td>
                                                 <td>
                                                     <div class="dropdown">
                                                         <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
@@ -208,31 +191,55 @@
                             </div>
                             <!--/ Basic Bootstrap Table -->
 
+                            <nav aria-label="Page navigation" class="mt-3">
+                                <ul class="pagination justify-content-center">
+
+                                    <c:if test="${currentPage > 1}">
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=${currentPage - 1}">&laquo; Previous</a>
+                                        </li>
+                                    </c:if>
+
+                                    <c:forEach var="i" begin="1" end="${totalPages}">
+                                        <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                            <a class="page-link" href="?page=${i}">${i}</a>
+                                        </li>
+                                    </c:forEach>
+
+                                    <c:if test="${currentPage < totalPages}">
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=${currentPage + 1}">Next &raquo;</a>
+                                        </li>
+                                    </c:if>
+
+                                </ul>
+                            </nav>
+
                             <hr class="my-5" />
                             <div class="content-backdrop fade"></div>
                         </div>
                         <!-- Content wrapper -->
                     </div>
                     <!-- / Layout page -->
+                    <jsp:include page="footer.jsp" />
                 </div>
-
                 <!-- Overlay -->
             </div>
 
             <!-- Core JS -->
             <!-- build:js assets/vendor/js/core.js -->
-            <script src="../assets/vendor/libs/jquery/jquery.js"></script>
-            <script src="../assets/vendor/libs/popper/popper.js"></script>
-            <script src="../assets/vendor/js/bootstrap.js"></script>
-            <script src="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+            <script src="./assets/vendor/libs/jquery/jquery.js"></script>
+            <script src="./assets/vendor/libs/popper/popper.js"></script>
+            <script src="./assets/vendor/js/bootstrap.js"></script>
+            <script src="./assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
 
-            <script src="../assets/vendor/js/menu.js"></script>
+            <script src="./assets/vendor/js/menu.js"></script>
             <!-- endbuild -->
 
             <!-- Vendors JS -->
 
             <!-- Main JS -->
-            <script src="../assets/js/main.js"></script>
+            <script src="./assets/js/main.js"></script>
 
             <!-- Page JS -->
 
