@@ -98,7 +98,7 @@ if (importDateStr != null && !importDateStr.isEmpty()) {
         importDate = formatter.parse(importDateStr);
         
         // Nếu cần kiểm tra:
-        System.out.println("Ngày nhập hàng (java.util.Date): " + importDate);
+        //System.out.println("Ngày nhập hàng (java.util.Date): " + importDate);
     } catch (Exception e) {
         e.printStackTrace(); // hoặc xử lý lỗi
     }
@@ -125,7 +125,6 @@ ShopDAO shopDAO = new ShopDAO();
 
             // Thêm phiếu nhập
             receiptDAO.insertImportReceipt(receipt);
-            
             List<ImportReceiptDetail> listImportDetail = new ArrayList<>();
             String[] importReceiptDetailIDs = request.getParameterValues("importReceiptDetailID[]");
 String[] importReceiptIDs = request.getParameterValues("importReceiptID[]");
@@ -143,10 +142,23 @@ for(int i=0;i<size;i++){
 for(ImportReceiptDetail importDetail : listImportDetail){
      // Kiểm tra và cập nhật tồn kho
             Inventory inv = inventoryDAO.getInventoryByShopAndProduct(shopID, importDetail.getProductID());
+           try (PrintWriter out = response.getWriter()) {
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet ThemPhieuNhap</title>");  
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet Hoan thanh 2"+"</h1>");
+            out.println("</body>");
+            out.println("</html>");
+        }
             if (inv != null) {
                 int newQty = inv.getQuantity() + importDetail.getQuantity();
                 inventoryDAO.updateInventoryQuantity(inv.getInventoryID(), newQty);
+            
             } else {
+                
                 // Tạo mới hàng tồn kho nếu chưa có
                 Inventory newInv = new Inventory();
                 newInv.setInventoryID("INV" + System.currentTimeMillis()); // ID tạm thời
@@ -163,7 +175,8 @@ for(ImportReceiptDetail importDetail : listImportDetail){
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi thêm phiếu nhập: " + e.getMessage());
-            request.getRequestDispatcher("add_import_receipt.jsp").forward(request, response);
+            System.out.println("");
+            //request.getRequestDispatcher("Test.html").forward(request, response);
         }
     }
 

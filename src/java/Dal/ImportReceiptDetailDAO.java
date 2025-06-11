@@ -1,4 +1,4 @@
-package dal;
+package Dal;
 
 import Models.ImportReceiptDetail;
 import Context.DBContext;
@@ -105,13 +105,13 @@ public class ImportReceiptDetailDAO {
             // Test insert
             ImportReceiptDetail newDetail = new ImportReceiptDetail(
                     106,
-                    5,
+                    4,
                     "P001",
                     10,
                     150.0,
                     "Hàng nhập đợt 1"
             );
-            dao.insertDetail(newDetail);
+          //  dao.insertDetail(newDetail);
             System.out.println("Inserted successfully.");
 
             // Test getAllDetails
@@ -137,7 +137,7 @@ public class ImportReceiptDetailDAO {
             }
 
             // Test delete
-            dao.deleteDetail(106);
+            dao.deleteDetail(1231);
             System.out.println("Deleted detail with ID = 106");
 
         } catch (SQLException e) {

@@ -75,5 +75,10 @@ public class ImportReceiptDetail {
     public void setNote(String note) {
         this.note = note;
     }
+
+    @Override
+    public String toString() {
+        return "ImportReceiptDetail{" + "importReceiptDetailID=" + importReceiptDetailID + ", importReceiptID=" + importReceiptID + ", productID=" + productID + ", quantity=" + quantity + ", price=" + price + ", note=" + note + '}';
+    }
     
 }

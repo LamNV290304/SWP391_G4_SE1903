@@ -107,5 +107,10 @@ public class ImportReceipt {
     public void setStatus(boolean status) {
         this.status = status;
     }
+
+    @Override
+    public String toString() {
+        return "ImportReceipt{" + "importReceiptID=" + importReceiptID + ", code=" + code + ", supplierID=" + supplierID + ", employeeID=" + employeeID + ", shopID=" + shopID + ", receiptDate=" + receiptDate + ", totalAmount=" + totalAmount + ", note=" + note + ", status=" + status + '}';
+    }
     
 }

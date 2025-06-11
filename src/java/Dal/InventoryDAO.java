@@ -103,6 +103,7 @@ public class InventoryDAO {
 
         i.setQuantity(rs.getInt("Quantity"));
         i.setLastUpdated(rs.getTimestamp("LastUpdated"));
+        return i;
             }
         } catch (SQLException ex) {
             Logger.getLogger(InventoryDAO.class.getName()).log(Level.SEVERE, null, ex);
@@ -200,7 +201,7 @@ public boolean insertInventory(Inventory inventory) {
     public static void main(String[] args) {
         try (Connection conn = new DBContext("SWP4").getConnection()) {
             InventoryDAO dao = new InventoryDAO(conn);
-            List<Inventory> inventories = dao.getAllInventoriesInStore("S002");
+            List<Inventory> inventories = dao.getAllInventoriesInStore("S001");
             if (inventories.isEmpty()) {
                 System.out.println("❌ Không có hàng tồn kho nào.");
             } else {
@@ -213,6 +214,9 @@ public boolean insertInventory(Inventory inventory) {
                     System.out.println("----------------------------------");
                 }
             }
+            Inventory inv = dao.getInventoryByShopAndProduct("P001", "S002");
+            //dao.updateInventoryQuantity(inv.getInventoryID(), inv.getQuantity()+10);
+            System.out.println(inv.toString());
         } catch (SQLException e) {
             Logger.getLogger(InventoryDAO.class.getName()).log(Level.SEVERE, null, e);
         }
