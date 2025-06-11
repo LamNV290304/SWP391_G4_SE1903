@@ -245,7 +245,7 @@
                                                     </c:if>
                                                 </c:forEach>
                                             </td>
-                                            <td>${product.unitID}</td>
+                                            <td>${product.unitDescription}</td>
                                             <td>
                                                 <span class="text-success">
                                                     <fmt:formatNumber value="${product.importPrice}" type="currency" currencySymbol="$"/>
