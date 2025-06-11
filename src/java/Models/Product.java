@@ -145,4 +145,10 @@ public class Product {
     public void setUnitDescription(String unitDescription) {
         this.unitDescription = unitDescription;
     }
+
+    @Override
+    public String toString() {
+        return "Product{" + "productID=" + productID + ", productName=" + productName + ", categoryID=" + categoryID + ", unitID=" + unitID + ", importPrice=" + importPrice + ", sellingPrice=" + sellingPrice + ", description=" + description + ", status=" + status + ", imageUrl=" + imageUrl + ", createdDate=" + createdDate + ", createdBy=" + createdBy + ", categoryName=" + categoryName + ", unitDescription=" + unitDescription + '}';
+    }
+    
 }
