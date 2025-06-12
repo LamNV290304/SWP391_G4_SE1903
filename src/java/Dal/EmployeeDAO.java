@@ -5,7 +5,6 @@
 package Dal;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.*;
 import Models.*;
@@ -45,13 +44,15 @@ public class EmployeeDAO {
         }
     }
 
-    public Employee findEmployeeByUsername(String username) throws SQLException {
-        String sql = "SELECT * FROM Employees WHERE Username = ?";
-        Employee emp = new Employee();
+    public Employee findEmployeeByUsernameAndPassword(String username, String password) throws SQLException {
+        String sql = "SELECT * FROM Employees WHERE Username = ? AND Password = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, username);
+            stmt.setString(2, password);
+
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
+                    Employee emp = new Employee();
                     emp.setId(rs.getInt("EmployeeID"));
                     emp.setUsername(rs.getString("Username"));
                     emp.setPassword(rs.getString("Password"));
@@ -59,49 +60,127 @@ public class EmployeeDAO {
                     emp.setPhone(rs.getString("Phone"));
                     emp.setStatus(rs.getBoolean("Status"));
                     emp.setCreateDate(rs.getDate("CreateDate"));
-
                     emp.setRoleId(rs.getInt("RoleID"));
                     emp.setShopId(rs.getInt("ShopID"));
                     return emp;
                 }
-            } catch (Exception ex) {
-                System.out.println("Error: " + ex.getMessage() + ex.getStackTrace());
-                return emp;
             }
         } catch (SQLException ex) {
-            System.out.println("Error: " + ex.getMessage() + ex.getStackTrace());
-            return emp;
+            System.out.println("Error: " + ex.getMessage());
+            ex.printStackTrace();
         }
-        return emp;
+        return null; // Trả về null nếu không tìm thấy hoặc lỗi
     }
-public List<Employee> getAllEmployeesByShopID(int shopId) throws SQLException {
-    List<Employee> employees = new ArrayList<>();
-    String sql = "SELECT * FROM Employees WHERE ShopID = ?";
 
-    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-        stmt.setInt(1, shopId);
-        try (ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                Employee emp = new Employee();
-                emp.setId(rs.getInt("EmployeeID"));
-                emp.setUsername(rs.getString("Username"));
-                emp.setPassword(rs.getString("Password"));
-                emp.setFullname(rs.getString("Fullname"));
-                emp.setPhone(rs.getString("Phone"));
-                emp.setEmail(rs.getString("Email"));
-                emp.setStatus(rs.getBoolean("Status"));
-                emp.setCreateDate(rs.getDate("CreateDate"));
-                emp.setRoleId(rs.getInt("RoleID"));
-                emp.setShopId(rs.getInt("ShopID"));
+    public List<Employee> getAllEmployeesByShopID(int shopId) throws SQLException {
+        List<Employee> employees = new ArrayList<>();
+        String sql = "SELECT * FROM Employee WHERE ShopID = ?";
 
-                employees.add(emp);
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, shopId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Employee emp = new Employee();
+                    emp.setId(rs.getInt("EmployeeID"));
+                    emp.setUsername(rs.getString("Username"));
+                    emp.setPassword(rs.getString("Password"));
+                    emp.setFullname(rs.getString("Fullname"));
+                    emp.setPhone(rs.getString("Phone"));
+                    emp.setEmail(rs.getString("Email"));
+                    emp.setStatus(rs.getBoolean("Status"));
+                    emp.setCreateDate(rs.getDate("CreatedDate"));
+                    emp.setRoleId(rs.getInt("RoleID"));
+                    emp.setShopId(rs.getInt("ShopID"));
+                    employees.add(emp);
+                }
             }
         }
-    } catch (SQLException ex) {
-        System.out.println("Error retrieving employees by ShopID: " + ex.getMessage());
-        ex.printStackTrace();
+
+        return employees;
     }
 
-    return employees;
+    public List<Employee> getEmployeesByPage(int page, int pageSize, String sortBy, String sortDirection, String searchKeyword) throws SQLException {
+        List<Employee> employees = new ArrayList<>();
+
+        // Chống SQL Injection - chỉ cho phép cột hợp lệ
+        List<String> validSortColumns = Arrays.asList("EmployeeID", "Username", "FullName", "CreatedDate");
+        if (!validSortColumns.contains(sortBy)) {
+            sortBy = "EmployeeID";
+        }
+
+        if (!"ASC".equalsIgnoreCase(sortDirection) && !"DESC".equalsIgnoreCase(sortDirection)) {
+            sortDirection = "ASC";
+        }
+
+        String sql = "SELECT * FROM Employee "
+                + "WHERE FullName LIKE ? OR Username LIKE ? "
+                + "ORDER BY " + sortBy + " " + sortDirection + " "
+                + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            String keyword = "%" + searchKeyword + "%";
+            stmt.setString(1, keyword);
+            stmt.setString(2, keyword);
+            stmt.setInt(3, (page - 1) * pageSize);
+            stmt.setInt(4, pageSize);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Employee emp = new Employee();
+                    emp.setId(rs.getInt("EmployeeID"));
+                    emp.setUsername(rs.getString("Username"));
+                    emp.setPassword(rs.getString("Password"));
+                    emp.setFullname(rs.getString("Fullname"));
+                    emp.setPhone(rs.getString("Phone"));
+                    emp.setEmail(rs.getString("Email"));
+                    emp.setStatus(rs.getBoolean("Status"));
+                    emp.setCreateDate(rs.getDate("CreatedDate"));
+                    emp.setRoleId(rs.getInt("RoleID"));
+                    emp.setShopId(rs.getInt("ShopID"));
+                    employees.add(emp);
+                }
+            }
+        }
+
+        return employees;
+    }
+
+    public int getTotalEmployeeCount(String searchKeyword) throws SQLException {
+        String sql = "SELECT COUNT(*) AS total FROM Employee WHERE Fullname LIKE ? OR Username LIKE ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            String keyword = "%" + searchKeyword + "%";
+            stmt.setString(1, keyword);
+            stmt.setString(2, keyword);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("total");
+                }
+            }
+        }
+        return 0;
+    }
+
+    public boolean updateEmployee(Employee employee) throws SQLException {
+        String sql = "UPDATE Employee SET Password = ?, Fullname = ?, Phone = ?, Email = ?, Status = ?, RoleId = ?, ShopId = ? WHERE EmployeeID = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, employee.getPassword());
+            stmt.setString(2, employee.getFullname());
+            stmt.setString(3, employee.getPhone());
+            stmt.setString(4, employee.getEmail());
+            stmt.setBoolean(5, employee.isStatus());
+            stmt.setInt(6, employee.getRole().getId());
+            stmt.setString(7, employee.getShop().getShopID());
+            stmt.setInt(8, employee.getId());
+
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException ex) {
+            System.out.println("Update failed: " + ex.getMessage());
+            ex.printStackTrace();
+            return false;
+        }
+    }
 }
-}
+

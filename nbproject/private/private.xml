@@ -3,24 +3,18 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/SWP_Pull/SWP391_G4_SE1903/src/java/Dal/EmployeeDAO.java</file>
-            <file>file:/D:/SWP_Pull/SWP391_G4_SE1903/src/java/Controller/ProductController.java</file>
-            <file>file:/D:/SWP_Pull/SWP391_G4_SE1903/src/java/Dal/SupplierDAO.java</file>
-            <file>file:/D:/SWP_Pull/SWP391_G4_SE1903/src/java/Controller/Login.java</file>
-            <file>file:/D:/SWP_Pull/SWP391_G4_SE1903/src/java/Dal/ImportReceiptDAO.java</file>
-            <file>file:/D:/SWP_Pull/SWP391_G4_SE1903/src/java/Controller/ErrorPage.java</file>
-            <file>file:/D:/SWP_Pull/SWP391_G4_SE1903/src/java/Dal/ImportReceiptDetailDAO.java</file>
-            <file>file:/D:/SWP_Pull/SWP391_G4_SE1903/src/java/Dal/ShopOwnerDAO.java</file>
-            <file>file:/D:/SWP_Pull/SWP391_G4_SE1903/src/java/Controller/Register.java</file>
-            <file>file:/D:/SWP_Pull/SWP391_G4_SE1903/src/java/Dal/InvoiceDAO.java</file>
-            <file>file:/D:/SWP_Pull/SWP391_G4_SE1903/src/java/Dal/ProductDAO.java</file>
-            <file>file:/D:/SWP_Pull/SWP391_G4_SE1903/src/java/Controller/InvoiceServlet.java</file>
-            <file>file:/D:/SWP_Pull/SWP391_G4_SE1903/src/java/Dal/ContextPathDAO.java</file>
-            <file>file:/D:/SWP_Pull/SWP391_G4_SE1903/src/java/Controller/StartProject.java</file>
-            <file>file:/D:/SWP_Pull/SWP391_G4_SE1903/src/java/Controller/Verify.java</file>
-            <file>file:/D:/SWP_Pull/SWP391_G4_SE1903/src/java/Controller/TransferReceiptController.java</file>
-            <file>file:/D:/SWP_Pull/SWP391_G4_SE1903/src/java/Dal/InventoryDAO.java</file>
-            <file>file:/D:/SWP_Pull/SWP391_G4_SE1903/src/java/Dal/InvoiceDetailDAO.java</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Controller/StartProject.java</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Controller/Login.java</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Dal/ShopOwnerDAO.java</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Context/DatabaseHelper.java</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Utils/MailUtil.java</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Controller/Register.java</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Controller/EmployeeView.java</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/web/showEmployeeDetails.jsp</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Controller/Verify.java</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/src/java/Controller/ErrorPage.java</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/web/register.jsp</file>
+            <file>file:/D:/SWP391_G4_SE1903/SWP391_G4_SE1903/web/verificationOTP.jsp</file>
         </group>
     </open-files>
 </project-private>

@@ -73,7 +73,6 @@ public class StartProject extends HttpServlet {
         String databaseName = DatabaseHelper.getDatabaseNameByShopCode(shopCode);
         String shopName = DatabaseHelper.getShopNameByShopCode(shopCode);
 
-
         request.getSession().setAttribute("databaseName", databaseName);
         request.getSession().setAttribute("shopName", shopName);
         request.getRequestDispatcher("login.jsp").forward(request, response);
