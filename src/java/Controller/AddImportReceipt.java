@@ -18,6 +18,7 @@ import Models.Product;
 import Models.Shop;
 import Context.DBContext;
 import Dal.EmployeeDAO;
+import Dal.ImportReceiptDetailDAO;
 import Dal.ProductDAO;
 import Dal.ShopDAO;
 import Dal.SupplierDAO;
@@ -49,13 +50,13 @@ public class AddImportReceipt extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        Connection conn = new DBContext("SWP4").getConnection();
+        Connection conn = new DBContext("SWP6").getConnection();
         EmployeeDAO empDao = new EmployeeDAO(conn);
         TypeImportReceiptDAO typeImp = new TypeImportReceiptDAO(conn);
         ShopDAO shopDao = new ShopDAO();
         SupplierDAO supDAO = new SupplierDAO(conn);
         request.setAttribute("listSup", supDAO.getAllSuppliers());
-        request.setAttribute("listShop", shopDao.getAllShops("SWP4"));
+        request.setAttribute("listShop", shopDao.getAllShops("SWP6"));
         request.setAttribute("listType", typeImp.getAllTypeImportReceipts());
         request.getRequestDispatcher("AddImportReceipt.jsp").forward(request, response);
     } 
@@ -84,12 +85,13 @@ public class AddImportReceipt extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-         int importReceiptID = Integer.parseInt(request.getParameter("importReceiptID"));
+     
+          int importReceiptID = Integer.parseInt(request.getParameter("importReceiptID"));
         String code = request.getParameter("code");
         String supplierID = request.getParameter("SupplierID");
         String employeeID = request.getParameter("EmployeeID");
         String shopID = request.getParameter("shopID");
-        String importDateStr = request.getParameter("importDate");
+        String importDateStr = request.getParameter("Date");
 
 Date importDate = null;
 if (importDateStr != null && !importDateStr.isEmpty()) {
@@ -98,17 +100,23 @@ if (importDateStr != null && !importDateStr.isEmpty()) {
         importDate = formatter.parse(importDateStr);
         
         // Nếu cần kiểm tra:
-        //System.out.println("Ngày nhập hàng (java.util.Date): " + importDate);
+        System.out.println("Ngày nhập hàng (java.util.Date): " + importDate);
     } catch (Exception e) {
         e.printStackTrace(); // hoặc xử lý lỗi
     }
 }
 
         String note= request.getParameter("note");
+          
         double value= Double.parseDouble(request.getParameter("Total"));
-        try (Connection conn = new DBContext("SWP4").getConnection()) {
+    
+        try (Connection conn = new DBContext("SWP6").getConnection()) {
+            
             ImportReceiptDAO receiptDAO = new ImportReceiptDAO(conn);
             InventoryDAO inventoryDAO = new InventoryDAO(conn);
+            
+         ImportReceiptDetailDAO receiptDetailDAO = new ImportReceiptDetailDAO(conn);
+         
 ProductDAO productDAO = new ProductDAO(conn);
 ShopDAO shopDAO = new ShopDAO();
             // Tạo đối tượng phiếu nhập
@@ -122,51 +130,57 @@ ShopDAO shopDAO = new ShopDAO();
             receipt.setNote(note);
             receipt.setTotalAmount(value);
             receipt.setStatus(true );
-
+   
             // Thêm phiếu nhập
             receiptDAO.insertImportReceipt(receipt);
+            
             List<ImportReceiptDetail> listImportDetail = new ArrayList<>();
+             
             String[] importReceiptDetailIDs = request.getParameterValues("importReceiptDetailID[]");
+            
 String[] importReceiptIDs = request.getParameterValues("importReceiptID[]");
 String[] productIDs = request.getParameterValues("productID[]");
 String[] quantities = request.getParameterValues("quantity[]");
 String[] prices = request.getParameterValues("price[]");
 String[] notes = request.getParameterValues("note[]");
+
 int size= importReceiptDetailIDs.length;
 for(int i=0;i<size;i++){
     ImportReceiptDetail importDetail = new ImportReceiptDetail(Integer.parseInt(importReceiptDetailIDs[i]), 
             Integer.parseInt(importReceiptIDs[i]), 
             productIDs[i],  Integer.parseInt(quantities[i]), Double.parseDouble(prices[i]), notes[i]);
     listImportDetail.add(importDetail);
+      
+    receiptDetailDAO.insertDetail(importDetail);
+
 }
+
 for(ImportReceiptDetail importDetail : listImportDetail){
+   
      // Kiểm tra và cập nhật tồn kho
-            Inventory inv = inventoryDAO.getInventoryByShopAndProduct(shopID, importDetail.getProductID());
-           try (PrintWriter out = response.getWriter()) {
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet ThemPhieuNhap</title>");  
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet Hoan thanh 2"+"</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-            if (inv != null) {
-                int newQty = inv.getQuantity() + importDetail.getQuantity();
-                inventoryDAO.updateInventoryQuantity(inv.getInventoryID(), newQty);
+            Inventory inv = inventoryDAO.getInventoryByShopAndProduct( importDetail.getProductID(),shopID);
             
-            } else {
+          
+            if (inv != null) {
+                 
+                      int newQty = inv.getQuantity() + importDetail.getQuantity();
+                 
+                inventoryDAO.updateInventoryQuantity(inv.getInventoryID(), newQty);
                 
+            } else {
+                 
                 // Tạo mới hàng tồn kho nếu chưa có
                 Inventory newInv = new Inventory();
+              
                 newInv.setInventoryID("INV" + System.currentTimeMillis()); // ID tạm thời
+                  
                 newInv.setProduct(productDAO.getProductById(importDetail.getProductID()));
-                newInv.setShop(shopDAO.getShopByID(shopID, "SWP4"));
+                
+                newInv.setShop(shopDAO.getShopByID(shopID, "SWP6"));
+                
                 newInv.setQuantity(importDetail.getQuantity());
                 newInv.setLastUpdated(Timestamp.from(Instant.now()));
-                inventoryDAO.insertInventory(newInv); // bạn cần thêm hàm này trong DAO
+                inventoryDAO.insertInventory(newInv); 
             }
 }
            
@@ -175,8 +189,7 @@ for(ImportReceiptDetail importDetail : listImportDetail){
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi thêm phiếu nhập: " + e.getMessage());
-            System.out.println("");
-            //request.getRequestDispatcher("Test.html").forward(request, response);
+            request.getRequestDispatcher("add_import_receipt.jsp").forward(request, response);
         }
     }
 

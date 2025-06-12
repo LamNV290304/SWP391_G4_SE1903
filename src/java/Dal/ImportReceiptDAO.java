@@ -100,9 +100,11 @@ public class ImportReceiptDAO {
 
     // Xóa phiếu nhập
     public boolean deleteImportReceipt(int id) {
-        String sql = "DELETE FROM ImportReceipt WHERE ImportReceiptID = ?";
+        String sql = "DELETE FROM ImportReceiptDetail WHERE ImportReceiptID = ?;\n" +
+"DELETE FROM ImportReceipt WHERE ImportReceiptID = ?;";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
+            ps.setInt(2, id);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             Logger.getLogger(ImportReceiptDAO.class.getName()).log(Level.SEVERE, null, e);
@@ -125,7 +127,7 @@ public class ImportReceiptDAO {
         );
     }
     public static void main(String[] args) throws SQLException {
-    try (Connection conn = new DBContext("SWP4").getConnection()) {
+    try (Connection conn = new DBContext("SWP6").getConnection()) {
         ImportReceiptDAO dao = new ImportReceiptDAO(conn);
 
         

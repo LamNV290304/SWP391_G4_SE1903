@@ -452,16 +452,16 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
              <div class="card col-sm-12" style="height: 90vh; overflow: hidden;">
   <h5 class="card-header">Thêm mới phiếu nhập Hàng</h5>
 
- <form class="row" action="ThemPhieuNhap" method="POST"> 
+ <form class="row" action="AddImportReceipt" method="POST"> 
   <!-- Cột trái: Card thông tin -->
-  <div class="col-md-2">
+  <div class="col-md-3"style="max-height: 80vh; overflow-y: auto;">
     <div class="card mb-2">
       <h5 class="card-header">Thông Tin</h5>
       <div class="card-body">
         <!-- Các input như bạn đã có -->
         <div class="mb-3">
           <label for="receiptId" class="form-label">ID Phiếu Nhập</label>
-          <input type="text" name="importReceiptID" class="form-control" id="receiptId" />
+          <input type="text" name="importReceiptID" class="form-control" id="mainImportReceiptID" />
         </div>
        
         <div class="mb-3">
@@ -516,14 +516,15 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
     </div>
   </div>
   <!--Cot phai  -->
-<div class="col-md-10" id="horizontal-example">
-  <div class="card mb-2">
-    <h5 class="card-header">Chi Tiết Phiếu Nhập</h5>
+<div class="col-md-9" id="horizontal-example">
+  <div class="card h-100 d-flex flex-column">
+    <h5 class="card-header">Chi Tiết Phiếu Nhập </h5>
     <div class="card-body" id="horizontal-example">
 
       <!-- ✅ Bọc bảng trong div có cuộn ngang -->
-      <div style="overflow-x: auto;">
-        <table class="table table-bordered" id="productTable" style="min-width: 1000px;">
+      <div class="card-body py-2 px-3 overflow-auto" style="max-height: 60vh;">
+          <div class="table-responsive">
+               <table class="table table-bordered" id="productTable" style="min-width: 1000px;">
           <thead>
             <tr>
               <th>Mã Detail</th>
@@ -539,16 +540,18 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
           <tbody>
             <tr>
               <td><input type="text" name="importReceiptDetailID[]" class="form-control" required /></td>
-              <td><input type="number" name="importReceiptID[]" class="form-control" required /></td>
-              <td><input type="text" name="productID[]" class="form-control" required /></td>
-              <td><input type="number" name="quantity[]" class="form-control" required /></td>
-              <td><input type="number" name="price[]" class="form-control" required /></td>
-              <td><input type="number" name="total[]" class="form-control" readonly /></td>
-              <td><input type="text" name="note[]" class="form-control" required /></td>
-              <td><button type="button" class="btn btn-danger btn-sm remove-row">Xóa</button></td>
+    <td><input type="number" name="importReceiptID[]" class="form-control" required value="${mainID}" /></td>
+    <td><input type="text" name="productID[]" class="form-control" required /></td>
+    <td><input type="number" name="quantity[]" class="form-control" required /></td>
+    <td><input type="number" name="price[]" class="form-control" required /></td>
+    <td><input type="number" name="total[]" class="form-control" readonly /></td>
+    <td><input type="text" name="note[]" class="form-control" required /></td>
+    <td><button type="button" class="btn btn-danger btn-sm remove-row">Xóa</button></td>
             </tr>
           </tbody>
         </table>
+          </div>
+       
       </div>
 
       <!-- Nút thêm dòng -->
@@ -563,22 +566,30 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
 
 <!-- JavaScript: Thêm/Xóa dòng và tính Thành tiền -->
 <script>
-  // Thêm dòng mới
-  document.getElementById("addRowBtn").addEventListener("click", function () {
-    const tableBody = document.querySelector("#productTable tbody");
-    const newRow = document.createElement("tr");
-    newRow.innerHTML = `
-      <td><input type="text" name="importReceiptDetailID[]" class="form-control" required /></td>
-              <td><input type="number" name="importReceiptID[]" class="form-control" required /></td>
-              <td><input type="text" name="productID[]" class="form-control" required /></td>
-              <td><input type="number" name="quantity[]" class="form-control" required /></td>
-              <td><input type="number" name="price[]" class="form-control" required /></td>
-              <td><input type="number" name="total[]" class="form-control" readonly /></td>
-              <td><input type="text" name="note[]" class="form-control" required /></td>
-              <td><button type="button" class="btn btn-danger btn-sm remove-row">Xóa</button></td>
-    `;
-    tableBody.appendChild(newRow);
-  });
+ // Tự động điền importReceiptID từ ô chính sang các dòng chi tiết
+document.getElementById("mainImportReceiptID").addEventListener("input", function () {
+  const mainID = this.value;
+  const detailInputs = document.querySelectorAll('input[name="importReceiptID[]"]');
+  detailInputs.forEach(input => input.value = mainID);
+});
+
+// Khi thêm dòng mới, cũng tự động gán luôn importReceiptID
+document.getElementById("addRowBtn").addEventListener("click", function () {
+  const mainID = document.getElementById("mainImportReceiptID").value;
+  const tableBody = document.querySelector("#productTable tbody");
+  const newRow = document.createElement("tr");
+  newRow.innerHTML = `
+    <td><input type="text" name="importReceiptDetailID[]" class="form-control" required /></td>
+    <td><input type="number" name="importReceiptID[]" class="form-control" required value="${mainID}" /></td>
+    <td><input type="text" name="productID[]" class="form-control" required /></td>
+    <td><input type="number" name="quantity[]" class="form-control" required /></td>
+    <td><input type="number" name="price[]" class="form-control" required /></td>
+    <td><input type="number" name="total[]" class="form-control" readonly /></td>
+    <td><input type="text" name="note[]" class="form-control" required /></td>
+    <td><button type="button" class="btn btn-danger btn-sm remove-row">Xóa</button></td>
+  `;
+  tableBody.appendChild(newRow);
+});
 
   // Tính thành tiền + tổng cộng mỗi khi người dùng nhập số
 document.addEventListener("input", function (e) {
@@ -602,17 +613,22 @@ document.addEventListener("input", function (e) {
   });
 
   // Hàm tính tổng cộng
-  function calculateGrandTotal() {
-    const totals = document.querySelectorAll('input[name="total[]"]');
-    let sum = 0;
-    totals.forEach(input => {
-      sum += parseFloat(input.value) || 0;
-    });
-    document.getElementById("grandTotal").textContent = sum.toLocaleString("vi-VN", {
-      style: "currency",
-      currency: "VND"
-    });
-  }
+ function calculateGrandTotal() {
+  const totals = document.querySelectorAll('input[name="total[]"]');
+  let sum = 0;
+  totals.forEach(input => {
+    sum += parseFloat(input.value) || 0;
+  });
+
+  // Cập nhật nội dung hiển thị
+  document.getElementById("grandTotal").textContent = sum.toLocaleString("vi-VN", {
+    style: "currency",
+    currency: "VND"
+  });
+
+  // ✅ Cập nhật giá trị input hidden
+  document.getElementById("grandTotalInput").value = sum.toFixed(2);
+}
 </script>
 
   </div>

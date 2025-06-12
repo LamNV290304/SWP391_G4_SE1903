@@ -73,10 +73,10 @@
                                         <option value="">All Categories</option>
                                         <c:forEach var="category" items="${categories}">
                                             <option value="${category.categoryID}" 
-                                                    ${catego</c:forEach>ryFilter == category.categoryID ? 'selected' : ''}>
+                                                    ${categoryFilter == category.categoryID ? 'selected' : ''}>
                                                 ${category.categoryName}
                                             </option>
-                                        
+                                        </c:forEach>
                                     </select>
                                     <label for="category">Category</label>
                                 </div>
@@ -245,7 +245,7 @@
                                                     </c:if>
                                                 </c:forEach>
                                             </td>
-                                            <td>${product.unitID}</td>
+                                            <td>${product.unitDescription}</td>
                                             <td>
                                                 <span class="text-success">
                                                     <fmt:formatNumber value="${product.importPrice}" type="currency" currencySymbol="$"/>
