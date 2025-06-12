@@ -157,7 +157,7 @@ public class ShopOwnerDAO {
     }
 
     public ShopOwner getShopOwnerByDatabaseName(String databaseName) throws SQLException {
-        String sql = "SELECT * FROM ShopOwners WHERE DatabaseName = ? AND Status = 0";
+        String sql = "SELECT * FROM ShopOwners WHERE DatabaseName = ? AND Status = 1";
         ShopOwner owner = null;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {

@@ -48,6 +48,10 @@
         <servlet-name>ThemPhieuNhap</servlet-name>
         <servlet-class>Controller.ThemPhieuNhap</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>EmployeeVieư</servlet-name>
+        <servlet-class>Controller.EmployeeView</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>StartProject</servlet-name>
         <url-pattern>/StartProject</url-pattern>
@@ -96,6 +100,10 @@
     <servlet-mapping>
         <servlet-name>ThemPhieuNhap</servlet-name>
         <url-pattern>/ThemPhieuNhap</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>EmployeeVieư</servlet-name>
+        <url-pattern>/EmployeeView</url-pattern>
     </servlet-mapping>
     <error-page>
         <error-code>404</error-code>

@@ -350,12 +350,4 @@ public final class DatabaseHelper {
             Logger.getLogger(DatabaseHelper.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
-    public static String normalizeInput(String input) {
-        if (input == null) {
-            return null;
-        }
-        return input.trim().replaceAll("\\s+", " ");
-    }
-
 }

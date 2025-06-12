@@ -86,7 +86,32 @@ public class Login extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            String username = request.getParameter("email-username");
+            String password = request.getParameter("password");
+
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
+            Connection con = DBContext.getConnection(databaseName);
+
+            if (databaseName.equals("")){
+                
+            }
+            EmployeeDAO employeeDAO = new EmployeeDAO(con);
+            Employee employee = employeeDAO.findEmployeeByUsernameAndPassword(username, password);
+
+            if (employee == null) {
+                request.setAttribute("error", "Wrong password or username");
+                request.getRequestDispatcher("login.jsp").forward(request, response);
+            }
+
+            request.getSession().setAttribute("Employee", employee);
+            request.getRequestDispatcher("Home.jsp").forward(request, response);
+
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
