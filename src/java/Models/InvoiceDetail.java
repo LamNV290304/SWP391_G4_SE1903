@@ -18,6 +18,8 @@ public class InvoiceDetail {
     private Double discount;
     private Double totalPrice;
 
+    private String shopID;
+
     public InvoiceDetail() {
     }
 
@@ -29,8 +31,7 @@ public class InvoiceDetail {
         this.discount = (discount != null) ? discount : 0.0;
         calculateTotalPrice();
     }
-    
-    
+
     public InvoiceDetail(int invoiceDetailID, String invoiceID, String productID, Double unitPrice, int quantity, Double discount) {
         this.invoiceDetailID = invoiceDetailID;
         this.invoiceID = invoiceID;
@@ -41,14 +42,13 @@ public class InvoiceDetail {
         calculateTotalPrice();
     }
 
-    
-    public void calculateTotalPrice(){
-        if(unitPrice!=null){
-            double  discountValue = (discount !=null ) ? discount : 0.0;
+    public void calculateTotalPrice() {
+        if (unitPrice != null) {
+            double discountValue = (discount != null) ? discount : 0.0;
             double discountRate = 1 - discountValue / 100.0;
             this.totalPrice = unitPrice * quantity * discountRate;
-        }else{
-            this.totalPrice =0.0;
+        } else {
+            this.totalPrice = 0.0;
         }
     }
 
@@ -91,7 +91,7 @@ public class InvoiceDetail {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
-         calculateTotalPrice();
+        calculateTotalPrice();
     }
 
     public Double getDiscount() {
@@ -100,10 +100,18 @@ public class InvoiceDetail {
 
     public void setDiscount(Double discount) {
         this.discount = discount;
-         calculateTotalPrice();
+        calculateTotalPrice();
     }
 
     public Double getTotalPrice() {
         return totalPrice;
+    }
+
+    public String getShopID() {
+        return shopID;
+    }
+
+    public void setShopID(String shopID) {
+        this.shopID = shopID;
     }
 }
