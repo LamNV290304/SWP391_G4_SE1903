@@ -12,24 +12,23 @@ import java.util.Date;
  */
 public class TransferReceipt {
     private String TransferReceiptID;
-    private String ProductID;
-    private String FromInventoryID;
-    private String ToInventoryID;
-    private int Quantity;
+    private String FromShopID;
+    private String ToShopID;
     private Date TransferDate;
     private String Note;
+    private int Status;
 
-    public TransferReceipt(String string, String string1, String string2, String string3, double aDouble, String string4, int aInt, Date date, String string5) {
-    }
+    
 
-    public TransferReceipt(String TransferReceiptID, String ProductID, String FromInventoryID, String ToInventoryID, int Quantity, Date TransferDate, String Note) {
+    public TransferReceipt(String TransferReceiptID, String FromShopID, String ToShopID, Date TransferDate, String Note, int Status) {
         this.TransferReceiptID = TransferReceiptID;
-        this.ProductID = ProductID;
-        this.FromInventoryID = FromInventoryID;
-        this.ToInventoryID = ToInventoryID;
-        this.Quantity = Quantity;
+        
+        this.FromShopID = FromShopID;
+        this.ToShopID = ToShopID;
+        
         this.TransferDate = TransferDate;
         this.Note = Note;
+        this.Status = Status;
     }
 
     public String getTransferReceiptID() {
@@ -40,37 +39,25 @@ public class TransferReceipt {
         this.TransferReceiptID = TransferReceiptID;
     }
 
-    public String getProductID() {
-        return ProductID;
+    
+
+    public String getFromShopID() {
+        return FromShopID;
     }
 
-    public void setProductID(String ProductID) {
-        this.ProductID = ProductID;
+    public void setFromShopID(String FromShopID) {
+        this.FromShopID = FromShopID;
     }
 
-    public String getFromInventoryID() {
-        return FromInventoryID;
+    public String getToShopID() {
+        return ToShopID;
     }
 
-    public void setFromInventoryID(String FromInventoryID) {
-        this.FromInventoryID = FromInventoryID;
+    public void setToShopID(String ToShopID) {
+        this.ToShopID = ToShopID;
     }
 
-    public String getToInventoryID() {
-        return ToInventoryID;
-    }
-
-    public void setToInventoryID(String ToInventoryID) {
-        this.ToInventoryID = ToInventoryID;
-    }
-
-    public int getQuantity() {
-        return Quantity;
-    }
-
-    public void setQuantity(int Quantity) {
-        this.Quantity = Quantity;
-    }
+    
 
     public Date getTransferDate() {
         return TransferDate;
@@ -86,5 +73,13 @@ public class TransferReceipt {
 
     public void setNote(String Note) {
         this.Note = Note;
+    }
+
+    public int getStatus() {
+        return Status;
+    }
+
+    public void setStatus(int Status) {
+        this.Status = Status;
     }
 }
