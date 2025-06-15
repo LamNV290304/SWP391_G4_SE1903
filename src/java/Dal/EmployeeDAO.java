@@ -4,6 +4,7 @@
  */
 package Dal;
 
+import Context.DBContext;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -12,6 +13,8 @@ import Models.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -23,6 +26,43 @@ public class EmployeeDAO {
 
     public EmployeeDAO(Connection connection) {
         this.connection = connection;
+    }
+
+    public List<Employee> getAllEmployee() {
+        List<Employee> l = new ArrayList<>();
+        String sql = "SELECT [EmployeeID]\n"
+                + "      ,[Username]\n"
+                + "      ,[Password]\n"
+                + "      ,[FullName]\n"
+                + "      ,[Email]\n"
+                + "      ,[Phone]\n"
+                + "      ,[RoleID]\n"
+                + "      ,[ShopID]\n"
+                + "      ,[Status]\n"
+                + "      ,[CreatedDate]\n"
+                + "      ,[CreatedBy]\n"
+                + "  FROM [dbo].[Employee]";
+                
+        try {
+            PreparedStatement ptm = connection.prepareStatement(sql);
+            ResultSet rs = ptm.executeQuery();
+            while (rs.next()) {                
+                Employee emp = new Employee();
+                 emp.setId(rs.getInt("EmployeeID"));
+                    emp.setUsername(rs.getString("Username"));
+                    emp.setPassword(rs.getString("Password"));
+                    emp.setFullname(rs.getString("Fullname"));
+                    emp.setPhone(rs.getString("Phone"));
+                    emp.setStatus(rs.getBoolean("Status"));
+                    emp.setCreateDate(rs.getDate("CreateDate"));
+                    emp.setRoleId(rs.getInt("RoleID"));
+                    emp.setShopId(rs.getInt("ShopID"));
+                    l.add(emp);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return l;
     }
 
     public boolean addEmployee(Employee employee) throws SQLException {
@@ -74,34 +114,43 @@ public class EmployeeDAO {
         }
         return emp;
     }
-public List<Employee> getAllEmployeesByShopID(int shopId) throws SQLException {
-    List<Employee> employees = new ArrayList<>();
-    String sql = "SELECT * FROM Employees WHERE ShopID = ?";
 
-    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-        stmt.setInt(1, shopId);
-        try (ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                Employee emp = new Employee();
-                emp.setId(rs.getInt("EmployeeID"));
-                emp.setUsername(rs.getString("Username"));
-                emp.setPassword(rs.getString("Password"));
-                emp.setFullname(rs.getString("Fullname"));
-                emp.setPhone(rs.getString("Phone"));
-                emp.setEmail(rs.getString("Email"));
-                emp.setStatus(rs.getBoolean("Status"));
-                emp.setCreateDate(rs.getDate("CreateDate"));
-                emp.setRoleId(rs.getInt("RoleID"));
-                emp.setShopId(rs.getInt("ShopID"));
+    public List<Employee> getAllEmployeesByShopID(int shopId) throws SQLException {
+        List<Employee> employees = new ArrayList<>();
+        String sql = "SELECT * FROM Employees WHERE ShopID = ?";
 
-                employees.add(emp);
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, shopId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Employee emp = new Employee();
+                    emp.setId(rs.getInt("EmployeeID"));
+                    emp.setUsername(rs.getString("Username"));
+                    emp.setPassword(rs.getString("Password"));
+                    emp.setFullname(rs.getString("Fullname"));
+                    emp.setPhone(rs.getString("Phone"));
+                    emp.setEmail(rs.getString("Email"));
+                    emp.setStatus(rs.getBoolean("Status"));
+                    emp.setCreateDate(rs.getDate("CreateDate"));
+                    emp.setRoleId(rs.getInt("RoleID"));
+                    emp.setShopId(rs.getInt("ShopID"));
+
+                    employees.add(emp);
+                }
             }
+        } catch (SQLException ex) {
+            System.out.println("Error retrieving employees by ShopID: " + ex.getMessage());
+            ex.printStackTrace();
         }
-    } catch (SQLException ex) {
-        System.out.println("Error retrieving employees by ShopID: " + ex.getMessage());
-        ex.printStackTrace();
-    }
 
-    return employees;
-}
+        return employees;
+    }
+    public static void main(String[] args) {
+        DBContext connection = new DBContext("SWP1");
+        EmployeeDAO ed = new EmployeeDAO(connection.getConnection());
+        List<Employee> e = ed.getAllEmployee();
+        for (Employee employee : e) {
+            System.out.println(employee);
+        }
+    }
 }

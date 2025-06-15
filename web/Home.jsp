@@ -62,8 +62,16 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                   <!--Nav-->
                    <jsp:include page="navBar.jsp" />
            <!-- / Navbar -->
+           <div>
+               
+               
+               
+           </div>
             <!-- Content wrapper -->
           <div class="content-wrapper">
+              
+              
+              
             <!-- Content -->
                 </div>
            <jsp:include page="footer.jsp" />
