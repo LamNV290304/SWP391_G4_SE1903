@@ -4,13 +4,17 @@
  */
 package Dal;
 
+import Context.DBContext;
 import Models.Category;
 import Models.Product;
 import Models.Unit;
+import java.math.BigDecimal;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ProductDAO {
 
@@ -19,6 +23,42 @@ public class ProductDAO {
     public ProductDAO(Connection connection) {
         this.connection = connection;
     }
+
+    public List<Product> getAllProducts() {
+        String sql = "SELECT [ProductID]\n"
+                + "      ,[ProductName]\n"
+                + "      ,[CategoryID]\n"
+                + "      ,[UnitID]\n"
+                + "      ,[Price]\n"
+                + "      ,[Description]\n"
+                + "      ,[Status]\n"
+                + "      ,[CreatedDate]\n"
+                + "      ,[CreatedBy]\n"
+                + "  FROM [dbo].[Product]";
+        List<Product> l = new ArrayList<>();
+        try {
+            PreparedStatement ptm = connection.prepareStatement(sql);
+            ResultSet rs = ptm.executeQuery();
+            while (rs.next()) {
+                Product pr = new Product(
+                        rs.getString("ProductID"),
+                        rs.getString("ProductName"),
+                        rs.getString("CategoryID"),
+                        rs.getString("UnitID"),
+                        rs.getBigDecimal("Price"),
+                        rs.getString("Description"),
+                        rs.getBoolean("Status"),
+                        rs.getTimestamp("CreatedDate").toLocalDateTime(),
+                        rs.getString("CreatedBy"));
+   
+                l.add(pr);
+            }
+            }catch (SQLException ex) {
+            Logger.getLogger(ProductDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return l;
+    }
+  
 
     public List<Product> getAllProducts(int page, int pageSize, String search, String categoryFilter) {
         List<Product> products = new ArrayList<>();
@@ -276,5 +316,13 @@ public class ProductDAO {
 
         return false;
     }
-
+    public static void main(String[] args) {
+        DBContext connection = new DBContext("SWP1");
+        ProductDAO pDAO = new ProductDAO(connection.getConnection());
+        List<Product> p = pDAO.getAllProducts();
+        for (Product product : p) {
+            System.out.println(product.getProductName());
+    }
+        }
+        
 }

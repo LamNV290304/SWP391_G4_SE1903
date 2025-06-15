@@ -25,6 +25,18 @@ public class Product {
     public Product() {
     }
 
+    public Product(String productID, String productName, String categoryID, String unitID, BigDecimal sellingPrice, String description, boolean status, LocalDateTime createdDate, String createdBy) {
+        this.productID = productID;
+        this.productName = productName;
+        this.categoryID = categoryID;
+        this.unitID = unitID;
+        this.sellingPrice = sellingPrice;
+        this.description = description;
+        this.status = status;
+        this.createdDate = createdDate;
+        this.createdBy = createdBy;
+    }
+
     public Product(String productID, String productName, String categoryID, String unitID,
             BigDecimal importPrice, BigDecimal sellingPrice, String description,
             boolean status, String imageUrl, String createdBy) {
