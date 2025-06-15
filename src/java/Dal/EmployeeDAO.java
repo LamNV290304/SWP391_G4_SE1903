@@ -4,12 +4,11 @@
  */
 package Dal;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+import Context.DBContext;
+import DTO.EmployeeDto;
 import java.sql.*;
 import Models.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -45,7 +44,7 @@ public class EmployeeDAO {
     }
 
     public Employee findEmployeeByUsernameAndPassword(String username, String password) throws SQLException {
-        String sql = "SELECT * FROM Employees WHERE Username = ? AND Password = ?";
+        String sql = "SELECT * FROM Employee WHERE Username = ? AND Password = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, username);
             stmt.setString(2, password);
@@ -100,64 +99,88 @@ public class EmployeeDAO {
         return employees;
     }
 
-    public List<Employee> getEmployeesByPage(int page, int pageSize, String sortBy, String sortDirection, String searchKeyword) throws SQLException {
-        List<Employee> employees = new ArrayList<>();
+    public List<EmployeeDto> getEmployeesByPage(int page, int recordsPerPage, Integer shopId, Boolean status, String sort, String keyword) throws SQLException {
+        int offset = (page - 1) * recordsPerPage;
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT e.EmployeeID, e.FullName, e.Email, e.Status, e.CreatedDate, s.ShopName ")
+                .append("FROM Employee e JOIN Shop s ON e.ShopID = s.ShopID WHERE 1=1 ");
 
-        // Chống SQL Injection - chỉ cho phép cột hợp lệ
-        List<String> validSortColumns = Arrays.asList("EmployeeID", "Username", "FullName", "CreatedDate");
-        if (!validSortColumns.contains(sortBy)) {
-            sortBy = "EmployeeID";
+        List<Object> params = new ArrayList<>();
+
+        if (shopId != null) {
+            query.append("AND e.ShopID = ? ");
+            params.add(shopId);
+        }
+        if (status != null) {
+            query.append("AND e.Status = ? ");
+            params.add(status);
+        }
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            query.append("AND (e.FullName LIKE ? OR e.Email LIKE ?) ");
+            params.add("%" + keyword + "%");
+            params.add("%" + keyword + "%");
         }
 
-        if (!"ASC".equalsIgnoreCase(sortDirection) && !"DESC".equalsIgnoreCase(sortDirection)) {
-            sortDirection = "ASC";
+        // Xử lý sort
+        if ("name_asc".equals(sort)) {
+            query.append("ORDER BY e.FullName ASC ");
+        } else if ("name_desc".equals(sort)) {
+            query.append("ORDER BY e.FullName DESC ");
+        } else {
+            query.append("ORDER BY e.CreatedDate DESC ");
         }
 
-        String sql = "SELECT * FROM Employee "
-                + "WHERE FullName LIKE ? OR Username LIKE ? "
-                + "ORDER BY " + sortBy + " " + sortDirection + " "
-                + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        query.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            String keyword = "%" + searchKeyword + "%";
-            stmt.setString(1, keyword);
-            stmt.setString(2, keyword);
-            stmt.setInt(3, (page - 1) * pageSize);
-            stmt.setInt(4, pageSize);
+        params.add(offset);
+        params.add(recordsPerPage);
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    Employee emp = new Employee();
-                    emp.setId(rs.getInt("EmployeeID"));
-                    emp.setUsername(rs.getString("Username"));
-                    emp.setPassword(rs.getString("Password"));
-                    emp.setFullname(rs.getString("Fullname"));
-                    emp.setPhone(rs.getString("Phone"));
-                    emp.setEmail(rs.getString("Email"));
-                    emp.setStatus(rs.getBoolean("Status"));
-                    emp.setCreateDate(rs.getDate("CreatedDate"));
-                    emp.setRoleId(rs.getInt("RoleID"));
-                    emp.setShopId(rs.getInt("ShopID"));
-                    employees.add(emp);
-                }
-            }
+        PreparedStatement ps = connection.prepareStatement(query.toString());
+        for (int i = 0; i < params.size(); i++) {
+            ps.setObject(i + 1, params.get(i));
         }
 
-        return employees;
+        ResultSet rs = ps.executeQuery();
+        List<EmployeeDto> list = new ArrayList<>();
+        while (rs.next()) {
+            EmployeeDto e = new EmployeeDto();
+            e.setId(rs.getInt("EmployeeID"));
+            e.setFullName(rs.getString("FullName"));
+            e.setEmail(rs.getString("Email"));
+            e.setStatus(rs.getBoolean("Status"));
+            e.setCreatedDate(rs.getDate("CreatedDate"));
+            e.setShopName(rs.getString("ShopName"));
+            list.add(e);
+        }
+        return list;
     }
 
-    public int getTotalEmployeeCount(String searchKeyword) throws SQLException {
-        String sql = "SELECT COUNT(*) AS total FROM Employee WHERE Fullname LIKE ? OR Username LIKE ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            String keyword = "%" + searchKeyword + "%";
-            stmt.setString(1, keyword);
-            stmt.setString(2, keyword);
+    public int getTotalEmployeeCount(Integer shopId, Boolean status, String keyword) throws SQLException {
+        StringBuilder query = new StringBuilder("SELECT COUNT(*) FROM Employee e WHERE 1=1 ");
+        List<Object> params = new ArrayList<>();
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt("total");
-                }
-            }
+        if (shopId != null) {
+            query.append("AND e.ShopID = ? ");
+            params.add(shopId);
+        }
+        if (status != null) {
+            query.append("AND e.Status = ? ");
+            params.add(status);
+        }
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            query.append("AND (e.FullName LIKE ? OR e.Email LIKE ?) ");
+            params.add("%" + keyword + "%");
+            params.add("%" + keyword + "%");
+        }
+
+        PreparedStatement ps = connection.prepareStatement(query.toString());
+        for (int i = 0; i < params.size(); i++) {
+            ps.setObject(i + 1, params.get(i));
+        }
+
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1);
         }
         return 0;
     }
@@ -182,5 +205,29 @@ public class EmployeeDAO {
             return false;
         }
     }
-}
 
+    public static void main(String[] args) throws ClassNotFoundException {
+
+        try (Connection conn = DBContext.getConnection("ShopDB_TTest")) {
+            EmployeeDAO dao = new EmployeeDAO(conn);
+
+            // 🔢 Test getTotalEmployeeCount()
+            //int total = dao.getTotalEmployeeCount();
+            //System.out.println("🧮 Tổng số nhân viên: " + total);
+            // 🔁 Test getEmployeesByPage(page, size)
+            int page = 1;
+            int size = 5;
+
+            //List<EmployeeDto> list = dao.getEmployeesByPage(page, size);
+            System.out.println("📋 Danh sách nhân viên (trang " + page + "):");
+//            for (EmployeeDto e : list) {
+//                System.out.println("- " + e.getFullName() + " | " + e.getEmail()
+//                        + " | Shop: " + e.getShopName()
+//                        + " | Status: " + (e.isStatus() ? "Active" : "Inactive"));
+//            }
+
+        } catch (SQLException ex) {
+            System.err.println("❌ Lỗi kết nối SQL: " + ex.getMessage());
+        }
+    }
+}
