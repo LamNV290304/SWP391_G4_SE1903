@@ -2,7 +2,7 @@ package Models;
 
 public class Category {
 
-    private String categoryID;
+    private Integer categoryID;
     private String categoryName;
     private String description;
     private boolean status;
@@ -11,7 +11,7 @@ public class Category {
     public Category() {
     }
 
-    public Category(String categoryID, String categoryName, String description, boolean status) {
+    public Category(Integer categoryID, String categoryName, String description, boolean status) {
         this.categoryID = categoryID;
         this.categoryName = categoryName;
         this.description = description;
@@ -19,11 +19,11 @@ public class Category {
     }
 
     
-    public String getCategoryID() {
+    public Integer getCategoryID() {
         return categoryID;
     }
 
-    public void setCategoryID(String categoryID) {
+    public void setCategoryID(Integer categoryID) {
         this.categoryID = categoryID;
     }
 

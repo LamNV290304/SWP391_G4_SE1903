@@ -41,7 +41,7 @@ public class ProductDAO {
             ResultSet rs = ptm.executeQuery();
             while (rs.next()) {
                 Product pr = new Product(
-                        rs.getString("ProductID"),
+                        rs.getInt("ProductID"),
                         rs.getString("ProductName"),
                         rs.getString("CategoryID"),
                         rs.getString("UnitID"),
@@ -99,7 +99,7 @@ public class ProductDAO {
 
             while (rs.next()) {
                 Product product = new Product();
-                product.setProductID(rs.getString("ProductID"));
+                product.setProductID(rs.getInt("ProductID")); // Changed to int
                 product.setProductName(rs.getString("ProductName"));
                 product.setCategoryID(rs.getString("CategoryID"));
                 product.setUnitID(rs.getString("UnitID"));
@@ -156,22 +156,21 @@ public class ProductDAO {
         return 0;
     }
 
-    public Product getProductById(String productId) {
+    public Product getProductById(int productId) { // Changed parameter type to int
         String sql = "SELECT p.*, c.CategoryName, u.Description as UnitDescription "
                 + "FROM Product p "
                 + "LEFT JOIN Category c ON p.CategoryID = c.CategoryID "
                 + "LEFT JOIN Unit u ON p.UnitID = u.UnitID "
                 + "WHERE p.ProductID = ?";
 
-        try (
-                PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 
-            stmt.setString(1, productId);
+            stmt.setInt(1, productId); // Changed to setInt
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
                 Product product = new Product();
-                product.setProductID(rs.getString("ProductID"));
+                product.setProductID(rs.getInt("ProductID")); // Changed to int
                 product.setProductName(rs.getString("ProductName"));
                 product.setCategoryID(rs.getString("CategoryID"));
                 product.setUnitID(rs.getString("UnitID"));
@@ -195,22 +194,22 @@ public class ProductDAO {
     }
 
     public boolean createProduct(Product product) {
-        String sql = "INSERT INTO Product (ProductID, ProductName, CategoryID, UnitID, "
+        // Removed ProductID from INSERT statement as it's auto-increment
+        String sql = "INSERT INTO Product (ProductName, CategoryID, UnitID, "
                 + "ImportPrice, SellingPrice, Description, Status, ImageUrl, CreatedBy) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 
-            stmt.setString(1, product.getProductID());
-            stmt.setString(2, product.getProductName());
-            stmt.setString(3, product.getCategoryID());
-            stmt.setString(4, product.getUnitID());
-            stmt.setBigDecimal(5, product.getImportPrice());
-            stmt.setBigDecimal(6, product.getSellingPrice());
-            stmt.setString(7, product.getDescription());
-            stmt.setBoolean(8, product.isStatus());
-            stmt.setString(9, product.getImageUrl());
-            stmt.setString(10, product.getCreatedBy());
+            stmt.setString(1, product.getProductName());
+            stmt.setString(2, product.getCategoryID());
+            stmt.setString(3, product.getUnitID());
+            stmt.setBigDecimal(4, product.getImportPrice());
+            stmt.setBigDecimal(5, product.getSellingPrice());
+            stmt.setString(6, product.getDescription());
+            stmt.setBoolean(7, product.isStatus());
+            stmt.setString(8, product.getImageUrl());
+            stmt.setString(9, product.getCreatedBy());
 
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -235,7 +234,7 @@ public class ProductDAO {
             stmt.setString(6, product.getDescription());
             stmt.setBoolean(7, product.isStatus());
             stmt.setString(8, product.getImageUrl());
-            stmt.setString(9, product.getProductID());
+            stmt.setInt(9, product.getProductID()); // Changed to setInt
 
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -245,12 +244,12 @@ public class ProductDAO {
         return false;
     }
 
-    public boolean deleteProduct(String productId) {
+    public boolean deleteProduct(int productId) { // Changed parameter type to int
         String sql = "DELETE FROM Product WHERE ProductID = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 
-            stmt.setString(1, productId);
+            stmt.setInt(1, productId); // Changed to setInt
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -263,11 +262,12 @@ public class ProductDAO {
         List<Category> categories = new ArrayList<>();
         String sql = "SELECT * FROM Category WHERE Status = 1 ORDER BY CategoryName";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql); 
+             ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 Category category = new Category();
-                category.setCategoryID(rs.getString("CategoryID"));
+                category.setCategoryID(rs.getInt("CategoryID"));
                 category.setCategoryName(rs.getString("CategoryName"));
                 category.setDescription(rs.getString("Description"));
                 category.setStatus(rs.getBoolean("Status"));
@@ -284,11 +284,12 @@ public class ProductDAO {
         List<Unit> units = new ArrayList<>();
         String sql = "SELECT * FROM Unit ORDER BY Description";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql); 
+             ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 Unit unit = new Unit();
-                unit.setUnitID(rs.getString("UnitID"));
+                unit.setUnitID(rs.getInt("UnitID"));
                 unit.setDescription(rs.getString("Description"));
                 units.add(unit);
             }
@@ -297,24 +298,6 @@ public class ProductDAO {
         }
 
         return units;
-    }
-
-    public boolean isProductIdExists(String productId) {
-        String sql = "SELECT COUNT(*) FROM Product WHERE ProductID = ?";
-
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-
-            stmt.setString(1, productId);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getInt(1) > 0;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return false;
     }
     public static void main(String[] args) {
         DBContext connection = new DBContext("SWP1");
