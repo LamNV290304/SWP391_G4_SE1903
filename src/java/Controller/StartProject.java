@@ -68,19 +68,10 @@ public class StartProject extends HttpServlet {
             return;
         }
 
-        String shopInf = path.replaceAll("^/+", "").split("/")[0];
-        String databaseName = DatabaseHelper.getDatabaseNameByShopCode(shopInf);
-        String shopName = DatabaseHelper.getShopNameByShopCode(shopInf);
-
-        if (databaseName == null) {
-            databaseName = DatabaseHelper.getDatabaseNameByShopName(shopInf);
-            shopName = shopInf;
-        }
-
-        if (databaseName == null && shopName == null) {
-            response.sendRedirect("error.jsp");
-            return;
-        }
+        String shopCode = path.replace("/", "");
+        
+        String databaseName = DatabaseHelper.getDatabaseNameByShopCode(shopCode);
+        String shopName = DatabaseHelper.getShopNameByShopCode(shopCode);
 
         request.getSession().setAttribute("databaseName", databaseName);
         request.getSession().setAttribute("shopName", shopName);

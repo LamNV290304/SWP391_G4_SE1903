@@ -5,28 +5,26 @@
 package Controller;
 
 import Context.DBContext;
-import Dal.ShopOwnerDAO;
+import DTO.EmployeeDto;
+import Dal.EmployeeDAO;
+import Dal.ShopDAO;
+import Models.Shop;
+import Utils.Validator;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.sql.Connection;
-import Context.DatabaseHelper;
-import Models.Employee;
-import Models.ShopOwner;
-import Utils.MailUtil;
-import java.sql.SQLException;
-import java.sql.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.sql.*;
+import java.util.List;
+import org.apache.tomcat.jakartaee.commons.lang3.Validate;
 
 /**
  *
  * @author Admin
  */
-public class Verify extends HttpServlet {
+public class ShowEmployeeList extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -45,10 +43,10 @@ public class Verify extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet Verify</title>");
+            out.println("<title>Servlet ShowEmployeeList</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet Verify at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet ShowEmployeeList at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -66,7 +64,42 @@ public class Verify extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        int page = 1;
+        int recordsPerPage = 10;
 
+        if (request.getParameter("page") != null) {
+            page = Integer.parseInt(request.getParameter("page"));
+        }
+
+        String sort = request.getParameter("sort");
+        String shopIdParam = request.getParameter("shopId");
+        String statusParam = request.getParameter("status");
+        String search = request.getParameter("keyword");
+        String keyword = Validator.normalizeInput(search);
+
+        Integer shopId = (shopIdParam != null && !shopIdParam.isEmpty()) ? Integer.parseInt(shopIdParam) : null;
+        Boolean status = (statusParam != null && !statusParam.isEmpty()) ? statusParam.equals("1") : null;
+
+        try (Connection conn = DBContext.getConnection("ShopDB_TTest")) {
+            EmployeeDAO dao = new EmployeeDAO(conn);
+            ShopDAO shopDAO = new ShopDAO();
+
+            List<EmployeeDto> employeeList = dao.getEmployeesByPage(page, recordsPerPage, shopId, status, sort, keyword);
+            int totalRecords = dao.getTotalEmployeeCount(shopId, status, keyword);
+            int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
+
+            List<Shop> shopList = shopDAO.getAllShops("ShopDB_TTest");
+
+            request.setAttribute("employeeList", employeeList);
+            request.setAttribute("currentPage", page);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("shopList", shopList);
+
+            request.getRequestDispatcher("showEmployeeList.jsp").forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi khi truy xuất danh sách nhân viên");
+        }
     }
 
     /**
@@ -80,40 +113,7 @@ public class Verify extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
-            String otp = request.getParameter("otp");
-            String email = request.getParameter("email");
-            String databaseName = request.getParameter("databaseName");
-            Date createDate = Date.valueOf(java.time.LocalDate.now());
-            
-            String shopCode = request.getParameter("shopCode");
-            
-            Connection conn = DBContext.getCentralConnection();
-            ShopOwnerDAO shopOwnerDAO = new ShopOwnerDAO(conn);
-            
-            if (!shopOwnerDAO.verifyOTP(email, otp)) {
-                request.setAttribute("error", "OTP không đúng");
-                request.setAttribute("databaseName", databaseName);
-                request.setAttribute("email", email);
-                request.getRequestDispatcher("verificationOTP.jsp").forward(request, response);
-                return;
-            }
-            
-            ShopOwner shopOwner = shopOwnerDAO.getShopOwnerByDatabaseName(databaseName);
-            Employee firstEmployee = new Employee(0, 0, 0, shopOwner.getUsername(), shopOwner.getPassword(), shopOwner.getFullname(), shopOwner.getPhone(), shopOwner.getEmail(), true, createDate);
-            DatabaseHelper.initializeShopDatabase(databaseName, firstEmployee);
-            
-            shopOwnerDAO.updateStatusByEmail(email);
-            String link = "http://localhost:9999/SWP391_G4_SE1903/" + shopCode;
-            
-            MailUtil.sendLink(email, link);
-            
-            response.sendRedirect("successRegister.jsp");
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Verify.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(Verify.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        processRequest(request, response);
     }
 
     /**

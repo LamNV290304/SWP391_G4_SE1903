@@ -4,12 +4,18 @@
  */
 package Controller;
 
+import Context.DBContext;
+import Dal.EmployeeDAO;
+import Models.Employee;
+import java.sql.Connection;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -44,10 +50,29 @@ public class Login extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String username = request.getParameter("email-username");
-        String password = request.getParameter("password");
-        
-        
+        try {
+            String username = request.getParameter("email-username");
+            String password = request.getParameter("password");
+
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
+            Connection con = DBContext.getConnection(databaseName);
+
+            EmployeeDAO employeeDAO = new EmployeeDAO(con);
+            Employee employee = employeeDAO.findEmployeeByUsernameAndPassword(username, password);
+
+            if (employee == null) {
+                request.setAttribute("error", "Wrong password or username");
+                request.getRequestDispatcher("login.jsp").forward(request, response);
+            }
+
+            request.getSession().setAttribute("Employee", employee);
+            request.getRequestDispatcher("Home.jsp").forward(request, response);
+
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -61,7 +86,32 @@ public class Login extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            String username = request.getParameter("email-username");
+            String password = request.getParameter("password");
+
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
+            Connection con = DBContext.getConnection(databaseName);
+
+            if (databaseName.equals("")){
+                
+            }
+            EmployeeDAO employeeDAO = new EmployeeDAO(con);
+            Employee employee = employeeDAO.findEmployeeByUsernameAndPassword(username, password);
+
+            if (employee == null) {
+                request.setAttribute("error", "Wrong password or username");
+                request.getRequestDispatcher("login.jsp").forward(request, response);
+            }
+
+            request.getSession().setAttribute("Employee", employee);
+            request.getRequestDispatcher("Home.jsp").forward(request, response);
+
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**

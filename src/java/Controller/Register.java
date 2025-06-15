@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import Models.*;
 import Dal.*;
-import Utils.MailUtil;
+import Utils.*;
 
 /**
  *
@@ -99,15 +99,21 @@ public class Register extends HttpServlet {
                 request.getRequestDispatcher("register.jsp").forward(request, response);
                 return;
             }
-
-            if (shopOwnerDAO.isShopNameExist(shopName)) {
-                request.setAttribute("error", "shop đã tồn tại, vui lòng chọn tên khác!");
+            
+            if (shopOwnerDAO.isPhoneExist(phone)) {
+                request.setAttribute("error", "Số điện thoại đã tồn tại, vui lòng chọn username khác!");
                 request.getRequestDispatcher("register.jsp").forward(request, response);
                 return;
             }
 
-            if (shopOwnerDAO.isEmailExist(shopName)) {
-                request.setAttribute("error", "shop đã tồn tại, vui lòng chọn tên khác!");
+            if (shopOwnerDAO.isShopNameExist(shopName)) {
+                request.setAttribute("error", "Shop đã tồn tại, vui lòng chọn tên khác!");
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+                return;
+            }
+
+            if (shopOwnerDAO.isEmailExist(email)) {
+                request.setAttribute("error", "Email đã tồn tại, vui lòng chọn tên khác!");
                 request.getRequestDispatcher("register.jsp").forward(request, response);
                 return;
             }
@@ -116,8 +122,16 @@ public class Register extends HttpServlet {
 
             String databaseName = DatabaseHelper.generateSafeDatabaseName(shopName);
             String shopCode = DatabaseHelper.generateShopCode(shopName);
-            ShopOwner shopOwner = new ShopOwner(databaseName, shopCode, shopName, 0, username, password, fullname, phone, email, false, null);
-
+            
+            if (shopOwnerDAO.isDatabaseNameExist(databaseName)) {
+                request.setAttribute("error", "Shop đã tồn tại, vui lòng chọn tên khác!");
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+                return;
+            }
+            
+            String hasPassword = PasswordUtils.hashPassword(password);
+            ShopOwner shopOwner = new ShopOwner(databaseName, shopCode, shopName, 0, username, hasPassword, fullname, phone, email, false, null);
+            
             shopOwnerDAO.addShopOwner(shopOwner);
 
             shopOwnerDAO.saveOTP(email, otp);
@@ -127,7 +141,7 @@ public class Register extends HttpServlet {
             request.setAttribute("email", email);
             request.setAttribute("shopCode", shopCode);
             request.setAttribute("databaseName", databaseName);
-            request.getRequestDispatcher("Verify").forward(request, response);
+            request.getRequestDispatcher("verificationOTP.jsp").forward(request, response);
         } catch (SQLException ex) {
             System.out.println(ex.getMessage() + ex.getStackTrace());
         }

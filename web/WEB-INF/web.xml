@@ -25,6 +25,14 @@
         <servlet-class>Controller.Register</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>ForgotPassword</servlet-name>
+        <servlet-class>Controller.ForgotPassword</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ForgotPassVerify</servlet-name>
+        <servlet-class>Controller.ForgotPassVerify</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>Verify</servlet-name>
         <servlet-class>Controller.Verify</servlet-class>
     </servlet>
@@ -39,6 +47,10 @@
     <servlet>
         <servlet-name>ThemPhieuNhap</servlet-name>
         <servlet-class>Controller.ThemPhieuNhap</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ShowEmployeeList</servlet-name>
+        <servlet-class>Controller.ShowEmployeeList</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>StartProject</servlet-name>
@@ -66,6 +78,14 @@
         <url-pattern>/Register</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>ForgotPassword</servlet-name>
+        <url-pattern>/ForgotPassword</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ForgotPassVerify</servlet-name>
+        <url-pattern>/ForgotPassVerify</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>Verify</servlet-name>
         <url-pattern>/Verify</url-pattern>
     </servlet-mapping>
@@ -81,12 +101,16 @@
         <servlet-name>ThemPhieuNhap</servlet-name>
         <url-pattern>/ThemPhieuNhap</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ShowEmployeeList</servlet-name>
+        <url-pattern>/ShowEmployeeList</url-pattern>
+    </servlet-mapping>
     <error-page>
         <error-code>404</error-code>
-        <location>/error.jsp</location>
+        <location>/ErrorPage</location>
     </error-page>
     <error-page>
         <exception-type>java.lang.Throwable</exception-type>
-        <location>/error.jsp</location>
+        <location>/ErrorPage</location>
     </error-page>
 </web-app>

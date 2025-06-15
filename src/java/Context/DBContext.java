@@ -53,18 +53,6 @@ public class DBContext {
         String url = "jdbc:sqlserver://" + SERVER_NAME + ":" + PORT + ";databaseName=" + databaseName + ";encrypt=false";
         return DriverManager.getConnection(url, USERNAME, PASSWORD);
     }
-    public ResultSet getData(String sql) {
-        ResultSet rs = null;
-
-        try {
-            Statement state = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
-                    ResultSet.CONCUR_UPDATABLE);
-            rs = state.executeQuery(sql);
-        } catch (SQLException ex) {
-            Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return rs;
-    }
 
     /**
      * Hàm static để lấy connection đến CentralDB.

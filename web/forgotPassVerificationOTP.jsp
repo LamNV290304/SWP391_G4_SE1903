@@ -87,9 +87,6 @@
                                                 <label class="col-sm-2 col-form-label" for="otp">OTP</label>
                                                 <div class="col-sm-10">
                                                     <input type="text" class="form-control" id="otp" name="otp" placeholder="OTP Code" required />
-                                                    <input type="text" class="form-control" name="email" hidden required value="${email}"/>
-                                                    <input type="text" class="form-control" name="databaseName" hidden required value="${databaseName}"/>
-                                                    <input type="text" class="form-control" name="shopCode" hidden required value="${shopCode}"/>
                                                 </div>
                                             </div>
 
