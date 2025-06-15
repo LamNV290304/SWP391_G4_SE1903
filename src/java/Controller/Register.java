@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import Models.*;
 import Dal.*;
-import Utils.MailUtil;
+import Utils.*;
 
 /**
  *
@@ -129,7 +129,8 @@ public class Register extends HttpServlet {
                 return;
             }
             
-            ShopOwner shopOwner = new ShopOwner(databaseName, shopCode, shopName, 0, username, password, fullname, phone, email, false, null);
+            String hasPassword = PasswordUtils.hashPassword(password);
+            ShopOwner shopOwner = new ShopOwner(databaseName, shopCode, shopName, 0, username, hasPassword, fullname, phone, email, false, null);
             
             shopOwnerDAO.addShopOwner(shopOwner);
 

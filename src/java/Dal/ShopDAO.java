@@ -44,7 +44,7 @@ public class ShopDAO {
         }
         return shops;
     }
-
+    
     public Shop getShopByID(String shopID, String databaseName) {
         String sql = "SELECT * FROM Shop WHERE ShopID = ?";
         try (Connection conn = DBContext.getConnection(databaseName);

@@ -70,8 +70,8 @@ public class InventoryDAO {
             ps.setInt(1, newQuantity);
             ps.setString(2, inventoryID);
             return ps.executeUpdate() > 0;
-        }catch(SQLException e){
-      Logger.getLogger(InventoryDAO.class.getName()).log(Level.SEVERE, null, e);
+        } catch (SQLException e) {
+            Logger.getLogger(InventoryDAO.class.getName()).log(Level.SEVERE, null, e);
         }
         return false;
     }
@@ -88,22 +88,25 @@ public class InventoryDAO {
             ptm.setString(2, shopID);
             ResultSet rs = ptm.executeQuery();
             if (rs.next()) {
-        Inventory i = new Inventory();
-        i.setInventoryID(rs.getString("inventoryID"));
+                Inventory i = new Inventory();
+                i.setInventoryID(rs.getString("inventoryID"));
 
-        Product p = new Product();
-        p.setProductID(rs.getString("ProductID"));
-        p.setProductName(rs.getString("ProductName"));
-        i.setProduct(p);
+                Product p = new Product();
+                p.setProductID(rs.getString("ProductID"));
+                p.setProductName(rs.getString("ProductName"));
+                i.setProduct(p);
 
-        Shop s = new Shop();
-        s.setShopID(rs.getString("ShopID"));
-        s.setShopName(rs.getString("ShopName"));
-        i.setShop(s);
+                Shop s = new Shop();
+                s.setShopID(rs.getString("ShopID"));
+                s.setShopName(rs.getString("ShopName"));
+                i.setShop(s);
+
 
         i.setQuantity(rs.getInt("Quantity"));
         i.setLastUpdated(rs.getTimestamp("LastUpdated"));
         return i;
+
+
             }
         } catch (SQLException ex) {
             Logger.getLogger(InventoryDAO.class.getName()).log(Level.SEVERE, null, ex);
@@ -183,21 +186,23 @@ public class InventoryDAO {
         }
         return list;
     }
-public boolean insertInventory(Inventory inventory) {
-    String sql = "INSERT INTO Inventory (InventoryID, ProductID, ShopID, Quantity, LastUpdated) "
-               + "VALUES (?, ?, ?, ?, ?)";
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setString(1, inventory.getInventoryID());
-        ps.setString(2, inventory.getProduct().getProductID());
-        ps.setString(3, inventory.getShop().getShopID());
-        ps.setInt(4, inventory.getQuantity());
-        ps.setTimestamp(5, new Timestamp(System.currentTimeMillis())); // hoặc inventory.getLastUpdated()
-        return ps.executeUpdate() > 0;
-    } catch (SQLException e) {
-        Logger.getLogger(InventoryDAO.class.getName()).log(Level.SEVERE, null, e);
+
+    public boolean insertInventory(Inventory inventory) {
+        String sql = "INSERT INTO Inventory (InventoryID, ProductID, ShopID, Quantity, LastUpdated) "
+                + "VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, inventory.getInventoryID());
+            ps.setString(2, inventory.getProduct().getProductID());
+            ps.setString(3, inventory.getShop().getShopID());
+            ps.setInt(4, inventory.getQuantity());
+            ps.setTimestamp(5, new Timestamp(System.currentTimeMillis())); // hoặc inventory.getLastUpdated()
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            Logger.getLogger(InventoryDAO.class.getName()).log(Level.SEVERE, null, e);
+        }
+        return false;
     }
-    return false;
-}
+
     public static void main(String[] args) {
         try (Connection conn = new DBContext("SWP4").getConnection()) {
             InventoryDAO dao = new InventoryDAO(conn);
