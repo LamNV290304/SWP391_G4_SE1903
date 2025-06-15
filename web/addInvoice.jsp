@@ -119,12 +119,12 @@
 
                         <div class="mb-3">
                             <label for="employeeID" class="form-label">Nhân viên:</label>
-                            <select class="form-select" id="employeeID" name="employeeID" required>
+<!--                            <select class="form-select" id="employeeID" name="employeeID" required>
                                 <option value="">-- Chọn nhân viên --</option>
                                 <c:forEach var="emp" items="${employees}">
                                     <option value="${emp.id}">${emp.fullName}</option>
                                 </c:forEach>
-                            </select>
+                            </select>-->
                             <input type="text" class="form-control" id="employeeID" name="employeeID" required placeholder="Nhập mã nhân viên" />
                         </div>
 

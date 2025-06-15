@@ -37,10 +37,10 @@ public class InvoiceDAO {
             PreparedStatement ptm = connection.prepareStatement(sql);
             ResultSet rs = ptm.executeQuery();
             while (rs.next()) {
-                list.add(new Invoice(rs.getString(1),
-                        rs.getString(2),
-                        rs.getString(3),
-                        rs.getString(4),
+                list.add(new Invoice(rs.getInt(1),
+                        rs.getInt(2),
+                        rs.getInt(3),
+                        rs.getInt(4),
                         rs.getTimestamp(5),
                         rs.getDouble(6),
                         rs.getString(7),
@@ -54,7 +54,6 @@ public class InvoiceDAO {
 
     public void addInvoice(Invoice i) {
         String sql = "INSERT INTO [dbo].[Invoice]\n"
-                + "           ([InvoiceID]\n"
                 + "           ,[CustomerID]\n"
                 + "           ,[EmployeeID]\n"
                 + "           ,[ShopID]\n"
@@ -66,14 +65,13 @@ public class InvoiceDAO {
         PreparedStatement ptm;
         try {
             ptm = connection.prepareStatement(sql);
-            ptm.setString(1, i.getInvoiceID());
-            ptm.setString(2, i.getCustomerID());
-            ptm.setString(3, i.getEmployeeID());
-            ptm.setString(4, i.getShopID());
-            ptm.setTimestamp(5, Timestamp.from(Instant.now()));
-            ptm.setDouble(6, i.getTotalAmount());
-            ptm.setString(7, i.getNote());
-            ptm.setBoolean(8, i.isStatus());
+            ptm.setInt(1, i.getCustomerID());
+            ptm.setInt(2, i.getEmployeeID());
+            ptm.setInt(3, i.getShopID());
+            ptm.setTimestamp(4, Timestamp.from(Instant.now()));
+            ptm.setDouble(5, i.getTotalAmount());
+            ptm.setString(6, i.getNote());
+            ptm.setBoolean(7, i.isStatus());
             ptm.executeUpdate();
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -81,7 +79,7 @@ public class InvoiceDAO {
 
     }
 
-    public boolean deleteInvoice(String invoiceID) {
+    public boolean deleteInvoice(int invoiceID) {
         Invoice invoice = searchInvoice(invoiceID);
         if (invoice == null) {
             System.out.println("Không tìm thấy hóa đơn: " + invoiceID);
@@ -104,7 +102,7 @@ public class InvoiceDAO {
 
         String sql = "DELETE FROM Invoice WHERE InvoiceID = ?";
         try (PreparedStatement ptm = connection.prepareStatement(sql)) {
-            ptm.setString(1, invoiceID);
+            ptm.setInt(1, invoiceID);
             return ptm.executeUpdate() > 0;
         } catch (SQLException ex) {
             Logger.getLogger(InvoiceDAO.class.getName()).log(Level.SEVERE, null, ex);
@@ -114,16 +112,16 @@ public class InvoiceDAO {
 
     }
 
-    public Invoice searchInvoice(String invoiceID) {
+    public Invoice searchInvoice(int invoiceID) {
         String sql = "SELECT * FROM Invoice WHERE InvoiceID = ?";
         List<Invoice> l = new ArrayList<>();
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);
-            ptm.setString(1, invoiceID);
+            ptm.setInt(1, invoiceID);
             ResultSet rs = ptm.executeQuery();
             if (rs.next()) {
-                return new Invoice(rs.getString(1), rs.getString(2), rs.getString(3),
-                        rs.getString(4), rs.getTimestamp(5),
+                return new Invoice(rs.getInt(1), rs.getInt(2), rs.getInt(3),
+                        rs.getInt(4), rs.getTimestamp(5),
                         rs.getDouble(6), rs.getString(7), rs.getBoolean(8));
 
             }
@@ -144,8 +142,8 @@ public class InvoiceDAO {
             ptm.setString(2, "%" + key + "%");
             ResultSet rs = ptm.executeQuery();
             while (rs.next()) {
-                Invoice i = new Invoice(rs.getString(1), rs.getString(2), rs.getString(3),
-                        rs.getString(4), rs.getTimestamp(5),
+                Invoice i = new Invoice(rs.getInt(1), rs.getInt(2), rs.getInt(3),
+                        rs.getInt(4), rs.getTimestamp(5),
                         rs.getDouble(6), rs.getString(7), rs.getBoolean(8));
                 l.add(i);
             }
@@ -169,14 +167,14 @@ public class InvoiceDAO {
 
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);
-            ptm.setString(1, i.getCustomerID());
-            ptm.setString(2, i.getEmployeeID());
-            ptm.setString(3, i.getShopID());
+            ptm.setInt(1, i.getCustomerID());
+            ptm.setInt(2, i.getEmployeeID());
+            ptm.setInt(3, i.getShopID());
             ptm.setTimestamp(4, i.getInvoiceDate());
             ptm.setDouble(5, i.getTotalAmount());
             ptm.setString(6, i.getNote());
             ptm.setBoolean(7, i.isStatus());
-            ptm.setString(8, i.getInvoiceID());
+            ptm.setInt(8, i.getInvoiceID());
 
             int n = ptm.executeUpdate();
             return n > 0;
@@ -190,8 +188,10 @@ public class InvoiceDAO {
 
     public List<Invoice> getInvoicesByPage(int pageIndex, int pageSize) {
         List<Invoice> list = new ArrayList<>();
-        String sql = "SELECT * FROM Invoice "
-                + "ORDER BY InvoiceDate DESC "
+        String sql = "SELECT i.*, c.CustomerName \n"
+                + "FROM [dbo].[Invoice] i \n"
+                + "JOIN [dbo].[Customer] c ON i.CustomerID = c.CustomerID\n"
+                + "ORDER BY i.InvoiceID ASC \n"
                 + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);
@@ -201,14 +201,15 @@ public class InvoiceDAO {
             ResultSet rs = ptm.executeQuery();
             while (rs.next()) {
                 list.add(new Invoice(
-                        rs.getString(1),
-                        rs.getString(2),
-                        rs.getString(3),
-                        rs.getString(4),
-                        rs.getTimestamp(5),
-                        rs.getDouble(6),
-                        rs.getString(7),
-                        rs.getBoolean(8)
+                        rs.getInt("InvoiceID"),
+                        rs.getInt("CustomerID"),
+                        rs.getString("CustomerName"), 
+                        rs.getInt("EmployeeID"),
+                        rs.getInt("ShopID"),
+                        rs.getTimestamp("InvoiceDate"),
+                        rs.getDouble("TotalAmount"),
+                        rs.getString("Note"),
+                        rs.getBoolean("Status")
                 ));
             }
         } catch (SQLException ex) {
@@ -238,9 +239,10 @@ public class InvoiceDAO {
 
         List<Invoice> invoices1 = dao.getInvoicesByPage(pageIndex, pageSize);
         for (Invoice inv : invoices1) {
-            System.out.printf("%s | %s | %s | %s | %s | %.2f | %s | %b%n",
+            System.out.printf("%s | %s | %s | %s | %s | %s | %.2f | %s | %b%n",
                     inv.getInvoiceID(),
                     inv.getCustomerID(),
+                    inv.getCustomerName(),
                     inv.getEmployeeID(),
                     inv.getShopID(),
                     inv.getInvoiceDate(),
