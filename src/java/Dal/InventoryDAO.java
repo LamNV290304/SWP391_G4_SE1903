@@ -77,15 +77,15 @@ public class InventoryDAO {
     }
 
     // lay haang ton kho theo shop id va product id
-    public Inventory getInventoryByShopAndProduct(String productID, String shopID) {
+    public Inventory getInventoryByShopAndProduct(int productID, int shopID) {
         String sql = "SELECT i.InventoryID, i.ProductID,p.ProductName, i.ShopID,s.ShopName, i.Quantity, i.LastUpdated\n"
                 + "  FROM Inventory i join Product p on i.ProductID = p.ProductID LEFT join Shop s on i.ShopID = s.ShopID\n"
                 + "WHERE i.ProductID= ? and i.ShopID =?";
         PreparedStatement ptm;
         try {
             ptm = connection.prepareStatement(sql);
-            ptm.setString(1, productID);
-            ptm.setString(2, shopID);
+            ptm.setInt(1, productID);
+            ptm.setInt(2, shopID);
             ResultSet rs = ptm.executeQuery();
             if (rs.next()) {
                 Inventory i = new Inventory();
@@ -115,14 +115,14 @@ public class InventoryDAO {
     }
 
     // Lấy hàng tồn kho theo ID
-    public Inventory getInventoryByID(String inventoryID) {
+    public Inventory getInventoryByID(int inventoryID) {
         String sql = "SELECT i.InventoryID, i.ProductID, p.ProductName, i.ShopID, s.ShopName, i.Quantity, i.LastUpdated"
                 + "FROM Inventory i "
                 + "JOIN Product p ON i.ProductID = p.ProductID "
                 + "LEFT JOIN Shop s ON i.ShopID = s.ShopID "
                 + "WHERE i.InventoryID = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, inventoryID);
+            ps.setInt(1, inventoryID);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     Inventory inv = new Inventory();
@@ -151,7 +151,7 @@ public class InventoryDAO {
     }
 
     // Lấy danh sách hàng tồn kho trong một cửa hàng cụ thể
-    public List<Inventory> getAllInventoriesInStore(String storeId) {
+    public List<Inventory> getAllInventoriesInStore(int storeId) {
         List<Inventory> list = new ArrayList<>();
         String sql = "SELECT i.InventoryID, i.ProductID, p.ProductName, i.ShopID, s.ShopName, i.Quantity, i.LastUpdated "
                 + "FROM Inventory i "
@@ -159,7 +159,7 @@ public class InventoryDAO {
                 + "LEFT JOIN Shop s ON i.ShopID = s.ShopID "
                 + "WHERE i.ShopID = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, storeId);
+            ps.setInt(1, storeId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Inventory inv = new Inventory();
@@ -205,7 +205,7 @@ public class InventoryDAO {
     public static void main(String[] args) {
         try (Connection conn = new DBContext("SWP7").getConnection()) {
             InventoryDAO dao = new InventoryDAO(conn);
-            List<Inventory> inventories = dao.getAllInventoriesInStore("1");
+            List<Inventory> inventories = dao.getAllInventoriesInStore(1);
             if (inventories.isEmpty()) {
                 System.out.println("❌ Không có hàng tồn kho nào.");
             } else {
@@ -218,9 +218,9 @@ public class InventoryDAO {
                     System.out.println("----------------------------------");
                 }
             }
-            Inventory inv = dao.getInventoryByShopAndProduct("1", "2");
+           // Inventory inv = dao.getInventoryByShopAndProduct("1", "2");
             //dao.updateInventoryQuantity(inv.getInventoryID(), inv.getQuantity()+10);
-            System.out.println(inv.toString());
+           // System.out.println(inv.toString());
         } catch (SQLException e) {
             Logger.getLogger(InventoryDAO.class.getName()).log(Level.SEVERE, null, e);
         }
