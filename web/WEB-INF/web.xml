@@ -40,6 +40,18 @@
         <servlet-name>ThemPhieuNhap</servlet-name>
         <servlet-class>Controller.ThemPhieuNhap</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>listInventory</servlet-name>
+        <servlet-class>Controller.listInventory</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ExportReceipt</servlet-name>
+        <servlet-class>Controller.ExportReceiptServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddExportReceipt</servlet-name>
+        <servlet-class>Controller.AddExportReceipt</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>StartProject</servlet-name>
         <url-pattern>/StartProject</url-pattern>
@@ -80,6 +92,18 @@
     <servlet-mapping>
         <servlet-name>ThemPhieuNhap</servlet-name>
         <url-pattern>/ThemPhieuNhap</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>listInventory</servlet-name>
+        <url-pattern>/listInventory</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ExportReceipt</servlet-name>
+        <url-pattern>/ExportReceipt</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddExportReceipt</servlet-name>
+        <url-pattern>/AddExportReceipt</url-pattern>
     </servlet-mapping>
     <error-page>
         <error-code>404</error-code>
