@@ -72,7 +72,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         </div>
 
 
-        <script src="assets/vendor/libs/jquery/jquery.js"></script>
+ <script src="assets/vendor/libs/jquery/jquery.js"></script>
 <script src="assets/vendor/libs/popper/popper.js"></script>
 <script src="assets/vendor/js/bootstrap.js"></script>
 <script src="assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>

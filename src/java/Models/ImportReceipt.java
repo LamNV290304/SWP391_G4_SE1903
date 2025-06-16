@@ -24,8 +24,7 @@ public class ImportReceipt {
     public ImportReceipt() {
     }
 
-    public ImportReceipt(int importReceiptID, String code, String supplierID, String employeeID, String shopID, Date receiptDate, double totalAmount, String note, boolean status) {
-        this.importReceiptID = importReceiptID;
+    public ImportReceipt(String code, String supplierID, String employeeID, String shopID, Date receiptDate, double totalAmount, String note, boolean status) {
         this.code = code;
         this.supplierID = supplierID;
         this.employeeID = employeeID;

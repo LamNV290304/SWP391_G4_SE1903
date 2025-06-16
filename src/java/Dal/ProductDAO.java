@@ -4,6 +4,7 @@
  */
 package Dal;
 
+import Context.DBContext;
 import Models.Category;
 import Models.Product;
 import Models.Unit;
@@ -278,5 +279,10 @@ public class ProductDAO {
         
         return false;
     }
-    
+    public static void main(String[] args) {
+        DBContext context = new DBContext("SWP6");
+        Connection connection = context.getConnection();
+        ProductDAO dao = new ProductDAO(connection);
+        System.out.println(dao.getProductById("P001").toString());
+    }
 }

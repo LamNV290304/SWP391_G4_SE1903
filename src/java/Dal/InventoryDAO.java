@@ -40,7 +40,7 @@ public class InventoryDAO {
         try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 Inventory inv = new Inventory();
-                inv.setInventoryID(rs.getString("InventoryID"));
+                inv.setInventoryID(rs.getInt("InventoryID"));
 
                 Product p = new Product();
                 p.setProductID(rs.getString("ProductID"));
@@ -64,11 +64,11 @@ public class InventoryDAO {
     }
 
     // Cập nhật số lượng hàng tồn kho
-    public boolean updateInventoryQuantity(String inventoryID, int newQuantity) {
+    public boolean updateInventoryQuantity(int inventoryID, int newQuantity) {
         String sql = "UPDATE Inventory SET Quantity = ?, LastUpdated = GETDATE() WHERE InventoryID = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, newQuantity);
-            ps.setString(2, inventoryID);
+            ps.setInt(2, inventoryID);
             return ps.executeUpdate() > 0;
         }catch(SQLException e){
       Logger.getLogger(InventoryDAO.class.getName()).log(Level.SEVERE, null, e);
@@ -89,7 +89,7 @@ public class InventoryDAO {
             ResultSet rs = ptm.executeQuery();
             if (rs.next()) {
         Inventory i = new Inventory();
-        i.setInventoryID(rs.getString("inventoryID"));
+        i.setInventoryID(rs.getInt("inventoryID"));
 
         Product p = new Product();
         p.setProductID(rs.getString("ProductID"));
@@ -123,7 +123,7 @@ public class InventoryDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     Inventory inv = new Inventory();
-                    inv.setInventoryID(rs.getString("InventoryID"));
+                    inv.setInventoryID(rs.getInt("InventoryID"));
 
                     Product p = new Product();
                     p.setProductID(rs.getString("ProductID"));
@@ -160,7 +160,7 @@ public class InventoryDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Inventory inv = new Inventory();
-                    inv.setInventoryID(rs.getString("InventoryID"));
+                    inv.setInventoryID(rs.getInt("InventoryID"));
 
                     Product p = new Product();
                     p.setProductID(rs.getString("ProductID"));
@@ -185,9 +185,8 @@ public class InventoryDAO {
     }
 public boolean insertInventory(Inventory inventory) {
     String sql = "INSERT INTO Inventory (InventoryID, ProductID, ShopID, Quantity, LastUpdated) "
-               + "VALUES (?, ?, ?, ?, ?)";
+               + "VALUES ( ?, ?, ?, ?)";
     try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setString(1, inventory.getInventoryID());
         ps.setString(2, inventory.getProduct().getProductID());
         ps.setString(3, inventory.getShop().getShopID());
         ps.setInt(4, inventory.getQuantity());
@@ -199,9 +198,9 @@ public boolean insertInventory(Inventory inventory) {
     return false;
 }
     public static void main(String[] args) {
-        try (Connection conn = new DBContext("SWP4").getConnection()) {
+        try (Connection conn = new DBContext("SWP6").getConnection()) {
             InventoryDAO dao = new InventoryDAO(conn);
-            List<Inventory> inventories = dao.getAllInventoriesInStore("S001");
+            List<Inventory> inventories = dao.getAllInventories();
             if (inventories.isEmpty()) {
                 System.out.println("❌ Không có hàng tồn kho nào.");
             } else {
@@ -214,7 +213,7 @@ public boolean insertInventory(Inventory inventory) {
                     System.out.println("----------------------------------");
                 }
             }
-            Inventory inv = dao.getInventoryByShopAndProduct("P001", "S002");
+            Inventory inv = dao.getInventoryByShopAndProduct("1", "1");
             //dao.updateInventoryQuantity(inv.getInventoryID(), inv.getQuantity()+10);
             System.out.println(inv.toString());
         } catch (SQLException e) {
