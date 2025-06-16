@@ -11,7 +11,7 @@ import java.util.Date;
  * @author Thai Anh
  */
 public class Shop {
-   private String shopID;
+   private int shopID;
     private String shopName;
     private String address;
     private String phone;
@@ -22,7 +22,7 @@ public class Shop {
  public Shop() {
     }
 
-    public Shop(String shopID, String shopName, String address, String phone, String email, boolean status, Date createdDate, String createdBy) {
+    public Shop(int shopID, String shopName, String address, String phone, String email, boolean status, Date createdDate, String createdBy) {
         this.shopID = shopID;
         this.shopName = shopName;
         this.address = address;
@@ -33,11 +33,11 @@ public class Shop {
         this.createdBy = createdBy;
     }
 
-    public String getShopID() {
+    public int getShopID() {
         return shopID;
     }
 
-    public void setShopID(String shopID) {
+    public void setShopID(int shopID) {
         this.shopID = shopID;
     }
 
