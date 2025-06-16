@@ -7,6 +7,7 @@ package Controller;
 
 import Context.DBContext;
 import Dal.ImportReceiptDAO;
+import Dal.ImportReceiptDetailDAO;
 import Dal.InventoryDAO;
 import Dal.ProductDAO;
 import Dal.ShopDAO;
@@ -81,12 +82,23 @@ public class ThemPhieuNhap extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
+          try (PrintWriter out = response.getWriter()) {
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet ThemPhieuNhap</title>");  
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet Hoan thanh 1"+"</h1>");
+            out.println("</body>");
+            out.println("</html>");
+        }
           int importReceiptID = Integer.parseInt(request.getParameter("importReceiptID"));
         String code = request.getParameter("code");
         String supplierID = request.getParameter("SupplierID");
         String employeeID = request.getParameter("EmployeeID");
         String shopID = request.getParameter("shopID");
-        String importDateStr = request.getParameter("importDate");
+        String importDateStr = request.getParameter("Date");
 
 Date importDate = null;
 if (importDateStr != null && !importDateStr.isEmpty()) {
@@ -102,10 +114,16 @@ if (importDateStr != null && !importDateStr.isEmpty()) {
 }
 
         String note= request.getParameter("note");
+          
         double value= Double.parseDouble(request.getParameter("Total"));
+    
         try (Connection conn = new DBContext("SWP4").getConnection()) {
+            
             ImportReceiptDAO receiptDAO = new ImportReceiptDAO(conn);
             InventoryDAO inventoryDAO = new InventoryDAO(conn);
+            
+         ImportReceiptDetailDAO receiptDetailDAO = new ImportReceiptDetailDAO(conn);
+         
 ProductDAO productDAO = new ProductDAO(conn);
 ShopDAO shopDAO = new ShopDAO();
             // Tạo đối tượng phiếu nhập
@@ -119,39 +137,66 @@ ShopDAO shopDAO = new ShopDAO();
             receipt.setNote(note);
             receipt.setTotalAmount(value);
             receipt.setStatus(true );
-
+  
             // Thêm phiếu nhập
             receiptDAO.insertImportReceipt(receipt);
             
             List<ImportReceiptDetail> listImportDetail = new ArrayList<>();
+             
             String[] importReceiptDetailIDs = request.getParameterValues("importReceiptDetailID[]");
+            
 String[] importReceiptIDs = request.getParameterValues("importReceiptID[]");
 String[] productIDs = request.getParameterValues("productID[]");
 String[] quantities = request.getParameterValues("quantity[]");
 String[] prices = request.getParameterValues("price[]");
 String[] notes = request.getParameterValues("note[]");
+
 int size= importReceiptDetailIDs.length;
 for(int i=0;i<size;i++){
     ImportReceiptDetail importDetail = new ImportReceiptDetail(Integer.parseInt(importReceiptDetailIDs[i]), 
             Integer.parseInt(importReceiptIDs[i]), 
             productIDs[i],  Integer.parseInt(quantities[i]), Double.parseDouble(prices[i]), notes[i]);
     listImportDetail.add(importDetail);
+      
+    receiptDetailDAO.insertDetail(importDetail);
+
 }
+
 for(ImportReceiptDetail importDetail : listImportDetail){
+   
      // Kiểm tra và cập nhật tồn kho
-            Inventory inv = inventoryDAO.getInventoryByShopAndProduct(shopID, importDetail.getProductID());
+            Inventory inv = inventoryDAO.getInventoryByShopAndProduct( importDetail.getProductID(),shopID);
+            
+          
             if (inv != null) {
-                int newQty = inv.getQuantity() + importDetail.getQuantity();
+                 
+                      int newQty = inv.getQuantity() + importDetail.getQuantity();
+                 
                 inventoryDAO.updateInventoryQuantity(inv.getInventoryID(), newQty);
+                 
             } else {
+                 
                 // Tạo mới hàng tồn kho nếu chưa có
                 Inventory newInv = new Inventory();
+              
                 newInv.setInventoryID("INV" + System.currentTimeMillis()); // ID tạm thời
+                  try (PrintWriter out = response.getWriter()) {
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet ThemPhieuNhap</title>");  
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet Hoan thanh 2"+"</h1>");
+            out.println("</body>");
+            out.println("</html>");
+        }
                 newInv.setProduct(productDAO.getProductById(importDetail.getProductID()));
+                
                 newInv.setShop(shopDAO.getShopByID(shopID, "SWP4"));
                 newInv.setQuantity(importDetail.getQuantity());
                 newInv.setLastUpdated(Timestamp.from(Instant.now()));
-                inventoryDAO.insertInventory(newInv); // bạn cần thêm hàm này trong DAO
+                inventoryDAO.insertInventory(newInv); 
             }
 }
            

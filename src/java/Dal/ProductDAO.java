@@ -317,12 +317,12 @@ public class ProductDAO {
         return false;
     }
     public static void main(String[] args) {
-        DBContext connection = new DBContext("SWP1");
-        ProductDAO pDAO = new ProductDAO(connection.getConnection());
-        List<Product> p = pDAO.getAllProducts();
-        for (Product product : p) {
-            System.out.println(product.getProductName());
+
+
+        DBContext context = new DBContext("SWP6");
+        Connection connection = context.getConnection();
+        ProductDAO dao = new ProductDAO(connection);
+        System.out.println(dao.getProductById("P001").toString());
     }
-        }
-        
+
 }

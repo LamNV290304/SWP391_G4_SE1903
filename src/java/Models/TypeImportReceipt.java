@@ -9,22 +9,21 @@ package Models;
  * @author Thai Anh
  */
 public class TypeImportReceipt {
-     private String typeID;
+     private int typeID;
     private String typeName;
 
     public TypeImportReceipt() {
     }
 
-    public TypeImportReceipt(String typeID, String typeName) {
-        this.typeID = typeID;
+    public TypeImportReceipt(String typeName) {
         this.typeName = typeName;
     }
 
-    public String getTypeID() {
+    public int getTypeID() {
         return typeID;
     }
 
-    public void setTypeID(String typeID) {
+    public void setTypeID(int typeID) {
         this.typeID = typeID;
     }
 

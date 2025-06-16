@@ -11,18 +11,28 @@ import java.util.Date;
  * @author Thai Anh
  */
 public class Inventory {
-     private String inventoryID;
+     private int inventoryID;
     private Product product;
     private Shop shop;
     private int quantity;
     private Date lastUpdated;
 
+    public Inventory() {
+    }
+
+    public Inventory(Product product, Shop shop, int quantity, Date lastUpdated) {
+        this.product = product;
+        this.shop = shop;
+        this.quantity = quantity;
+        this.lastUpdated = lastUpdated;
+    }
+
     // Getter & Setter cho inventoryID
-    public String getInventoryID() {
+    public int  getInventoryID() {
         return inventoryID;
     }
 
-    public void setInventoryID(String inventoryID) {
+    public void setInventoryID(int inventoryID) {
         this.inventoryID = inventoryID;
     }
 

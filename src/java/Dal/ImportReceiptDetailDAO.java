@@ -99,7 +99,7 @@ public class ImportReceiptDetailDAO {
 
     // Test main method
     public static void main(String[] args) {
-        try (Connection conn = new DBContext("SWP4").getConnection()) {
+        try (Connection conn = new DBContext("SWP6").getConnection()) {
             ImportReceiptDetailDAO dao = new ImportReceiptDetailDAO(conn);
 
             // Test insert

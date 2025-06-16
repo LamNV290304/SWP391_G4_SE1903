@@ -28,7 +28,7 @@ public class TypeExportReceiptDAO {
         try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 TypeExportReceipt type = new TypeExportReceipt();
-                type.setTypeID(rs.getString("TypeID"));
+                type.setTypeID(rs.getInt("TypeID"));
                 type.setTypeName(rs.getString("TypeName"));
                 list.add(type);
             }
@@ -46,7 +46,7 @@ public class TypeExportReceiptDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     TypeExportReceipt type = new TypeExportReceipt();
-                    type.setTypeID(rs.getString("TypeExportReceiptID"));
+                    type.setTypeID(rs.getInt("TypeExportReceiptID"));
                     type.setTypeName(rs.getString("Name"));
                     return type;
                 }
@@ -59,23 +59,20 @@ public class TypeExportReceiptDAO {
 
     // Thêm loại phiếu xuất
     public boolean insert(TypeExportReceipt type) {
-        String sql = "INSERT INTO TypeExportReceipt(TypeID, TypeName) VALUES (?, ?)";
+        String sql = "INSERT INTO TypeExportReceipt(TypeName) VALUES ( ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, type.getTypeID());
-            ps.setString(2, type.getTypeName());
+            ps.setString(1, type.getTypeName());
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             Logger.getLogger(TypeExportReceiptDAO.class.getName()).log(Level.SEVERE, null, e);
         }
         return false;
     }
-
     // Cập nhật loại phiếu xuất
     public boolean update(TypeExportReceipt type) {
         String sql = "UPDATE TypeExportReceipt SET TypeName = ? WHERE TypeID = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, type.getTypeName());
-            ps.setString(2, type.getTypeID());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             Logger.getLogger(TypeExportReceiptDAO.class.getName()).log(Level.SEVERE, null, e);
@@ -95,7 +92,7 @@ public class TypeExportReceiptDAO {
         return false;
     }
     public static void main(String[] args) {
-          try (Connection conn = new DBContext("SWP4").getConnection()) {
+          try (Connection conn = new DBContext("SWP7").getConnection()) {
         TypeExportReceiptDAO dao = new TypeExportReceiptDAO(conn);
         List<TypeExportReceipt> types = dao.getAllTypeExportReceipts();
 

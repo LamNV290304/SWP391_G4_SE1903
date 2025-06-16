@@ -1,28 +1,27 @@
-package Controller;
-
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
+package Controller;
 
-import Context.DBContext;
-import Dal.*;
-import Models.*;
-import java.sql.*;
+import Dal.InventoryDAO;
+import Models.Inventory;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
+import java.sql.Connection;
 import java.util.List;
 
 /**
  *
  * @author Thai Anh
  */
-public class ImportReceiptServlet extends HttpServlet {
+public class listInventory extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -33,13 +32,38 @@ public class ImportReceiptServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+response.setContentType("text/html; charset=UTF-8");
+response.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
+      
+           Context.DBContext db = new Context.DBContext("SWP6"); // hoặc dùng constructor mặc định nếu bạn đã sửa
+        Connection connection = db.getConnection();
+        InventoryDAO dao = new InventoryDAO(connection);
+         
+        List<Inventory> inventoryList = dao.getAllInventories();
        
-        DBContext connection = new DBContext("SWP6");
-    ImportReceiptDAO dao = new ImportReceiptDAO(connection.getConnection());
-    List<ImportReceipt> list = dao.getAllImportReceipts();
-    request.setAttribute("listIR", list);
-    request.getRequestDispatcher("ImportReceipt.jsp").forward(request, response);
+        /*BigDecimal cost = BigDecimal.ZERO;
+         
+        for(Inventory ivt : inventoryList){
+          //cost = cost.add(ivt.getProduct().getImportPrice().multiply(BigDecimal.valueOf(ivt.getQuantity())));
+         try (PrintWriter out = response.getWriter()) {
+           
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet ThemPhieuNhap</title>");  
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet ThemPhieuNhap at 4 "+ivt.getProduct().toString()+ "</h1>");
+            out.println("</body>");
+            out.println("</html>");
+        }
+        }
+      */
+       // request.setAttribute("totalCost", cost);
+        request.setAttribute("inventoryList", inventoryList);
+        request.getRequestDispatcher("listInventory.jsp").forward(request, response);
     } 
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -53,20 +77,7 @@ public class ImportReceiptServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        String receiptId = request.getParameter("receiptId");
-        String action = request.getParameter("action");
-         DBContext db = new DBContext("SWP6");
-         Connection conn = db.getConnection();
-        ImportReceiptDAO dao = new ImportReceiptDAO(conn);
-        if(action.equalsIgnoreCase("edit")){
-            
-        }else if(action.equalsIgnoreCase("delete")){
-            if(dao.deleteImportReceipt(Integer.parseInt(receiptId))){
-                
-            }else{
-                
-            }
-        }
+        processRequest(request, response);
     } 
 
     /** 

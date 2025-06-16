@@ -7,22 +7,25 @@ package Controller;
 
 
 import Context.DBContext;
-import Dal.*;
+import Dal.EmployeeDAO;
+import Dal.ExportReceiptDAO;
+import Dal.ShopDAO;
+import Dal.TypeExportReceiptDAO;
 import Models.*;
-import java.sql.*;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
+import java.sql.Connection;
 import java.util.List;
 
 /**
  *
  * @author Thai Anh
  */
-public class ImportReceiptServlet extends HttpServlet {
+public class ExportReceiptServlet extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -33,13 +36,13 @@ public class ImportReceiptServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-       
-        DBContext connection = new DBContext("SWP6");
-    ImportReceiptDAO dao = new ImportReceiptDAO(connection.getConnection());
-    List<ImportReceipt> list = dao.getAllImportReceipts();
+            response.setContentType("text/html;charset=UTF-8");
+        Connection conn = new DBContext("SWP6").getConnection();
+         ExportReceiptDAO dao = new ExportReceiptDAO(conn);
+    List<ExportReceipt> list = dao.getAll();
+     
     request.setAttribute("listIR", list);
-    request.getRequestDispatcher("ImportReceipt.jsp").forward(request, response);
+    request.getRequestDispatcher("ExportReceipt.jsp").forward(request, response);
     } 
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -53,20 +56,7 @@ public class ImportReceiptServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        String receiptId = request.getParameter("receiptId");
-        String action = request.getParameter("action");
-         DBContext db = new DBContext("SWP6");
-         Connection conn = db.getConnection();
-        ImportReceiptDAO dao = new ImportReceiptDAO(conn);
-        if(action.equalsIgnoreCase("edit")){
-            
-        }else if(action.equalsIgnoreCase("delete")){
-            if(dao.deleteImportReceipt(Integer.parseInt(receiptId))){
-                
-            }else{
-                
-            }
-        }
+        processRequest(request, response);
     } 
 
     /** 

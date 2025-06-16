@@ -1,3 +1,9 @@
+<%-- 
+    Document   : AddExportReceipt
+    Created on : Jun 12, 2025, 2:04:18 PM
+    Author     : Thai Anh
+--%>
+
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -77,25 +83,15 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
       <div class="card-body">
         <!-- Các input như bạn đã có -->
         <div class="mb-3">
-          <label for="receiptId" class="form-label">ID Phiếu Nhập</label>
+          <label for="receiptId" class="form-label">ID Phiếu Xuất</label>
           <input type="text" name="importReceiptID" class="form-control" id="mainImportReceiptID" />
-        </div>
-       
-        <div class="mb-3">
-          <label for="warehouse" class="form-label">Nhà cung cấp</label>
-          <select class="form-select" id="warehouse" name="SupplierID">
-            <option selected disabled>Chọn nhà cung cấp</option>
-             <c:forEach var="lsup" items="${listSup}">
-                      <option value="${lsup.supplierID}">${lsup.supplierName}</option>
-                      </c:forEach>
-          </select>
         </div>
         <div class="mb-3">
             <label for="receiptId" class="form-label">Mã Nhân Viên</label>
           <input type="text" name="EmployeeID" class="form-control" id="receiptId" placeholder="PN001" />
         </div>
         <div class="mb-3">
-          <label for="warehouse" class="form-label">Kho Nhập</label>
+          <label for="warehouse" class="form-label">Kho Xuất</label>
           <select class="form-select" id="warehouse" name="shopID">
             <option selected disabled>Chọn kho</option>
              <c:forEach var="ls" items="${listShop}">
@@ -104,7 +100,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
           </select>
         </div>
         <div class="mb-3">
-          <label for="receiptId" class="form-label">ID Phiếu Nhập</label>
+          <label for="receiptId" class="form-label">Ngày Xuất</label>
           <input type="date" id="importDate" name="Date" class="form-control" required />
         </div>
         
@@ -117,7 +113,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         
         
         <div class="mb-3">
-          <label for="warehouse" class="form-label">Loại Phiếu Nhập</label>
+          <label for="warehouse" class="form-label">Loại Phiếu Xuất</label>
           <select class="form-select" id="warehouse" name="code">
             <option selected disabled>Chọn Phiếu</option>
              <c:forEach var="ltype" items="${listType}">

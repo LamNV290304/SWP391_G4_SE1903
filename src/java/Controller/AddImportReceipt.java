@@ -166,7 +166,7 @@ for(ImportReceiptDetail importDetail : listImportDetail){
                       int newQty = inv.getQuantity() + importDetail.getQuantity();
                  
                 inventoryDAO.updateInventoryQuantity(inv.getInventoryID(), newQty);
-                
+                request.getRequestDispatcher("ImportReceiptServlet.jsp").forward(request, response);
             } else {
                  
                 // Tạo mới hàng tồn kho nếu chưa có
