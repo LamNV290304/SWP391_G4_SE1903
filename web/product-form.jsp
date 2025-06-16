@@ -116,21 +116,18 @@
                             <div class="card-body p-4">
                                 <form action="products" method="post" enctype="multipart/form-data" id="productForm">
                                     <input type="hidden" name="action" value="${product != null ? 'update' : 'create'}">
+                                    <c:if test="${product != null}">
+                                        <input type="hidden" name="productId" value="${product.productID}">
+                                    </c:if>
 
                                     <div class="row">
                                         <!-- Left Column -->
                                         <div class="col-md-6">
-                                            <!-- Product ID -->
-                                            <div class="mb-3">
-                                                <label for="productId" class="form-label required-field">Product ID</label>
-                                                <input type="text" class="form-control" id="productId" name="productId" 
-                                                       value="${product.productID}" 
-                                                       ${product != null ? 'readonly' : ''} 
-                                                       placeholder="Enter unique product ID" required>
-                                                <div class="form-text">
-                                                    ${product != null ? 'Product ID cannot be changed' : 'Enter a unique identifier for the product'}
-                                                </div>
-                                            </div>
+                                            
+                                            <c:if test="${product != null}">
+
+                                                <input type="hidden" id="productIdDisplay" value="${product.productID}">
+                                            </c:if>
 
                                             <!-- Product Name -->
                                             <div class="mb-3">
@@ -221,7 +218,7 @@
                                                     <span class="input-group-text">$</span>
                                                     <input type="number" class="form-control" id="importPrice" name="importPrice" 
                                                            value="${product.importPrice}" step="0.01" min="0" 
-                                                           placeholder="0.00" required onchange="calculateProfit()">
+                                                           placeholder="0.00" required>
                                                 </div>
                                             </div>
 
@@ -232,17 +229,15 @@
                                                     <span class="input-group-text">$</span>
                                                     <input type="number" class="form-control" id="sellingPrice" name="sellingPrice" 
                                                            value="${product.sellingPrice}" step="0.01" min="0" 
-                                                           placeholder="0.00" required onchange="calculateProfit()">
-                                                </div>
+                                                           placeholder="0.00" required>
+                                                </div>                                              
                                             </div>
-
-                                          
 
                                             <!-- Status -->
                                             <div class="mb-3">
                                                 <div class="form-check form-switch">
                                                     <input class="form-check-input" type="checkbox" id="status" name="status" 
-                                                           ${product == null || product.status ? 'checked' : ''}>
+                                                           ${product == null || product.status ? 'checked' : ''} onchange="updateStatusBadge()">
                                                     <label class="form-check-label" for="status">
                                                         <span class="badge bg-success me-2" id="statusBadge">
                                                             <i class="fas fa-check me-1"></i>Active
@@ -263,7 +258,7 @@
                                                     <i class="fas fa-arrow-left me-2"></i>Cancel
                                                 </a>
                                                 <div>
-                                                    <button type="reset" class="btn btn-outline-warning btn-lg me-2">
+                                                    <button type="reset" class="btn btn-outline-warning btn-lg me-2" onclick="resetForm()">
                                                         <i class="fas fa-undo me-2"></i>Reset
                                                     </button>
                                                     <button type="submit" class="btn btn-primary btn-lg">
@@ -290,75 +285,107 @@
         </footer>
 
         <!-- JavaScript -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
         <script>
-            function previewImage(input) {
-            const preview = document.getElementById("imagePreview");
-            const placeholder = document.getElementById("imagePlaceholder");
-            if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-            if (preview) {
-            preview.src = e.target.result;
-            } else {
-            const img = document.createElement("img");
-            img.id = "imagePreview";
-            img.src = e.target.result;
-            placeholder.replaceWith(img);
-            }
-            };
-            reader.readAsDataURL(input.files[0]);
-            }
-            }
+                                                        
+                                                        document.addEventListener('DOMContentLoaded', function () {
+                                                            calculateProfit();
+                                                            updateStatusBadge();
+                                                        });
 
-            function removeImage() {
-            const imageInput = document.getElementById("image");
-            const preview = document.getElementById("imagePreview");
-            if (preview) {
-            preview.remove();
-            const placeholder = document.createElement("div");
-            placeholder.className = "text-center";
-            placeholder.id = "imagePlaceholder";
-            placeholder.innerHTML =
-                    <i class="fas fa-camera fa-2x text-muted mb-2"></i>
-                    <div class="text-muted">Click to upload</div>
-                    ;
-            document.querySelector(".image-preview").appendChild(placeholder);
-            imageInput.value = "";
-            }
-            }
+                                                        function previewImage(input) {
+                                                            const preview = document.getElementById("imagePreview");
+                                                            const placeholder = document.getElementById("imagePlaceholder");
+                                                            if (input.files && input.files[0]) {
+                                                                const reader = new FileReader();
+                                                                reader.onload = function (e) {
+                                                                    if (preview) {
+                                                                        preview.src = e.target.result;
+                                                                    } else {
+                                                                        const img = document.createElement("img");
+                                                                        img.id = "imagePreview";
+                                                                        img.src = e.target.result;
+                                                                        img.alt = "Product Image";
+                                                                        img.style.width = "100%";
+                                                                        img.style.height = "100%";
+                                                                        img.style.objectFit = "cover";
+                                                                        img.style.borderRadius = "6px";
+                                                                        placeholder.replaceWith(img);
+                                                                    }
+                                                                };
+                                                                reader.readAsDataURL(input.files[0]);
+                                                            }
+                                                        }
 
-            function calculateProfit() {
-            const importPrice = parseFloat(document.getElementById("importPrice").value) || 0;
-            const sellingPrice = parseFloat(document.getElementById("sellingPrice").value) || 0;
-            const profitAmount = sellingPrice - importPrice;
-            const profitPercentage = importPrice > 0 ? (profitAmount / importPrice) * 100 : 0;
-            const display = document.getElementById("profitDisplay");
-            const amountEl = document.getElementById("profitAmount");
-            const percentEl = document.getElementById("profitPercentage");
-            if (!isNaN(profitAmount) && !isNaN(profitPercentage)) {
-            display.style.display = "block";
-            amountEl.innerText = $${profitAmount.toFixed(2)};
-            percentEl.innerText = ${profitPercentage.toFixed(2)} % ;
-            if (profitAmount >= 0) {
-            display.classList.remove("profit-negative");
-            display.classList.add("profit-positive");
-            } else {
-            display.classList.remove("profit-positive");
-            display.classList.add("profit-negative");
-            }
-            } else {
-            display.style.display = "none";
-            }
-            }
+                                                        function removeImage() {
+                                                            const imageInput = document.getElementById("image");
+                                                            const preview = document.getElementById("imagePreview");
+                                                            if (preview) {
+                                                                preview.remove();
+                                                                const placeholder = document.createElement("div");
+                                                                placeholder.className = "text-center";
+                                                                placeholder.id = "imagePlaceholder";
+                                                                placeholder.innerHTML = `
+                        <i class="fas fa-camera fa-2x text-muted mb-2"></i>
+                        <div class="text-muted">Click to upload</div>
+                    `;
+                                                                document.querySelector(".image-preview").appendChild(placeholder);
+                                                                imageInput.value = "";
+                                                            }
+                                                        }
 
-            // Recalculate on page load if values are already present
-            window.onload = () => {
-            if (document.getElementById("importPrice").value && document.getElementById("sellingPrice").value) {
-            calculateProfit();
-            }
-            };
+
+
+                                                        function updateStatusBadge() {
+                                                            const statusCheckbox = document.getElementById("status");
+                                                            const statusBadge = document.getElementById("statusBadge");
+
+                                                            if (statusCheckbox.checked) {
+                                                                statusBadge.className = "badge bg-success me-2";
+                                                                statusBadge.innerHTML = '<i class="fas fa-check me-1"></i>Active';
+                                                            } else {
+                                                                statusBadge.className = "badge bg-secondary me-2";
+                                                                statusBadge.innerHTML = '<i class="fas fa-times me-1"></i>Inactive';
+                                                            }
+                                                        }
+
+                                                        function resetForm() {
+                                                            
+                                                            setTimeout(function () {
+                                                                calculateProfit();
+                                                                updateStatusBadge();
+
+                                                                
+                                                                const preview = document.getElementById("imagePreview");
+                                                                const placeholder = document.getElementById("imagePlaceholder");
+
+            <c:if test="${empty product.imageUrl}">
+                                                                if (preview) {
+                                                                    removeImage();
+                                                                }
+            </c:if>
+                                                            }, 100);
+                                                        }
+
+                                                        
+                                                        document.getElementById("productForm").addEventListener("submit", function (e) {
+
+                                                            const name = document.getElementById("productName").value.trim();
+
+                                                            if (name.length === 0) {
+                                                                e.preventDefault();
+                                                                alert("Product name cannot be empty or spaces only.");
+                                                                return;
+                                                            }
+                                                            const importPrice = parseFloat(document.getElementById("importPrice").value) || 0;
+                                                            const sellingPrice = parseFloat(document.getElementById("sellingPrice").value) || 0;
+
+                                                            if (sellingPrice < importPrice) {
+                                                                if (!confirm("Warning: Selling price is less than import price. This will result in a loss. Do you want to continue?")) {
+                                                                    e.preventDefault();
+                                                                }
+                                                            }
+                                                        });
         </script>
-
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>

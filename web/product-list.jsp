@@ -73,7 +73,7 @@
                                             <option value="">All Categories</option>
                                             <c:forEach var="category" items="${categories}">
                                                 <option value="${category.categoryID}" 
-                                                        <c:if test="${categoryFilter == category.categoryID}">selected</c:if>>
+                                                        ${categoryFilter == category.categoryID ? 'selected' : ''}>
                                                     ${category.categoryName}
                                                 </option>
                                             </c:forEach>
@@ -245,7 +245,7 @@
                                                         </c:if>
                                                     </c:forEach>
                                                 </td>
-                                                <td>${product.unitID}</td>
+                                                <td>${product.unitDescription}</td>
                                                 <td>
                                                     <span class="text-success">
                                                         <fmt:formatNumber value="${product.importPrice}" type="currency" currencySymbol="$"/>
@@ -313,79 +313,11 @@
                                     </li>
                                 </c:when>
                                 <c:otherwise>
-                                    <c:forEach var="product" items="${products}">
-                                        <tr>
-                                            <td>
-                                                <c:choose>
-                                                    <c:when test="${not empty product.imageUrl}">
-                                                        <img src="${product.imageUrl}" alt="${product.productName}" 
-                                                             class="product-image">
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <div class="product-image bg-light d-flex align-items-center justify-content-center">
-                                                            <i class="fas fa-image text-muted"></i>
-                                                        </div>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                            </td>
-                                            <td>
-                                                <strong>${product.productID}</strong>
-                                            </td>
-                                            <td>
-                                                <div>
-                                                    <strong>${product.productName}</strong>
-                                                    <c:if test="${not empty product.description}">
-                                                        <br><small class="text-muted">${product.description}</small>
-                                                    </c:if>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <c:forEach var="category" items="${categories}">
-                                                    <c:if test="${category.categoryID == product.categoryID}">
-                                                        <span class="badge bg-primary">${category.categoryName}</span>
-                                                    </c:if>
-                                                </c:forEach>
-                                            </td>
-                                            <td>${product.unitID}</td>
-                                            <td>
-                                                <span class="text-success">
-                                                    <fmt:formatNumber value="${product.importPrice}" type="currency" currencySymbol="$"/>
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <span class="text-primary">
-                                                    <fmt:formatNumber value="${product.sellingPrice}" type="currency" currencySymbol="$"/>
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <c:choose>
-                                                    <c:when test="${product.status}">
-                                                        <span class="badge status-active">
-                                                            <i class="fas fa-check me-1"></i>Active
-                                                        </span>
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <span class="badge status-inactive">
-                                                            <i class="fas fa-times me-1"></i>Inactive
-                                                        </span>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                            </td>
-                                            <td>
-                                                <div class="btn-group" role="group">
-                                                    <a href="products?action=edit&id=${product.productID}" 
-                                                       class="btn btn-outline-primary btn-sm" title="Edit">
-                                                        <i class="fas fa-edit"></i>
-                                                    </a>
-                                                    <button type="button" class="btn btn-outline-danger btn-sm" 
-                                                            onclick="confirmDelete('${product.productID}', '${product.productName}')" 
-                                                            title="Delete">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </c:forEach>
+                                    <li class="page-item">
+                                        <a class="page-link" href="products?page=${pageNum}&search=${search}&category=${categoryFilter}">
+                                            ${pageNum}
+                                        </a>
+                                    </li>
                                 </c:otherwise>
                             </c:choose>
                         </c:forEach>
