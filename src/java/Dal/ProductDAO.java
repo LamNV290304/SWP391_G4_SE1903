@@ -156,7 +156,7 @@ public class ProductDAO {
         return 0;
     }
 
-    public Product getProductById(int productId) { // Changed parameter type to int
+    public Product getProductById(int productId) { 
         String sql = "SELECT p.*, c.CategoryName, u.Description as UnitDescription "
                 + "FROM Product p "
                 + "LEFT JOIN Category c ON p.CategoryID = c.CategoryID "
@@ -165,12 +165,12 @@ public class ProductDAO {
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 
-            stmt.setInt(1, productId); // Changed to setInt
+            stmt.setInt(1, productId); 
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
                 Product product = new Product();
-                product.setProductID(rs.getInt("ProductID")); // Changed to int
+                product.setProductID(rs.getInt("ProductID")); 
                 product.setProductName(rs.getString("ProductName"));
                 product.setCategoryID(rs.getString("CategoryID"));
                 product.setUnitID(rs.getString("UnitID"));
@@ -194,7 +194,7 @@ public class ProductDAO {
     }
 
     public boolean createProduct(Product product) {
-        // Removed ProductID from INSERT statement as it's auto-increment
+        
         String sql = "INSERT INTO Product (ProductName, CategoryID, UnitID, "
                 + "ImportPrice, SellingPrice, Description, Status, ImageUrl, CreatedBy) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -234,7 +234,7 @@ public class ProductDAO {
             stmt.setString(6, product.getDescription());
             stmt.setBoolean(7, product.isStatus());
             stmt.setString(8, product.getImageUrl());
-            stmt.setInt(9, product.getProductID()); // Changed to setInt
+            stmt.setInt(9, product.getProductID()); 
 
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -244,12 +244,12 @@ public class ProductDAO {
         return false;
     }
 
-    public boolean deleteProduct(int productId) { // Changed parameter type to int
+    public boolean deleteProduct(int productId) { 
         String sql = "DELETE FROM Product WHERE ProductID = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 
-            stmt.setInt(1, productId); // Changed to setInt
+            stmt.setInt(1, productId); 
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
