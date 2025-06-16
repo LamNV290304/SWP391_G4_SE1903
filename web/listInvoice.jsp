@@ -160,7 +160,19 @@
                     ${errorMessage}
                 </div>
             </c:if>
+            <%-- Hiển thị thông báo thành công nếu có --%>
+            <c:if test="${not empty successMessage}">
+                <div class="alert alert-success" role="alert">
+                    ${successMessage}
+                </div>
+            </c:if>
 
+            <%-- Hiển thị thông báo lỗi nếu có --%>
+            <c:if test="${not empty errorMessage}">
+                <div class="alert alert-danger" role="alert">
+                    ${errorMessage}
+                </div>
+            </c:if>
             <div class="card mb-4">
                 <h5 class="card-header">Tìm kiếm Hóa đơn</h5>
                 <div class="card-body">
@@ -212,9 +224,9 @@
                                     <select class="form-select" name="customerID" required>
                                         <c:forEach var="customer" items="${customers}"> <%-- Giả sử bạn truyền "customers" từ Servlet --%>
                                             <option value="${customer.customerID}" <c:if test="${inv.customerID == customer.customerID}">selected</c:if>>
-                                                    ${customer.customerName}
-                                                    </option>
-                                           
+                                                ${customer.customerName}
+                                            </option>
+
                                         </c:forEach>
 
                                     </select>

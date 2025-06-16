@@ -108,8 +108,8 @@
                         <input type="hidden" name="action" value="add" />
 
                         <div class="mb-3">
-                            <label for="invoiceID" class="form-label">Mã Hóa đơn:</label>
-                            <input type="text" class="form-control" id="invoiceID" name="invoiceID" required placeholder="Nhập mã hóa đơn (ví dụ: INV001)" />
+                         
+                            <input type="hidden" class="form-control" id="invoiceID" name="invoiceID" required placeholder="Nhập mã hóa đơn (ví dụ: INV001)" />
                         </div>
 
                         <div class="mb-3">
