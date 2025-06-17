@@ -45,12 +45,28 @@
         <servlet-class>Controller.AddImportReceipt</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>ThemPhieuNhap</servlet-name>
-        <servlet-class>Controller.ThemPhieuNhap</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>ShowEmployeeList</servlet-name>
         <servlet-class>Controller.ShowEmployeeList</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>Home</servlet-name>
+        <servlet-class>Controller.Home</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ShowProfile</servlet-name>
+        <servlet-class>Controller.ShowProfile</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UpdateProfile</servlet-name>
+        <servlet-class>Controller.UpdateProfile</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ShowDetailEmployee</servlet-name>
+        <servlet-class>Controller.ShowDetailEmployee</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>Test</servlet-name>
+        <servlet-class>Controller.Test</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>StartProject</servlet-name>
@@ -98,12 +114,28 @@
         <url-pattern>/AddImportReceipt</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>ThemPhieuNhap</servlet-name>
-        <url-pattern>/ThemPhieuNhap</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>ShowEmployeeList</servlet-name>
         <url-pattern>/ShowEmployeeList</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Home</servlet-name>
+        <url-pattern>/Home</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ShowProfile</servlet-name>
+        <url-pattern>/ShowProfile</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateProfile</servlet-name>
+        <url-pattern>/UpdateProfile</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ShowDetailEmployee</servlet-name>
+        <url-pattern>/ShowDetailEmployee</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Test</servlet-name>
+        <url-pattern>/Test</url-pattern>
     </servlet-mapping>
     <error-page>
         <error-code>404</error-code>

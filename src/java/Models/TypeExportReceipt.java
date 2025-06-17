@@ -10,22 +10,21 @@ package Models;
  * @author Thai Anh
  */
 public class TypeExportReceipt {
-     private String typeID;
+     private int typeID;
     private String typeName;
 
     public TypeExportReceipt() {
     }
 
-    public TypeExportReceipt(String typeID, String typeName) {
-        this.typeID = typeID;
+    public TypeExportReceipt(String typeName) {
         this.typeName = typeName;
     }
 
-    public String getTypeID() {
+    public int getTypeID() {
         return typeID;
     }
 
-    public void setTypeID(String typeID) {
+    public void setTypeID(int typeID) {
         this.typeID = typeID;
     }
 
@@ -35,5 +34,15 @@ public class TypeExportReceipt {
 
     public void setTypeName(String typeName) {
         this.typeName = typeName;
+    }
+
+    @Override
+    public String toString() {
+        return "TypeExportReceipt{" + "typeID=" + typeID + ", typeName=" + typeName + '}';
+    }
+    
+    public static void main(String[] args) {
+        TypeExportReceipt type = new TypeExportReceipt("haha");
+        System.out.println(type.toString());
     }
 }

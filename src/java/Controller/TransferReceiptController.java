@@ -62,7 +62,7 @@ public class TransferReceiptController extends HttpServlet {
             throws ServletException, IOException, SQLException {
         
         
-        Vector<Product> vectorProduct = productDAO.getProduct("SELECT *  FROM Product");
+        Vector<Product> vectorProduct = null;//= productDAO.getProduct("SELECT *  FROM Product");
         List<Inventory> ListInventory = inventoryDAO.getAllInventories();
         List<Shop> ListShop = shopDAO.getAllShops("SWP6");
         HttpSession session = request.getSession(true);

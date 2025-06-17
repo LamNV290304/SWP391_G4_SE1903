@@ -6,27 +6,22 @@ package Controller;
 
 import Context.DBContext;
 import DTO.EmployeeDto;
-import Dal.EmployeeDAO;
-import Dal.RoleDAO;
-import Dal.ShopDAO;
-import Models.Role;
-import Models.Shop;
-import Utils.Validator;
+import Dal.*;
+import Models.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.sql.*;
+import java.sql.Connection;
 import java.util.List;
-import org.apache.tomcat.jakartaee.commons.lang3.Validate;
 
 /**
  *
  * @author Admin
  */
-public class ShowEmployeeList extends HttpServlet {
+public class ShowDetailEmployee extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -45,10 +40,10 @@ public class ShowEmployeeList extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ShowEmployeeList</title>");
+            out.println("<title>Servlet ShowDetailEmployee</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ShowEmployeeList at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet ShowDetailEmployee at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -66,45 +61,27 @@ public class ShowEmployeeList extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int page = 1;
-        int recordsPerPage = 10;
+        try {
+            int id = Integer.parseInt(request.getParameter("id"));
 
-        if (request.getParameter("page") != null) {
-            page = Integer.parseInt(request.getParameter("page"));
-        }
-
-        String sort = request.getParameter("sort");
-        String shopIdParam = request.getParameter("shopId");
-        String roleIdParam = request.getParameter("roleId");
-        String statusParam = request.getParameter("status");
-        String search = request.getParameter("keyword");
-        String keyword = Validator.normalizeInput(search);
-
-        Integer shopId = (shopIdParam != null && !shopIdParam.isEmpty()) ? Integer.parseInt(shopIdParam) : null;
-        Integer roleId = (roleIdParam != null && !roleIdParam.isEmpty()) ? Integer.parseInt(roleIdParam) : null;
-        Boolean status = (statusParam != null && !statusParam.isEmpty()) ? statusParam.equals("1") : null;
-
-        try (Connection conn = DBContext.getConnection("ShopDB_TTest")) {
-            EmployeeDAO dao = new EmployeeDAO(conn);
-            ShopDAO shopDAO = new ShopDAO();
+            Connection conn = DBContext.getConnection("ShopDB_TTest");
+            EmployeeDAO employeeDAO = new EmployeeDAO(conn);
             RoleDAO roleDAO = new RoleDAO(conn);
-            
-            List<EmployeeDto> employeeList = dao.getEmployeesByPage(page, recordsPerPage, shopId, roleId, status, sort, keyword);
-            int totalRecords = dao.getTotalEmployeeCount(shopId,roleId, status, keyword);
-            int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
+            ShopDAO shopDAO = new ShopDAO();
 
-            List<Shop> shopList = shopDAO.getAllShops("ShopDB_TTest");
+            EmployeeDto employee = employeeDAO.getEmployeeById(id);
             List<Role> roleList = roleDAO.getAllRoles();
-            request.setAttribute("employeeList", employeeList);
-            request.setAttribute("currentPage", page);
-            request.setAttribute("totalPages", totalPages);
-            request.setAttribute("shopList", shopList);
-            request.setAttribute("roleList", roleList);
+            List<Shop> shopList = shopDAO.getAllShops("ShopDB_TTest");
 
-            request.getRequestDispatcher("showEmployeeList.jsp").forward(request, response);
+            request.setAttribute("employee", employee);
+            request.setAttribute("roleList", roleList);
+            request.setAttribute("shopList", shopList);
+
+            request.getRequestDispatcher("showEmployeeDetails.jsp").forward(request, response);
+
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi khi truy xuất danh sách nhân viên");
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy nhân viên.");
         }
     }
 
@@ -119,7 +96,35 @@ public class ShowEmployeeList extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            Connection conn = DBContext.getConnection("ShopDB_TTest");
+
+            int id = Integer.parseInt(request.getParameter("id"));
+            String fullName = request.getParameter("fullName");
+            String email = request.getParameter("email");
+            String phone = request.getParameter("phone");
+            boolean status = "1".equals(request.getParameter("status"));
+            int roleId = Integer.parseInt(request.getParameter("roleId"));
+            int shopId = Integer.parseInt(request.getParameter("shopId"));
+
+            Employee employee = new Employee();
+            employee.setId(id);
+            employee.setFullname(fullName);
+            employee.setEmail(email);
+            employee.setPhone(phone);
+            employee.setStatus(status);
+            employee.setRoleId(roleId);
+            employee.setShopId(shopId);
+
+            EmployeeDAO dao = new EmployeeDAO(conn);
+            dao.updateEmployee(employee);
+
+            response.sendRedirect("ShowDetailEmployee?id=" + id);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi khi cập nhật nhân viên.");
+        }
     }
 
     /**

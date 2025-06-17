@@ -19,7 +19,7 @@ public class ImportReceiptDetail {
     public ImportReceiptDetail() {
     }
 
-    public ImportReceiptDetail(int importReceiptDetailID, int importReceiptID, String productID, int quantity, double price,String note) {
+    public ImportReceiptDetail(int importReceiptID, String productID, int quantity, double price,String note) {
         this.importReceiptDetailID = importReceiptDetailID;
         this.importReceiptID = importReceiptID;
         this.productID = productID;

@@ -127,7 +127,7 @@ public class ImportReceiptDAO {
         );
     }
     public static void main(String[] args) throws SQLException {
-    try (Connection conn = new DBContext("SWP6").getConnection()) {
+    try (Connection conn = new DBContext("SWP7").getConnection()) {
         ImportReceiptDAO dao = new ImportReceiptDAO(conn);
 
         

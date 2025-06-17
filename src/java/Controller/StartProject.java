@@ -64,12 +64,13 @@ public class StartProject extends HttpServlet {
         if (path.equals("/SaleSphere") || path.equals("/StartProject")) {
             String shopName = "SaleSphere";
             request.getSession().setAttribute("shopName", shopName);
+            request.getSession().setAttribute("databaseName", "CentralDB");
             request.getRequestDispatcher("login.jsp").forward(request, response);
             return;
         }
 
         String shopCode = path.replace("/", "");
-        
+
         String databaseName = DatabaseHelper.getDatabaseNameByShopCode(shopCode);
         String shopName = DatabaseHelper.getShopNameByShopCode(shopCode);
 

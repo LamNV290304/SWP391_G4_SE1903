@@ -67,5 +67,5 @@ public class Employee extends User{
     public void setShopId(int shopId) {
         this.shopId = shopId;
     }
-    
+
 }
