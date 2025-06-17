@@ -38,7 +38,18 @@
                                         </c:forEach>
                                     </select>
                                 </div>
+
                                 <div class="col-md-3">
+                                    <label for="roleFilter" class="form-label">Lọc theo chức vụ</label>
+                                    <select class="form-select" id="roleFilter" name="roleId">
+                                        <option value="">Tất cả chức vụ</option>
+                                        <c:forEach var="role" items="${roleList}">
+                                            <option value="${role.id}" ${param.roleId == role.id ? 'selected' : ''}>${role.name}</option>
+                                        </c:forEach>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-2">
                                     <label for="statusFilter" class="form-label">Lọc theo trạng thái</label>
                                     <select class="form-select" id="statusFilter" name="status">
                                         <option value="">Tất cả</option>
@@ -46,7 +57,8 @@
                                         <option value="0" ${param.status == '0' ? 'selected' : ''}>Đã khoá</option>
                                     </select>
                                 </div>
-                                <div class="col-md-3">
+
+                                <div class="col-md-2">
                                     <label for="sort" class="form-label">Sắp xếp theo</label>
                                     <select class="form-select" id="sort" name="sort">
                                         <option value="">Mặc định</option>
@@ -54,13 +66,18 @@
                                         <option value="name_desc" ${param.sort == 'name_desc' ? 'selected' : ''}>Tên Z → A</option>
                                     </select>
                                 </div>
-                                <div class="col-md-3 d-flex align-items-end">
+
+                                <div class="col-md-2 d-flex align-items-end">
                                     <button type="submit" class="btn btn-primary w-100">Lọc</button>
                                 </div>
                             </form>
 
                             <!-- Thanh tìm kiếm riêng dòng -->
                             <form method="get" class="mb-4">
+                                <input type="hidden" name="shopId" value="${param.shopId}">
+                                <input type="hidden" name="roleId" value="${param.roleId}">
+                                <input type="hidden" name="status" value="${param.status}">
+                                <input type="hidden" name="sort" value="${param.sort}">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <input type="text" class="form-control" id="keyword" name="keyword" placeholder="Nhập tên hoặc email để tìm kiếm..." value="${param.keyword}" />
@@ -79,9 +96,11 @@
                                             <tr>
                                                 <th>Tên nhân viên</th>
                                                 <th>Email</th>
+                                                <th>Số điện thoại</th>
                                                 <th>Trạng thái</th>
                                                 <th>Ngày tạo</th>
                                                 <th>Shop</th>
+                                                <th>Chức vụ</th>
                                                 <th>Hành động</th>
                                             </tr>
                                         </thead>
@@ -90,6 +109,7 @@
                                                 <tr>
                                                     <td><i class="bx bx-user me-2"></i> ${e.fullName}</td>
                                                     <td>${e.email}</td>
+                                                    <td>${e.phone}</td>
                                                     <td>
                                                         <c:choose>
                                                             <c:when test="${e.status}">
@@ -102,13 +122,14 @@
                                                     </td>
                                                     <td>${e.createdDate}</td>
                                                     <td>${e.shopName}</td>
+                                                    <td>${e.role}</td>
                                                     <td>
                                                         <div class="dropdown">
                                                             <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
                                                                 <i class="bx bx-dots-vertical-rounded"></i>
                                                             </button>
                                                             <div class="dropdown-menu">
-                                                                <a class="dropdown-item" href="employee-detail?id=${e.id}"><i class="bx bx-edit-alt me-1"></i> Chi tiết</a>
+                                                                <a class="dropdown-item" href="ShowDetailEmployee?id=${e.id}"><i class="bx bx-edit-alt me-1"></i> Chi tiết</a>
                                                                 <a class="dropdown-item" href="employee-lock?id=${e.id}"><i class="bx bx-trash me-1"></i> Khoá tài khoản</a>
                                                             </div>
                                                         </div>
@@ -125,19 +146,22 @@
                                 <ul class="pagination justify-content-center">
                                     <c:if test="${currentPage > 1}">
                                         <li class="page-item">
-                                            <a class="page-link" href="?page=${currentPage - 1}&shopId=${param.shopId}&status=${param.status}&sort=${param.sort}&keyword=${param.keyword}">Trước</a>
+                                            <a class="page-link"
+                                               href="?page=${currentPage - 1}&shopId=${param.shopId}&roleId=${param.roleId}&status=${param.status}&sort=${param.sort}&keyword=${param.keyword}">Trước</a>
                                         </li>
                                     </c:if>
 
                                     <c:forEach var="i" begin="1" end="${totalPages}">
                                         <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                            <a class="page-link" href="?page=${i}&shopId=${param.shopId}&status=${param.status}&sort=${param.sort}&keyword=${param.keyword}">${i}</a>
+                                            <a class="page-link"
+                                               href="?page=${i}&shopId=${param.shopId}&roleId=${param.roleId}&status=${param.status}&sort=${param.sort}&keyword=${param.keyword}">${i}</a>
                                         </li>
                                     </c:forEach>
 
                                     <c:if test="${currentPage < totalPages}">
                                         <li class="page-item">
-                                            <a class="page-link" href="?page=${currentPage + 1}&shopId=${param.shopId}&status=${param.status}&sort=${param.sort}&keyword=${param.keyword}">Tiếp</a>
+                                            <a class="page-link"
+                                               href="?page=${currentPage + 1}&shopId=${param.shopId}&roleId=${param.roleId}&status=${param.status}&sort=${param.sort}&keyword=${param.keyword}">Tiếp</a>
                                         </li>
                                     </c:if>
                                 </ul>

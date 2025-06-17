@@ -5,8 +5,12 @@
 package Controller;
 
 import Context.DBContext;
+import Context.DatabaseHelper;
 import Dal.EmployeeDAO;
+import Dal.ShopOwnerDAO;
 import Models.Employee;
+import Models.ShopOwner;
+import Utils.MailUtil;
 import java.sql.Connection;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -50,29 +54,7 @@ public class Login extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
-            String username = request.getParameter("email-username");
-            String password = request.getParameter("password");
-
-            String databaseName = (String) request.getSession().getAttribute("databaseName");
-            Connection con = DBContext.getConnection(databaseName);
-
-            EmployeeDAO employeeDAO = new EmployeeDAO(con);
-            Employee employee = employeeDAO.findEmployeeByUsernameAndPassword(username, password);
-
-            if (employee == null) {
-                request.setAttribute("error", "Wrong password or username");
-                request.getRequestDispatcher("login.jsp").forward(request, response);
-            }
-
-            request.getSession().setAttribute("Employee", employee);
-            request.getRequestDispatcher("Home.jsp").forward(request, response);
-
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        processRequest(request, response);
     }
 
     /**
@@ -93,19 +75,44 @@ public class Login extends HttpServlet {
             String databaseName = (String) request.getSession().getAttribute("databaseName");
             Connection con = DBContext.getConnection(databaseName);
 
-            if (databaseName.equals("")){
-                
+            if (databaseName.equals("CentralDB")) {
+                ShopOwnerDAO shopOwnerDAO = new ShopOwnerDAO(DBContext.getCentralConnection());
+                ShopOwner shopOwner = shopOwnerDAO.findShopOwnerByUsernameForLogin(username, password);
+
+                if (shopOwner == null) {
+                    request.setAttribute("error", "Sai tài khoản hoặc mật khẩu");
+                    request.getRequestDispatcher("login.jsp").forward(request, response);
+                    return;
+                }
+
+                if (shopOwner.isStatus() == false) {
+                    String otp = DatabaseHelper.generateOTP();
+                    shopOwnerDAO.saveOTP(shopOwner.getEmail(), otp);
+
+                    MailUtil.sendCode(shopOwner.getEmail(), otp);
+
+                    request.setAttribute("email", shopOwner.getEmail());
+                    request.setAttribute("shopCode", shopOwner.getShopCode());
+                    request.setAttribute("databaseName", shopOwner.getDatabaseName());
+                    request.getRequestDispatcher("verificationOTP.jsp").forward(request, response);
+                    return;
+                }
+
+                request.getSession().setAttribute("Employee", shopOwner);
+                request.getRequestDispatcher("Home.jsp").forward(request, response);
             }
+
             EmployeeDAO employeeDAO = new EmployeeDAO(con);
             Employee employee = employeeDAO.findEmployeeByUsernameAndPassword(username, password);
 
             if (employee == null) {
-                request.setAttribute("error", "Wrong password or username");
+                request.setAttribute("error", "Sai tài khoản hoặc mật khẩu");
                 request.getRequestDispatcher("login.jsp").forward(request, response);
+                return;
             }
 
             request.getSession().setAttribute("Employee", employee);
-            request.getRequestDispatcher("Home.jsp").forward(request, response);
+            request.getRequestDispatcher("Home").forward(request, response);
 
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);

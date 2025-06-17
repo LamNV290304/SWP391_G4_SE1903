@@ -34,24 +34,23 @@
 
                 <!-- Page Content -->
                 <div class="layout-page">
+
                     <!-- Navbar -->
                     <jsp:include page="navBar.jsp" />
 
                     <!-- Content Wrapper -->
                     <div class="content-wrapper">
                         <div class="container-xxl flex-grow-1 container-p-y">
-                            <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Account /</span> Profile</h4>
 
                             <div class="card mb-4">
                                 <div class="card-body d-flex align-items-center">
-                                    <img src="./assets/img/avatars/1.png" alt="User avatar" class="rounded-circle me-3" width="80" height="80">
                                     <div>
-                                        <h5 class="mb-1">Nguyễn Việt Lâm</h5>
-                                        <span class="badge bg-label-primary">Quản trị viên</span>
+                                        <h5 class="mb-1">${employee.fullName}</h5>
+                                        <span class="badge bg-label-primary">${employee.role}</span>
                                     </div>
                                     <div class="ms-auto">
                                         <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
-                                            Edit Profile
+                                            Chỉnh sửa hồ sơ
                                         </button>
                                     </div>
                                 </div>
@@ -61,17 +60,27 @@
                                 <h5 class="card-header">Thông tin chi tiết</h5>
                                 <div class="card-body">
                                     <ul class="list-unstyled mb-0">
-                                        <li class="mb-3"><strong>Email:</strong> lam.nguyen@gmail.com</li>
-                                        <li class="mb-3"><strong>Số điện thoại:</strong> 0987654321</li>
-                                        <li class="mb-3"><strong>Tên đăng nhập:</strong> lamnv</li>
+                                        <li class="mb-3"><strong>Email:</strong> ${employee.email}</li>
+                                        <li class="mb-3"><strong>Số điện thoại:</strong> ${employee.phone}</li>
+                                        <li class="mb-3"><strong>Tên đăng nhập:</strong> ${employee.username}</li>
                                         <li class="mb-3"><strong>Trạng thái:</strong>
-                                            <span class="badge bg-success">Hoạt động</span>
+                                            <c:choose>
+                                                <c:when test="${employee.status}">
+                                                    <span class="badge bg-success">Hoạt động</span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="badge bg-secondary">Không hoạt động</span>
+                                                </c:otherwise>
+                                            </c:choose>
                                         </li>
-                                        <li class="mb-3"><strong>Ngày tạo:</strong> 2024-12-15</li>
+                                        <li class="mb-3"><strong>Ngày tạo:</strong> ${employee.createdDate}</li>
+                                        <li class="mb-3"><strong>Cửa hàng:</strong> ${employee.shopName}</li>
                                     </ul>
                                 </div>
                             </div>
+
                         </div>
+
                         <jsp:include page="footer.jsp" />
                     </div>
                 </div>
@@ -80,33 +89,33 @@
 
         <!-- Edit Profile Modal -->
         <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <form action="updateProfile" method="post" class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="editProfileModalLabel">Chỉnh sửa hồ sơ</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-              </div>
-              <div class="modal-body">
-                <div class="mb-3">
-                  <label class="form-label">Họ và tên</label>
-                  <input type="text" name="fullName" class="form-control" value="Nguyễn Việt Lâm" required>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Email</label>
-                  <input type="email" name="email" class="form-control" value="lam.nguyen@gmail.com" required>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Số điện thoại</label>
-                  <input type="text" name="phone" class="form-control" value="0987654321" required>
-                </div>
-                <input type="hidden" name="username" value="lamnv">
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-              </div>
-            </form>
-          </div>
+            <div class="modal-dialog">
+                <form action="UpdateProfile" method="post" class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editProfileModalLabel">Chỉnh sửa hồ sơ</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Họ và tên</label>
+                            <input type="text" name="fullName" class="form-control" value="${employee.fullName}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" value="${employee.email}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Số điện thoại</label>
+                            <input type="text" name="phone" class="form-control" value="${employee.phone}" required>
+                        </div>
+                        <input type="hidden" name="username" value="${employee.username}">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <!-- Scripts -->
@@ -118,4 +127,5 @@
         <script src="./assets/js/main.js"></script>
 
     </body>
+
 </html>
