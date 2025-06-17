@@ -56,11 +56,15 @@ public class AddImportReceipt extends HttpServlet {
         ShopDAO shopDao = new ShopDAO();
         SupplierDAO supDAO = new SupplierDAO(conn);
         ProductDAO ProDAO = new ProductDAO(conn);
+       
         request.setAttribute("listEmp", empDao.getAllEmployee());
         request.setAttribute("listSup", supDAO.getAllSuppliers());
         request.setAttribute("listShop", shopDao.getAllShops("SWP7"));
+        
         request.setAttribute("listType", typeImp.getAllTypeImportReceipts());
+         
         request.setAttribute("listProduct", ProDAO.getAllProducts());
+        
         request.getRequestDispatcher("AddImportReceipt.jsp").forward(request, response);
     } 
 
@@ -88,8 +92,6 @@ public class AddImportReceipt extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-     
-          int importReceiptID = Integer.parseInt(request.getParameter("importReceiptID"));
         String code = request.getParameter("code");
         String supplierID = request.getParameter("SupplierID");
         String employeeID = request.getParameter("EmployeeID");
@@ -113,18 +115,17 @@ if (importDateStr != null && !importDateStr.isEmpty()) {
           
         double value= Double.parseDouble(request.getParameter("Total"));
     
-        try (Connection conn = new DBContext("SWP6").getConnection()) {
+        try (Connection conn = new DBContext("SWP7").getConnection()) {
             
             ImportReceiptDAO receiptDAO = new ImportReceiptDAO(conn);
             InventoryDAO inventoryDAO = new InventoryDAO(conn);
-            
+           
          ImportReceiptDetailDAO receiptDetailDAO = new ImportReceiptDetailDAO(conn);
          
 ProductDAO productDAO = new ProductDAO(conn);
 ShopDAO shopDAO = new ShopDAO();
             // Tạo đối tượng phiếu nhập
             ImportReceipt receipt = new ImportReceipt();
-            receipt.setImportReceiptID(importReceiptID);
             receipt.setCode(code); // Tên sản phẩm không cần ở đây
             receipt.setSupplierID(supplierID);  
             receipt.setEmployeeID(employeeID);// Tên cửa hàng không cần ở đây
@@ -138,7 +139,18 @@ ShopDAO shopDAO = new ShopDAO();
             receiptDAO.insertImportReceipt(receipt);
             
             List<ImportReceiptDetail> listImportDetail = new ArrayList<>();
-             
+              try (PrintWriter out = response.getWriter()) {
+            /* TODO output your page here. You may use following sample code. */
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet Test</title>");  
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet Test at 1</h1>");
+            out.println("</body>");
+            out.println("</html>");
+        }
             
 String[] productIDs = request.getParameterValues("productID[]");
 String[] quantities = request.getParameterValues("quantity[]");
@@ -148,7 +160,7 @@ String[] notes = request.getParameterValues("note[]");
 int size= productIDs.length;
 for(int i=0;i<size;i++){
     ImportReceiptDetail importDetail = new ImportReceiptDetail( 
-            receiptDAO.get, 
+            receiptDetailDAO.getImportReceiptIDByInfo(receipt), 
             productIDs[i],  Integer.parseInt(quantities[i]), Double.parseDouble(prices[i]), notes[i]);
     listImportDetail.add(importDetail);
       

@@ -45,19 +45,10 @@
         <servlet-class>Controller.AddImportReceipt</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>ThemPhieuNhap</servlet-name>
-        <servlet-class>Controller.ThemPhieuNhap</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>listInventory</servlet-name>
-        <servlet-class>Controller.listInventory</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>ShowEmployeeList</servlet-name>
         <servlet-class>Controller.ShowEmployeeList</servlet-class>
     </servlet>
     <servlet>
-<<<<<<< Updated upstream
         <servlet-name>Home</servlet-name>
         <servlet-class>Controller.Home</servlet-class>
     </servlet>
@@ -72,18 +63,10 @@
     <servlet>
         <servlet-name>ShowDetailEmployee</servlet-name>
         <servlet-class>Controller.ShowDetailEmployee</servlet-class>
-=======
-        <servlet-name>listInventoryHome</servlet-name>
-        <servlet-class>Controller.listInventoryHome</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>ExportReceiptServlet</servlet-name>
-        <servlet-class>Controller.ExportReceiptServlet</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>AddExportReceipt</servlet-name>
-        <servlet-class>Controller.AddExportReceipt</servlet-class>
->>>>>>> Stashed changes
+        <servlet-name>Test</servlet-name>
+        <servlet-class>Controller.Test</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>StartProject</servlet-name>
@@ -131,15 +114,10 @@
         <url-pattern>/AddImportReceipt</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>ThemPhieuNhap</servlet-name>
-        <url-pattern>/ThemPhieuNhap</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>ShowEmployeeList</servlet-name>
         <url-pattern>/ShowEmployeeList</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-<<<<<<< Updated upstream
         <servlet-name>Home</servlet-name>
         <url-pattern>/Home</url-pattern>
     </servlet-mapping>
@@ -154,18 +132,10 @@
     <servlet-mapping>
         <servlet-name>ShowDetailEmployee</servlet-name>
         <url-pattern>/ShowDetailEmployee</url-pattern>
-=======
-        <servlet-name>listInventoryHome</servlet-name>
-        <url-pattern>/listInventoryHome</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>ExportReceiptServlet</servlet-name>
-        <url-pattern>/ExportReceiptServlet</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>AddExportReceipt</servlet-name>
-        <url-pattern>/AddExportReceipt</url-pattern>
->>>>>>> Stashed changes
+        <servlet-name>Test</servlet-name>
+        <url-pattern>/Test</url-pattern>
     </servlet-mapping>
     <error-page>
         <error-code>404</error-code>
