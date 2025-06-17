@@ -301,12 +301,17 @@
               <ul class="menu-sub">
                 <li class="menu-item">
                   <a href="form-layouts-vertical.html" class="menu-link">
-                    <div data-i18n="Vertical Form">Khách Hàng </div>
+                    <div data-i18n="Vertical Form">Tạo Hóa Đơn </div>
                   </a>
                 </li>
                 <li class="menu-item">
                   <a href="form-layouts-horizontal.html" class="menu-link">
                     <div data-i18n="Horizontal Form">Báo Cáo Bán Hàng</div>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a href="InvoiceServlet" class="menu-link">
+                    <div>Danh Sách Hóa Đơn</div>
                   </a>
                 </li>
               </ul>
