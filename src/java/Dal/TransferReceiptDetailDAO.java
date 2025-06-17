@@ -125,29 +125,31 @@ public class TransferReceiptDetailDAO {
     }
 
     public static void main(String[] args) {
-        try {
-            // Kết nối đến database
-            DBContext connection = new DBContext("SWP6");
+    try {
+        // Bước 1: Kết nối tới database
+        DBContext connection = new DBContext("SWP6");
 
-            // Khởi tạo DAO
-            TransferReceiptDetailDAO dao = new TransferReceiptDetailDAO(connection.getConnection());
+        // Bước 2: Khởi tạo DAO
+        TransferReceiptDetailDAO dao = new TransferReceiptDetailDAO(connection.getConnection());
 
-            // Gọi hàm getAllTransferReceiptDetail
-            String sql = "SELECT * FROM TransferReceiptDetail"; // câu lệnh truy vấn
-            Vector<TransferReceiptDetail> list = dao.getAllTransferReceiptDetail(sql);
+        // Bước 3: Tạo đối tượng cần insert
+        // Giả sử TransferReceiptID = "TR001", ProductID = "P002", Quantity = 10
+        TransferReceiptDetail newDetail = new TransferReceiptDetail("T001", "P002", 10);
 
-            // In ra danh sách
-            for (TransferReceiptDetail detail : list) {
-                System.out.println("TransferReceiptDetailID: " + detail.getTransferReceiptDetailID());
-                System.out.println("TransferReceiptID: " + detail.getTransferReceiptID());
-                System.out.println("ProductID: " + detail.getProductID());
-                System.out.println("Quantity: " + detail.getQuantity());
-                System.out.println("--------------------------");
-            }
+        // Bước 4: Gọi hàm insert
+        int result = dao.insertTransferReceiptDetail(newDetail);
 
-        } catch (SQLException e) {
-            e.printStackTrace();
+        // Bước 5: Kiểm tra kết quả
+        if (result > 0) {
+            System.out.println("Insert thành công!");
+        } else {
+            System.out.println("Insert thất bại!");
         }
+
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+}
+
 
 }

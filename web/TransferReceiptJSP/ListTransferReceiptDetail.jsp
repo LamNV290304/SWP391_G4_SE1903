@@ -56,7 +56,52 @@
         <script src="${pageContext.request.contextPath}/assets/js/config.js"></script>
     </head>
     <body>
+        <div class="layout-wrapper layout-content-navbar">
+            <div class="layout-container">
+                <jsp:include page="menu.jsp" />
+                <div class="layout-page">
+                    <jsp:include page="navbar.jsp" />
 
+                    <div class="content-wrapper">
+                        <div class="container-xxl flex-grow-1 container-p-y">
+                            <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light"></span> Transfer Receipt Detail</h4>
+                            <!-- Basic Bootstrap Table -->
+                            <div class="card">
+                                <h5 class="card-header">List Transfer Detail</h5>
+                                <div class="table-responsive text-nowrap">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>DetailID</th>
+                                                <th>TransferID</th>
+                                                <th>Product</th>
+                                                <th>Quantity</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="table-border-bottom-0">
+                                            <c:forEach var="d" items="${listDetail}">
+                                                <tr>
+                                                    <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>${d.transferReceiptDetailID}</strong></td>
+                                                    <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>${d.transferReceiptID}</strong></td>
+                                                    <c:forEach var="p" items="${vectorP}">
+                                                        <c:if test="${p.productID == d.productID}">
+                                                            <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>${p.productName}</strong></td>
+                                                        </c:if>
+                                                    </c:forEach>
+                                                    <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>${d.quantity}</strong></td>
+                                                </tr>
+                                            </c:forEach>
+
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="container-xxl flex-grow-1 container-p-y">
             <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light"></span> Transfer Receipt Detail</h4>
             <!-- Basic Bootstrap Table -->
@@ -68,19 +113,23 @@
                             <tr>
                                 <th>DetailID</th>
                                 <th>TransferID</th>
-                                <th>ProductID</th>
+                                <th>Product</th>
                                 <th>Quantity</th>
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
-                        <c:forEach var="p" items="${listDetail}">
-                            <tr>
-                                <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>${p.transferReceiptDetailID}</strong></td>
-                                <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>${p.transferReceiptID}</strong></td>
-                                <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>${p.productID}</strong></td>
-                                <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>${p.quantity}</strong></td>
-                            </tr>
-                        </c:forEach>
+                            <c:forEach var="d" items="${listDetail}">
+                                <tr>
+                                    <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>${d.transferReceiptDetailID}</strong></td>
+                                    <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>${d.transferReceiptID}</strong></td>
+                                    <c:forEach var="p" items="${vectorP}">
+                                        <c:if test="${p.productID == d.productID}">
+                                            <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>${p.productName}</strong></td>
+                                        </c:if>
+                                    </c:forEach>
+                                    <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>${d.quantity}</strong></td>
+                                </tr>
+                            </c:forEach>
 
 
                         </tbody>
@@ -89,10 +138,10 @@
             </div>
         </div>
 
-                            
-                            
-                            
-                            
+
+
+
+
         <!-- Core JS -->
         <!-- build:js assets/vendor/js/core.js -->
         <script src="${pageContext.request.contextPath}/assets/vendor/libs/jquery/jquery.js"></script>
