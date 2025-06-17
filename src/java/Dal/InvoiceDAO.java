@@ -75,7 +75,6 @@ public class InvoiceDAO {
             ptmInsert.setString(6, i.getNote());
             ptmInsert.setBoolean(7, i.isStatus());
 
-   
             long preUpdate = System.currentTimeMillis();
             int affectedRows = ptmInsert.executeUpdate();
             long postUpdate = System.currentTimeMillis();
@@ -100,7 +99,6 @@ public class InvoiceDAO {
             generatedId = -1;
         } // ptmInsert tự động đóng ở đây
 
-       
         return generatedId;
     }
 
@@ -157,8 +155,9 @@ public class InvoiceDAO {
     }
 
     public List<Invoice> searchInvoiceByKey(String key) {
-        String sql = "SELECT * \n"
+        String sql = "SELECT i.*,s.shopName, c.CustomerName \n"
                 + "FROM Invoice i Join Customer c  on i.CustomerID = c.CustomerID\n"
+                + "Join Shop s on i.ShopID = s.ShopID\n"
                 + "WHERE i.InvoiceID Like ? OR c.CustomerName Like ?";
         List<Invoice> l = new ArrayList<>();
         try {
@@ -167,9 +166,18 @@ public class InvoiceDAO {
             ptm.setString(2, "%" + key + "%");
             ResultSet rs = ptm.executeQuery();
             while (rs.next()) {
-                Invoice i = new Invoice(rs.getInt(1), rs.getInt(2), rs.getInt(3),
-                        rs.getInt(4), rs.getTimestamp(5),
-                        rs.getDouble(6), rs.getString(7), rs.getBoolean(8));
+                Invoice i = new Invoice(
+                        rs.getInt("InvoiceID"),
+                        rs.getInt("CustomerID"),
+                        rs.getInt("EmployeeID"), 
+                        rs.getInt("ShopID"),
+                        rs.getTimestamp("InvoiceDate"),
+                        rs.getDouble("TotalAmount"),
+                        rs.getString("Note"),
+                        rs.getBoolean("Status")
+                );
+                i.setCustomerName(rs.getString("CustomerName"));
+                 i.setShopName(rs.getString("shopName"));
                 l.add(i);
             }
         } catch (SQLException ex) {
@@ -213,9 +221,11 @@ public class InvoiceDAO {
 
     public List<Invoice> getInvoicesByPage(int pageIndex, int pageSize) {
         List<Invoice> list = new ArrayList<>();
-        String sql = "SELECT i.*, c.CustomerName \n"
+        String sql = "SELECT i.*, c.CustomerName, s.ShopName, e.FullName\n"
                 + "FROM [dbo].[Invoice] i \n"
                 + "JOIN [dbo].[Customer] c ON i.CustomerID = c.CustomerID\n"
+                + "Join Shop s on s.ShopID = i.ShopID\n"
+                + "JOIN [dbo].[Employee] e on e.EmployeeID = i.EmployeeID \n"
                 + "ORDER BY i.InvoiceID DESC \n"
                 + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         try {
@@ -228,13 +238,15 @@ public class InvoiceDAO {
                 list.add(new Invoice(
                         rs.getInt("InvoiceID"),
                         rs.getInt("CustomerID"),
-                        rs.getString("CustomerName"),
                         rs.getInt("EmployeeID"),
                         rs.getInt("ShopID"),
                         rs.getTimestamp("InvoiceDate"),
                         rs.getDouble("TotalAmount"),
                         rs.getString("Note"),
-                        rs.getBoolean("Status")
+                        rs.getBoolean("Status"),
+                        rs.getString("CustomerName"),
+                        rs.getString("ShopName"),
+                        rs.getString("FullName")
                 ));
             }
         } catch (SQLException ex) {
@@ -261,17 +273,18 @@ public class InvoiceDAO {
         InvoiceDAO dao = new InvoiceDAO(connection.getConnection());
         int pageIndex = 1; // Trang thứ mấy (ví dụ trang 1)
         int pageSize = 1;  // Số lượng hóa đơn mỗi trang
-        Invoice in = new Invoice(1, 1, 1, Timestamp.valueOf(LocalDateTime.MIN), 100000.0, "123123", true);
-        dao.addInvoice(in);
-        System.out.println(in);
+//        Invoice in = new Invoice(1, 1, 1, Timestamp.valueOf(LocalDateTime.MIN), 100000.0, "123123", true);
+//        dao.addInvoice(in);
+//        System.out.println(in);
         List<Invoice> invoices1 = dao.getInvoicesByPage(pageIndex, pageSize);
         for (Invoice inv : invoices1) {
-            System.out.printf("%s | %s | %s | %s | %s | %s | %.2f | %s | %b%n",
+            System.out.printf("%s | %s | %s | %s | %s| %s | %s | %.2f | %s | %b%n",
                     inv.getInvoiceID(),
                     inv.getCustomerID(),
                     inv.getCustomerName(),
                     inv.getEmployeeID(),
                     inv.getShopID(),
+                    inv.getShopName(),
                     inv.getInvoiceDate(),
                     inv.getTotalAmount(),
                     inv.getNote(),
