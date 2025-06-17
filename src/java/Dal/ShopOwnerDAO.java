@@ -4,9 +4,9 @@
  */
 package Dal;
 
-import Context.DBContext;
 import java.sql.*;
 import Models.*;
+import static Utils.PasswordUtils.checkPassword;
 
 /**
  *
@@ -39,6 +39,35 @@ public class ShopOwnerDAO {
                     owner.setShopCode(rs.getString("ShopCode"));
                     owner.setShopName(rs.getString("ShopName"));
                     return owner;
+                }
+            }
+        }
+        return owner;
+    }
+
+    public ShopOwner findShopOwnerByUsernameForLogin(String username, String plainPassword) throws SQLException {
+        String sql = "SELECT * FROM ShopOwners WHERE Username = ?";
+        ShopOwner owner = null;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, username);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String hashedPasswordFromDB = rs.getString("Password");
+
+                    if (checkPassword(plainPassword, hashedPasswordFromDB)) {
+                        owner = new ShopOwner();
+                        owner.setId(rs.getInt("Id"));
+                        owner.setUsername(rs.getString("Username"));
+                        owner.setFullname(rs.getString("Fullname"));
+                        owner.setPhone(rs.getString("Phone"));
+                        owner.setEmail(rs.getString("Email"));
+                        owner.setDatabaseName(rs.getString("DatabaseName"));
+                        owner.setShopCode(rs.getString("ShopCode"));
+                        owner.setShopName(rs.getString("ShopName"));
+                        owner.setStatus(rs.getBoolean("Status"));
+                    }
                 }
             }
         }

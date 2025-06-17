@@ -85,12 +85,12 @@ public class Verify extends HttpServlet {
             String email = request.getParameter("email");
             String databaseName = request.getParameter("databaseName");
             Date createDate = Date.valueOf(java.time.LocalDate.now());
-            
+
             String shopCode = request.getParameter("shopCode");
-            
+
             Connection conn = DBContext.getCentralConnection();
             ShopOwnerDAO shopOwnerDAO = new ShopOwnerDAO(conn);
-            
+
             if (!shopOwnerDAO.verifyOTP(email, otp)) {
                 request.setAttribute("error", "OTP không đúng");
                 request.setAttribute("databaseName", databaseName);
@@ -98,16 +98,16 @@ public class Verify extends HttpServlet {
                 request.getRequestDispatcher("verificationOTP.jsp").forward(request, response);
                 return;
             }
-            
-            ShopOwner shopOwner = shopOwnerDAO.getShopOwnerByDatabaseName(databaseName);
-            Employee firstEmployee = new Employee(0, 0, 0, shopOwner.getUsername(), shopOwner.getPassword(), shopOwner.getFullname(), shopOwner.getPhone(), shopOwner.getEmail(), true, createDate);
-            DatabaseHelper.initializeShopDatabase(databaseName, firstEmployee);
-            
             shopOwnerDAO.updateStatusByEmail(email);
+            ShopOwner shopOwner = shopOwnerDAO.getShopOwnerByDatabaseName(databaseName);
+
+            Employee firstEmployee = new Employee(1, 0, 0, shopOwner.getUsername(), shopOwner.getPassword(), shopOwner.getFullname(), shopOwner.getPhone(), shopOwner.getEmail(), true, createDate);
+            DatabaseHelper.initializeShopDatabase(databaseName, firstEmployee);
+
             String link = "http://localhost:9999/SWP391_G4_SE1903/" + shopCode;
-            
+
             MailUtil.sendLink(email, link);
-            
+
             response.sendRedirect("successRegister.jsp");
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Verify.class.getName()).log(Level.SEVERE, null, ex);

@@ -10,13 +10,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import Context.DatabaseHelper;
 
 /**
  *
  * @author Admin
  */
-public class StartProject extends HttpServlet {
+public class Home extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -30,18 +29,8 @@ public class StartProject extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet StartProject</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet StartProject at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
+        request.getRequestDispatcher("Home.jsp").forward(request, response);
+
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -56,27 +45,7 @@ public class StartProject extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        String uri = request.getRequestURI();
-        String context = request.getContextPath();
-        String path = uri.substring(context.length());
-
-        if (path.equals("/SaleSphere") || path.equals("/StartProject")) {
-            String shopName = "SaleSphere";
-            request.getSession().setAttribute("shopName", shopName);
-            request.getSession().setAttribute("databaseName", "CentralDB");
-            request.getRequestDispatcher("login.jsp").forward(request, response);
-            return;
-        }
-
-        String shopCode = path.replace("/", "");
-
-        String databaseName = DatabaseHelper.getDatabaseNameByShopCode(shopCode);
-        String shopName = DatabaseHelper.getShopNameByShopCode(shopCode);
-
-        request.getSession().setAttribute("databaseName", databaseName);
-        request.getSession().setAttribute("shopName", shopName);
-        request.getRequestDispatcher("login.jsp").forward(request, response);
+        processRequest(request, response);
     }
 
     /**
