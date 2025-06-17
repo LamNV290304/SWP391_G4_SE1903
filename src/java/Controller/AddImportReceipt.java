@@ -50,14 +50,17 @@ public class AddImportReceipt extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        Connection conn = new DBContext("SWP6").getConnection();
+        Connection conn = new DBContext("SWP7").getConnection();
         EmployeeDAO empDao = new EmployeeDAO(conn);
         TypeImportReceiptDAO typeImp = new TypeImportReceiptDAO(conn);
         ShopDAO shopDao = new ShopDAO();
         SupplierDAO supDAO = new SupplierDAO(conn);
+        ProductDAO ProDAO = new ProductDAO(conn);
+        request.setAttribute("listEmp", empDao.getAllEmployee());
         request.setAttribute("listSup", supDAO.getAllSuppliers());
-        request.setAttribute("listShop", shopDao.getAllShops("SWP6"));
+        request.setAttribute("listShop", shopDao.getAllShops("SWP7"));
         request.setAttribute("listType", typeImp.getAllTypeImportReceipts());
+        request.setAttribute("listProduct", ProDAO.getAllProducts());
         request.getRequestDispatcher("AddImportReceipt.jsp").forward(request, response);
     } 
 
@@ -136,18 +139,16 @@ ShopDAO shopDAO = new ShopDAO();
             
             List<ImportReceiptDetail> listImportDetail = new ArrayList<>();
              
-            String[] importReceiptDetailIDs = request.getParameterValues("importReceiptDetailID[]");
             
-String[] importReceiptIDs = request.getParameterValues("importReceiptID[]");
 String[] productIDs = request.getParameterValues("productID[]");
 String[] quantities = request.getParameterValues("quantity[]");
 String[] prices = request.getParameterValues("price[]");
 String[] notes = request.getParameterValues("note[]");
 
-int size= importReceiptDetailIDs.length;
+int size= productIDs.length;
 for(int i=0;i<size;i++){
-    ImportReceiptDetail importDetail = new ImportReceiptDetail(Integer.parseInt(importReceiptDetailIDs[i]), 
-            Integer.parseInt(importReceiptIDs[i]), 
+    ImportReceiptDetail importDetail = new ImportReceiptDetail( 
+            receiptDAO.get, 
             productIDs[i],  Integer.parseInt(quantities[i]), Double.parseDouble(prices[i]), notes[i]);
     listImportDetail.add(importDetail);
       
@@ -158,7 +159,7 @@ for(int i=0;i<size;i++){
 for(ImportReceiptDetail importDetail : listImportDetail){
    
      // Kiểm tra và cập nhật tồn kho
-            Inventory inv = inventoryDAO.getInventoryByShopAndProduct( importDetail.getProductID(),shopID);
+            Inventory inv = inventoryDAO.getInventoryByShopAndProduct( Integer.parseInt(importDetail.getProductID()),Integer.parseInt(shopID));
             
           
             if (inv != null) {
@@ -172,9 +173,9 @@ for(ImportReceiptDetail importDetail : listImportDetail){
                 // Tạo mới hàng tồn kho nếu chưa có
                 Inventory newInv = new Inventory();
               
-                newInv.setInventoryID("INV" + System.currentTimeMillis()); // ID tạm thời
+                //newInv.setInventoryID("INV" + System.currentTimeMillis()); // ID tạm thời
                   
-                newInv.setProduct(productDAO.getProductById(importDetail.getProductID()));
+                newInv.setProduct(productDAO.getProductById(Integer.parseInt(importDetail.getProductID())));
                 
                 newInv.setShop(shopDAO.getShopByID(shopID, "SWP6"));
                 

@@ -1,27 +1,30 @@
-package Controller;
-
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
+package Controller;
 
 import Context.DBContext;
-import Dal.*;
-import Models.*;
+import Dal.EmployeeDAO;
+import Dal.ProductDAO;
+import Dal.ShopDAO;
+import Dal.SupplierDAO;
+import Dal.TypeExportReceiptDAO;
+import Dal.TypeImportReceiptDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
+import java.sql.Connection;
 
 /**
  *
  * @author Thai Anh
  */
-public class ImportReceiptServlet extends HttpServlet {
+public class AddExportReceipt extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -33,12 +36,18 @@ public class ImportReceiptServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-       
-        DBContext connection = new DBContext("SWP7");
-    ImportReceiptDAO dao = new ImportReceiptDAO(connection.getConnection());
-    List<ImportReceipt> list = dao.getAllImportReceipts();
-    request.setAttribute("listIR", list);
-    request.getRequestDispatcher("ImportReceipt.jsp").forward(request, response);
+        Connection conn = new DBContext("SWP7").getConnection();
+        EmployeeDAO empDao = new EmployeeDAO(conn);
+        TypeExportReceiptDAO typeImp = new TypeExportReceiptDAO(conn);
+        ShopDAO shopDao = new ShopDAO();
+        SupplierDAO supDAO = new SupplierDAO(conn);
+        ProductDAO ProDAO = new ProductDAO(conn);
+        request.setAttribute("listEmp", empDao.getAllEmployee());
+        request.setAttribute("listSup", supDAO.getAllSuppliers());
+        request.setAttribute("listShop", shopDao.getAllShops("SWP7"));
+        request.setAttribute("listType", typeImp.getAllTypeExportReceipts());
+        request.setAttribute("listProduct", ProDAO.getAllProducts());
+        request.getRequestDispatcher("AddExportReceipt.jsp").forward(request, response);
     } 
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

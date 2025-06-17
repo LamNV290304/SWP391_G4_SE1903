@@ -67,9 +67,9 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                 <div class="container" style="padding-top: 20px;"> 
                   <!-- Responsive Table -->
              <div class="card col-sm-12" style="height: 90vh; overflow: hidden;">
-  <h5 class="card-header">Thêm mới phiếu nhập Hàng</h5>
+  <h5 class="card-header">Thêm mới phiếu Xuất Hàng</h5>
 
- <form class="row" action="AddImportReceipt" method="POST"> 
+ <form class="row" action="AddExportReceipt" method="POST"> 
   <!-- Cột trái: Card thông tin -->
   <div class="col-md-3"style="max-height: 80vh; overflow-y: auto;">
     <div class="card mb-2">
@@ -77,23 +77,14 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
       <div class="card-body">
         <!-- Các input như bạn đã có -->
        
-        <div class="mb-3">
-          <label for="warehouse" class="form-label">Nhà cung cấp</label>
-          <select class="form-select" id="warehouse" name="SupplierID">
-            <option selected disabled>Chọn nhà cung cấp</option>
-             <c:forEach var="lsup" items="${listSup}">
-                      <option value="${lsup.supplierID}">${lsup.supplierName}</option>
-                      </c:forEach>
-          </select>
-        </div>
-        
-        
+       
         <div class="mb-3">
             <label for="receiptId" class="form-label">Mã Nhân Viên</label>
           <input type="text" name="EmployeeID" class="form-control" id="receiptId" placeholder="PN001" />
         </div>
+      
         <div class="mb-3">
-          <label for="warehouse" class="form-label">Kho Nhập</label>
+          <label for="warehouse" class="form-label">Kho Xuất</label>
           <select class="form-select" id="warehouse" name="shopID">
             <option selected disabled>Chọn kho</option>
              <c:forEach var="ls" items="${listShop}">
@@ -115,7 +106,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         
         
         <div class="mb-3">
-          <label for="warehouse" class="form-label">Loại Phiếu Nhập</label>
+          <label for="warehouse" class="form-label">Loại Phiếu Xuất</label>
           <select class="form-select" id="warehouse" name="code">
             <option selected disabled>Chọn Phiếu</option>
              <c:forEach var="ltype" items="${listType}">
@@ -133,7 +124,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
   <!--Cot phai  -->
 <div class="col-md-9" id="horizontal-example">
   <div class="card h-100 d-flex flex-column">
-    <h5 class="card-header">Chi Tiết Phiếu Nhập </h5>
+    <h5 class="card-header">Chi Tiết Phiếu Xuất </h5>
     <div class="card-body" id="horizontal-example">
 
       <!-- ✅ Bọc bảng trong div có cuộn ngang -->
@@ -152,14 +143,11 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
           </thead>
           <tbody>
             <tr>
-                
                 <td> 
           <select class="form-select" name="productID[]">
-    <option selected disabled>Chọn Sản Phẩm</option>
-    <c:forEach var="prod" items="${listProduct}">
-      <option value="${prod.productID}">${prod.productName}</option>
-    </c:forEach>
-  </select></td>
+      <option selected disabled>Chọn Phiếu</option>
+      ${productOptions}
+    </select></td>
     <td><input type="number" name="quantity[]" class="form-control" required /></td>
     <td><input type="number" name="price[]" class="form-control" required /></td>
     <td><input type="number" name="total[]" class="form-control" readonly /></td>
@@ -185,14 +173,12 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
 <!-- JavaScript: Thêm/Xóa dòng và tính Thành tiền -->
 <script>
 
-
 // Khi thêm dòng mới, cũng tự động gán luôn importReceiptID
 document.getElementById("addRowBtn").addEventListener("click", function () {
   const tableBody = document.querySelector("#productTable tbody");
   const newRow = document.createElement("tr");
   newRow.innerHTML = `
-  <td> 
-          <select class="form-select" name="productID[]">
+    <td><select class="form-select" name="productID[]">
       <option selected disabled>Chọn Phiếu</option>
       ${productOptions}
     </select></td>
@@ -225,7 +211,11 @@ document.addEventListener("input", function (e) {
       calculateGrandTotal();
     }
   });
-
+const productOptions = `
+    <c:forEach var="ltype" items="${listProduct}">
+      <option value="${ltype.productID}">${ltype.productName}</option>
+    </c:forEach>
+  `;
   // Hàm tính tổng cộng
  function calculateGrandTotal() {
   const totals = document.querySelectorAll('input[name="total[]"]');
@@ -244,20 +234,7 @@ document.addEventListener("input", function (e) {
   document.getElementById("grandTotalInput").value = sum.toFixed(2);
 }
 </script>
-<script>
-  const productOptions = `
-    <c:forEach var="ltype" items="${listProduct}">
-      <option value="${ltype.productID}">${ltype.productName}</option>
-    </c:forEach>
-  `;
-</script>
-<script>
-  const productOptions = `
-    <c:forEach var="ltype" items="${listProduct}">
-      <option value="${ltype.productID}">${ltype.productName}</option>
-    </c:forEach>
-  `;
-</script>
+
   </div>
 </form>
 
