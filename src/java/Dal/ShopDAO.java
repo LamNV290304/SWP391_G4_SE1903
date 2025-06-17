@@ -27,7 +27,7 @@ public class ShopDAO {
 
             while (rs.next()) {
                 Shop shop = new Shop(
-                        rs.getString("ShopID"),
+                        rs.getInt("ShopID"),
                         rs.getString("ShopName"),
                         rs.getString("Address"),
                         rs.getString("Phone"),
@@ -54,7 +54,7 @@ public class ShopDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return new Shop(
-                            rs.getString("ShopID"),
+                            rs.getInt("ShopID"),
                             rs.getString("ShopName"),
                             rs.getString("Address"),
                             rs.getString("Phone"),
@@ -73,18 +73,17 @@ public class ShopDAO {
     }
 
     public boolean insertShop(Shop shop, String databaseName) {
-        String sql = "INSERT INTO Shop (ShopID, ShopName, Address, Phone, Email, Status, CreatedDate, CreatedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Shop (ShopName, Address, Phone, Email, Status, CreatedDate, CreatedBy) VALUES ( ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBContext.getConnection(databaseName);
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, shop.getShopID());
-            ps.setString(2, shop.getShopName());
-            ps.setString(3, shop.getAddress());
-            ps.setString(4, shop.getPhone());
-            ps.setString(5, shop.getEmail());
-            ps.setBoolean(6, shop.isStatus());
-            ps.setTimestamp(7, new Timestamp(shop.getCreatedDate().getTime()));
-            ps.setString(8, shop.getCreatedBy());
+            ps.setString(1, shop.getShopName());
+            ps.setString(2, shop.getAddress());
+            ps.setString(3, shop.getPhone());
+            ps.setString(4, shop.getEmail());
+            ps.setBoolean(5, shop.isStatus());
+            ps.setTimestamp(6, new Timestamp(shop.getCreatedDate().getTime()));
+            ps.setString(7, shop.getCreatedBy());
 
             return ps.executeUpdate() > 0;
 
@@ -106,7 +105,7 @@ public class ShopDAO {
             ps.setBoolean(5, shop.isStatus());
             ps.setTimestamp(6, new Timestamp(shop.getCreatedDate().getTime()));
             ps.setString(7, shop.getCreatedBy());
-            ps.setString(8, shop.getShopID());
+            ps.setInt(8, shop.getShopID());
 
             return ps.executeUpdate() > 0;
 
@@ -130,7 +129,7 @@ public class ShopDAO {
         return false;
     }
     public static void main(String[] args) {
-         String dbName = "SWP4"; // Thay đổi tùy theo CSDL của bạn
+         String dbName = "SWP7"; // Thay đổi tùy theo CSDL của bạn
         ShopDAO dao = new ShopDAO();
 
         // Insert test
@@ -145,7 +144,7 @@ public class ShopDAO {
         }
 
         // Get by ID test
-        Shop s = dao.getShopByID("S001", dbName);
+        Shop s = dao.getShopByID("1", dbName);
         if (s != null) {
             System.out.println("Found: " + s.getShopName());
         }

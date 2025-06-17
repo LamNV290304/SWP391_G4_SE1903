@@ -11,13 +11,23 @@ package Models;
 public class Role {
     private int Id;
     private String Name;
+    private String description;
     
     public Role(){
     }
 
-    public Role(int Id, String Name) {
+    public Role(int Id, String Name, String description) {
         this.Id = Id;
         this.Name = Name;
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public int getId() {

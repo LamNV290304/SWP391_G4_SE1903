@@ -89,10 +89,7 @@
                     <h1>${selectedShop.shopName}</h1>
                     <p>${selectedShop.address} | Điện thoại: ${selectedShop.phone} | Email: ${selectedShop.email}</p>
                 </c:if>
-                <c:if test="${empty selectedShop}">
-                    <p>Mã cửa hàng: ${selectedInvoice.shopID}</p>
-                    <p class="text-muted-invoice">Thông tin cửa hàng không có sẵn.</p>
-                </c:if>
+
             </div>
 
             <h2 class="invoice-title">HÓA ĐƠN BÁN HÀNG</h2>
@@ -163,9 +160,10 @@
                                 <td>${loop.index + 1}</td>
                                 <td>
                                     <c:set var="productName" value="Sản phẩm không xác định"/>
-                                    <c:forEach var="prod" items="${products}">
-                                        <c:if test="${prod.productID == detail.productID}">
-                                            <c:set var="productName" value="${prod.productName}"/>
+                                    
+                                    <c:forEach var="invItem" items="${inventories}">
+                                        <c:if test="${invItem.product.productID == detail.productID}">
+                                            <c:set var="productName" value="${invItem.product.productName}"/>
                                         </c:if>
                                     </c:forEach>
                                     ${productName}
@@ -202,7 +200,7 @@
         <div class="container form-section">
             <h3 class="mb-3 text-center">Quản lý chi tiết hóa đơn</h3>
 
-            <%-- Hiển thị thông báo lỗi hoặc thành công --%>
+           
             <c:if test="${not empty errorMessage}">
                 <div class="alert alert-danger" role="alert">
                     ${errorMessage}
@@ -225,14 +223,20 @@
 
                         <div class="mb-3">
                             <label for="productID" class="form-label">Mã sản phẩm:</label>
-                            <%-- Thay input text bằng dropdown cho productID --%>
+                            
                             <select class="form-select" id="productID" name="productID" required>
                                 <option value="">-- Chọn sản phẩm --</option>
-                                <c:forEach var="prod" items="${products}">
-                                    <option value="${prod.productID}">${prod.productID} - ${prod.productName}</option>
+                               
+                                <c:forEach var="invItem" items="${inventories}">
+                                  
+                                    <c:if test="${invItem.quantity > 0}">
+                                        <option value="${invItem.product.productID}">
+                                            ${invItem.product.productID} - ${invItem.product.productName} (Tồn: ${invItem.quantity})
+                                        </option>
+                                    </c:if>
                                 </c:forEach>
                             </select>
-                            <small class="form-text text-muted">Chọn sản phẩm từ danh sách có sẵn.</small>
+                            <!--                            <small class="form-text text-muted">Chọn sản phẩm từ danh sách có sẵn.</small>-->
                         </div>
                         <div class="mb-3">
                             <label for="quantity" class="form-label">Số lượng:</label>
@@ -262,7 +266,7 @@
                         <th>Giá bán</th>
                         <th>Giảm giá (%)</th>
                         <th>Thành tiền</th>
-                        <th>Hành động</th>
+                        <!--                        <th>Hành động</th>-->
                     </tr>
                 </thead>
                 <tbody>
@@ -296,7 +300,7 @@
                             </form>
                         </c:when>
                         <c:otherwise>
-                            <%-- CHẾ ĐỘ XEM: Hiển thị Text và nút Sửa/Xóa --%>
+                            
                             <td>
                                 <c:set var="productNameDisplay" value="${detail.productID}"/>
                                 <c:forEach var="prod" items="${products}">
@@ -310,10 +314,10 @@
                             <td><fmt:formatNumber value="${detail.unitPrice}" pattern="#,##0" /> VNĐ</td>
                             <td>${detail.discount} %</td>
                             <td><fmt:formatNumber value="${detail.totalPrice}" pattern="#,##0" /> VNĐ</td>
-                            <td>
-                                <a href="InvoiceServlet?action=listDetail&invoiceID=${selectedInvoice.invoiceID}&editDetailID=${detail.invoiceDetailID}" class="btn btn-info btn-sm">Sửa</a>
-                             
-                            </td>
+                            <!--                            <td>
+                                                            <a href="InvoiceServlet?action=listDetail&invoiceID=${selectedInvoice.invoiceID}&editDetailID=${detail.invoiceDetailID}" class="btn btn-info btn-sm">Sửa</a>
+                                                         
+                                                        </td>-->
                         </c:otherwise>
                     </c:choose>
                     </tr>

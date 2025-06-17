@@ -336,7 +336,7 @@ public final class DatabaseHelper {
     public static void main(String[] args) {
 
         try {
-            String databaseName = "ShopDB_TTest";
+            String databaseName = "ShopDB_Test2";
             Connection conn = DBContext.getCentralConnection();
             ShopOwnerDAO shopOwnerDAO = new ShopOwnerDAO(conn);
             Date createDate = Date.valueOf(java.time.LocalDate.now());
@@ -349,5 +349,6 @@ public final class DatabaseHelper {
         } catch (SQLException ex) {
             Logger.getLogger(DatabaseHelper.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }
 }

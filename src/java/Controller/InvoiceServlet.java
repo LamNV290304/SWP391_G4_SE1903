@@ -17,6 +17,7 @@ import Models.Employee;
 import Models.Invoice;
 import Models.InvoiceDetail;
 import Models.Product;
+import Models.Inventory;
 import Models.Shop;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -117,9 +118,16 @@ public class InvoiceServlet extends HttpServlet {
 
     private void showAddInvoiceForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<Employee> employees = eDAO.getAllEmployee();
-        request.setAttribute("employees", employees);
-        request.getRequestDispatcher("addInvoice.jsp").forward(request, response);
+        try {
+            request.setAttribute("customers", cDAO.getAllCustomer());
+
+            request.setAttribute("allShops", sDAO.getAllShops("SWP1"));
+            request.getRequestDispatcher("addInvoice.jsp").forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("errorMessage", "Lỗi khi tải form thêm hóa đơn: " + e.getMessage());
+            request.getRequestDispatcher("error.jsp").forward(request, response); // Hoặc listInvoice.jsp
+        }
     }
 
     private void listInvoices(HttpServletRequest request, HttpServletResponse response)
@@ -140,10 +148,14 @@ public class InvoiceServlet extends HttpServlet {
         //tinh tong so trang can thiet de hien thi tat ca hoa don: Math.ceil la lam tron len
         int totalPages = (int) Math.ceil((double) totalInvoices / pageSize);
         List<Customer> customers = cDAO.getAllCustomer();
+        List<Employee> employees = eDAO.getAllEmployee();
+        List<Shop> allShops = sDAO.getAllShops("SWP1");
         List<Invoice> invoices = idao.getInvoicesByPage(pageIndex, pageSize);
         request.setAttribute("currentPage", pageIndex);
         request.setAttribute("customers", customers);
+        request.setAttribute("employees", employees);
 
+        request.setAttribute("allShops", allShops);
         request.setAttribute("invoiceList", invoices);
         request.setAttribute("totalPages", totalPages);
         request.getRequestDispatcher("listInvoice.jsp").forward(request, response);
@@ -334,25 +346,82 @@ public class InvoiceServlet extends HttpServlet {
 
     private void addInvoice(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        try {
+            // Lấy các tham số từ form
+            int customerID = Integer.parseInt(request.getParameter("customerID"));
+            int employeeID = 1;
+            int shopID = Integer.parseInt(request.getParameter("shopID"));
+            Timestamp invoiceDate = Timestamp.from(Instant.now());
+            double totalAmount = Double.parseDouble(request.getParameter("totalAmount"));
+            String note = request.getParameter("note");
+            boolean status = Boolean.parseBoolean(request.getParameter("status"));
 
-        int customerID = Integer.parseInt(request.getParameter("customerID"));
-        int employeeID = Integer.parseInt(request.getParameter("employeeID"));
-        int shopID = Integer.parseInt(request.getParameter("shopID"));
-        Timestamp invoiceDate = new Timestamp(System.currentTimeMillis());
-        double totalAmount = Double.parseDouble(request.getParameter("totalAmount"));
-        String note = request.getParameter("note");
-        boolean status = Boolean.parseBoolean(request.getParameter("status"));
+            Invoice newInvoice = new Invoice(customerID, employeeID, shopID, invoiceDate, totalAmount, note, status);
 
-        Invoice newInvoice = new Invoice(customerID, employeeID, shopID, invoiceDate, totalAmount, note, status);
-        idao.addInvoice(newInvoice);
+            // Bước 1: Thêm hóa đơn vào cơ sở dữ liệu
+            idao.addInvoice(newInvoice);
 
-        List<Employee> e = eDAO.getAllEmployee();
+            // --- Phần này vẫn giữ nguyên như bạn muốn: Chuyển hướng đến listInvoice.jsp sau khi thêm thành công ---
+            // Chuẩn bị dữ liệu để hiển thị trang listInvoice.jsp
+            int pageIndex = 1;
+            int pageSize = 5;
 
-        request.setAttribute("selectedInvoice", newInvoice);
+            int totalInvoices = idao.getTotalInvoiceCount();
+            List<Invoice> invoiceList = idao.getInvoicesByPage(pageIndex, pageSize);
 
-        request.getRequestDispatcher("InvoiceDetaiul.jsp").forward(request, response);
-//        response.sendRedirect("InvoiceServlet?action=listDetail&invoiceID=" + invoiceID);
+            // Lấy danh sách cho các dropdown nếu có lỗi và cần quay lại form addInvoice.jsp
+            List<Customer> customers = cDAO.getAllCustomer();
+            List<Employee> employees = eDAO.getAllEmployee();
+            List<Shop> allShops = sDAO.getAllShops("SWP1"); // Lấy tất cả shops
 
+            int totalPages = (int) Math.ceil((double) totalInvoices / pageSize);
+
+            // Đặt các attribute cần thiết cho listInvoice.jsp
+            request.setAttribute("currentPage", pageIndex);
+            request.setAttribute("customers", customers);      // Vẫn set, có thể dùng cho bộ lọc hoặc form khác
+            request.setAttribute("employees", employees);      // Vẫn set
+            request.setAttribute("allShops", allShops);        // Vẫn set
+            request.setAttribute("invoiceList", invoiceList);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("successMessage", "Hóa đơn đã được thêm thành công!");
+
+            // Bước 3: Forward đến listInvoice.jsp (hoặc redirect nếu muốn theo kiểu PRG)
+            request.getRequestDispatcher("listInvoice.jsp").forward(request, response);
+
+        } catch (NumberFormatException e) {
+            request.setAttribute("errorMessage", "Lỗi định dạng dữ liệu: Mã khách hàng, nhân viên, cửa hàng hoặc tổng tiền phải là số.");
+            e.printStackTrace();
+
+            // RẤT QUAN TRỌNG: Khi có lỗi và forward lại về trang nhập, bạn phải truyền lại các danh sách
+            // để các dropdown không bị trống rỗng.
+            try {
+                request.setAttribute("customers", cDAO.getAllCustomer());
+                request.setAttribute("employees", eDAO.getAllEmployee());
+                request.setAttribute("allShops", sDAO.getAllShops("SWP1"));
+            } catch (Exception daoEx) {
+                System.err.println("Error fetching dropdown data on error: " + daoEx.getMessage());
+                daoEx.printStackTrace();
+            }
+
+            // Forward về trang addInvoice.jsp để người dùng sửa lỗi
+            request.getRequestDispatcher("addInvoice.jsp").forward(request, response);
+        } catch (Exception e) {
+            request.setAttribute("errorMessage", "Đã xảy ra lỗi không mong muốn khi thêm hóa đơn: " + e.getMessage());
+            e.printStackTrace();
+
+            // RẤT QUAN TRỌNG: Tương tự, khi có lỗi chung, cần truyền lại các danh sách
+            try {
+                request.setAttribute("customers", cDAO.getAllCustomer());
+                request.setAttribute("employees", eDAO.getAllEmployee());
+                request.setAttribute("allShops", sDAO.getAllShops("SWP1"));
+            } catch (Exception daoEx) {
+                System.err.println("Error fetching dropdown data on error: " + daoEx.getMessage());
+                daoEx.printStackTrace();
+            }
+
+            // Forward về trang addInvoice.jsp để người dùng thử lại
+            request.getRequestDispatcher("addInvoice.jsp").forward(request, response);
+        }
     }
 
     private void deleteInvoice(HttpServletRequest request, HttpServletResponse response)
@@ -426,27 +495,22 @@ public class InvoiceServlet extends HttpServlet {
 
             List<Employee> em = eDAO.getAllEmployee();
             int shopID = invoice.getShopID();
+            
+            List<Inventory> inventoriesInShop = inventoryDAO.getAllInventoriesInStore(shopID);
             Shop selectedShop = null;
             try {
-                selectedShop = sDAO.getShopByID(shopID, "SW1");
+                selectedShop = sDAO.getShopByID(shopID, "SWP1");
             } catch (Exception e) {
                 request.setAttribute("errorMessage", "Không thể lấy thông tin cửa hàng.");
             }
 
-            List<Product> products = null;
-            try {
-                products = pDAO.getAllProducts();
-            } catch (Exception e) {
-                request.setAttribute("errorMessage", "Không thể lấy danh sách sản phẩm: " + e.getMessage());
-                products = new ArrayList<>();
-            }
+            request.setAttribute("inventories", inventoriesInShop); // THAY VÌ "products"
 
             List<InvoiceDetail> detail = idetail.getDetailByInvoiceID(invoiceID);
             if (detail == null) {
                 detail = new ArrayList<>();
             }
 
- 
             List<Customer> customers = cDAO.getAllCustomer();
 
             String editDetailIDParam = request.getParameter("editDetailID");
@@ -459,8 +523,8 @@ public class InvoiceServlet extends HttpServlet {
                 }
             }
 
-            Customer selectedCustomer = null;       
-            if (invoice.getCustomerID() >0) { 
+            Customer selectedCustomer = null;
+            if (invoice.getCustomerID() > 0) {
                 selectedCustomer = cDAO.getCustomerById(invoice.getCustomerID());
             }
 
@@ -482,7 +546,7 @@ public class InvoiceServlet extends HttpServlet {
             request.setAttribute("selectedInvoice", invoice);
             request.setAttribute("invoiceDetails", detail);
             request.setAttribute("selectedShop", selectedShop);
-            request.setAttribute("products", products);
+           
 
             request.getRequestDispatcher("InvoiceDetail.jsp").forward(request, response);
 
@@ -527,4 +591,3 @@ public class InvoiceServlet extends HttpServlet {
     //}
 
 }
-

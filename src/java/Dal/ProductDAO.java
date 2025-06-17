@@ -29,7 +29,7 @@ public class ProductDAO {
                 + "      ,[ProductName]\n"
                 + "      ,[CategoryID]\n"
                 + "      ,[UnitID]\n"
-                + "      ,[Price]\n"
+                + "      ,[SellingPrice]\n"
                 + "      ,[Description]\n"
                 + "      ,[Status]\n"
                 + "      ,[CreatedDate]\n"
@@ -45,20 +45,19 @@ public class ProductDAO {
                         rs.getString("ProductName"),
                         rs.getString("CategoryID"),
                         rs.getString("UnitID"),
-                        rs.getBigDecimal("Price"),
+                        rs.getBigDecimal("SellingPrice"),
                         rs.getString("Description"),
                         rs.getBoolean("Status"),
                         rs.getTimestamp("CreatedDate").toLocalDateTime(),
                         rs.getString("CreatedBy"));
-   
+
                 l.add(pr);
             }
-            }catch (SQLException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(ProductDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
         return l;
     }
-  
 
     public List<Product> getAllProducts(int page, int pageSize, String search, String categoryFilter) {
         List<Product> products = new ArrayList<>();
@@ -156,7 +155,7 @@ public class ProductDAO {
         return 0;
     }
 
-    public Product getProductById(int productId) { 
+    public Product getProductById(int productId) {
         String sql = "SELECT p.*, c.CategoryName, u.Description as UnitDescription "
                 + "FROM Product p "
                 + "LEFT JOIN Category c ON p.CategoryID = c.CategoryID "
@@ -165,12 +164,12 @@ public class ProductDAO {
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 
-            stmt.setInt(1, productId); 
+            stmt.setInt(1, productId);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
                 Product product = new Product();
-                product.setProductID(rs.getInt("ProductID")); 
+                product.setProductID(rs.getInt("ProductID"));
                 product.setProductName(rs.getString("ProductName"));
                 product.setCategoryID(rs.getString("CategoryID"));
                 product.setUnitID(rs.getString("UnitID"));
@@ -194,7 +193,7 @@ public class ProductDAO {
     }
 
     public boolean createProduct(Product product) {
-        
+
         String sql = "INSERT INTO Product (ProductName, CategoryID, UnitID, "
                 + "ImportPrice, SellingPrice, Description, Status, ImageUrl, CreatedBy) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -234,7 +233,7 @@ public class ProductDAO {
             stmt.setString(6, product.getDescription());
             stmt.setBoolean(7, product.isStatus());
             stmt.setString(8, product.getImageUrl());
-            stmt.setInt(9, product.getProductID()); 
+            stmt.setInt(9, product.getProductID());
 
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -244,12 +243,12 @@ public class ProductDAO {
         return false;
     }
 
-    public boolean deleteProduct(int productId) { 
+    public boolean deleteProduct(int productId) {
         String sql = "DELETE FROM Product WHERE ProductID = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 
-            stmt.setInt(1, productId); 
+            stmt.setInt(1, productId);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -262,8 +261,7 @@ public class ProductDAO {
         List<Category> categories = new ArrayList<>();
         String sql = "SELECT * FROM Category WHERE Status = 1 ORDER BY CategoryName";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql); 
-             ResultSet rs = stmt.executeQuery()) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 Category category = new Category();
@@ -284,8 +282,7 @@ public class ProductDAO {
         List<Unit> units = new ArrayList<>();
         String sql = "SELECT * FROM Unit ORDER BY Description";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql); 
-             ResultSet rs = stmt.executeQuery()) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 Unit unit = new Unit();
@@ -299,13 +296,14 @@ public class ProductDAO {
 
         return units;
     }
+
     public static void main(String[] args) {
         DBContext connection = new DBContext("SWP1");
         ProductDAO pDAO = new ProductDAO(connection.getConnection());
         List<Product> p = pDAO.getAllProducts();
         for (Product product : p) {
             System.out.println(product.getProductName());
-    }
         }
-        
+    }
+
 }

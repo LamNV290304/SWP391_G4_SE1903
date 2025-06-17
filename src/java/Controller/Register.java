@@ -89,19 +89,19 @@ public class Register extends HttpServlet {
             String shopName = request.getParameter("shopName");
 
             if (!password.equals(repassword)) {
-                request.setAttribute("error", "Password và Re-password không khớp!");
+                request.setAttribute("error", "Mật khẩu không khớp!");
                 request.getRequestDispatcher("register.jsp").forward(request, response);
                 return;
             }
 
             if (shopOwnerDAO.isUsernameExist(username)) {
-                request.setAttribute("error", "Username đã tồn tại, vui lòng chọn username khác!");
+                request.setAttribute("error", "Tên tài khoản đã tồn tại, vui lòng chọn tên tài khoản khác!");
                 request.getRequestDispatcher("register.jsp").forward(request, response);
                 return;
             }
             
             if (shopOwnerDAO.isPhoneExist(phone)) {
-                request.setAttribute("error", "Số điện thoại đã tồn tại, vui lòng chọn username khác!");
+                request.setAttribute("error", "Số điện thoại đã tồn tại, vui lòng chọn số điện thoại khác!");
                 request.getRequestDispatcher("register.jsp").forward(request, response);
                 return;
             }
@@ -113,7 +113,7 @@ public class Register extends HttpServlet {
             }
 
             if (shopOwnerDAO.isEmailExist(email)) {
-                request.setAttribute("error", "Email đã tồn tại, vui lòng chọn tên khác!");
+                request.setAttribute("error", "Email đã tồn tại, vui lòng chọn email khác!");
                 request.getRequestDispatcher("register.jsp").forward(request, response);
                 return;
             }
