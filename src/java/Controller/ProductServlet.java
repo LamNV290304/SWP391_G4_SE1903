@@ -81,7 +81,7 @@ public class ProductServlet extends HttpServlet {
                 page = 1;
             }
         }
-
+        
         String search = request.getParameter("search");
         String categoryFilter = request.getParameter("category");
 
