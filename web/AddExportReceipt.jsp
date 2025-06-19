@@ -93,7 +93,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
           </select>
         </div>
         <div class="mb-3">
-          <label for="receiptId" class="form-label">ID Phiếu Nhập</label>
+          <label for="receiptId" class="form-label">Ngày Xuất</label>
           <input type="date" id="importDate" name="Date" class="form-control" required />
         </div>
         
@@ -142,12 +142,15 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
             </tr>
           </thead>
           <tbody>
-            <tr>
+             <tr>
+                
                 <td> 
           <select class="form-select" name="productID[]">
-      <option selected disabled>Chọn Phiếu</option>
-      ${productOptions}
-    </select></td>
+    <option selected disabled>Chọn Sản Phẩm</option>
+    <c:forEach var="prod" items="${listProduct}">
+      <option value="${prod.productID}">${prod.productName}</option>
+    </c:forEach>
+  </select></td>
     <td><input type="number" name="quantity[]" class="form-control" required /></td>
     <td><input type="number" name="price[]" class="form-control" required /></td>
     <td><input type="number" name="total[]" class="form-control" readonly /></td>
@@ -164,7 +167,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
       <button type="button" class="btn btn-secondary mb-3" id="addRowBtn">+ Thêm dòng</button>
 
       <!-- Nút submit -->
-      <button type="submit" class="btn btn-primary">Lưu phiếu nhập</button>
+      <button type="submit" class="btn btn-primary">Lưu phiếu xuất</button>
    
     </div>
   </div>

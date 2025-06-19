@@ -41,8 +41,20 @@
         <servlet-class>Controller.ImportReceiptServlet</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>listInventoryHome</servlet-name>
+        <servlet-class>Controller.listInventoryHome</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>AddImportReceipt</servlet-name>
         <servlet-class>Controller.AddImportReceipt</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ExportReceiptServlet</servlet-name>
+        <servlet-class>Controller.ExportReceiptServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddExportReceipt</servlet-name>
+        <servlet-class>Controller.AddExportReceipt</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ShowEmployeeList</servlet-name>
@@ -112,6 +124,18 @@
     <servlet-mapping>
         <servlet-name>AddImportReceipt</servlet-name>
         <url-pattern>/AddImportReceipt</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ExportReceiptServlet</servlet-name>
+        <url-pattern>/ExportReceiptServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddExportReceipt</servlet-name>
+        <url-pattern>/AddExportReceipt</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>listInventoryHome</servlet-name>
+        <url-pattern>/listInventoryHome</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ShowEmployeeList</servlet-name>

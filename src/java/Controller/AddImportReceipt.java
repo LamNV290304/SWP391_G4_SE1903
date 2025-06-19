@@ -24,13 +24,13 @@ import Dal.ShopDAO;
 import Dal.SupplierDAO;
 import Dal.TypeImportReceiptDAO;
 import Models.ImportReceiptDetail;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import static java.time.LocalDate.now;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -97,15 +97,22 @@ public class AddImportReceipt extends HttpServlet {
         String employeeID = request.getParameter("EmployeeID");
         String shopID = request.getParameter("shopID");
         String importDateStr = request.getParameter("Date");
-
+if(code==null || supplierID==null || employeeID ==null || shopID ==null || importDateStr ==null){
+    request.setAttribute("erroll", "Type,Supplier,Employee,Shop,ImportDate must be not null");
+    request.getRequestDispatcher("ErrolReceipt.jsp").forward(request, response);
+}
 Date importDate = null;
 if (importDateStr != null && !importDateStr.isEmpty()) {
     try {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         importDate = formatter.parse(importDateStr);
-        
+       Date now = new Date(); // lấy thời gian hiện tại
+
+        if (importDate.after(now)) {
+            request.setAttribute("erroll", "Date Invalid");
+            request.getRequestDispatcher("ErrolReceipt.jsp").forward(request, response);
+        }
         // Nếu cần kiểm tra:
-        System.out.println("Ngày nhập hàng (java.util.Date): " + importDate);
     } catch (Exception e) {
         e.printStackTrace(); // hoặc xử lý lỗi
     }
@@ -139,18 +146,7 @@ ShopDAO shopDAO = new ShopDAO();
             receiptDAO.insertImportReceipt(receipt);
             
             List<ImportReceiptDetail> listImportDetail = new ArrayList<>();
-              try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet Test</title>");  
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet Test at 1</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
+          
             
 String[] productIDs = request.getParameterValues("productID[]");
 String[] quantities = request.getParameterValues("quantity[]");
@@ -163,7 +159,7 @@ for(int i=0;i<size;i++){
             receiptDetailDAO.getImportReceiptIDByInfo(receipt), 
             productIDs[i],  Integer.parseInt(quantities[i]), Double.parseDouble(prices[i]), notes[i]);
     listImportDetail.add(importDetail);
-      
+          
     receiptDetailDAO.insertDetail(importDetail);
 
 }
@@ -189,7 +185,7 @@ for(ImportReceiptDetail importDetail : listImportDetail){
                   
                 newInv.setProduct(productDAO.getProductById(Integer.parseInt(importDetail.getProductID())));
                 
-                newInv.setShop(shopDAO.getShopByID(shopID, "SWP6"));
+                newInv.setShop(shopDAO.getShopByID(shopID, "SWP7"));
                 
                 newInv.setQuantity(importDetail.getQuantity());
                 newInv.setLastUpdated(Timestamp.from(Instant.now()));

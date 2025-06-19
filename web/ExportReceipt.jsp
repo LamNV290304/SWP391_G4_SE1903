@@ -74,9 +74,10 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                   <!-- Responsive Table -->
              <div class="card col-sm-12" style="height: 90vh; overflow: hidden;">
   <h5 class="card-header">Phiếu Xuất Hàng
-   <a href="AddExportReceipt">
-                             <button type="button" class="btn btn-outline-info">Thêm mới phiếu xuất hàng</button>
-                         </a></h5>
+   <a href="AddExportReceipt" >
+                             <button type="button" class="btn btn-outline-info">Thêm mới phiếu nhập mua hàng</button>
+                         </a>
+  </h5>
   
   
   <div class="table-responsive text-nowrap" style="height: calc(80vh - 80px); overflow-y: auto;">

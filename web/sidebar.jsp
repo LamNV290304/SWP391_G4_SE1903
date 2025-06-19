@@ -7,7 +7,7 @@
                             <span class="app-brand-logo demo">
                                 <img src="img/logoSale.png" alt="Logo" style="height: 80px;">
                             </span>
-                            <span class="app-brand-text demo menu-text fw-bolder ms-2">Sale</span>
+                            <span class="app-brand-text demo menu-text fw-bolder ms-2">SaleShape</span>
                         </a>
                         <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
                             <i class="bx bx-chevron-left bx-sm align-middle"></i>
@@ -137,7 +137,7 @@
             <li class="menu-header small text-uppercase"><span class="menu-header-text">Quản lý Kho</span></li>
             <!-- Quản Lý Kho -->
             <li class="menu-item">
-              <a href="listInventory" class="menu-link">
+              <a href="listInventoryHome" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-collection"></i>
                 <div data-i18n="Basic">-Báo Cáo Kho Hàng-</div>
               </a>
@@ -198,7 +198,7 @@
             <li class="menu-item">
               <a href="icons-boxicons.html" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-crown"></i>
-                <div data-i18n="Boxicons">Đang uplateting</div>
+                <div data-i18n="Boxicons">Cài đặt hệ thống</div>
               </a>
             </li>
             <!-- Forms & Tables -->
