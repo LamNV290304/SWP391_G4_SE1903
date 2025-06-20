@@ -107,38 +107,26 @@
                     <form method="post" action="InvoiceServlet">
                         <input type="hidden" name="action" value="add" />
 
-                        <div class="mb-3">
 
-                            <input type="hidden" class="form-control" id="invoiceID" name="invoiceID" required placeholder="Nhập mã hóa đơn (ví dụ: INV001)" />
-                        </div>
 
                         <div class="mb-3">
                             <label for="customerID" class="form-label">Khách hàng:</label>
                             <select class="form-select" id="customerID" name="customerID" required>
                                 <option value="">-- Chọn khách hàng --</option>
                                 <c:forEach var="customer" items="${customers}">
-                                    <option value="${customer.customerID}">${customer.customerID} - ${customer.customerName}</option>
+                                    <option value="${customer.customerID}">${customer.customerName}</option>
                                 </c:forEach>
                             </select>
                         </div>
 
-<!--                        <div class="mb-3">
-                            <label for="employeeID" class="form-label">Nhân viên:</label>
-                                                        <select class="form-select" id="employeeID" name="employeeID" required>
-                                                            <option value="">-- Chọn nhân viên --</option>
-                            <c:forEach var="emp" items="${employees}">
-                                <option value="${emp.id}">${emp.fullName}</option>
-                            </c:forEach>
-                        </select>
-                            <input type="text" class="form-control" id="employeeID" name="employeeID" required placeholder="Nhập mã nhân viên" />
-                        </div>-->
+                   
 
                         <div class="mb-3">
                             <label for="shopID" class="form-label">Cửa hàng:</label>
                             <select class="form-select" id="shopID" name="shopID" required>
                                 <option value="">-- Chọn cửa hàng --</option>
                                 <c:forEach var="shop" items="${allShops}">
-                                    <option value="${shop.shopID}">${shop.shopID} - ${shop.shopName}</option>
+                                    <option value="${shop.shopID}">${shop.shopName}</option>
                                 </c:forEach>
                             </select>
                         </div>

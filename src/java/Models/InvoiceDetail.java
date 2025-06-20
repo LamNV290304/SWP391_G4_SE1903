@@ -4,6 +4,8 @@
  */
 package Models;
 
+import java.math.BigDecimal;
+
 /**
  *
  * @author duckh
@@ -13,17 +15,37 @@ public class InvoiceDetail {
     private int invoiceDetailID;
     private int invoiceID;
     private int productID;
-    private Double unitPrice;
+    private BigDecimal unitPrice;
     private int quantity;
     private Double discount;
     private Double totalPrice;
 
     private int shopID;
+    private Product product;
 
     public InvoiceDetail() {
     }
 
-    public InvoiceDetail(int invoiceID, int productID, Double unitPrice, int quantity, Double discount) {
+    public InvoiceDetail(int invoiceDetailID, int invoiceID, int productID, BigDecimal unitPrice, int quantity, Double discount, Double totalPrice, Product product) {
+        this.invoiceDetailID = invoiceDetailID;
+        this.invoiceID = invoiceID;
+        this.productID = productID;
+        this.unitPrice = unitPrice;
+        this.quantity = quantity;
+        this.discount = discount;
+        this.totalPrice = totalPrice; // Gán trực tiếp totalPrice từ DB
+        this.product = product; // Gán đối tượng Product
+    }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public InvoiceDetail(int invoiceID, int productID, BigDecimal unitPrice, int quantity, Double discount) {
         this.invoiceID = invoiceID;
         this.productID = productID;
         this.unitPrice = unitPrice;
@@ -31,9 +53,10 @@ public class InvoiceDetail {
 
         this.discount = (discount != null) ? discount : 0.0;
         calculateTotalPrice();
+
     }
 
-    public InvoiceDetail(int invoiceDetailID, int invoiceID, int productID, Double unitPrice, int quantity, Double discount) {
+    public InvoiceDetail(int invoiceDetailID, int invoiceID, int productID, BigDecimal unitPrice, int quantity, Double discount) {
         this.invoiceDetailID = invoiceDetailID;
         this.invoiceID = invoiceID;
         this.productID = productID;
@@ -45,10 +68,12 @@ public class InvoiceDetail {
     }
 
     public void calculateTotalPrice() {
-        if (unitPrice != null) {
-            double discountValue = (discount != null) ? discount : 0.0;
+        if (this.unitPrice != null) {
+            double discountValue = (this.discount != null) ? this.discount : 0.0;
             double discountRate = 1 - discountValue / 100.0;
-            this.totalPrice = unitPrice * quantity * discountRate;
+
+            // Chuyển BigDecimal unitPrice sang double để tính toán, đây là điểm cần cân nhắc
+            this.totalPrice = this.unitPrice.doubleValue() * this.quantity * discountRate;
         } else {
             this.totalPrice = 0.0;
         }
@@ -78,11 +103,11 @@ public class InvoiceDetail {
         this.productID = productID;
     }
 
-    public Double getUnitPrice() {
+    public BigDecimal getUnitPrice() {
         return unitPrice;
     }
 
-    public void setUnitPrice(Double unitPrice) {
+    public void setUnitPrice(BigDecimal unitPrice) {
         this.unitPrice = unitPrice;
     }
 
@@ -118,7 +143,4 @@ public class InvoiceDetail {
         this.shopID = shopID;
     }
 
-    
-
-   
 }
