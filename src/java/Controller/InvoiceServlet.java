@@ -1,6 +1,6 @@
 /*
-         * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-         * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 package Controller;
 
@@ -17,7 +17,9 @@ import Models.Employee;
 import Models.Invoice;
 import Models.InvoiceDetail;
 import Models.Product;
+import Models.Inventory;
 import Models.Shop;
+import Utils.JspStringRender; // Đảm bảo import đúng
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -26,11 +28,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
-
+import Utils.MailSender; // Đảm bảo import đúng
+import jakarta.servlet.RequestDispatcher;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import javax.mail.MessagingException; // Đảm bảo import đúng
 
 /**
  *
@@ -49,9 +53,10 @@ public class InvoiceServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        // Có thể để trống hoặc chuyển hướng đến doGet/doPost nếu cần xử lý chung
     }
-    private String sql = "SELECT * FROM [dbo].[Invoice]";
+
+    private String sql = "SELECT * FROM [dbo].[Invoice]"; // Không chắc biến này dùng ở đâu, có thể xóa nếu không cần
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -70,6 +75,12 @@ public class InvoiceServlet extends HttpServlet {
                 break;
             case "showAddForm":
                 showAddInvoiceForm(request, response);
+                break;
+            case "sendInvoiceEmail":
+                sendInvoiceEmail(request, response);
+                break;
+            case "manageInvoiceDetails":
+                showManageInvoiceDetailForm(request, response);
                 break;
             default:
                 listInvoices(request, response);
@@ -107,7 +118,6 @@ public class InvoiceServlet extends HttpServlet {
                 listInvoices(request, response);
                 break;
         }
-
     }
 
     @Override
@@ -117,14 +127,19 @@ public class InvoiceServlet extends HttpServlet {
 
     private void showAddInvoiceForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<Employee> employees = eDAO.getAllEmployee();
-        request.setAttribute("employees", employees);
-        request.getRequestDispatcher("addInvoice.jsp").forward(request, response);
+        try {
+            request.setAttribute("customers", cDAO.getAllCustomer());
+            request.setAttribute("allShops", sDAO.getAllShops("SWP1"));
+            request.getRequestDispatcher("addInvoice.jsp").forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("errorMessage", "Lỗi khi tải form thêm hóa đơn: " + e.getMessage());
+            request.getRequestDispatcher("error.jsp").forward(request, response); // Hoặc listInvoice.jsp
+        }
     }
 
     private void listInvoices(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         String pageIndexParam = request.getParameter("page");
         int pageIndex = 1;
         if (pageIndexParam != null) {
@@ -136,14 +151,17 @@ public class InvoiceServlet extends HttpServlet {
         }
         int pageSize = 5;
         int totalInvoices = idao.getTotalInvoiceCount();
-
-        //tinh tong so trang can thiet de hien thi tat ca hoa don: Math.ceil la lam tron len
         int totalPages = (int) Math.ceil((double) totalInvoices / pageSize);
+
         List<Customer> customers = cDAO.getAllCustomer();
+        List<Employee> employees = eDAO.getAllEmployee();
+        List<Shop> allShops = sDAO.getAllShops("SWP1");
         List<Invoice> invoices = idao.getInvoicesByPage(pageIndex, pageSize);
+
         request.setAttribute("currentPage", pageIndex);
         request.setAttribute("customers", customers);
-
+        request.setAttribute("employees", employees);
+        request.setAttribute("allShops", allShops);
         request.setAttribute("invoiceList", invoices);
         request.setAttribute("totalPages", totalPages);
         request.getRequestDispatcher("listInvoice.jsp").forward(request, response);
@@ -151,9 +169,7 @@ public class InvoiceServlet extends HttpServlet {
 
     private void updateInvoice(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         try {
-
             int invoiceID = Integer.parseInt(request.getParameter("invoiceID"));
             int customerID = Integer.parseInt(request.getParameter("customerID"));
             int employeeID = Integer.parseInt(request.getParameter("employeeID"));
@@ -162,51 +178,55 @@ public class InvoiceServlet extends HttpServlet {
             Invoice oldInvoice = idao.searchInvoice(invoiceID);
 
             if (oldInvoice == null) {
-
                 request.setAttribute("errorMessage", "Không tìm thấy hóa đơn để cập nhật.");
                 listInvoices(request, response);
                 return;
             }
-
             Timestamp invoiceDateTimestamp = oldInvoice.getInvoiceDate();
-
             double totalAmount = Double.parseDouble(request.getParameter("totalAmount"));
             String note = request.getParameter("note");
             boolean status = Boolean.parseBoolean(request.getParameter("status"));
-
-            // Tạo đối tượng Invoice mới với các ID là int
             Invoice invoice = new Invoice(invoiceID, customerID, employeeID, shopID, invoiceDateTimestamp, totalAmount, note, status);
             boolean result = idao.updateInvoice(invoice);
 
             if (result) {
                 System.out.println("Cập nhật thành công.");
+                request.setAttribute("successMessage", "Cập nhật hóa đơn thành công!");
             } else {
                 System.out.println("Cập nhật thất bại.");
+                request.setAttribute("errorMessage", "Cập nhật hóa đơn thất bại!");
             }
-            response.sendRedirect("InvoiceServlet?action=list");
+            // Sau khi update, forward lại trang danh sách hoặc trang chi tiết hóa đơn
+            listInvoices(request, response); // Hoặc listInvoiceDetail nếu bạn muốn về chi tiết
         } catch (NumberFormatException e) {
-
             request.setAttribute("errorMessage", "Dữ liệu ID không hợp lệ. Vui lòng kiểm tra lại.");
             listInvoices(request, response);
         } catch (Exception e) {
-
-            request.setAttribute("errorMessage", "Lỗi hệ thống xảy ra khi cập nhật hóa đơn.");
+            request.setAttribute("errorMessage", "Lỗi hệ thống xảy ra khi cập nhật hóa đơn: " + e.getMessage());
             listInvoices(request, response);
         }
     }
 
     private void updateInvoiceDetail(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
+        String invoiceIdParam = request.getParameter("invoiceID"); // Lấy lại invoiceID
+        if (invoiceIdParam == null || invoiceIdParam.trim().isEmpty()) {
+            request.setAttribute("errorMessage", "Mã hóa đơn không tồn tại.");
+            listInvoices(request, response); // Chuyển về danh sách hóa đơn nếu không có invoiceID
+            return;
+        }
 
-            int invoiceID = Integer.parseInt(request.getParameter("invoiceID").trim());
-            int productID = Integer.parseInt(request.getParameter("productID").trim()); // Giả sử ProductID là int
+        try {
+            int invoiceID = Integer.parseInt(invoiceIdParam.trim());
+            int productID = Integer.parseInt(request.getParameter("productID").trim());
             String unitPriceStr = request.getParameter("unitPrice").trim();
             String quantityStr = request.getParameter("quantity").trim();
-            String discountStr = request.getParameter("discount").trim(); // Thêm .trim()
+            String discountStr = request.getParameter("discount").trim();
             int invoiceDetailID = Integer.parseInt(request.getParameter("invoiceDetailID"));
+
             if (unitPriceStr.isEmpty() || quantityStr.isEmpty() || discountStr.isEmpty()) {
                 request.setAttribute("errorMessage", "Dữ liệu chi tiết hóa đơn bị thiếu.");
+                request.setAttribute("invoiceID", invoiceIdParam); // Đặt lại invoiceID cho forward
                 listInvoiceDetail(request, response);
                 return;
             }
@@ -217,54 +237,51 @@ public class InvoiceServlet extends HttpServlet {
 
             InvoiceDetail lay = idetail.getInvoiceDetailByInvoiceDetailID(invoiceDetailID);
             if (lay == null) {
-                response.sendRedirect("InvoiceServlet?action=listDetail&invoiceID=" + invoiceID);
-
-                return;
-            }
-            int shopID = lay.getShopID();
-
-            InvoiceDetail updatedDetail = new InvoiceDetail(invoiceDetailID, invoiceID, productID, unitPrice, quantity, discount);
-            updatedDetail.setShopID(shopID);
-
-            InvoiceDetail existingDetail = idetail.getInvoiceDetailByInvoiceDetailID(invoiceDetailID);
-            if (existingDetail == null) {
                 request.setAttribute("errorMessage", "Chi tiết hóa đơn không tồn tại.");
+                request.setAttribute("invoiceID", invoiceIdParam);
                 listInvoiceDetail(request, response);
                 return;
             }
+
+            int shopID = lay.getShopID();
+            InvoiceDetail updatedDetail = new InvoiceDetail(invoiceDetailID, invoiceID, productID, unitPrice, quantity, discount);
+            updatedDetail.setShopID(shopID); // Đảm bảo shopID được giữ nguyên
+
             boolean updated = idetail.updateInvoiceDetail(updatedDetail, inventoryDAO);
-            if (!updated) {
 
-                request.setAttribute("errorMessage", "Cập nhật thất bại.");
-                listInvoiceDetail(request, response);
-                return;
+            if (updated) {
+                List<InvoiceDetail> details = idetail.getDetailByInvoiceID(invoiceID);
+                double totalAmount = 0;
+                for (InvoiceDetail d : details) {
+                    totalAmount += d.getTotalPrice();
+                }
+                Invoice invoice = idao.searchInvoice(invoiceID);
+                if (invoice != null) {
+                    invoice.setTotalAmount(totalAmount);
+                    idao.updateInvoice(invoice);
+                }
+                request.setAttribute("successMessage", "Cập nhật chi tiết hóa đơn thành công!");
+            } else {
+                request.setAttribute("errorMessage", "Cập nhật chi tiết hóa đơn thất bại.");
             }
 
-            List<InvoiceDetail> details = idetail.getDetailByInvoiceID(invoiceID);
-            double totalAmount = 0;
-            for (InvoiceDetail d : details) {
-                totalAmount += d.getTotalPrice();
-            }
-            Invoice invoice = idao.searchInvoice(invoiceID);
-            invoice.setTotalAmount(totalAmount);
-            idao.updateInvoice(invoice);
-
-            response.sendRedirect("InvoiceServlet?action=listDetail&invoiceID=" + invoiceID);
+            request.setAttribute("invoiceID", invoiceIdParam); // Đảm bảo invoiceID được đặt
+            listInvoiceDetail(request, response); // Forward về trang chi tiết hóa đơn
         } catch (NumberFormatException e) {
-            request.setAttribute("errorMessage", "Dữ liệu không hợp lệ.");
-            request.setAttribute("invoiceID", request.getParameter("invoiceID"));
+            request.setAttribute("errorMessage", "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.");
+            request.setAttribute("invoiceID", invoiceIdParam);
             listInvoiceDetail(request, response);
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("errorMessage", "Lỗi hệ thống xảy ra.");
-            request.setAttribute("invoiceID", request.getParameter("invoiceID"));
+            request.setAttribute("errorMessage", "Lỗi hệ thống xảy ra khi cập nhật chi tiết hóa đơn: " + e.getMessage());
+            request.setAttribute("invoiceID", invoiceIdParam);
             listInvoiceDetail(request, response);
         }
     }
 
     private void addInvoiceDetail(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String invoiceIDParam = request.getParameter("invoiceID"); // Lấy dưới dạng String trước
+        String invoiceIDParam = request.getParameter("invoiceID");
         String productIDParam = request.getParameter("productID");
         String shopIDParam = request.getParameter("shopID");
         String quantityStr = request.getParameter("quantity");
@@ -273,7 +290,7 @@ public class InvoiceServlet extends HttpServlet {
 
         if (invoiceIDParam == null || productIDParam == null || quantityStr == null || unitPriceStr == null || shopIDParam == null) {
             request.setAttribute("errorMessage", "Thông tin chi tiết hóa đơn bị thiếu.");
-            request.setAttribute("invoiceID", invoiceIDParam); // Giữ nguyên String để forward
+            request.setAttribute("invoiceID", invoiceIDParam);
             listInvoiceDetail(request, response);
             return;
         }
@@ -290,43 +307,36 @@ public class InvoiceServlet extends HttpServlet {
             }
 
             InvoiceDetail detail = new InvoiceDetail(invoiceID, productID, unitPrice, quantity, discount);
-
-            detail.setShopID(shopID);
+            detail.setShopID(shopID); // Đảm bảo shopID được gán
 
             boolean success = idetail.addInvoiceDetailAndUpdateInventory(detail, shopID);
 
-            if (!success) {
+            if (success) {
+                // Cập nhật tổng tiền hóa đơn
+                List<InvoiceDetail> details = idetail.getDetailByInvoiceID(invoiceID);
+                double totalAmount = 0;
+                for (InvoiceDetail d : details) {
+                    totalAmount += d.getTotalPrice();
+                }
+                Invoice invoice = idao.searchInvoice(invoiceID);
+                if (invoice != null) {
+                    invoice.setTotalAmount(totalAmount);
+                    idao.updateInvoice(invoice);
+                }
+                request.setAttribute("successMessage", "Thêm chi tiết hóa đơn thành công!");
+            } else {
                 request.setAttribute("errorMessage", "Thêm chi tiết hóa đơn thất bại hoặc không đủ số lượng sản phẩm trong kho.");
-
-                request.setAttribute("invoiceID", invoiceID);
-                listInvoiceDetail(request, response);
-                return;
             }
 
-            // Cập nhật tổng tiền của hóa đơn chính
-            List<InvoiceDetail> details = idetail.getDetailByInvoiceID(invoiceID);
-            double totalAmount = 0;
-            for (InvoiceDetail d : details) {
-                totalAmount += d.getTotalPrice();
-            }
-            Invoice invoice = idao.searchInvoice(invoiceID);
-            if (invoice != null) {
-                invoice.setTotalAmount(totalAmount);
-                idao.updateInvoice(invoice);
-            }
-
-            // Chuyển hướng về trang chi tiết hóa đơn (đã cập nhật)
-            response.sendRedirect("InvoiceServlet?action=listDetail&invoiceID=" + invoiceID);
+            request.setAttribute("invoiceID", invoiceIDParam); // Đặt lại invoiceID cho forward
+            listInvoiceDetail(request, response); // Forward về trang chi tiết hóa đơn
         } catch (NumberFormatException e) {
             request.setAttribute("errorMessage", "Dữ liệu nhập vào không hợp lệ (số).");
-            // Giữ lại invoiceID để hiển thị đúng trang chi tiết
             request.setAttribute("invoiceID", invoiceIDParam);
             listInvoiceDetail(request, response);
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("errorMessage", "Lỗi hệ thống xảy ra khi thêm chi tiết.");
-            // Giữ lại invoiceID để hiển thị đúng trang chi tiết
-            request.setAttribute("selected", e);
+            request.setAttribute("errorMessage", "Lỗi hệ thống xảy ra khi thêm chi tiết: " + e.getMessage());
             request.setAttribute("invoiceID", invoiceIDParam);
             listInvoiceDetail(request, response);
         }
@@ -334,39 +344,69 @@ public class InvoiceServlet extends HttpServlet {
 
     private void addInvoice(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        try {
+            int customerID = Integer.parseInt(request.getParameter("customerID"));
+            int employeeID = 1; // Mặc định là 1, có thể thay đổi để lấy từ session
+            int shopID = Integer.parseInt(request.getParameter("shopID"));
+            Timestamp invoiceDate = Timestamp.from(Instant.now());
+            double totalAmount = Double.parseDouble(request.getParameter("totalAmount")); // Có thể khởi tạo là 0 và tính sau
+            String note = request.getParameter("note");
+            boolean status = Boolean.parseBoolean(request.getParameter("status"));
 
-        int customerID = Integer.parseInt(request.getParameter("customerID"));
-        int employeeID = Integer.parseInt(request.getParameter("employeeID"));
-        int shopID = Integer.parseInt(request.getParameter("shopID"));
-        Timestamp invoiceDate = new Timestamp(System.currentTimeMillis());
-        double totalAmount = Double.parseDouble(request.getParameter("totalAmount"));
-        String note = request.getParameter("note");
-        boolean status = Boolean.parseBoolean(request.getParameter("status"));
+            Invoice newInvoice = new Invoice(customerID, employeeID, shopID, invoiceDate, totalAmount, note, status);
+            int generatedInvoiceID = idao.addInvoice(newInvoice); // Giả sử addInvoice trả về ID
 
-        Invoice newInvoice = new Invoice(customerID, employeeID, shopID, invoiceDate, totalAmount, note, status);
-        idao.addInvoice(newInvoice);
+            if (generatedInvoiceID > 0) {
+                request.setAttribute("successMessage", "Hóa đơn đã được thêm thành công! Vui lòng thêm chi tiết.");
+                response.sendRedirect("InvoiceServlet?action=manageInvoiceDetails&invoiceID=" + generatedInvoiceID);
+                return;
+            } else {
+                request.setAttribute("errorMessage", "Không thể thêm hóa đơn. Vui lòng thử lại.");
+                // Tải lại các dropdown cần thiết
+                request.setAttribute("customers", cDAO.getAllCustomer());
+                request.setAttribute("allShops", sDAO.getAllShops("SWP1"));
+                request.getRequestDispatcher("addInvoice.jsp").forward(request, response);
+                return; // Return để tránh lỗi
+            }
 
-        List<Employee> e = eDAO.getAllEmployee();
-
-        request.setAttribute("selectedInvoice", newInvoice);
-
-        request.getRequestDispatcher("InvoiceDetaiul.jsp").forward(request, response);
-//        response.sendRedirect("InvoiceServlet?action=listDetail&invoiceID=" + invoiceID);
-
+        } catch (NumberFormatException e) {
+            request.setAttribute("errorMessage", "Lỗi định dạng dữ liệu: Mã khách hàng, cửa hàng hoặc tổng tiền phải là số.");
+            e.printStackTrace(); // In stack trace để debug
+            try {
+                request.setAttribute("customers", cDAO.getAllCustomer());
+                request.setAttribute("allShops", sDAO.getAllShops("SWP1"));
+            } catch (Exception daoEx) {
+                System.err.println("Error fetching dropdown data on error: " + daoEx.getMessage());
+                daoEx.printStackTrace();
+            }
+            request.getRequestDispatcher("addInvoice.jsp").forward(request, response);
+        } catch (Exception e) {
+            request.setAttribute("errorMessage", "Đã xảy ra lỗi không mong muốn khi thêm hóa đơn: " + e.getMessage());
+            e.printStackTrace(); // In stack trace để debug
+            try {
+                request.setAttribute("customers", cDAO.getAllCustomer());
+                request.setAttribute("allShops", sDAO.getAllShops("SWP1"));
+            } catch (Exception daoEx) {
+                System.err.println("Error fetching dropdown data on error: " + daoEx.getMessage());
+                daoEx.printStackTrace();
+            }
+            request.getRequestDispatcher("addInvoice.jsp").forward(request, response);
+        }
     }
 
     private void deleteInvoice(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String invoiceIDParam = request.getParameter("invoiceID");
         if (invoiceIDParam == null || invoiceIDParam.trim().isEmpty()) {
-            response.sendRedirect("InvoiceServlet");
+            response.sendRedirect("InvoiceServlet?action=list"); // Redirect về danh sách
             return;
         }
         try {
             int invoiceID = Integer.parseInt(invoiceIDParam);
             Invoice invoice = idao.searchInvoice(invoiceID);
             if (invoice == null) {
-                response.sendRedirect("InvoiceServlet");
+                request.setAttribute("errorMessage", "Không tìm thấy hóa đơn để xóa.");
+                listInvoices(request, response);
                 return;
             }
             if (invoice.isStatus()) {
@@ -375,7 +415,8 @@ public class InvoiceServlet extends HttpServlet {
             } else {
                 boolean deleted = idao.deleteInvoice(invoiceID);
                 if (deleted) {
-                    response.sendRedirect("InvoiceServlet?action=list");
+                    request.setAttribute("successMessage", "Hóa đơn đã được xóa thành công!");
+                    listInvoices(request, response); // Forward về danh sách sau khi xóa
                 } else {
                     request.setAttribute("errorMessage", "Xóa hóa đơn thất bại.");
                     listInvoices(request, response);
@@ -385,146 +426,209 @@ public class InvoiceServlet extends HttpServlet {
             request.setAttribute("errorMessage", "ID hóa đơn không hợp lệ.");
             listInvoices(request, response);
         } catch (Exception e) {
-
-            request.setAttribute("errorMessage", "Lỗi hệ thống khi xóa hóa đơn.");
+            e.printStackTrace();
+            request.setAttribute("errorMessage", "Lỗi hệ thống khi xóa hóa đơn: " + e.getMessage());
             listInvoices(request, response);
         }
     }
 
+    private void showManageInvoiceDetailForm(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String invoiceIdPR = request.getParameter("invoiceID");
+        if (invoiceIdPR == null || invoiceIdPR.isEmpty()) {
+            response.sendRedirect("InvoiceServlet?action=list");
+            return;
+        }
+        int invoiceID = Integer.parseInt(invoiceIdPR);
+        Invoice selectedInvoice = idao.searchInvoice(invoiceID);
+        if (selectedInvoice == null) {
+            request.setAttribute("errorMessage", "Không tìm thấy hóa đơn với mã: " + invoiceID);
+            listInvoices(request, response);
+            return;
+        }
+        List<InvoiceDetail> invoiceDetails = idetail.getDetailByInvoiceID(invoiceID);
+
+        List<Product> products = pDAO.getAllProducts();
+        List<Inventory> inventories = inventoryDAO.getAllInventoriesInStore(selectedInvoice.getShopID());
+
+        request.setAttribute("selectedInvoice", selectedInvoice);
+        request.setAttribute("invoiceDetails", invoiceDetails);
+        request.setAttribute("products", products);
+        request.setAttribute("inventories", inventories);
+
+        String editDetailID = request.getParameter("editDetailID");
+        if (editDetailID != null && !editDetailID.isEmpty()) {
+            request.setAttribute("editDetailID", Integer.parseInt(editDetailID));
+        }
+
+        request.getRequestDispatcher("invoiceForm.jsp").forward(request, response);
+    }
+
     private void searchInvoice(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String searchKey = request.getParameter("invoiceID"); // Đây là key tìm kiếm
+        String searchKey = request.getParameter("invoiceID");
 
         List<Invoice> invoices;
 
         if (searchKey == null || searchKey.trim().isEmpty()) {
-
             response.sendRedirect("InvoiceServlet?action=list");
             return;
         }
         invoices = idao.searchInvoiceByKey(searchKey);
         request.setAttribute("data", searchKey);
-        request.setAttribute("invoiceList", invoices); // Đặt tên thuộc tính phù hợp với JSP của bạn
+        request.setAttribute("invoiceList", invoices);
         request.getRequestDispatcher("listInvoice.jsp").forward(request, response);
     }
 
     private void listInvoiceDetail(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         String invoiceIDParam = request.getParameter("invoiceID");
         if (invoiceIDParam == null || invoiceIDParam.trim().isEmpty()) {
-            response.sendRedirect("InvoiceServlet?action=list");
+            request.setAttribute("errorMessage", "Không tìm thấy mã hóa đơn để hiển thị chi tiết.");
+            request.getRequestDispatcher("/listInvoice.jsp").forward(request, response);
             return;
         }
         try {
             int invoiceID = Integer.parseInt(invoiceIDParam);
             Invoice invoice = idao.searchInvoice(invoiceID);
             if (invoice == null) {
-                response.sendRedirect("InvoiceServlet?action=list");
+                request.setAttribute("errorMessage", "Không tìm thấy hóa đơn với ID: " + invoiceID);
+                request.getRequestDispatcher("/listInvoice.jsp").forward(request, response);
                 return;
             }
 
             List<Employee> em = eDAO.getAllEmployee();
             int shopID = invoice.getShopID();
+            List<Inventory> inventoriesInShop = inventoryDAO.getAllInventoriesInStore(shopID);
             Shop selectedShop = null;
             try {
-                selectedShop = sDAO.getShopByID(shopID, "SW1");
+                selectedShop = sDAO.getShopByID(shopID, "SWP1");
             } catch (Exception e) {
                 request.setAttribute("errorMessage", "Không thể lấy thông tin cửa hàng.");
             }
-
-            List<Product> products = null;
-            try {
-                products = pDAO.getAllProducts();
-            } catch (Exception e) {
-                request.setAttribute("errorMessage", "Không thể lấy danh sách sản phẩm: " + e.getMessage());
-                products = new ArrayList<>();
-            }
+            request.setAttribute("inventories", inventoriesInShop);
+            List<Product> products = pDAO.getAllProducts();
+            request.setAttribute("products", products);
 
             List<InvoiceDetail> detail = idetail.getDetailByInvoiceID(invoiceID);
             if (detail == null) {
                 detail = new ArrayList<>();
             }
-
- 
             List<Customer> customers = cDAO.getAllCustomer();
-
             String editDetailIDParam = request.getParameter("editDetailID");
             if (editDetailIDParam != null && !editDetailIDParam.isEmpty()) {
                 try {
                     int editDetailID = Integer.parseInt(editDetailIDParam);
                     request.setAttribute("editDetailID", editDetailID);
                 } catch (NumberFormatException e) {
-                    request.setAttribute("editDetailID", null);
+                    request.setAttribute("editDetailID", null); // Set null nếu không phải số
                 }
             }
-
-            Customer selectedCustomer = null;       
-            if (invoice.getCustomerID() >0) { 
+            Customer selectedCustomer = null;
+            if (invoice.getCustomerID() > 0) {
                 selectedCustomer = cDAO.getCustomerById(invoice.getCustomerID());
             }
-
             double totalAmount = 0;
             for (InvoiceDetail d : detail) {
                 totalAmount += d.getTotalPrice();
             }
-
             invoice.setTotalAmount(totalAmount);
-            idao.updateInvoice(invoice);
+            idao.updateInvoice(invoice); // Cập nhật lại tổng tiền trong DB
 
             request.setAttribute("employees", em);
-            request.setAttribute("customers", customers); // Bạn có thể giữ dòng này nếu cần danh sách khách hàng cho mục đích khác
-
-            // --- THÊM DÒNG NÀY ĐỂ TRUYỀN ĐỐI TƯỢNG selectedCustomer VÀO REQUEST ---
+            request.setAttribute("customers", customers);
             request.setAttribute("selectedCustomer", selectedCustomer);
-            // ---------------------------------------------------------------------
-
             request.setAttribute("selectedInvoice", invoice);
             request.setAttribute("invoiceDetails", detail);
             request.setAttribute("selectedShop", selectedShop);
-            request.setAttribute("products", products);
 
-            request.getRequestDispatcher("InvoiceDetail.jsp").forward(request, response);
-
+            request.getRequestDispatcher("InvoiceDetail.jsp").forward(request, response); // Chắc chắn đây là InvoiceDetail.jsp
         } catch (NumberFormatException e) {
             request.setAttribute("errorMessage", "ID hóa đơn không hợp lệ.");
-            response.sendRedirect("InvoiceServlet?action=list");
+            request.getRequestDispatcher("/listInvoice.jsp").forward(request, response);
         } catch (Exception e) {
-            // Log lỗi chi tiết hơn trong môi trường thực tế
             e.printStackTrace();
             request.setAttribute("errorMessage", "Lỗi hệ thống khi tải chi tiết hóa đơn: " + e.getMessage());
-            response.sendRedirect("InvoiceServlet?action=list");
+            request.getRequestDispatcher("/listInvoice.jsp").forward(request, response);
         }
     }
-    //    private void deleteInvoiceDetail(HttpServletRequest request, HttpServletResponse response)
-    //        throws ServletException, IOException {
-    //    String invoiceDetailIDStr = request.getParameter("invoiceDetailID");
-    //    String invoiceID = request.getParameter("invoiceID");
-    //
-    //    if (invoiceDetailIDStr == null || invoiceID == null) {
-    //        response.sendRedirect("InvoiceServlet");
-    //        return;
-    //    }
-    //
-    //    int invoiceDetailID = Integer.parseInt(invoiceDetailIDStr);
-    //
-    //    boolean success = idetail.deleteInvoiceDetailAndUpdateInventory(invoiceDetailID);
-    //
-    //    // Cập nhật lại totalAmount của hóa đơn
-    //    List<InvoiceDetail> details = idetail.getDetailByInvoiceID(invoiceID);
-    //    double totalAmount = 0;
-    //    for (InvoiceDetail d : details) {
-    //        totalAmount += d.getTotalPrice();
-    //    }
-    //
-    //    Invoice invoice = idao.searchInvoice(invoiceID);
-    //    if (invoice != null) {
-    //        invoice.setTotalAmount(totalAmount);
-    //        idao.updateInvoice(invoice);
-    //    }
-    //
-    //    response.sendRedirect("InvoiceServlet?action=listDetail&invoiceID=" + invoiceID);
-    //}
 
+    private void sendInvoiceEmail(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String invoiceIdStr = request.getParameter("invoiceID");
+        // Giữ lại invoiceID trong request attribute để listInvoiceDetail có thể sử dụng
+        request.setAttribute("invoiceID", invoiceIdStr);
+
+        if (invoiceIdStr == null || invoiceIdStr.isEmpty()) {
+            request.setAttribute("errorMessage", "Không tìm thấy mã hóa đơn để gửi email.");
+            listInvoiceDetail(request, response); // Chuyển về trang chi tiết với thông báo lỗi
+            return;
+        }
+
+        try {
+            int invoiceID = Integer.parseInt(invoiceIdStr);
+
+            Invoice selectedInvoice = idao.searchInvoice(invoiceID);
+            if (selectedInvoice == null) {
+                request.setAttribute("errorMessage", "Không tìm thấy hóa đơn với ID: " + invoiceID);
+                listInvoiceDetail(request, response); // Chuyển về trang chi tiết với thông báo lỗi
+                return;
+            }
+
+            Customer selectedCustomer = cDAO.getCustomerById(selectedInvoice.getCustomerID());
+            Shop selectedShop = sDAO.getShopByID(selectedInvoice.getShopID(), "SWP1");
+
+            List<InvoiceDetail> invoiceDetails = idetail.getDetailByInvoiceID(invoiceID);
+            List<Product> products = pDAO.getAllProducts();
+            List<Inventory> inventoriesInShop = inventoryDAO.getAllInventoriesInStore(selectedInvoice.getShopID());
+
+            // Đặt các thuộc tính cần thiết cho JSP template email
+            request.setAttribute("selectedInvoice", selectedInvoice);
+            request.setAttribute("selectedCustomer", selectedCustomer);
+            request.setAttribute("invoiceDetails", invoiceDetails);
+            request.setAttribute("selectedShop", selectedShop);
+            request.setAttribute("products", products);
+            request.setAttribute("inventories", inventoriesInShop);
+
+            if (selectedCustomer == null || selectedCustomer.getEmail() == null || selectedCustomer.getEmail().isEmpty()) {
+                request.setAttribute("errorMessage", "Không tìm thấy email khách hàng hoặc khách hàng không có email để gửi hóa đơn.");
+                listInvoiceDetail(request, response); // Chuyển về trang chi tiết với thông báo lỗi
+                return;
+            }
+
+            // Render nội dung JSP thành một chuỗi mà không commit phản hồi chính
+            String emailHtmlContent = JspStringRender.renderJspToString(request, response, "/invoiceEmailTemplate.jsp");
+
+            if (emailHtmlContent == null || emailHtmlContent.trim().isEmpty()) {
+                request.setAttribute("errorMessage", "Lỗi: Nội dung hóa đơn trống rỗng sau khi render. Email không được gửi.");
+                System.err.println("Lỗi: Nội dung HTML từ JSP trống rỗng. Email không được gửi.");
+                listInvoiceDetail(request, response); // Chuyển về trang chi tiết với thông báo lỗi
+                return;
+            }
+
+            String subject = "Hóa đơn bán hàng từ " + (selectedShop != null ? selectedShop.getShopName() : "Cửa hàng của bạn") + " - #" + invoiceID;
+
+            MailSender emailSender = new MailSender();
+            emailSender.sendInvoiceMail(selectedCustomer.getEmail(), subject, emailHtmlContent);
+
+            request.setAttribute("successMessage", "Hóa đơn đã được gửi đến email khách hàng thành công!");
+
+        } catch (NumberFormatException e) {
+            request.setAttribute("errorMessage", "Mã hóa đơn không hợp lệ.");
+            e.printStackTrace();
+        } catch (MessagingException e) {
+            request.setAttribute("errorMessage", "Lỗi khi gửi email: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("errorMessage", "Có lỗi xảy ra khi xử lý hóa đơn hoặc gửi email: " + e.getMessage());
+        } finally {
+            // Đảm bảo rằng invoiceIDParam vẫn có giá trị để listInvoiceDetail có thể hoạt động
+            if (invoiceIdStr != null && !invoiceIdStr.isEmpty()) {
+                request.setAttribute("invoiceID", invoiceIdStr);
+            }
+            // Luôn forward đến trang chi tiết ở cuối quá trình xử lý yêu cầu để hiển thị kết quả
+            listInvoiceDetail(request, response);
+        }
+    }
 }
-

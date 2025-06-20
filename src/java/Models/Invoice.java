@@ -21,6 +21,8 @@ public class Invoice {
     private Double totalAmount;
     private String note;
     private boolean status;
+    
+    private String shopName;
 
     public Invoice() {
     }
@@ -56,6 +58,14 @@ public class Invoice {
         this.totalAmount = totalAmount;
         this.note = note;
         this.status = status;
+    }
+
+    public String getShopName() {
+        return shopName;
+    }
+
+    public void setShopName(String shopName) {
+        this.shopName = shopName;
     }
 
     public String getCustomerName() {

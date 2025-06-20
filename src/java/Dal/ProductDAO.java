@@ -24,6 +24,57 @@ public class ProductDAO {
         this.connection = connection;
     }
 
+    public BigDecimal getSellingPriceByProductId(int productID) throws SQLException {
+        String sql = "SELECT [SellingPrice] FROM [dbo].[Product] WHERE [ProductID] = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, productID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getBigDecimal("SellingPrice");
+                }
+            }
+        }
+        return BigDecimal.ZERO; // Trả về 0 nếu không tìm thấy
+    }
+
+    public Product getByProductId(int productId) {
+        String sql = "SELECT [ProductID]\n"
+                + "      ,[ProductName]\n"
+                + "      ,[CategoryID]\n"
+                + "      ,[UnitID]\n"
+                + "      ,[ImportPrice]\n"
+                + "      ,[SellingPrice]\n"
+                + "      ,[Description]\n"
+                + "      ,[Status]\n"
+                + "      ,[ImageUrl]\n"
+                + "      ,[CreatedDate]\n"
+                + "      ,[CreatedBy]\n"
+                + "  FROM [dbo].[Product]\n"
+                + "  WHERE ProductID = ?";
+        try {
+            PreparedStatement ptm = connection.prepareStatement(sql);
+            ptm.setInt(1, productId);
+            ResultSet rs = ptm.executeQuery();
+            while (rs.next()) {
+                return new Product(
+                        rs.getInt("ProductID"),
+                        rs.getString("ProductName"),
+                        rs.getString("CategoryID"),
+                        rs.getString("UnitID"),
+                        rs.getBigDecimal("SellingPrice"),
+                        rs.getString("Description"),
+                        rs.getBoolean("Status"),
+                        rs.getTimestamp("CreatedDate").toLocalDateTime(),
+                        rs.getString("CreatedBy"));
+
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ProductDAO.class
+                    .getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
     public List<Product> getAllProducts() {
         String sql = "SELECT [ProductID]\n"
                 + "      ,[ProductName]\n"
@@ -41,7 +92,7 @@ public class ProductDAO {
             ResultSet rs = ptm.executeQuery();
             while (rs.next()) {
                 Product pr = new Product(
-                        rs.getString("ProductID"),
+                        rs.getInt("ProductID"),
                         rs.getString("ProductName"),
                         rs.getString("CategoryID"),
                         rs.getString("UnitID"),
@@ -55,10 +106,10 @@ public class ProductDAO {
             }
             }catch (SQLException ex) {
             Logger.getLogger(ProductDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
+            }
         return l;
     }
-  
+    
 
     public List<Product> getAllProducts(int page, int pageSize, String search, String categoryFilter) {
         List<Product> products = new ArrayList<>();
@@ -99,7 +150,7 @@ public class ProductDAO {
 
             while (rs.next()) {
                 Product product = new Product();
-                product.setProductID(rs.getString("ProductID"));
+                product.setProductID(rs.getInt("ProductID"));
                 product.setProductName(rs.getString("ProductName"));
                 product.setCategoryID(rs.getString("CategoryID"));
                 product.setUnitID(rs.getString("UnitID"));
@@ -156,7 +207,7 @@ public class ProductDAO {
         return 0;
     }
 
-    public Product getProductById(String productId) {
+    public Product getProductById(int productId) {
         String sql = "SELECT p.*, c.CategoryName, u.Description as UnitDescription "
                 + "FROM Product p "
                 + "LEFT JOIN Category c ON p.CategoryID = c.CategoryID "
@@ -166,12 +217,12 @@ public class ProductDAO {
         try (
                 PreparedStatement stmt = connection.prepareStatement(sql)) {
 
-            stmt.setString(1, productId);
+            stmt.setInt(1, productId);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
                 Product product = new Product();
-                product.setProductID(rs.getString("ProductID"));
+                product.setProductID(rs.getInt("ProductID"));
                 product.setProductName(rs.getString("ProductName"));
                 product.setCategoryID(rs.getString("CategoryID"));
                 product.setUnitID(rs.getString("UnitID"));
@@ -201,7 +252,7 @@ public class ProductDAO {
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 
-            stmt.setString(1, product.getProductID());
+            stmt.setInt(1, product.getProductID());
             stmt.setString(2, product.getProductName());
             stmt.setString(3, product.getCategoryID());
             stmt.setString(4, product.getUnitID());
@@ -235,7 +286,7 @@ public class ProductDAO {
             stmt.setString(6, product.getDescription());
             stmt.setBoolean(7, product.isStatus());
             stmt.setString(8, product.getImageUrl());
-            stmt.setString(9, product.getProductID());
+            stmt.setInt(9, product.getProductID());
 
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -322,7 +373,7 @@ public class ProductDAO {
         DBContext context = new DBContext("SWP6");
         Connection connection = context.getConnection();
         ProductDAO dao = new ProductDAO(connection);
-        System.out.println(dao.getProductById("P001").toString());
+        System.out.println(dao.getProductById(1).toString());
     }
 
 }

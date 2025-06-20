@@ -7,7 +7,8 @@ package Dal;
 import Context.DBContext;
 import Models.Inventory;
 import Models.InvoiceDetail;
-import Models.Shop;
+import Models.Product;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +48,7 @@ public class InvoiceDetailDAO {
                 list.add(new InvoiceDetail(rs.getInt(1),
                         rs.getInt(2),
                         rs.getInt(3),
-                        rs.getDouble(4),
+                        rs.getBigDecimal(4),
                         rs.getInt(5),
                         rs.getDouble(6)));
             }
@@ -88,7 +89,7 @@ public class InvoiceDetailDAO {
             PreparedStatement ptm = connection.prepareStatement(sql);
             ptm.setInt(1, detail.getInvoiceID());
             ptm.setInt(2, detail.getProductID());
-            ptm.setDouble(3, detail.getUnitPrice());
+            ptm.setBigDecimal(3, detail.getUnitPrice());
             ptm.setInt(4, detail.getQuantity());
             ptm.setDouble(5, detail.getDiscount());
             ptm.setDouble(6, detail.getTotalPrice());
@@ -124,7 +125,7 @@ public class InvoiceDetailDAO {
                 detail.setInvoiceDetailID(rs.getInt("InvoiceDetailID"));
                 detail.setInvoiceID(rs.getInt("InvoiceID"));
                 detail.setProductID(rs.getInt("ProductID"));
-                detail.setUnitPrice(rs.getDouble("UnitPrice"));
+                detail.setUnitPrice(rs.getBigDecimal("UnitPrice"));
                 detail.setQuantity(rs.getInt("Quantity"));
                 detail.setDiscount(rs.getDouble("Discount"));
 
@@ -156,7 +157,7 @@ public class InvoiceDetailDAO {
                         rs.getInt("InvoiceDetailID"),
                         rs.getInt("InvoiceID"),
                         rs.getInt("ProductID"),
-                        rs.getDouble("UnitPrice"),
+                       rs.getBigDecimal("UnitPrice"),
                         rs.getInt("Quantity"),
                         rs.getDouble("Discount")
                 );
@@ -187,7 +188,7 @@ public class InvoiceDetailDAO {
             ptm.setInt(1, invoiceID);
             ResultSet rs = ptm.executeQuery();
             while (rs.next()) {
-                InvoiceDetail i = new InvoiceDetail(rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getDouble(4), rs.getInt(5), rs.getDouble(6));
+                InvoiceDetail i = new InvoiceDetail(rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getBigDecimal(4), rs.getInt(5), rs.getDouble(6));
                 list.add(i);
             }
         } catch (SQLException ex) {
@@ -205,7 +206,7 @@ public class InvoiceDetailDAO {
             if (newDetail.getQuantity() == 0) {
                 return deleteByDetailID(newDetail.getInvoiceDetailID());
             }
-            boolean productChanged = oldDetail.getProductID()!=(newDetail.getProductID());
+            boolean productChanged = oldDetail.getProductID() != (newDetail.getProductID());
             if (productChanged) {
                 // Khôi phục tồn kho cũ
                 Inventory oldInventory = inventoryDAO.getInventoryByShopAndProduct(oldDetail.getProductID(), oldDetail.getShopID());
@@ -253,7 +254,7 @@ public class InvoiceDetailDAO {
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
                 ps.setInt(1, newDetail.getInvoiceID());
                 ps.setInt(2, newDetail.getProductID());
-                ps.setDouble(3, newDetail.getUnitPrice());
+                ps.setBigDecimal(3, newDetail.getUnitPrice());
                 ps.setInt(4, newDetail.getQuantity());
                 ps.setDouble(5, newDetail.getDiscount());
                 ps.setDouble(6, newDetail.getTotalPrice());
@@ -268,10 +269,10 @@ public class InvoiceDetailDAO {
         }
     }
 
-    public boolean deleteByInvoiceID(String invoiceID) {
+    public boolean deleteByInvoiceID(int invoiceID) {
         String sql = "DELETE FROM [dbo].[InvoiceDetail] WHERE InvoiceID = ?";
         try (PreparedStatement ptm = connection.prepareStatement(sql)) {
-            ptm.setString(1, invoiceID);
+            ptm.setInt(1, invoiceID);
             return ptm.executeUpdate() >= 0;
         } catch (SQLException ex) {
             Logger.getLogger(InvoiceDetailDAO.class.getName()).log(Level.SEVERE, null, ex);
@@ -306,16 +307,82 @@ public class InvoiceDetailDAO {
         return false;
     }
 
+    public List<InvoiceDetail> getDetailsWithProductInfoByInvoiceID(int invoiceID) {
+        List<InvoiceDetail> list = new ArrayList<>();
+        
+        String sql = "SELECT id.[InvoiceDetailID], id.[InvoiceID], id.[ProductID], id.[UnitPrice], "
+                + "id.[Quantity], id.[Discount], id.[TotalPrice], "
+                + "p.[ProductName]" 
+                + "FROM [dbo].[InvoiceDetail] id "
+                + "JOIN [dbo].[Product] p ON id.ProductID = p.ProductID "
+                + "WHERE id.InvoiceID = ?";
+
+        try (PreparedStatement ptm = connection.prepareStatement(sql)) {
+            ptm.setInt(1, invoiceID);
+            try (ResultSet rs = ptm.executeQuery()) {
+                while (rs.next()) {
+                    // Tạo đối tượng Product
+                    Product product = new Product(
+                            rs.getInt("ProductID"),
+                            rs.getString("ProductName"),
+                            rs.getString("CategoryID"),
+                            rs.getString("UnitID"),
+                            rs.getBigDecimal("SellingPrice"),
+                            rs.getString("Description"),
+                            rs.getBoolean("Status"),
+                            rs.getTimestamp("CreatedDate").toLocalDateTime(),
+                            rs.getString("CreatedBy")
+                    );
+
+                    InvoiceDetail detail = new InvoiceDetail(
+                            rs.getInt("InvoiceDetailID"),
+                            rs.getInt("InvoiceID"),
+                            rs.getInt("ProductID"),
+                            rs.getBigDecimal("UnitPrice"),
+                            rs.getInt("Quantity"),
+                            rs.getDouble("Discount"),
+                            rs.getDouble("TotalPrice"), // Lấy TotalPrice từ DB
+                            product // Gán đối tượng Product đã tạo
+                    );
+                    list.add(detail);
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(InvoiceDetailDAO.class.getName()).log(Level.SEVERE, "Lỗi khi lấy chi tiết hóa đơn kèm sản phẩm", ex);
+        }
+        return list;
+    }
+
     public static void main(String[] args) {
         DBContext connection = new DBContext("SWP1");
-        InvoiceDetailDAO i = new InvoiceDetailDAO(connection.getConnection());
-        InventoryDAO inventoryDAO = new InventoryDAO(connection.getConnection());
-        InvoiceDetail detail = i.getInvoiceDetailByInvoiceDetailID(20);
-        
-        List<InvoiceDetail> iv = i.getAllInvoiceDetail();
-        for (InvoiceDetail invoiceDetail : iv) {
-            System.out.println(invoiceDetail.getInvoiceDetailID());
-        }
+        InvoiceDetailDAO iDetailDAO = new InvoiceDetailDAO(connection.getConnection());
+        int testInvoiceID = 56; // Ví dụ: ID của một hóa đơn đã có
+        int testProductID = 1; // Ví dụ: ID của một sản phẩm
+//        BigDecimal testUnitPrice = 50000.0;
+        int testQuantity = 1; // Ví dụ: Số lượng muốn thêm
+        double testDiscount = 0.0; // Ví dụ: Giảm giá
+        int testShopID = 1; // Ví dụ: ID của cửa hàng
+
+//        InvoiceDetail newDetail = new InvoiceDetail(testInvoiceID, testProductID, testUnitPrice, testQuantity, testDiscount);
+//          boolean success = iDetailDAO.addInvoiceDetailAndUpdateInventory(newDetail, testShopID);
+//
+//                if (success) {
+//                    
+//                    System.out.println("--> Kết quả: THÀNH CÔNG! (Chi tiết hóa đơn đã được thêm/cập nhật và tồn kho đã điều chỉnh)");
+//                } else {
+//                    
+//                    System.out.println("--> Kết quả: THẤT BẠI! (Kiểm tra console để xem lỗi chi tiết)");
+//                }
+////        
+//            for (InvoiceDetail detail : details) {
+//                System.out.println("InvoiceDetailID: " + detail.getInvoiceDetailID());
+//                System.out.println("  Product Name: " + (detail.getProduct() != null ? detail.getProduct().getProductName() : "N/A"));
+//                System.out.println("  Quantity: " + detail.getQuantity());
+//                System.out.println("  TotalPrice: " + detail.getTotalPrice());
+//                System.out.println("--------------------");
+//            }
+//        }
+
 //        if (detail != null) {
 //            System.out.println("Trước khi update:");
 //            System.out.println("ProductID: " + detail.getProductID());
@@ -341,7 +408,6 @@ public class InvoiceDetailDAO {
 //        }
 //
 //    }
-
 //        InvoiceDetail existingDetail = i.getInvoiceDetailByInvoiceDetailID(4);
 //        if (existingDetail == null) {
 //            System.out.println("Không tìm thấy InvoiceDetail với ID = " + 4);
@@ -368,7 +434,7 @@ public class InvoiceDetailDAO {
 //        } else {
 //            System.out.println("Cập nhật thất bại!");
 //        }// rất quan trọng
-    //add
+        //add
 //        String invoiceID = "INV001";
 //        String shopID = "S001";
 //        String productID = "P001";
@@ -421,5 +487,5 @@ public class InvoiceDetailDAO {
 //        } else {
 //            System.out.println("Thêm thất bại: Không đủ tồn kho hoặc lỗi SQL.");
 //        }
-}
+    }
 }

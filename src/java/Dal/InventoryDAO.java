@@ -40,7 +40,7 @@ public class InventoryDAO {
         try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 Inventory inv = new Inventory();
-                inv.setInventoryID(rs.getString("InventoryID"));
+                inv.setInventoryID(rs.getInt("InventoryID"));
 
                 Product p = new Product();
                 p.setProductID(rs.getString("ProductID"));
@@ -48,7 +48,7 @@ public class InventoryDAO {
                 inv.setProduct(p);
 
                 Shop s = new Shop();
-                s.setShopID(rs.getString("ShopID"));
+                s.setShopID(rs.getInt("ShopID"));
                 s.setShopName(rs.getString("ShopName"));
                 inv.setShop(s);
 
@@ -89,7 +89,7 @@ public class InventoryDAO {
             ResultSet rs = ptm.executeQuery();
             if (rs.next()) {
                 Inventory i = new Inventory();
-                i.setInventoryID(rs.getString("inventoryID"));
+                i.setInventoryID(rs.getInt("inventoryID"));
 
                 Product p = new Product();
                 p.setProductID(rs.getString("ProductID"));
@@ -97,7 +97,7 @@ public class InventoryDAO {
                 i.setProduct(p);
 
                 Shop s = new Shop();
-                s.setShopID(rs.getString("ShopID"));
+                s.setShopID(rs.getInt("ShopID"));
                 s.setShopName(rs.getString("ShopName"));
                 i.setShop(s);
 
@@ -126,7 +126,7 @@ public class InventoryDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     Inventory inv = new Inventory();
-                    inv.setInventoryID(rs.getString("InventoryID"));
+                    inv.setInventoryID(rs.getInt("InventoryID"));
 
                     Product p = new Product();
                     p.setProductID(rs.getString("ProductID"));
@@ -134,7 +134,7 @@ public class InventoryDAO {
                     inv.setProduct(p);
 
                     Shop s = new Shop();
-                    s.setShopID(rs.getString("ShopID"));
+                    s.setShopID(rs.getInt("ShopID"));
                     s.setShopName(rs.getString("ShopName"));
                     inv.setShop(s);
 
@@ -151,7 +151,7 @@ public class InventoryDAO {
     }
 
     // Lấy danh sách hàng tồn kho trong một cửa hàng cụ thể
-    public List<Inventory> getAllInventoriesInStore(String storeId) {
+    public List<Inventory> getAllInventoriesInStore(int storeId) {
         List<Inventory> list = new ArrayList<>();
         String sql = "SELECT i.InventoryID, i.ProductID, p.ProductName, i.ShopID, s.ShopName, i.Quantity, i.LastUpdated "
                 + "FROM Inventory i "
@@ -159,11 +159,11 @@ public class InventoryDAO {
                 + "LEFT JOIN Shop s ON i.ShopID = s.ShopID "
                 + "WHERE i.ShopID = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, storeId);
+            ps.setInt(1, storeId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Inventory inv = new Inventory();
-                    inv.setInventoryID(rs.getString("InventoryID"));
+                    inv.setInventoryID(rs.getInt("InventoryID"));
 
                     Product p = new Product();
                     p.setProductID(rs.getString("ProductID"));
@@ -171,7 +171,7 @@ public class InventoryDAO {
                     inv.setProduct(p);
 
                     Shop s = new Shop();
-                    s.setShopID(rs.getString("ShopID"));
+                    s.setShopID(rs.getInt("ShopID"));
                     s.setShopName(rs.getString("ShopName"));
                     inv.setShop(s);
 
@@ -191,9 +191,9 @@ public class InventoryDAO {
         String sql = "INSERT INTO Inventory (InventoryID, ProductID, ShopID, Quantity, LastUpdated) "
                 + "VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, inventory.getInventoryID());
+            ps.setInt(1, inventory.getInventoryID());
             ps.setString(2, inventory.getProduct().getProductID());
-            ps.setString(3, inventory.getShop().getShopID());
+            ps.setInt(3, inventory.getShop().getShopID());
             ps.setInt(4, inventory.getQuantity());
             ps.setTimestamp(5, new Timestamp(System.currentTimeMillis())); // hoặc inventory.getLastUpdated()
             return ps.executeUpdate() > 0;
@@ -206,7 +206,7 @@ public class InventoryDAO {
     public static void main(String[] args) {
         try (Connection conn = new DBContext("SWP4").getConnection()) {
             InventoryDAO dao = new InventoryDAO(conn);
-            List<Inventory> inventories = dao.getAllInventoriesInStore("S001");
+            List<Inventory> inventories = dao.getAllInventoriesInStore(1);
             if (inventories.isEmpty()) {
                 System.out.println("❌ Không có hàng tồn kho nào.");
             } else {

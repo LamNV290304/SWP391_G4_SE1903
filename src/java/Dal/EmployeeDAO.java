@@ -79,7 +79,7 @@ public class EmployeeDAO {
             stmt.setBoolean(6, employee.isStatus());
             stmt.setDate(7, new java.sql.Date(employee.getCreateDate().getTime()));
             stmt.setInt(8, employee.getRole().getId());
-            stmt.setString(9, employee.getShop().getShopID());
+            stmt.setInt(9, employee.getShop().getShopID());
             stmt.executeUpdate();
             return true;
         } catch (Exception ex) {

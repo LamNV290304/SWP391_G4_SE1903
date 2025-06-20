@@ -7,6 +7,7 @@ package Dal;
 import Context.DBContext;
 import Models.Invoice;
 import Models.InvoiceDetail;
+import java.sql.SQLException;
 import java.sql.Connection;
 import java.util.Vector;
 import java.sql.PreparedStatement;
@@ -52,19 +53,24 @@ public class InvoiceDAO {
         return list;
     }
 
-    public void addInvoice(Invoice i) {
+    public int addInvoice(Invoice i) {
         String sql = "INSERT INTO [dbo].[Invoice]\n"
-                + "           ,[CustomerID]\n"
+                + "           ([CustomerID]\n"
                 + "           ,[EmployeeID]\n"
                 + "           ,[ShopID]\n"
                 + "           ,[InvoiceDate]\n"
                 + "           ,[TotalAmount]\n"
                 + "           ,[Note]\n"
                 + "           ,[Status])\n"
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        PreparedStatement ptm;
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        PreparedStatement ptm = null;
+        ResultSet rs = null;
+        int generatedInvoiceID = -1; // Giá trị mặc định nếu không tạo được ID
+
         try {
-            ptm = connection.prepareStatement(sql);
+            // Sử dụng Statement.RETURN_GENERATED_KEYS để yêu cầu trả về khóa tự động sinh
+            ptm = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ptm.setInt(1, i.getCustomerID());
             ptm.setInt(2, i.getEmployeeID());
             ptm.setInt(3, i.getShopID());
@@ -72,11 +78,33 @@ public class InvoiceDAO {
             ptm.setDouble(5, i.getTotalAmount());
             ptm.setString(6, i.getNote());
             ptm.setBoolean(7, i.isStatus());
-            ptm.executeUpdate();
+
+            int affectedRows = ptm.executeUpdate();
+
+            if (affectedRows > 0) {
+                // Lấy các khóa được tạo
+                rs = ptm.getGeneratedKeys();
+                if (rs.next()) {
+                    generatedInvoiceID = rs.getInt(1); // Lấy ID đầu tiên được tạo
+                }
+            }
         } catch (SQLException ex) {
             ex.printStackTrace();
+            // Xử lý ngoại lệ hoặc ném lại để lớp gọi xử lý
+        } finally {
+            // Đảm bảo đóng ResultSet và PreparedStatement
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ptm != null) {
+                    ptm.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
-
+        return generatedInvoiceID;
     }
 
     public boolean deleteInvoice(int invoiceID) {
@@ -142,9 +170,20 @@ public class InvoiceDAO {
             ptm.setString(2, "%" + key + "%");
             ResultSet rs = ptm.executeQuery();
             while (rs.next()) {
-                Invoice i = new Invoice(rs.getInt(1), rs.getInt(2), rs.getInt(3),
-                        rs.getInt(4), rs.getTimestamp(5),
-                        rs.getDouble(6), rs.getString(7), rs.getBoolean(8));
+
+                Invoice i = new Invoice(
+                        rs.getInt("InvoiceID"),
+                        rs.getInt("CustomerID"),
+                        rs.getInt("EmployeeID"),
+                        rs.getInt("ShopID"),
+                        rs.getTimestamp("InvoiceDate"),
+                        rs.getDouble("TotalAmount"),
+                        rs.getString("Note"),
+                        rs.getBoolean("Status")
+                );
+                i.setCustomerName(rs.getString("CustomerName"));
+                i.setShopName(rs.getString("shopName"));
+
                 l.add(i);
             }
         } catch (SQLException ex) {
@@ -203,7 +242,7 @@ public class InvoiceDAO {
                 list.add(new Invoice(
                         rs.getInt("InvoiceID"),
                         rs.getInt("CustomerID"),
-                        rs.getString("CustomerName"), 
+                        rs.getString("CustomerName"),
                         rs.getInt("EmployeeID"),
                         rs.getInt("ShopID"),
                         rs.getTimestamp("InvoiceDate"),
@@ -232,6 +271,7 @@ public class InvoiceDAO {
     }
 
     public static void main(String[] args) {
+
         DBContext connection = new DBContext("SWP1");
         InvoiceDAO dao = new InvoiceDAO(connection.getConnection());
         int pageIndex = 2; // Trang thứ mấy (ví dụ trang 1)
@@ -250,6 +290,43 @@ public class InvoiceDAO {
                     inv.getNote(),
                     inv.isStatus());
         }
+
+        DBContext connectionProvider = new DBContext("SWP1"); // Đảm bảo tên database "SWP1" là chính xác
+        Connection conn = null;
+
+        conn = connectionProvider.getConnection();
+        if (conn != null) {
+            System.out.println("DEBUG (Main): Database connection successful.");
+        } else {
+            System.err.println("ERROR (Main): Failed to get database connection. Check DBContext configuration.");
+            return; // Dừng nếu không có kết nối
+        }
+
+        System.out.println("\n--- Starting addInvoice test ---");
+
+        // Tạo một đối tượng Invoice mới để thêm
+        // QUAN TRỌNG: Đảm bảo các ID này (CustomerID, EmployeeID, ShopID) 
+        // TỒN TẠI trong bảng tương ứng trong database của bạn.
+        // Nếu không, bạn sẽ gặp lỗi khóa ngoại (Foreign Key Constraint Violation).
+        int testCustomerID = 1; // Thay đổi nếu cần
+        int testEmployeeID = 1; // Thay đổi nếu cần
+        int testShopID = 1;     // Thay đổi nếu cần
+        double testTotalAmount = 750000.0;
+        String testNote = "Invoice added from main test";
+        boolean testStatus = false; // Ví dụ: chưa thanh toán
+
+        Invoice newInvoice = new Invoice(
+                testCustomerID,
+                testEmployeeID,
+                testShopID,
+                Timestamp.from(Instant.now()), // Sử dụng thời gian hiện tại
+                testTotalAmount,
+                testNote,
+                testStatus
+        );
+
+        System.out.println("Attempting to add new invoice with data: " + newInvoice.toString());
+
 //        Invoice newInvoice = new Invoice(
 //                "INV10020",
 //                "CUST004",
@@ -293,7 +370,6 @@ public class InvoiceDAO {
 //        } else {
 //            System.out.println("Cập nhật hóa đơn thất bại.");
 //        }
-
 //            //delete hoa don
 //        Invoice i = dao.searchInvoice("INV10020");
 //
