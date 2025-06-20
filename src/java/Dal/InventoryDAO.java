@@ -223,6 +223,45 @@ public class InventoryDAO {
         }
         return list;
     }
+    
+    public List<Inventory> getAllInventoriesInProductIDAndStoreID(int search, int storeId) {
+        List<Inventory> list = new ArrayList<>();
+        String sql = "SELECT i.InventoryID, i.ProductID, p.ProductName, i.ShopID, s.ShopName, i.Quantity, i.LastUpdated "
+                + "FROM Inventory i "
+                + "JOIN Product p ON i.ProductID = p.ProductID "
+                + "LEFT JOIN Shop s ON i.ShopID = s.ShopID "
+                + "WHERE p.ProductName COLLATE Latin1_General_CI_AI LIKE ? AND i.ShopID = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, search);    
+            ps.setInt(2, storeId);                
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Inventory inv = new Inventory();
+                    inv.setInventoryID(rs.getInt("InventoryID"));
+
+                    Product p = new Product();
+                    p.setProductID(rs.getInt("ProductID"));
+                    p.setProductName(rs.getString("ProductName"));
+                    inv.setProduct(p);
+
+                    Shop s = new Shop();
+                    s.setShopID(rs.getInt("ShopID"));
+                    s.setShopName(rs.getString("ShopName"));
+                    inv.setShop(s);
+
+                    inv.setQuantity(rs.getInt("Quantity"));
+                    inv.setLastUpdated(rs.getTimestamp("LastUpdated"));
+
+                    list.add(inv);
+                }
+            }
+        } catch (SQLException e) {
+            Logger.getLogger(InventoryDAO.class.getName()).log(Level.SEVERE, null, e);
+        }
+        return list;
+    }
 
     public boolean insertInventory(Inventory inventory) {
         String sql = "INSERT INTO Inventory ( ProductID, ShopID, Quantity, LastUpdated) "
@@ -242,7 +281,7 @@ public class InventoryDAO {
     public static void main(String[] args) {
         try (Connection conn = new DBContext("SWP7").getConnection()) {
             InventoryDAO dao = new InventoryDAO(conn);
-            List<Inventory> inventories = dao.getAllInventoriesInStore(1);
+            List<Inventory> inventories = dao.getAllInventories();
             if (inventories.isEmpty()) {
                 System.out.println("❌ Không có hàng tồn kho nào.");
             } else {

@@ -326,9 +326,9 @@ public class ProductDAO {
     }
 
     public static void main(String[] args) {
-        DBContext connection = new DBContext("SWP1");
+        DBContext connection = new DBContext("SWP7");
         ProductDAO pDAO = new ProductDAO(connection.getConnection());
-        List<Product> p = pDAO.getAllProducts();
+        List<Product> p = pDAO.getProduct("SELECT *  FROM Product");
         for (Product product : p) {
             System.out.println(product.getProductName());
         }

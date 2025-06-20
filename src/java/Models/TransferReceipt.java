@@ -12,13 +12,13 @@ import java.util.Date;
  */
 public class TransferReceipt {
     private int TransferReceiptID;
-    private String FromShopID;
-    private String ToShopID;
+    private int FromShopID;
+    private int ToShopID;
     private Date TransferDate;
     private String Note;
     private int Status;
 
-    public TransferReceipt( String FromShopID, String ToShopID, Date TransferDate, String Note, int Status) {
+    public TransferReceipt( int FromShopID, int ToShopID, Date TransferDate, String Note, int Status) {
 
         this.FromShopID = FromShopID;
         this.ToShopID = ToShopID;
@@ -28,7 +28,7 @@ public class TransferReceipt {
         this.Status = Status;
     }
 
-    public TransferReceipt(int TransferReceiptID, String FromShopID, String ToShopID, Date TransferDate, String Note, int Status) {
+    public TransferReceipt(int TransferReceiptID, int FromShopID, int ToShopID, Date TransferDate, String Note, int Status) {
         this.TransferReceiptID = TransferReceiptID;
 
         this.FromShopID = FromShopID;
@@ -48,19 +48,19 @@ public class TransferReceipt {
     }
 
 
-    public String getFromShopID() {
+    public int getFromShopID() {
         return FromShopID;
     }
 
-    public void setFromShopID(String FromShopID) {
+    public void setFromShopID(int FromShopID) {
         this.FromShopID = FromShopID;
     }
 
-    public String getToShopID() {
+    public int getToShopID() {
         return ToShopID;
     }
 
-    public void setToShopID(String ToShopID) {
+    public void setToShopID(int ToShopID) {
         this.ToShopID = ToShopID;
     }
 
