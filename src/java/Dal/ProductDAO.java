@@ -35,6 +35,7 @@ public class ProductDAO {
                 + "      ,[CreatedDate]\n"
                 + "      ,[CreatedBy]\n"
                 + "  FROM [dbo].[Product]";
+
         List<Product> l = new ArrayList<>();
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);
@@ -298,7 +299,7 @@ public class ProductDAO {
     }
 
     public static void main(String[] args) {
-        DBContext connection = new DBContext("SWP1");
+        DBContext connection = new DBContext("SWP7");
         ProductDAO pDAO = new ProductDAO(connection.getConnection());
         List<Product> p = pDAO.getAllProducts();
         for (Product product : p) {
