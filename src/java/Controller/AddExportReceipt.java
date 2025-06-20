@@ -59,11 +59,13 @@ public class AddExportReceipt extends HttpServlet {
         ShopDAO shopDao = new ShopDAO();
         SupplierDAO supDAO = new SupplierDAO(conn);
         ProductDAO ProDAO = new ProductDAO(conn);
+        InventoryDAO ivtDAO = new InventoryDAO(conn);
         request.setAttribute("listEmp", empDao.getAllEmployee());
         request.setAttribute("listSup", supDAO.getAllSuppliers());
         request.setAttribute("listShop", shopDao.getAllShops("SWP7"));
         request.setAttribute("listType", typeImp.getAllTypeExportReceipts());
         request.setAttribute("listProduct", ProDAO.getAllProducts());
+        request.setAttribute("listIvt", ivtDAO.getAllInventories());
         request.getRequestDispatcher("AddExportReceipt.jsp").forward(request, response);
     } 
 
@@ -107,7 +109,7 @@ if (importDateStr != null && !importDateStr.isEmpty()) {
        Date now = new Date(); // lấy thời gian hiện tại
 
         if (importDate.after(now)) {
-            request.setAttribute("erroll", "Date Invalid");
+            request.setAttribute("erroll", "Date import Invalid");
             request.getRequestDispatcher("ErrolReceipt.jsp").forward(request, response);
         }
         // Nếu cần kiểm tra:
