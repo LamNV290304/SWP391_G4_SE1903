@@ -45,12 +45,12 @@ public class ShopDAO {
         return shops;
     }
     
-    public Shop getShopByID(String shopID, String databaseName) {
+    public Shop getShopByID(Integer shopID, String databaseName) {
         String sql = "SELECT * FROM Shop WHERE ShopID = ?";
         try (Connection conn = DBContext.getConnection(databaseName);
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, shopID);
+            ps.setInt(1, shopID);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return new Shop(
@@ -144,15 +144,6 @@ public class ShopDAO {
         }
 
         // Get by ID test
-        Shop s = dao.getShopByID("1", dbName);
-        if (s != null) {
-            System.out.println("Found: " + s.getShopName());
-        }
-
-        // Update test
-        s.setPhone("0987654321");
-        boolean updated = dao.updateShop(s, dbName);
-        System.out.println("Update: " + updated);
 
         // Delete test
       //  boolean deleted = dao.deleteShop("S001", dbName);
