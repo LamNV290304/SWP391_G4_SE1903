@@ -20,6 +20,7 @@ public class TransferReceipt {
 
     public TransferReceipt( String FromShopID, String ToShopID, Date TransferDate, String Note, int Status) {
 
+        this.FromShopID = FromShopID;
         this.ToShopID = ToShopID;
 
         this.TransferDate = TransferDate;

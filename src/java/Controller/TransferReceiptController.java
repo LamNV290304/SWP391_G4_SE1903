@@ -40,15 +40,14 @@ import java.util.logging.Logger;
 @WebServlet(name = "TransferReceipt", urlPatterns = {"/TransferReceipt"})
 public class TransferReceiptController extends HttpServlet {
 
-    DBContext connection = new DBContext("SWP6  ");
 
+    DBContext connection = new DBContext("SWP7  ");
 
     TransferReceiptDAO dao = new TransferReceiptDAO(connection.getConnection());
     ProductDAO productDAO = new ProductDAO(connection.getConnection());
     InventoryDAO inventoryDAO = new InventoryDAO(connection.getConnection());
     TransferReceiptDetailDAO transferReceiptDetailDAO = new TransferReceiptDetailDAO(connection.getConnection());
     ShopDAO shopDAO = new ShopDAO();
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
 
 
     //List
