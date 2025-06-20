@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 public class Product {
 
-    private String productID;
+    private Integer productID;
     private String productName;
     private String categoryID;
     private String unitID;
@@ -25,7 +25,7 @@ public class Product {
     public Product() {
     }
 
-    public Product(String productID, String productName, String categoryID, String unitID, BigDecimal sellingPrice, String description, boolean status, LocalDateTime createdDate, String createdBy) {
+    public Product(Integer productID, String productName, String categoryID, String unitID, BigDecimal sellingPrice, String description, boolean status, LocalDateTime createdDate, String createdBy) {
         this.productID = productID;
         this.productName = productName;
         this.categoryID = categoryID;
@@ -37,7 +37,7 @@ public class Product {
         this.createdBy = createdBy;
     }
 
-    public Product(String productID, String productName, String categoryID, String unitID,
+    public Product(Integer productID, String productName, String categoryID, String unitID,
             BigDecimal importPrice, BigDecimal sellingPrice, String description,
             boolean status, String imageUrl, String createdBy) {
         this.productID = productID;
@@ -54,11 +54,11 @@ public class Product {
     }
 
     
-    public String getProductID() {
+    public Integer getProductID() {
         return productID;
     }
 
-    public void setProductID(String productID) {
+    public void setProductID(Integer productID) {
         this.productID = productID;
     }
 

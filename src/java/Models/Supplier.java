@@ -11,7 +11,7 @@ import java.util.Date;
  * @author Thai Anh
  */
 public class Supplier {
-    private String supplierID;
+    private int supplierID;
     private String supplierName;
     private String phone;
     private String email;
@@ -23,8 +23,7 @@ public class Supplier {
     public Supplier() {
     }
 
-    public Supplier(String supplierID, String supplierName, String phone, String email, String address, boolean status, Date createdDate, String createdBy) {
-        this.supplierID = supplierID;
+    public Supplier(String supplierName, String phone, String email, String address, boolean status, Date createdDate, String createdBy) {
         this.supplierName = supplierName;
         this.phone = phone;
         this.email = email;
@@ -34,11 +33,11 @@ public class Supplier {
         this.createdBy = createdBy;
     }
 
-    public String getSupplierID() {
+    public int getSupplierID() {
         return supplierID;
     }
 
-    public void setSupplierID(String supplierID) {
+    public void setSupplierID(int supplierID) {
         this.supplierID = supplierID;
     }
 
@@ -96,6 +95,11 @@ public class Supplier {
 
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
+    }
+
+    @Override
+    public String toString() {
+        return "Supplier{" + "supplierID=" + supplierID + ", supplierName=" + supplierName + ", phone=" + phone + ", email=" + email + ", address=" + address + ", status=" + status + ", createdDate=" + createdDate + ", createdBy=" + createdBy + '}';
     }
     
 }

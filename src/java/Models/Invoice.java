@@ -12,10 +12,13 @@ import java.sql.Timestamp;
  */
 public class Invoice {
 
-    private String invoiceID;
-    private String customerID;
-    private String employeeID;
-    private String shopID;
+    private int invoiceID;
+    private int customerID;
+    private String customerName;
+    private int employeeID;
+    private String employeeName;
+    private int shopID;
+    private String shopName;
     private Timestamp invoiceDate;
     private Double totalAmount;
     private String note;
@@ -24,7 +27,44 @@ public class Invoice {
     public Invoice() {
     }
 
-    public Invoice(String invoiceID, String customerID, String employeeID, String shopID, Timestamp invoiceDate, Double totalAmount, String note, boolean status) {
+    public Invoice(int invoiceID, int customerID, int employeeID, int shopID,
+            Timestamp invoiceDate, double totalAmount, String note, boolean status, String customerName, String shopName, String employeeName) {
+        this.invoiceID = invoiceID;
+        this.customerID = customerID;
+        this.employeeID = employeeID;
+        this.shopID = shopID;
+        this.invoiceDate = invoiceDate;
+        this.totalAmount = totalAmount;
+        this.note = note;
+        this.status = status;
+        this.customerName = customerName;
+        this.shopName = shopName;
+        this.employeeName = employeeName;
+    }
+
+    public Invoice(int invoiceID, int customerID, String customerName, int employeeID, int shopID, Timestamp invoiceDate, Double totalAmount, String note, boolean status) {
+        this.invoiceID = invoiceID;
+        this.customerID = customerID;
+        this.customerName = customerName;
+        this.employeeID = employeeID;
+        this.shopID = shopID;
+        this.invoiceDate = invoiceDate;
+        this.totalAmount = totalAmount;
+        this.note = note;
+        this.status = status;
+    }
+
+    public Invoice(int customerID, int employeeID, int shopID, Timestamp invoiceDate, Double totalAmount, String note, boolean status) {
+        this.customerID = customerID;
+        this.employeeID = employeeID;
+        this.shopID = shopID;
+        this.invoiceDate = invoiceDate;
+        this.totalAmount = totalAmount;
+        this.note = note;
+        this.status = status;
+    }
+
+    public Invoice(int invoiceID, int customerID, int employeeID, int shopID, Timestamp invoiceDate, Double totalAmount, String note, boolean status) {
         this.invoiceID = invoiceID;
         this.customerID = customerID;
         this.employeeID = employeeID;
@@ -35,35 +75,59 @@ public class Invoice {
         this.status = status;
     }
 
-    public String getInvoiceID() {
+    public String getEmployeeName() {
+        return employeeName;
+    }
+
+    public void setEmployeeName(String employeeName) {
+        this.employeeName = employeeName;
+    }
+
+    public String getShopName() {
+        return shopName;
+    }
+
+    public void setShopName(String shopName) {
+        this.shopName = shopName;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public int getInvoiceID() {
         return invoiceID;
     }
 
-    public void setInvoiceID(String invoiceID) {
+    public void setInvoiceID(int invoiceID) {
         this.invoiceID = invoiceID;
     }
 
-    public String getCustomerID() {
+    public int getCustomerID() {
         return customerID;
     }
 
-    public void setCustomerID(String customerID) {
+    public void setCustomerID(int customerID) {
         this.customerID = customerID;
     }
 
-    public String getEmployeeID() {
+    public int getEmployeeID() {
         return employeeID;
     }
 
-    public void setEmployeeID(String employeeID) {
+    public void setEmployeeID(int employeeID) {
         this.employeeID = employeeID;
     }
 
-    public String getShopID() {
+    public int getShopID() {
         return shopID;
     }
 
-    public void setShopID(String shopID) {
+    public void setShopID(int shopID) {
         this.shopID = shopID;
     }
 
@@ -80,7 +144,7 @@ public class Invoice {
     }
 
     public void setTotalAmount(Double totalAmount) {
-        this.totalAmount = (totalAmount != null) ? totalAmount : 0.0;
+        this.totalAmount = totalAmount;
     }
 
     public String getNote() {

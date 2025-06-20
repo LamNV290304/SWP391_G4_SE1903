@@ -2,24 +2,24 @@ package Models;
 
 public class Unit {
 
-    private String unitID;
+    private Integer unitID;
     private String description;
 
-    // Constructors
+    
     public Unit() {
     }
 
-    public Unit(String unitID, String description) {
+    public Unit(Integer unitID, String description) {
         this.unitID = unitID;
         this.description = description;
     }
 
-    // Getters and Setters
-    public String getUnitID() {
+    
+    public Integer getUnitID() {
         return unitID;
     }
 
-    public void setUnitID(String unitID) {
+    public void setUnitID(Integer unitID) {
         this.unitID = unitID;
     }
 

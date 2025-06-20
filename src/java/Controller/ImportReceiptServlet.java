@@ -34,7 +34,7 @@ public class ImportReceiptServlet extends HttpServlet {
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
        
-        DBContext connection = new DBContext("SWP4");
+        DBContext connection = new DBContext("SWP7");
     ImportReceiptDAO dao = new ImportReceiptDAO(connection.getConnection());
     List<ImportReceipt> list = dao.getAllImportReceipts();
     request.setAttribute("listIR", list);

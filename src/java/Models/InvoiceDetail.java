@@ -11,35 +11,37 @@ package Models;
 public class InvoiceDetail {
 
     private int invoiceDetailID;
-    private String invoiceID;
-    private String productID;
+    private int invoiceID;
+    private int productID;
     private Double unitPrice;
     private int quantity;
     private Double discount;
     private Double totalPrice;
 
-    private String shopID;
+    private int shopID;
 
     public InvoiceDetail() {
     }
 
-    public InvoiceDetail(String invoiceID, String productID, Double unitPrice, int quantity, Double discount) {
+    public InvoiceDetail(int invoiceID, int productID, Double unitPrice, int quantity, Double discount) {
         this.invoiceID = invoiceID;
         this.productID = productID;
         this.unitPrice = unitPrice;
         this.quantity = quantity;
+
         this.discount = (discount != null) ? discount : 0.0;
         calculateTotalPrice();
     }
 
-    public InvoiceDetail(int invoiceDetailID, String invoiceID, String productID, Double unitPrice, int quantity, Double discount) {
+    public InvoiceDetail(int invoiceDetailID, int invoiceID, int productID, Double unitPrice, int quantity, Double discount) {
         this.invoiceDetailID = invoiceDetailID;
         this.invoiceID = invoiceID;
         this.productID = productID;
         this.unitPrice = unitPrice;
         this.quantity = quantity;
-        this.discount = (discount != null) ? discount : 0.0;
+        this.discount = (discount != null) ? discount : 0;
         calculateTotalPrice();
+
     }
 
     public void calculateTotalPrice() {
@@ -60,19 +62,19 @@ public class InvoiceDetail {
         this.invoiceDetailID = invoiceDetailID;
     }
 
-    public String getInvoiceID() {
+    public int getInvoiceID() {
         return invoiceID;
     }
 
-    public void setInvoiceID(String invoiceID) {
+    public void setInvoiceID(int invoiceID) {
         this.invoiceID = invoiceID;
     }
 
-    public String getProductID() {
+    public int getProductID() {
         return productID;
     }
 
-    public void setProductID(String productID) {
+    public void setProductID(int productID) {
         this.productID = productID;
     }
 
@@ -82,7 +84,6 @@ public class InvoiceDetail {
 
     public void setUnitPrice(Double unitPrice) {
         this.unitPrice = unitPrice;
-        calculateTotalPrice();
     }
 
     public int getQuantity() {
@@ -91,7 +92,6 @@ public class InvoiceDetail {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
-        calculateTotalPrice();
     }
 
     public Double getDiscount() {
@@ -100,18 +100,25 @@ public class InvoiceDetail {
 
     public void setDiscount(Double discount) {
         this.discount = discount;
-        calculateTotalPrice();
     }
 
     public Double getTotalPrice() {
         return totalPrice;
     }
 
-    public String getShopID() {
+    public void setTotalPrice(Double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public int getShopID() {
         return shopID;
     }
 
-    public void setShopID(String shopID) {
+    public void setShopID(int shopID) {
         this.shopID = shopID;
     }
+
+    
+
+   
 }

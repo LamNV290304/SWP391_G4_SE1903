@@ -2,6 +2,7 @@ package Dal;
 
 import Models.ImportReceiptDetail;
 import Context.DBContext;
+import Models.ImportReceipt;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,7 +89,6 @@ public class ImportReceiptDetailDAO {
     // Helper method
     private ImportReceiptDetail buildImportReceiptDetail(ResultSet rs) throws SQLException {
         return new ImportReceiptDetail(
-                rs.getInt("ImportReceiptDetailID"),
                 rs.getInt("ImportReceiptID"),
                 rs.getString("ProductID"),
                 rs.getInt("Quantity"),
@@ -96,6 +96,33 @@ public class ImportReceiptDetailDAO {
                 rs.getString("Note")
         );
     }
+// Lấy ImportReceiptID dựa trên các thông tin còn lại
+public Integer getImportReceiptIDByInfo(ImportReceipt ir) {
+    String sql = "SELECT ImportReceiptID FROM ImportReceipt " +
+                 "WHERE Code = ? AND SupplierID = ? AND EmployeeID = ? AND ShopID = ? " +
+                 "AND ReceiptDate = ? AND TotalAmount = ? AND Note = ? AND Status = ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setString(1, ir.getCode());
+        ps.setString(2, ir.getSupplierID());
+        ps.setString(3, ir.getEmployeeID());
+        ps.setString(4, ir.getShopID());
+
+        // Dùng Timestamp để đảm bảo đúng kiểu dữ liệu DATETIME
+        ps.setTimestamp(5, new Timestamp(ir.getReceiptDate().getTime()));
+        ps.setFloat(6, (float) ir.getTotalAmount());
+        ps.setString(7, ir.getNote());
+        ps.setBoolean(8, ir.isStatus());
+
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("ImportReceiptID");
+            }
+        }
+    } catch (SQLException e) {
+        Logger.getLogger(ImportReceiptDAO.class.getName()).log(Level.SEVERE, null, e);
+    }
+    return null; // Nếu không tìm thấy
+}
 
     // Test main method
     public static void main(String[] args) {
@@ -104,7 +131,6 @@ public class ImportReceiptDetailDAO {
 
             // Test insert
             ImportReceiptDetail newDetail = new ImportReceiptDetail(
-                    106,
                     4,
                     "P001",
                     10,

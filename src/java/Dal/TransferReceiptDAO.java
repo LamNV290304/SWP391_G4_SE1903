@@ -24,13 +24,14 @@ public class TransferReceiptDAO {
         this.connection = connection;
     }
 
-    public Vector<TransferReceipt> getAllTransferReceipt(String sql) throws SQLException {
+    public Vector<TransferReceipt> getAllTransferReceipt(String sql)  {
+
         Vector<TransferReceipt> listTransferReceipt = new Vector<>();
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);
             ResultSet rs = ptm.executeQuery();
             while (rs.next()) {
-                TransferReceipt p = new TransferReceipt(rs.getString(1),
+                TransferReceipt p = new TransferReceipt(rs.getInt(1),
                         rs.getString(2),
                         rs.getString(3),
                         rs.getDate(4),
@@ -47,18 +48,21 @@ public class TransferReceiptDAO {
 
     public int insertTransferReceipt(TransferReceipt p) {
         String sql = "INSERT INTO [dbo].[TransferReceipt]\n"
-                + "([TransferReceiptID], [FromShopID], [ToShopID], [TransferDate], [Note], [Status])\n"
+
+                + "( [FromShopID], [ToShopID], [TransferDate], [Note], [Status])\n"
+
                 + "VALUES (?, ?, ?, ?, ?, ?)";
 
         int n = 0;
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);
-            ptm.setString(1, p.getTransferReceiptID());
-            ptm.setString(2, p.getFromShopID());
-            ptm.setString(3, p.getToShopID());
-            ptm.setDate(4, new java.sql.Date(p.getTransferDate().getTime()));
-            ptm.setString(5, p.getNote());
-            ptm.setInt(6, p.getStatus());
+
+            ptm.setString(1, p.getFromShopID());
+            ptm.setString(2, p.getToShopID());
+            ptm.setDate(3, new java.sql.Date(p.getTransferDate().getTime()));
+            ptm.setString(4, p.getNote());
+            ptm.setInt(5, p.getStatus());
+
 
             n = ptm.executeUpdate();
         } catch (SQLException ex) {
@@ -67,14 +71,16 @@ public class TransferReceiptDAO {
         return n;
     }
 
-    public int deleteTransferReceipt(String TransferReceiptID) {
+
+    public int deleteTransferReceipt(int TransferReceiptID) {
         String sql = "DELETE FROM [dbo].[TransferReceipt]\n"
                 + "      WHERE transferReceiptID=?";
         int n = 0;
 
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);
-            ptm.setString(1, TransferReceiptID);
+
+            ptm.setInt(1, TransferReceiptID);
 
             n = ptm.executeUpdate();
         } catch (SQLException ex) {
@@ -83,16 +89,17 @@ public class TransferReceiptDAO {
         return n;
     }
 
-    public TransferReceipt searchTransferReceipt(String TransferReceiptID) {
+
+    public TransferReceipt searchTransferReceipt(int TransferReceiptID) {
         String sql = "SELECT *\n"
                 + "  FROM [dbo].[TransferReceipt]\n"
                 + "  WHERE TransferReceiptID=?";
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);
-            ptm.setString(1, TransferReceiptID);
+            ptm.setInt(1, TransferReceiptID);
             ResultSet rs = ptm.executeQuery();
             if (rs.next()) {
-                TransferReceipt p = new TransferReceipt(rs.getString(1),
+                TransferReceipt p = new TransferReceipt(rs.getInt(1),
                         rs.getString(2),
                         rs.getString(3),
                         rs.getDate(4),
@@ -132,13 +139,13 @@ public class TransferReceiptDAO {
         }
     }
 
-    public int updateTransferReceiptStatus(String transferReceiptID, int status) {
+    public int updateTransferReceiptStatus(int transferReceiptID, int status) {
         int result = 0;
         try {
             String sql = "UPDATE TransferReceipt SET Status = ? WHERE TransferReceiptID = ?";
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setInt(1, status);
-            ps.setString(2, transferReceiptID);
+            ps.setInt(2, transferReceiptID);
             result = ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -153,7 +160,7 @@ public class TransferReceiptDAO {
 
             // Tạo đối tượng TransferReceipt
             TransferReceipt newReceipt = new TransferReceipt(
-                    "T003", // TransferReceiptID
+
                     "S001", // FromInventoryID
                     "S002", // ToInventoryID
                     new java.util.Date(), // TransferDate (ngày hiện tại)

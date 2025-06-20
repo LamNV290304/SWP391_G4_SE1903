@@ -32,7 +32,6 @@ public class SupplierDAO {
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 Supplier s = new Supplier(
-                        rs.getString("SupplierID"),
                         rs.getString("SupplierName"),
                         rs.getString("Phone"),
                         rs.getString("Email"),
@@ -41,6 +40,7 @@ public class SupplierDAO {
                         rs.getTimestamp("CreatedDate"),
                         rs.getString("CreatedBy")
                 );
+                s.setSupplierID(rs.getInt("SupplierID"));
                 list.add(s);
             }
         } catch (SQLException e) {
@@ -57,7 +57,6 @@ public class SupplierDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return new Supplier(
-                            rs.getString("SupplierID"),
                             rs.getString("SupplierName"),
                             rs.getString("Phone"),
                             rs.getString("Email"),
@@ -76,16 +75,15 @@ public class SupplierDAO {
 
     // Thêm nhà cung cấp mới
     public boolean insertSupplier(Supplier s) {
-        String sql = "INSERT INTO Supplier (SupplierID, SupplierName, Phone, Email, Address, Status, CreatedDate, CreatedBy) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, GETDATE(), ?)";
+        String sql = "INSERT INTO Supplier (SupplierName, Phone, Email, Address, Status, CreatedDate, CreatedBy) " +
+                     "VALUES (?,  ?, ?, ?, ?, GETDATE(), ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, s.getSupplierID());
-            ps.setString(2, s.getSupplierName());
-            ps.setString(3, s.getPhone());
-            ps.setString(4, s.getEmail());
-            ps.setString(5, s.getAddress());
-            ps.setBoolean(6, s.isStatus());
-            ps.setString(7, s.getCreatedBy());
+            ps.setString(1, s.getSupplierName());
+            ps.setString(2, s.getPhone());
+            ps.setString(3, s.getEmail());
+            ps.setString(4, s.getAddress());
+            ps.setBoolean(5, s.isStatus());
+            ps.setString(6, s.getCreatedBy());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             Logger.getLogger(SupplierDAO.class.getName()).log(Level.SEVERE, null, e);
@@ -94,7 +92,7 @@ public class SupplierDAO {
     }
 
     // Cập nhật nhà cung cấp
-    public boolean updateSupplier(Supplier s) {
+    public boolean updateSupplier(Supplier s,int id) {
         String sql = "UPDATE Supplier SET SupplierName = ?, Phone = ?, Email = ?, Address = ?, Status = ?, CreatedBy = ? WHERE SupplierID = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, s.getSupplierName());
@@ -103,7 +101,7 @@ public class SupplierDAO {
             ps.setString(4, s.getAddress());
             ps.setBoolean(5, s.isStatus());
             ps.setString(6, s.getCreatedBy());
-            ps.setString(7, s.getSupplierID());
+            ps.setInt(7, id);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             Logger.getLogger(SupplierDAO.class.getName()).log(Level.SEVERE, null, e);
@@ -112,10 +110,10 @@ public class SupplierDAO {
     }
 
     // Xoá nhà cung cấp
-    public boolean deleteSupplier(String id) {
+    public boolean deleteSupplier(int id) {
         String sql = "DELETE FROM Supplier WHERE SupplierID = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, id);
+            ps.setInt(1, id);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             Logger.getLogger(SupplierDAO.class.getName()).log(Level.SEVERE, null, e);
@@ -123,13 +121,12 @@ public class SupplierDAO {
         return false;
     }
     public static void main(String[] args) {
-        Context.DBContext db = new Context.DBContext("SWP2"); // hoặc dùng constructor mặc định nếu bạn đã sửa
+        Context.DBContext db = new Context.DBContext("SWP7"); // hoặc dùng constructor mặc định nếu bạn đã sửa
         Connection connection = db.getConnection();
         SupplierDAO dao = new SupplierDAO(connection);
 
         // 1. Insert supplier
         Supplier newSupplier = new Supplier(
-                "S0099",
                 "Nhà cung cấp ABC",
                 "0123456789",
                 "abc@example.com",
@@ -138,9 +135,9 @@ public class SupplierDAO {
                 new Timestamp(System.currentTimeMillis()),
                 "admin"
         );
-        dao.insertSupplier(newSupplier);
+        //dao.insertSupplier(newSupplier);
         System.out.println("✔ Đã thêm nhà cung cấp mới.");
-
+ dao.deleteSupplier(5);
         // 2. Get all suppliers
         List<Supplier> allSuppliers = dao.getAllSuppliers();
         System.out.println("📋 Danh sách nhà cung cấp:");
@@ -149,7 +146,7 @@ public class SupplierDAO {
         }
 
         // 3. Get supplier by ID
-        Supplier found = dao.getSupplierByID("S0068");
+        Supplier found = dao.getSupplierByID("5");
         if (found != null) {
             System.out.println("🔍 Tìm thấy nhà cung cấp: " + found);
         } else {
@@ -160,12 +157,12 @@ public class SupplierDAO {
         if (found != null) {
             found.setSupplierName("Nhà cung cấp ABC - Updated");
             found.setPhone("0987654321");
-            dao.updateSupplier(found);
+           // dao.updateSupplier(found);
             System.out.println("✔ Đã cập nhật thông tin nhà cung cấp.");
         }
 
         // 5. Delete supplier
-        dao.deleteSupplier("S001");
-        System.out.println("🗑 Đã xóa nhà cung cấp có ID S001.");
+       
+        System.out.println("🗑 Đã xóa nhà cung cấp có ID 0.");
     }
 }

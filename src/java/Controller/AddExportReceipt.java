@@ -6,10 +6,19 @@
 package Controller;
 
 import Context.DBContext;
+import Dal.EmployeeDAO;
+import Dal.ExportReceiptDAO;
+import Dal.ExportReceiptDetailDAO;
 import Dal.ImportReceiptDAO;
+import Dal.ImportReceiptDetailDAO;
 import Dal.InventoryDAO;
 import Dal.ProductDAO;
 import Dal.ShopDAO;
+import Dal.SupplierDAO;
+import Dal.TypeExportReceiptDAO;
+import Dal.TypeImportReceiptDAO;
+import Models.ExportReceipt;
+import Models.ExportReceiptDetail;
 import Models.ImportReceipt;
 import Models.ImportReceiptDetail;
 import Models.Inventory;
@@ -19,6 +28,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import static java.math.BigDecimal.valueOf;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -31,7 +41,7 @@ import java.util.List;
  *
  * @author Thai Anh
  */
-public class ThemPhieuNhap extends HttpServlet {
+public class AddExportReceipt extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -43,18 +53,20 @@ public class ThemPhieuNhap extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet ThemPhieuNhap</title>");  
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet ThemPhieuNhap at " + request.getContextPath () + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
+        Connection conn = new DBContext("SWP7").getConnection();
+        EmployeeDAO empDao = new EmployeeDAO(conn);
+        TypeExportReceiptDAO typeImp = new TypeExportReceiptDAO(conn);
+        ShopDAO shopDao = new ShopDAO();
+        SupplierDAO supDAO = new SupplierDAO(conn);
+        ProductDAO ProDAO = new ProductDAO(conn);
+        InventoryDAO ivtDAO = new InventoryDAO(conn);
+        request.setAttribute("listEmp", empDao.getAllEmployee());
+        request.setAttribute("listSup", supDAO.getAllSuppliers());
+        request.setAttribute("listShop", shopDao.getAllShops("SWP7"));
+        request.setAttribute("listType", typeImp.getAllTypeExportReceipts());
+        request.setAttribute("listProduct", ProDAO.getAllProducts());
+        request.setAttribute("listIvt", ivtDAO.getAllInventories());
+        request.getRequestDispatcher("AddExportReceipt.jsp").forward(request, response);
     } 
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -81,82 +93,106 @@ public class ThemPhieuNhap extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-          int importReceiptID = Integer.parseInt(request.getParameter("importReceiptID"));
         String code = request.getParameter("code");
-        String supplierID = request.getParameter("SupplierID");
         String employeeID = request.getParameter("EmployeeID");
         String shopID = request.getParameter("shopID");
-        String importDateStr = request.getParameter("importDate");
-
+        String importDateStr = request.getParameter("Date");
+if(code==null  || employeeID ==null || shopID ==null || importDateStr ==null){
+    request.setAttribute("erroll", "Type,Supplier,Employee,Shop,ImportDate must be not null");
+    request.getRequestDispatcher("ErrolReceipt.jsp").forward(request, response);
+}
 Date importDate = null;
 if (importDateStr != null && !importDateStr.isEmpty()) {
     try {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         importDate = formatter.parse(importDateStr);
-        
+       Date now = new Date(); // lấy thời gian hiện tại
+
+        if (importDate.after(now)) {
+            request.setAttribute("erroll", "Date import Invalid");
+            request.getRequestDispatcher("ErrolReceipt.jsp").forward(request, response);
+        }
         // Nếu cần kiểm tra:
-        System.out.println("Ngày nhập hàng (java.util.Date): " + importDate);
     } catch (Exception e) {
         e.printStackTrace(); // hoặc xử lý lỗi
     }
 }
 
         String note= request.getParameter("note");
+          
         double value= Double.parseDouble(request.getParameter("Total"));
-        try (Connection conn = new DBContext("SWP4").getConnection()) {
-            ImportReceiptDAO receiptDAO = new ImportReceiptDAO(conn);
+    
+        try (Connection conn = new DBContext("SWP7").getConnection()) {
+            ExportReceiptDAO ExreceiptDAO = new ExportReceiptDAO(conn);
             InventoryDAO inventoryDAO = new InventoryDAO(conn);
+         
 ProductDAO productDAO = new ProductDAO(conn);
 ShopDAO shopDAO = new ShopDAO();
             // Tạo đối tượng phiếu nhập
-            ImportReceipt receipt = new ImportReceipt();
-            receipt.setImportReceiptID(importReceiptID);
-            receipt.setCode(code); // Tên sản phẩm không cần ở đây
-            receipt.setSupplierID(supplierID);  
-            receipt.setEmployeeID(employeeID);// Tên cửa hàng không cần ở đây
+            ExportReceipt receipt = new ExportReceipt();
+            receipt.setTypeID(code); 
+            receipt.setEmployeeID(employeeID);
             receipt.setShopID(shopID);
             receipt.setReceiptDate(importDate);
             receipt.setNote(note);
-            receipt.setTotalAmount(value);
+            receipt.setTotalAmount(valueOf(value));
             receipt.setStatus(true );
-
-            // Thêm phiếu nhập
-            receiptDAO.insertImportReceipt(receipt);
+ 
+            // Thêm phiếu xuất
+            ExreceiptDAO.insert(receipt);
+            ExportReceiptDetailDAO ExportReceipt = new ExportReceiptDetailDAO(conn);
+            List<ExportReceiptDetail> listExportDetail = new ArrayList<>();
+          
             
-            List<ImportReceiptDetail> listImportDetail = new ArrayList<>();
-            String[] importReceiptDetailIDs = request.getParameterValues("importReceiptDetailID[]");
-String[] importReceiptIDs = request.getParameterValues("importReceiptID[]");
 String[] productIDs = request.getParameterValues("productID[]");
 String[] quantities = request.getParameterValues("quantity[]");
 String[] prices = request.getParameterValues("price[]");
 String[] notes = request.getParameterValues("note[]");
-int size= importReceiptDetailIDs.length;
+
+int size= productIDs.length;
 for(int i=0;i<size;i++){
-    ImportReceiptDetail importDetail = new ImportReceiptDetail(Integer.parseInt(importReceiptDetailIDs[i]), 
-            Integer.parseInt(importReceiptIDs[i]), 
+    
+    ExportReceiptDetail exportDetail = new ExportReceiptDetail( 
+            ExreceiptDAO.getNewest().getExportReceiptID(), 
+            
             productIDs[i],  Integer.parseInt(quantities[i]), Double.parseDouble(prices[i]), notes[i]);
-    listImportDetail.add(importDetail);
+    
+    listExportDetail.add(exportDetail);
+          
+    ExportReceipt.insertDetail(exportDetail);
 }
-for(ImportReceiptDetail importDetail : listImportDetail){
+
+for(ExportReceiptDetail exportDetail : listExportDetail){
+   
      // Kiểm tra và cập nhật tồn kho
-            Inventory inv = inventoryDAO.getInventoryByShopAndProduct(shopID, importDetail.getProductID());
+            Inventory inv = inventoryDAO.getInventoryByShopAndProduct( Integer.parseInt(exportDetail.getProductID()),Integer.parseInt(shopID));
+            
+          
             if (inv != null) {
-                int newQty = inv.getQuantity() + importDetail.getQuantity();
+                 
+                      int newQty = inv.getQuantity() - exportDetail.getQuantity();
+                 
                 inventoryDAO.updateInventoryQuantity(inv.getInventoryID(), newQty);
+                
             } else {
+                 
                 // Tạo mới hàng tồn kho nếu chưa có
                 Inventory newInv = new Inventory();
-                newInv.setInventoryID("INV" + System.currentTimeMillis()); // ID tạm thời
-                newInv.setProduct(productDAO.getProductById(importDetail.getProductID()));
-                newInv.setShop(shopDAO.getShopByID(shopID, "SWP4"));
-                newInv.setQuantity(importDetail.getQuantity());
+              
+                //newInv.setInventoryID("INV" + System.currentTimeMillis()); // ID tạm thời
+                  
+                newInv.setProduct(productDAO.getProductById(Integer.parseInt(exportDetail.getProductID())));
+                
+                newInv.setShop(shopDAO.getShopByID(shopID, "SWP7"));
+                
+                newInv.setQuantity(exportDetail.getQuantity());
                 newInv.setLastUpdated(Timestamp.from(Instant.now()));
-                inventoryDAO.insertInventory(newInv); // bạn cần thêm hàm này trong DAO
+                inventoryDAO.insertInventory(newInv); 
             }
 }
            
 
-            response.sendRedirect("ImportReceipt.jsp");
+            response.sendRedirect("ExportReceipt.jsp");
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi thêm phiếu nhập: " + e.getMessage());
