@@ -52,16 +52,16 @@ public class EmployeeDAO {
             ResultSet rs = ptm.executeQuery();
             while (rs.next()) {
                 Employee emp = new Employee();
-                 emp.setId(rs.getInt("EmployeeID"));
-                    emp.setUsername(rs.getString("Username"));
-                    emp.setPassword(rs.getString("Password"));
-                    emp.setFullname(rs.getString("Fullname"));
-                    emp.setPhone(rs.getString("Phone"));
-                    emp.setStatus(rs.getBoolean("Status"));
-                    emp.setCreateDate(rs.getDate("CreatedDate"));
-                    emp.setRoleId(rs.getInt("RoleID"));
-                    emp.setShopId(rs.getInt("ShopID"));
-                    l.add(emp);
+                emp.setId(rs.getInt("EmployeeID"));
+                emp.setUsername(rs.getString("Username"));
+                emp.setPassword(rs.getString("Password"));
+                emp.setFullname(rs.getString("Fullname"));
+                emp.setPhone(rs.getString("Phone"));
+                emp.setStatus(rs.getBoolean("Status"));
+                emp.setCreateDate(rs.getDate("CreatedDate"));
+                emp.setRoleId(rs.getInt("RoleID"));
+                emp.setShopId(rs.getInt("ShopID"));
+                l.add(emp);
             }
         } catch (SQLException ex) {
             Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, null, ex);
@@ -335,10 +335,11 @@ public class EmployeeDAO {
         }
         return null;
     }
-public List<EmployeeDto> listAllEmployeeDTO() throws SQLException {
-    List<EmployeeDto> list = new ArrayList<>();
 
-    String sql = """
+    public List<EmployeeDto> listAllEmployeeDTO() throws SQLException {
+        List<EmployeeDto> list = new ArrayList<>();
+
+        String sql = """
         SELECT e.EmployeeID, e.Fullname, e.Email, e.Username, e.Phone, e.Status, e.CreatedDate,
                s.ShopName, r.RoleName
         FROM Employee e
@@ -346,28 +347,27 @@ public List<EmployeeDto> listAllEmployeeDTO() throws SQLException {
         JOIN Role r ON e.RoleID = r.RoleID
     """;
 
-    try (PreparedStatement ps = connection.prepareStatement(sql);
-         ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
-        while (rs.next()) {
-            EmployeeDto emp = new EmployeeDto();
-            emp.setId(rs.getInt("EmployeeID"));
-            emp.setFullName(rs.getString("Fullname"));
-            emp.setEmail(rs.getString("Email"));
-            emp.setUsername(rs.getString("Username"));
-            emp.setPhone(rs.getString("Phone"));
-            emp.setStatus(rs.getBoolean("Status"));
-            emp.setCreatedDate(rs.getDate("CreatedDate"));
-            emp.setShopName(rs.getString("ShopName"));
-            emp.setRole(rs.getString("RoleName"));
-            list.add(emp);
+            while (rs.next()) {
+                EmployeeDto emp = new EmployeeDto();
+                emp.setId(rs.getInt("EmployeeID"));
+                emp.setFullName(rs.getString("Fullname"));
+                emp.setEmail(rs.getString("Email"));
+                emp.setUsername(rs.getString("Username"));
+                emp.setPhone(rs.getString("Phone"));
+                emp.setStatus(rs.getBoolean("Status"));
+                emp.setCreatedDate(rs.getDate("CreatedDate"));
+                emp.setShopName(rs.getString("ShopName"));
+                emp.setRole(rs.getString("RoleName"));
+                list.add(emp);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
-    } catch (SQLException ex) {
-        Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, null, ex);
-    }
 
-    return list;
-}
+        return list;
+    }
 
     public boolean isEmailExists(String email) throws SQLException {
         String sql = "SELECT 1 FROM Employee WHERE email = ?";
@@ -404,21 +404,20 @@ public List<EmployeeDto> listAllEmployeeDTO() throws SQLException {
     public static void main(String[] args) throws ClassNotFoundException {
 
         try (Connection conn = new DBContext("SWP7").getConnection()) {
-        EmployeeDAO dao = new EmployeeDAO(conn);
-        List<EmployeeDto> list = dao.listAllEmployeeDTO();
-        for (EmployeeDto emp : list) {
-            System.out.println(emp.getId() + " - " + emp.getFullName() + " - " + emp.getShopName() + " - " + emp.getRole());
-        }
+            EmployeeDAO dao = new EmployeeDAO(conn);
+            List<EmployeeDto> list = dao.listAllEmployeeDTO();
+            for (EmployeeDto emp : list) {
+                System.out.println(emp.getId() + " - " + emp.getFullName() + " - " + emp.getShopName() + " - " + emp.getRole());
+            }
         } catch (SQLException ex) {
             Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
-            // 🔢 Test getTotalEmployeeCount()
-            //int total = dao.getTotalEmployeeCount();
-            //System.out.println("🧮 Tổng số nhân viên: " + total);
-            // 🔁 Test getEmployeesByPage(page, size)
-  
-            //List<EmployeeDto> list = dao.getEmployeesByPage(page, size);
+        // 🔢 Test getTotalEmployeeCount()
+        //int total = dao.getTotalEmployeeCount();
+        //System.out.println("🧮 Tổng số nhân viên: " + total);
+        // 🔁 Test getEmployeesByPage(page, size)
 
+        //List<EmployeeDto> list = dao.getEmployeesByPage(page, size);
     }
 
     public boolean updateEmployeeStatus(int id, boolean status) throws SQLException {
