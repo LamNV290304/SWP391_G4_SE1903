@@ -39,8 +39,6 @@ import java.util.logging.Logger;
  */
 @WebServlet(name = "TransferReceipt", urlPatterns = {"/TransferReceipt"})
 public class TransferReceiptController extends HttpServlet {
-    
-    DBContext connection = new DBContext("SWP6  ");
 
 
     DBContext connection = new DBContext("SWP7  ");
@@ -449,6 +447,7 @@ public class TransferReceiptController extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+<<<<<<< HEAD
     private static final String SQLStatusZero = "SELECT * FROM TransferReceipt WHERE Status = 0";
     private static final String SQLStatusNotZero = "SELECT * FROM TransferReceipt WHERE Status != 0";
 
@@ -779,9 +778,9 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response)
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+=======
+>>>>>>> Hiuz
     @Override
-protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
@@ -791,7 +790,6 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
         }
     }
 
-    /** 
     /**
      * Handles the HTTP <code>POST</code> method.
      *
@@ -816,7 +814,6 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
      * @return a String containing servlet description
      */
     @Override
-public String getServletInfo() {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>

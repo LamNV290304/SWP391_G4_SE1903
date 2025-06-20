@@ -11,17 +11,17 @@ package Models;
 public class TransferReceiptDetail {
 
     private int TransferReceiptDetailID;
-    private String TransferReceiptID;
+    private int TransferReceiptID;
     private String ProductID;
     private int Quantity;
 
-    public TransferReceiptDetail(String TransferReceiptID, String ProductID, int Quantity) { 
+    public TransferReceiptDetail(int TransferReceiptID, String ProductID, int Quantity) { 
         this.TransferReceiptID = TransferReceiptID;
         this.ProductID = ProductID;
         this.Quantity = Quantity;
     }
 
-    public TransferReceiptDetail(int TransferReceiptDetailID, String TransferReceiptID, String ProductID, int Quantity) {
+    public TransferReceiptDetail(int TransferReceiptDetailID, int TransferReceiptID, String ProductID, int Quantity) {
         this.TransferReceiptDetailID = TransferReceiptDetailID;
         this.TransferReceiptID = TransferReceiptID;
         this.ProductID = ProductID;
@@ -36,11 +36,11 @@ public class TransferReceiptDetail {
         this.TransferReceiptDetailID = TransferReceiptDetailID;
     }
 
-    public String getTransferReceiptID() {
+    public int getTransferReceiptID() {
         return TransferReceiptID;
     }
 
-    public void setTransferReceiptID(String TransferReceiptID) {
+    public void setTransferReceiptID(int TransferReceiptID) {
         this.TransferReceiptID = TransferReceiptID;
     }
 

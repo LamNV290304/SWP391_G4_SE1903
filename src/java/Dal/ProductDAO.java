@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,6 +58,33 @@ public class ProductDAO {
             Logger.getLogger(ProductDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
         return l;
+    }
+  
+    public Vector<Product> getProduct(String sql) {
+        Vector<Product> vector = new Vector<>();
+        try (PreparedStatement pre = connection.prepareStatement(sql); ResultSet rs = pre.executeQuery()) {
+
+            while (rs.next()) {
+                int productID = rs.getInt("productID");
+                String productName = rs.getString("productName");
+                String categoryID = rs.getString("categoryID");
+                String unitID = rs.getString("unitID");
+                BigDecimal importPrice = rs.getBigDecimal("importPrice");
+                BigDecimal sellingPrice = rs.getBigDecimal("sellingPrice");
+                String description = rs.getString("description");
+                boolean status = rs.getBoolean("status");
+                String imageUrl = rs.getString("imageUrl");
+                String createdBy = rs.getString("createdBy");
+
+                Product pro = new Product(productID, productName, categoryID, unitID,
+                        importPrice, sellingPrice, description,
+                        status, imageUrl, createdBy);
+                vector.add(pro);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ProductDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return vector;
     }
 
     public List<Product> getAllProducts(int page, int pageSize, String search, String categoryFilter) {
