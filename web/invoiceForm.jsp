@@ -59,7 +59,7 @@
                         <input type="hidden" name="invoiceID" value="${selectedInvoice.invoiceID}" />
                         <input type="hidden" name="shopID" value="${selectedInvoice.shopID}" />
 
-                      <div class="mb-3">
+                        <div class="mb-3">
                             <label for="productID" class="form-label">Mã sản phẩm:</label>
                             <select class="form-select" id="productID" name="productID" required onchange="this.form.submit()">
                                 <option value="">-- Chọn sản phẩm --</option>
@@ -70,16 +70,17 @@
                                             ${invItem.product.productID} - ${invItem.product.productName} (Tồn: ${invItem.quantity})
                                         </option>
                                     </c:if>
-                   </div>
+                                </c:forEach>
+                            </select>
+                        </div>
                         <div class="mb-3">
-                            <label for="quantity" class="form-label">Số lượng:</label>
-                            <input type="number" class="form-control" id="quantity" name="quantity" placeholder="Số lượng" min="1" required
-                                   value="${param.quantity != null ? param.quantity : ''}" />
+                            <label for="quantity" class="form-label">Số lượng:</label> <input type="number" class="form-control" id="quantity" name="quantity" placeholder="Số lượng" min="1" required
+                                                                                              value="${param.quantity != null ? param.quantity : ''}" />
                         </div>
                         <div class="mb-3">
                             <label for="unitPrice" class="form-label">Đơn giá:</label>
                             <input type="number" class="form-control" id="unitPrice" name="unitPrice" placeholder="Đơn giá" step="any" min="0" required
-                                   value="${not empty selectedUnitPrice ? selectedUnitPrice : (param.unitPrice != null ? param.unitPrice : '')}" />
+                                   value="<fmt:formatNumber value="${not empty selectedUnitPrice ? selectedUnitPrice : (param.unitPrice != null ? param.unitPrice : '')}" pattern="#0"/>" />
                             <small class="form-text text-muted">Đơn giá bán của sản phẩm.</small>
                         </div>
                         <div class="mb-3">

@@ -240,7 +240,7 @@ public class EmployeeDAO {
             stmt.setString(4, employee.getEmail());
             stmt.setBoolean(5, employee.isStatus());
             stmt.setInt(6, employee.getRole().getId());
-            stmt.setString(7, employee.getShop().getShopID());
+            stmt.setInt(7, employee.getShop().getShopID());
             stmt.setInt(8, employee.getId());
 
             int affectedRows = stmt.executeUpdate();

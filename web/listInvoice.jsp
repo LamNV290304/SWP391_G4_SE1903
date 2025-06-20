@@ -40,11 +40,13 @@
                             <div class="card mb-4">
                                 <h5 class="card-header">Tìm kiếm Hóa đơn</h5>
                                 <div class="card-body">
-                                    <form method="post" action="InvoiceServlet">
+                                    <form method="get" action="InvoiceServlet">
                                         <input type="hidden" name="action" value="search" />
                                         <div class="mb-3">
-                                            <label for="searchQuery" class="form-label">Tìm theo **Mã HĐ** hoặc **Tên Khách hàng**:</label>
-                                            <input type="text" class="form-control" id="searchQuery" name="searchQuery" placeholder="Nhập mã hóa đơn hoặc tên khách hàng" value="${param.searchQuery != null ? param.searchQuery : ''}" />
+                                            <label for="searchQuery" class="form-label">Tìm theo Mã HĐ hoặc Tên Khách hàng:</label>
+                                            <input type="text" class="form-control" id="searchQuery" name="invoiceID"
+                                                   placeholder="Nhập mã hóa đơn hoặc tên khách hàng"
+                                                   value="${not empty requestScope.searchQuery ? requestScope.searchQuery : ''}" />
                                         </div>
                                         <button type="submit" class="btn btn-primary">Tìm kiếm</button>
                                     </form>
@@ -130,10 +132,22 @@
                             </div>
 
                             <div class="pagination-container">
-                                <%-- Phân trang --%>
                                 <c:if test="${totalPages > 1}">
+                                    <%-- Khởi tạo baseLink một lần --%>
+                                    <c:url var="baseLink" value="InvoiceServlet">
+                                        <%-- Điều kiện: Nếu có searchQuery, thì action là search và truyền lại searchQuery --%>
+                                        <c:if test="${not empty searchQuery}">
+                                            <c:param name="action" value="search" />
+                                            <c:param name="searchQuery" value="${searchQuery}" />
+                                        </c:if>
+                                        <%-- Ngược lại (không có searchQuery), thì action là list --%>
+                                        <c:if test="${empty searchQuery}">
+                                            <c:param name="action" value="list" />
+                                        </c:if>
+                                    </c:url>
+
                                     <c:if test="${currentPage > 1}">
-                                        <a href="InvoiceServlet?action=list&page=${currentPage - 1}&searchQuery=${param.searchQuery}" class="btn btn-outline-primary">&laquo; Trang trước</a>
+                                        <a href="${baseLink}&page=${currentPage - 1}" class="btn btn-outline-primary">&laquo; Trang trước</a>
                                     </c:if>
                                     <c:forEach begin="1" end="${totalPages}" var="i">
                                         <c:choose>
@@ -141,12 +155,12 @@
                                                 <span class="btn btn-primary disabled">${i}</span>
                                             </c:when>
                                             <c:otherwise>
-                                                <a href="InvoiceServlet?action=list&page=${i}&searchQuery=${param.searchQuery}" class="btn btn-outline-primary">${i}</a>
+                                                <a href="${baseLink}&page=${i}" class="btn btn-outline-primary">${i}</a>
                                             </c:otherwise>
                                         </c:choose>
                                     </c:forEach>
                                     <c:if test="${currentPage < totalPages}">
-                                        <a href="InvoiceServlet?action=list&page=${currentPage + 1}&searchQuery=${param.searchQuery}" class="btn btn-outline-primary">Trang sau &raquo;</a>
+                                        <a href="${baseLink}&page=${currentPage + 1}" class="btn btn-outline-primary">Trang sau &raquo;</a>
                                     </c:if>
                                 </c:if>
                             </div>

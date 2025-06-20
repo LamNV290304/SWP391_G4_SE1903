@@ -21,10 +21,23 @@ public class Invoice {
     private Double totalAmount;
     private String note;
     private boolean status;
-    
-    private String shopName;
 
+    private String shopName;
+    
     public Invoice() {
+    }
+
+    public Invoice(int invoiceID, int customerID, String customerName, int employeeID, int shopID, Timestamp invoiceDate, Double totalAmount, String note, boolean status, String shopName) {
+        this.invoiceID = invoiceID;
+        this.customerID = customerID;
+        this.customerName = customerName;
+        this.employeeID = employeeID;
+        this.shopID = shopID;
+        this.invoiceDate = invoiceDate;
+        this.totalAmount = totalAmount;
+        this.note = note;
+        this.status = status;
+        this.shopName = shopName;
     }
 
     public Invoice(int invoiceID, int customerID, String customerName, int employeeID, int shopID, Timestamp invoiceDate, Double totalAmount, String note, boolean status) {

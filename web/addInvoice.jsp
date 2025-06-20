@@ -107,30 +107,28 @@
                     <form method="post" action="InvoiceServlet">
                         <input type="hidden" name="action" value="add" />
 
-                        <div class="mb-3">
-                            <label for="invoiceID" class="form-label">Mã Hóa đơn:</label>
-                            <input type="text" class="form-control" id="invoiceID" name="invoiceID" required placeholder="Nhập mã hóa đơn (ví dụ: INV001)" />
-                        </div>
+
 
                         <div class="mb-3">
-                            <label for="customerID" class="form-label">Mã Khách hàng:</label>
-                            <input type="text" class="form-control" id="customerID" name="customerID" required placeholder="Nhập mã khách hàng" />
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="employeeID" class="form-label">Nhân viên:</label>
-<!--                            <select class="form-select" id="employeeID" name="employeeID" required>
-                                <option value="">-- Chọn nhân viên --</option>
-                                <c:forEach var="emp" items="${employees}">
-                                    <option value="${emp.id}">${emp.fullName}</option>
+                            <label for="customerID" class="form-label">Khách hàng:</label>
+                            <select class="form-select" id="customerID" name="customerID" required>
+                                <option value="">-- Chọn khách hàng --</option>
+                                <c:forEach var="customer" items="${customers}">
+                                    <option value="${customer.customerID}">${customer.customerName}</option>
                                 </c:forEach>
-                            </select>-->
-                            <input type="text" class="form-control" id="employeeID" name="employeeID" required placeholder="Nhập mã nhân viên" />
+                            </select>
                         </div>
 
+                   
+
                         <div class="mb-3">
-                            <label for="shopID" class="form-label">Mã Cửa hàng:</label>
-                            <input type="text" class="form-control" id="shopID" name="shopID" required placeholder="Nhập mã cửa hàng" />
+                            <label for="shopID" class="form-label">Cửa hàng:</label>
+                            <select class="form-select" id="shopID" name="shopID" required>
+                                <option value="">-- Chọn cửa hàng --</option>
+                                <c:forEach var="shop" items="${allShops}">
+                                    <option value="${shop.shopID}">${shop.shopName}</option>
+                                </c:forEach>
+                            </select>
                         </div>
 
                         <%-- totalAmount không cần nhập, sẽ được tính toán từ các chi tiết hóa đơn sau --%>

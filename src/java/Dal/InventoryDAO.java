@@ -43,7 +43,7 @@ public class InventoryDAO {
                 inv.setInventoryID(rs.getInt("InventoryID"));
 
                 Product p = new Product();
-                p.setProductID(rs.getString("ProductID"));
+                p.setProductID(rs.getInt("ProductID"));
                 p.setProductName(rs.getString("ProductName"));
                 inv.setProduct(p);
 
@@ -64,11 +64,11 @@ public class InventoryDAO {
     }
 
     // Cập nhật số lượng hàng tồn kho
-    public boolean updateInventoryQuantity(String inventoryID, int newQuantity) {
+    public boolean updateInventoryQuantity(int inventoryID, int newQuantity) {
         String sql = "UPDATE Inventory SET Quantity = ?, LastUpdated = GETDATE() WHERE InventoryID = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, newQuantity);
-            ps.setString(2, inventoryID);
+            ps.setInt(2, inventoryID);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             Logger.getLogger(InventoryDAO.class.getName()).log(Level.SEVERE, null, e);
@@ -77,22 +77,22 @@ public class InventoryDAO {
     }
 
     // lay haang ton kho theo shop id va product id
-    public Inventory getInventoryByShopAndProduct(String productID, String shopID) {
+    public Inventory getInventoryByShopAndProduct(int productID, int shopID) {
         String sql = "SELECT i.InventoryID, i.ProductID,p.ProductName, i.ShopID,s.ShopName, i.Quantity, i.LastUpdated\n"
                 + "  FROM Inventory i join Product p on i.ProductID = p.ProductID LEFT join Shop s on i.ShopID = s.ShopID\n"
                 + "WHERE i.ProductID= ? and i.ShopID =?";
         PreparedStatement ptm;
         try {
             ptm = connection.prepareStatement(sql);
-            ptm.setString(1, productID);
-            ptm.setString(2, shopID);
+            ptm.setInt(1, productID);
+            ptm.setInt(2, shopID);
             ResultSet rs = ptm.executeQuery();
             if (rs.next()) {
                 Inventory i = new Inventory();
                 i.setInventoryID(rs.getInt("inventoryID"));
 
                 Product p = new Product();
-                p.setProductID(rs.getString("ProductID"));
+                p.setProductID(rs.getInt("ProductID"));
                 p.setProductName(rs.getString("ProductName"));
                 i.setProduct(p);
 
@@ -115,21 +115,21 @@ public class InventoryDAO {
     }
 
     // Lấy hàng tồn kho theo ID
-    public Inventory getInventoryByID(String inventoryID) {
+    public Inventory getInventoryByID(int inventoryID) {
         String sql = "SELECT i.InventoryID, i.ProductID, p.ProductName, i.ShopID, s.ShopName, i.Quantity, i.LastUpdated"
                 + "FROM Inventory i "
                 + "JOIN Product p ON i.ProductID = p.ProductID "
                 + "LEFT JOIN Shop s ON i.ShopID = s.ShopID "
                 + "WHERE i.InventoryID = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, inventoryID);
+            ps.setInt(1, inventoryID);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     Inventory inv = new Inventory();
                     inv.setInventoryID(rs.getInt("InventoryID"));
 
                     Product p = new Product();
-                    p.setProductID(rs.getString("ProductID"));
+                    p.setProductID(rs.getInt("ProductID"));
                     p.setProductName(rs.getString("ProductName"));
                     inv.setProduct(p);
 
@@ -166,7 +166,7 @@ public class InventoryDAO {
                     inv.setInventoryID(rs.getInt("InventoryID"));
 
                     Product p = new Product();
-                    p.setProductID(rs.getString("ProductID"));
+                    p.setProductID(rs.getInt("ProductID"));
                     p.setProductName(rs.getString("ProductName"));
                     inv.setProduct(p);
 
@@ -192,7 +192,7 @@ public class InventoryDAO {
                 + "VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, inventory.getInventoryID());
-            ps.setString(2, inventory.getProduct().getProductID());
+            ps.setInt(2, inventory.getProduct().getProductID());
             ps.setInt(3, inventory.getShop().getShopID());
             ps.setInt(4, inventory.getQuantity());
             ps.setTimestamp(5, new Timestamp(System.currentTimeMillis())); // hoặc inventory.getLastUpdated()
@@ -203,27 +203,5 @@ public class InventoryDAO {
         return false;
     }
 
-    public static void main(String[] args) {
-        try (Connection conn = new DBContext("SWP4").getConnection()) {
-            InventoryDAO dao = new InventoryDAO(conn);
-            List<Inventory> inventories = dao.getAllInventoriesInStore(1);
-            if (inventories.isEmpty()) {
-                System.out.println("❌ Không có hàng tồn kho nào.");
-            } else {
-                for (Inventory inv : inventories) {
-                    System.out.println("🆔 Mã kho: " + inv.getInventoryID());
-                    System.out.println("📦 Sản phẩm: " + inv.getProduct().getProductName());
-                    System.out.println("🏬 Cửa hàng: " + inv.getShop().getShopName());
-                    System.out.println("📊 Số lượng: " + inv.getQuantity());
-                    System.out.println("🕒 Cập nhật: " + inv.getLastUpdated());
-                    System.out.println("----------------------------------");
-                }
-            }
-            Inventory inv = dao.getInventoryByShopAndProduct("P001", "S002");
-            //dao.updateInventoryQuantity(inv.getInventoryID(), inv.getQuantity()+10);
-            System.out.println(inv.toString());
-        } catch (SQLException e) {
-            Logger.getLogger(InventoryDAO.class.getName()).log(Level.SEVERE, null, e);
-        }
-    }
+      
 }

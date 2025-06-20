@@ -80,7 +80,7 @@ public class ProductDAO {
                 + "      ,[ProductName]\n"
                 + "      ,[CategoryID]\n"
                 + "      ,[UnitID]\n"
-                + "      ,[Price]\n"
+                + "      ,[SellingPrice]\n"
                 + "      ,[Description]\n"
                 + "      ,[Status]\n"
                 + "      ,[CreatedDate]\n"
@@ -96,7 +96,7 @@ public class ProductDAO {
                         rs.getString("ProductName"),
                         rs.getString("CategoryID"),
                         rs.getString("UnitID"),
-                        rs.getBigDecimal("Price"),
+                        rs.getBigDecimal("SellingPrice"),
                         rs.getString("Description"),
                         rs.getBoolean("Status"),
                         rs.getTimestamp("CreatedDate").toLocalDateTime(),

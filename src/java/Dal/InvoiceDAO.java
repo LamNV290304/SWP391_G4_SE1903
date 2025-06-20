@@ -7,7 +7,12 @@ package Dal;
 import Context.DBContext;
 import Models.Invoice;
 import Models.InvoiceDetail;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
+import java.util.ArrayList;
+import java.util.List;
 import java.sql.SQLException;
+
 import java.sql.Connection;
 import java.util.Vector;
 import java.sql.PreparedStatement;
@@ -17,8 +22,6 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -53,58 +56,46 @@ public class InvoiceDAO {
         return list;
     }
 
-    public int addInvoice(Invoice i) {
-        String sql = "INSERT INTO [dbo].[Invoice]\n"
-                + "           ([CustomerID]\n"
-                + "           ,[EmployeeID]\n"
-                + "           ,[ShopID]\n"
-                + "           ,[InvoiceDate]\n"
-                + "           ,[TotalAmount]\n"
-                + "           ,[Note]\n"
-                + "           ,[Status])\n"
-                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+    public int addInvoice(Invoice i) throws SQLException {
+        // Thêm Statement.RETURN_GENERATED_KEYS vào prepareStatement
+        String sqlInsert = "INSERT INTO [dbo].[Invoice]\n"
+                + "           ([CustomerID],[EmployeeID],[ShopID],[InvoiceDate],[TotalAmount],[Note],[Status])\n"
+                + "VALUES (?,?,?,?,?,?,?)";
 
-        PreparedStatement ptm = null;
-        ResultSet rs = null;
-        int generatedInvoiceID = -1; // Giá trị mặc định nếu không tạo được ID
+        int generatedId = -1;
+        long startTime = System.currentTimeMillis();
 
-        try {
-            // Sử dụng Statement.RETURN_GENERATED_KEYS để yêu cầu trả về khóa tự động sinh
-            ptm = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ptm.setInt(1, i.getCustomerID());
-            ptm.setInt(2, i.getEmployeeID());
-            ptm.setInt(3, i.getShopID());
-            ptm.setTimestamp(4, Timestamp.from(Instant.now()));
-            ptm.setDouble(5, i.getTotalAmount());
-            ptm.setString(6, i.getNote());
-            ptm.setBoolean(7, i.isStatus());
+        // Sửa đổi dòng này: thêm tham số Statement.RETURN_GENERATED_KEYS
+        try (java.sql.PreparedStatement ptmInsert = connection.prepareStatement(sqlInsert, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+            ptmInsert.setInt(1, i.getCustomerID());
+            ptmInsert.setInt(2, i.getEmployeeID());
+            ptmInsert.setInt(3, i.getShopID());
+            ptmInsert.setTimestamp(4, Timestamp.from(Instant.now()));
+            ptmInsert.setDouble(5, i.getTotalAmount());
+            ptmInsert.setString(6, i.getNote());
+            ptmInsert.setBoolean(7, i.isStatus());
 
-            int affectedRows = ptm.executeUpdate();
+            long preUpdate = System.currentTimeMillis();
+            int affectedRows = ptmInsert.executeUpdate();
+            long postUpdate = System.currentTimeMillis();
+            System.out.println("Time for executeUpdate: " + (postUpdate - preUpdate) + "ms");
 
             if (affectedRows > 0) {
-                // Lấy các khóa được tạo
-                rs = ptm.getGeneratedKeys();
-                if (rs.next()) {
-                    generatedInvoiceID = rs.getInt(1); // Lấy ID đầu tiên được tạo
+                // Lấy ResultSet chứa các khóa tự động sinh ra
+                try (java.sql.ResultSet rs = ptmInsert.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        generatedId = rs.getInt(1); // Lấy giá trị của cột đầu tiên (ID)
+                    }
+
+                } catch (SQLException ex) {
+
+                    ex.printStackTrace(); // Rất quan trọng để in stack trace
+                    generatedId = -1;
                 }
-            }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            // Xử lý ngoại lệ hoặc ném lại để lớp gọi xử lý
-        } finally {
-            // Đảm bảo đóng ResultSet và PreparedStatement
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (ptm != null) {
-                    ptm.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
+
             }
         }
-        return generatedInvoiceID;
+        return generatedId;
     }
 
     public boolean deleteInvoice(int invoiceID) {
@@ -133,7 +124,7 @@ public class InvoiceDAO {
             ptm.setInt(1, invoiceID);
             return ptm.executeUpdate() > 0;
         } catch (SQLException ex) {
-            Logger.getLogger(InvoiceDAO.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
 
         return false;
@@ -160,9 +151,11 @@ public class InvoiceDAO {
     }
 
     public List<Invoice> searchInvoiceByKey(String key) {
-        String sql = "SELECT * \n"
-                + "FROM Invoice i Join Customer c  on i.CustomerID = c.CustomerID\n"
-                + "WHERE i.InvoiceID Like ? OR c.CustomerID Like ?";
+        String sql = "SELECT i.*, c.CustomerName, i.EmployeeID, i.ShopID, s.ShopName\n"
+                + "                FROM Invoice i\n"
+                + "                JOIN Customer c ON i.CustomerID = c.CustomerID\n"
+                + "                JOIN Shop s ON i.ShopID = s.ShopID \n"
+                + "               WHERE CAST(i.InvoiceID AS NVARCHAR(255)) LIKE ? OR c.CustomerName LIKE ?";
         List<Invoice> l = new ArrayList<>();
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);
@@ -223,14 +216,16 @@ public class InvoiceDAO {
 
         }
     }
+    
 // phan trang
 
     public List<Invoice> getInvoicesByPage(int pageIndex, int pageSize) {
         List<Invoice> list = new ArrayList<>();
-        String sql = "SELECT i.*, c.CustomerName \n"
+        String sql = "SELECT i.*, c.CustomerName, s.ShopName \n" // THÊM s.ShopName VÀO ĐÂY
                 + "FROM [dbo].[Invoice] i \n"
                 + "JOIN [dbo].[Customer] c ON i.CustomerID = c.CustomerID\n"
-                + "ORDER BY i.InvoiceID ASC \n"
+                + "JOIN [dbo].[Shop] s ON i.ShopID = s.ShopID\n" // THÊM JOIN SHOP VÀO ĐÂY
+                + "ORDER BY i.InvoiceID DESC \n"
                 + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);
@@ -248,7 +243,8 @@ public class InvoiceDAO {
                         rs.getTimestamp("InvoiceDate"),
                         rs.getDouble("TotalAmount"),
                         rs.getString("Note"),
-                        rs.getBoolean("Status")
+                        rs.getBoolean("Status"),
+                        rs.getString("ShopName")
                 ));
             }
         } catch (SQLException ex) {
@@ -290,42 +286,6 @@ public class InvoiceDAO {
                     inv.getNote(),
                     inv.isStatus());
         }
-
-        DBContext connectionProvider = new DBContext("SWP1"); // Đảm bảo tên database "SWP1" là chính xác
-        Connection conn = null;
-
-        conn = connectionProvider.getConnection();
-        if (conn != null) {
-            System.out.println("DEBUG (Main): Database connection successful.");
-        } else {
-            System.err.println("ERROR (Main): Failed to get database connection. Check DBContext configuration.");
-            return; // Dừng nếu không có kết nối
-        }
-
-        System.out.println("\n--- Starting addInvoice test ---");
-
-        // Tạo một đối tượng Invoice mới để thêm
-        // QUAN TRỌNG: Đảm bảo các ID này (CustomerID, EmployeeID, ShopID) 
-        // TỒN TẠI trong bảng tương ứng trong database của bạn.
-        // Nếu không, bạn sẽ gặp lỗi khóa ngoại (Foreign Key Constraint Violation).
-        int testCustomerID = 1; // Thay đổi nếu cần
-        int testEmployeeID = 1; // Thay đổi nếu cần
-        int testShopID = 1;     // Thay đổi nếu cần
-        double testTotalAmount = 750000.0;
-        String testNote = "Invoice added from main test";
-        boolean testStatus = false; // Ví dụ: chưa thanh toán
-
-        Invoice newInvoice = new Invoice(
-                testCustomerID,
-                testEmployeeID,
-                testShopID,
-                Timestamp.from(Instant.now()), // Sử dụng thời gian hiện tại
-                testTotalAmount,
-                testNote,
-                testStatus
-        );
-
-        System.out.println("Attempting to add new invoice with data: " + newInvoice.toString());
 
 //        Invoice newInvoice = new Invoice(
 //                "INV10020",
