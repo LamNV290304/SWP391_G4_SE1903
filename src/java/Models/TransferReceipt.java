@@ -11,35 +11,41 @@ import java.util.Date;
  * @author ADMIN
  */
 public class TransferReceipt {
-    private String TransferReceiptID;
+    private int TransferReceiptID;
     private String FromShopID;
     private String ToShopID;
     private Date TransferDate;
     private String Note;
     private int Status;
 
-    
+    public TransferReceipt( String FromShopID, String ToShopID, Date TransferDate, String Note, int Status) {
 
-    public TransferReceipt(String TransferReceiptID, String FromShopID, String ToShopID, Date TransferDate, String Note, int Status) {
-        this.TransferReceiptID = TransferReceiptID;
-        
-        this.FromShopID = FromShopID;
         this.ToShopID = ToShopID;
-        
+
         this.TransferDate = TransferDate;
         this.Note = Note;
         this.Status = Status;
     }
 
-    public String getTransferReceiptID() {
+    public TransferReceipt(int TransferReceiptID, String FromShopID, String ToShopID, Date TransferDate, String Note, int Status) {
+        this.TransferReceiptID = TransferReceiptID;
+
+        this.FromShopID = FromShopID;
+        this.ToShopID = ToShopID;
+
+        this.TransferDate = TransferDate;
+        this.Note = Note;
+        this.Status = Status;
+    }
+
+    public int getTransferReceiptID() {
         return TransferReceiptID;
     }
 
-    public void setTransferReceiptID(String TransferReceiptID) {
+    public void setTransferReceiptID(int TransferReceiptID) {
         this.TransferReceiptID = TransferReceiptID;
     }
 
-    
 
     public String getFromShopID() {
         return FromShopID;
@@ -56,8 +62,6 @@ public class TransferReceipt {
     public void setToShopID(String ToShopID) {
         this.ToShopID = ToShopID;
     }
-
-    
 
     public Date getTransferDate() {
         return TransferDate;
