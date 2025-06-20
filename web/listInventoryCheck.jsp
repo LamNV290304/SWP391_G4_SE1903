@@ -108,7 +108,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                         <td>${ir.checkDate}</td>
                         <td>
                              <c:forEach var="shp" items="${listShop}">
-    <c:if test="${shp.id ==ir.shopID}">${shp.shopName}
+    <c:if test="${shp.shopID ==ir.shopID}">${shp.shopName}
     </c:if>
 </c:forEach>
                             ${ir.shopID}</td>

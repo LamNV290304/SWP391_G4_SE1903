@@ -84,6 +84,10 @@
         <servlet-name>InventoryCheckServlet</servlet-name>
         <servlet-class>Controller.InventoryCheckServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>AddInventoryCheck</servlet-name>
+        <servlet-class>Controller.AddInventoryCheck</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>StartProject</servlet-name>
         <url-pattern>/StartProject</url-pattern>
@@ -168,6 +172,10 @@
     <servlet-mapping>
         <servlet-name>InventoryCheckServlet</servlet-name>
         <url-pattern>/InventoryCheckServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddInventoryCheck</servlet-name>
+        <url-pattern>/AddInventoryCheck</url-pattern>
     </servlet-mapping>
     <error-page>
         <error-code>404</error-code>
