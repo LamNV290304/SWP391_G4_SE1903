@@ -28,7 +28,7 @@ public class TypeImportReceiptDAO {
         try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 TypeImportReceipt type = new TypeImportReceipt();
-                type.setTypeID(rs.getString("TypeID"));
+                type.setTypeID(rs.getInt("TypeID"));
                 type.setTypeName(rs.getString("TypeName"));
                 list.add(type);
             }
@@ -46,7 +46,7 @@ public class TypeImportReceiptDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     TypeImportReceipt type = new TypeImportReceipt();
-                    type.setTypeID(rs.getString("TypeID"));
+                    type.setTypeID(rs.getInt("TypeID"));
                     type.setTypeName(rs.getString("TypeName"));
                     return type;
                 }
@@ -59,10 +59,9 @@ public class TypeImportReceiptDAO {
 
     // Thêm loại phiếu nhập
     public boolean insert(TypeImportReceipt type) {
-        String sql = "INSERT INTO TypeImportReceipt(TypeID, TypeName) VALUES (?, ?)";
+        String sql = "INSERT INTO TypeImportReceipt(TypeName) VALUES (?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, type.getTypeID());
-            ps.setString(2, type.getTypeName());
+            ps.setString(1, type.getTypeName());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             Logger.getLogger(TypeImportReceiptDAO.class.getName()).log(Level.SEVERE, null, e);
@@ -75,7 +74,7 @@ public class TypeImportReceiptDAO {
         String sql = "UPDATE TypeImportReceipt SET TypeName = ? WHERE TypeID = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, type.getTypeName());
-            ps.setString(2, type.getTypeID());
+            ps.setInt(2, type.getTypeID());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             Logger.getLogger(TypeImportReceiptDAO.class.getName()).log(Level.SEVERE, null, e);
@@ -84,10 +83,10 @@ public class TypeImportReceiptDAO {
     }
 
     // Xóa loại phiếu nhập
-    public boolean delete(String id) {
+    public boolean delete(int id) {
         String sql = "DELETE FROM TypeImportReceipt WHERE TypeID = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, id);
+            ps.setInt(1, id);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             Logger.getLogger(TypeImportReceiptDAO.class.getName()).log(Level.SEVERE, null, e);
@@ -95,10 +94,13 @@ public class TypeImportReceiptDAO {
         return false;
     }
     public static void main(String[] args) {
-          try (Connection conn = new DBContext("SWP4").getConnection()) {
+          try (Connection conn = new DBContext("SWP7").getConnection()) {
         TypeImportReceiptDAO dao = new TypeImportReceiptDAO(conn);
-        List<TypeImportReceipt> types = dao.getAllTypeImportReceipts();
-
+        
+TypeImportReceipt type1 = new TypeImportReceipt("Nhap cho Tanh");
+//if(dao.insert(type1)){System.out.println("insert thanh cong");}
+dao.delete(5);
+List<TypeImportReceipt> types = dao.getAllTypeImportReceipts();
         if (types.isEmpty()) {
             System.out.println("❌ Không có loại phiếu nhập nào.");
         } else {
@@ -109,6 +111,7 @@ public class TypeImportReceiptDAO {
                 System.out.println("-----------------------------");
             }
         }
+        
     } catch (SQLException e) {
         Logger.getLogger(TypeImportReceiptDAO.class.getName()).log(Level.SEVERE, null, e);
     }

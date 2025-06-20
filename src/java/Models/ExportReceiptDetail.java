@@ -8,32 +8,31 @@ package Models;
  *
  * @author Thai Anh
  */
-public class ImportReceiptDetail {
-    private int importReceiptDetailID;
+public class ExportReceiptDetail {
+      private int EportReceiptDetailID;
     private int importReceiptID;
     private String productID;
     private int quantity;
     private double price;
     private String note;
 
-    public ImportReceiptDetail() {
+    public ExportReceiptDetail() {
     }
 
-    public ImportReceiptDetail(int importReceiptID, String productID, int quantity, double price,String note) {
-        this.importReceiptDetailID = importReceiptDetailID;
+    public ExportReceiptDetail(int importReceiptID, String productID, int quantity, double price, String note) {
         this.importReceiptID = importReceiptID;
         this.productID = productID;
         this.quantity = quantity;
         this.price = price;
-        this.note= note;
+        this.note = note;
     }
 
-    public int getImportReceiptDetailID() {
-        return importReceiptDetailID;
+    public int getEportReceiptDetailID() {
+        return EportReceiptDetailID;
     }
 
-    public void setImportReceiptDetailID(int importReceiptDetailID) {
-        this.importReceiptDetailID = importReceiptDetailID;
+    public void setEportReceiptDetailID(int EportReceiptDetailID) {
+        this.EportReceiptDetailID = EportReceiptDetailID;
     }
 
     public int getImportReceiptID() {
@@ -78,7 +77,8 @@ public class ImportReceiptDetail {
 
     @Override
     public String toString() {
-        return "ImportReceiptDetail{" + "importReceiptDetailID=" + importReceiptDetailID + ", importReceiptID=" + importReceiptID + ", productID=" + productID + ", quantity=" + quantity + ", price=" + price + ", note=" + note + '}';
+        return "ExportReceiptDetail{" + "EportReceiptDetailID=" + EportReceiptDetailID + ", importReceiptID=" + importReceiptID + ", productID=" + productID + ", quantity=" + quantity + ", price=" + price + ", note=" + note + '}';
     }
-    
+
+   
 }

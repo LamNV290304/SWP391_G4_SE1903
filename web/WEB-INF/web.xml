@@ -41,8 +41,20 @@
         <servlet-class>Controller.ImportReceiptServlet</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>listInventoryHome</servlet-name>
+        <servlet-class>Controller.listInventoryHome</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>AddImportReceipt</servlet-name>
         <servlet-class>Controller.AddImportReceipt</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ExportReceiptServlet</servlet-name>
+        <servlet-class>Controller.ExportReceiptServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddExportReceipt</servlet-name>
+        <servlet-class>Controller.AddExportReceipt</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ShowEmployeeList</servlet-name>
@@ -79,6 +91,18 @@
     <servlet>
         <servlet-name>Logout</servlet-name>
         <servlet-class>Controller.Logout</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>Test</servlet-name>
+        <servlet-class>Controller.Test</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>InventoryCheckServlet</servlet-name>
+        <servlet-class>Controller.InventoryCheckServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddInventoryCheck</servlet-name>
+        <servlet-class>Controller.AddInventoryCheck</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>StartProject</servlet-name>
@@ -126,6 +150,18 @@
         <url-pattern>/AddImportReceipt</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>ExportReceiptServlet</servlet-name>
+        <url-pattern>/ExportReceiptServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddExportReceipt</servlet-name>
+        <url-pattern>/AddExportReceipt</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>listInventoryHome</servlet-name>
+        <url-pattern>/listInventoryHome</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>ShowEmployeeList</servlet-name>
         <url-pattern>/ShowEmployeeList</url-pattern>
     </servlet-mapping>
@@ -160,6 +196,18 @@
     <servlet-mapping>
         <servlet-name>Logout</servlet-name>
         <url-pattern>/Logout</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Test</servlet-name>
+        <url-pattern>/Test</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>InventoryCheckServlet</servlet-name>
+        <url-pattern>/InventoryCheckServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddInventoryCheck</servlet-name>
+        <url-pattern>/AddInventoryCheck</url-pattern>
     </servlet-mapping>
     <error-page>
         <error-code>404</error-code>

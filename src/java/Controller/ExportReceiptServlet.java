@@ -1,14 +1,14 @@
-package Controller;
-
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
+package Controller;
 
 import Context.DBContext;
 import Dal.*;
-import Models.*;
+import Models.ExportReceipt;
+import Models.ImportReceipt;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -21,7 +21,7 @@ import java.util.List;
  *
  * @author Thai Anh
  */
-public class ImportReceiptServlet extends HttpServlet {
+public class ExportReceiptServlet extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -32,13 +32,14 @@ public class ImportReceiptServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-       
+       response.setContentType("text/html;charset=UTF-8");
+        
         DBContext connection = new DBContext("SWP7");
-    ImportReceiptDAO dao = new ImportReceiptDAO(connection.getConnection());
-    List<ImportReceipt> list = dao.getAllImportReceipts();
-    request.setAttribute("listIR", list);
-    request.getRequestDispatcher("ImportReceipt.jsp").forward(request, response);
+    ExportReceiptDAO dao = new ExportReceiptDAO(connection.getConnection());
+    List<ExportReceipt> list = dao.getAll();
+    
+    request.setAttribute("listIE", list);
+    request.getRequestDispatcher("ExportReceipt.jsp").forward(request, response);
     } 
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

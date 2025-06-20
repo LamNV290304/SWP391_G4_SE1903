@@ -58,18 +58,17 @@ public class ImportReceiptDAO {
 
     // Thêm mới phiếu nhập
     public boolean insertImportReceipt(ImportReceipt ir) {
-        String sql = "INSERT INTO ImportReceipt (ImportReceiptID, Code, SupplierID, EmployeeID, ShopID, ReceiptDate, TotalAmount, Note, Status) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO ImportReceipt (Code, SupplierID, EmployeeID, ShopID, ReceiptDate, TotalAmount, Note, Status) " +
+                     "VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, ir.getImportReceiptID());
-            ps.setString(2, ir.getCode());
-            ps.setString(3, ir.getSupplierID());
-            ps.setString(4, ir.getEmployeeID());
-            ps.setString(5, ir.getShopID());
-            ps.setTimestamp(6, new Timestamp(ir.getReceiptDate().getTime()));
-            ps.setFloat(7, (float) ir.getTotalAmount());
-            ps.setString(8, ir.getNote());
-            ps.setBoolean(9, ir.isStatus());
+            ps.setString(1, ir.getCode());
+            ps.setString(2, ir.getSupplierID());
+            ps.setString(3, ir.getEmployeeID());
+            ps.setString(4, ir.getShopID());
+            ps.setTimestamp(5, new Timestamp(ir.getReceiptDate().getTime()));
+            ps.setFloat(6, (float) ir.getTotalAmount());
+            ps.setString(7, ir.getNote());
+            ps.setBoolean(8, ir.isStatus());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             Logger.getLogger(ImportReceiptDAO.class.getName()).log(Level.SEVERE, null, e);
@@ -114,8 +113,7 @@ public class ImportReceiptDAO {
 
     // Hàm tiện ích để ánh xạ từ ResultSet sang đối tượng
     private ImportReceipt mapResultSetToImportReceipt(ResultSet rs) throws SQLException {
-        return new ImportReceipt(
-                rs.getInt("ImportReceiptID"),
+        ImportReceipt iR= new ImportReceipt(
                 rs.getString("Code"),
                 rs.getString("SupplierID"),
                 rs.getString("EmployeeID"),
@@ -125,14 +123,16 @@ public class ImportReceiptDAO {
                 rs.getString("Note"),
                 rs.getBoolean("Status")
         );
+        iR.setImportReceiptID(rs.getInt("ImportReceiptID"));
+        return iR;
     }
     public static void main(String[] args) throws SQLException {
-    try (Connection conn = new DBContext("SWP6").getConnection()) {
+    try (Connection conn = new DBContext("SWP7").getConnection()) {
         ImportReceiptDAO dao = new ImportReceiptDAO(conn);
 
         
         ImportReceipt newReceipt = new ImportReceipt(
-                1234, "IMP1234", "SP001", "E001", "S001",
+                 "4", "1", "1", "1",
                 new Timestamp(System.currentTimeMillis()), 2500000f, "Test phiếu nhập", true
         );//dao.insertImportReceipt(newReceipt);
         System.out.println("Cập nhật thành Công");
@@ -151,7 +151,7 @@ public class ImportReceiptDAO {
    //     }
 
         // Xóa
-     dao.deleteImportReceipt(123);
+     dao.deleteImportReceipt(9);
       List<ImportReceipt> list = dao.getAllImportReceipts();
      for(ImportReceipt im : list){
         System.out.println("id:="+im.getImportReceiptID());

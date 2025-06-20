@@ -1,7 +1,16 @@
+
+<%-- 
+    Document   : ExportReceipt
+    Created on : Jun 12, 2025, 11:43:28 AM
+    Author     : Thai Anh
+--%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ page import="Dal.EmployeeDAO" %>
+<%@ page import="java.sql.Connection" %>
+<%@ page import="Context.DBContext" %>
 <!DOCTYPE html>
 <!--
 Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -68,15 +77,11 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                 <div class="container" style="padding-top: 20px;"> 
                   <!-- Responsive Table -->
              <div class="card col-sm-12" style="height: 90vh; overflow: hidden;">
-                 <div>
-                     <h5 class="card-header">Phiếu Nhập Mua Hàng
-                         <a href="AddImportReceipt" >
-                             <button type="button" class="btn btn-outline-info">Thêm mới phiếu nhập mua hàng</button>
+  <h5 class="card-header">Phiếu Kiểm Kê
+   <a href="AddExportReceipt" >
+                             <button type="button" class="btn btn-outline-info">Thêm mới phiếu kiểm kê</button>
                          </a>
-                         
-                     </h5>
-                     
-                 </div>
+  </h5>
   
   
   <div class="table-responsive text-nowrap" style="height: calc(80vh - 80px); overflow-y: auto;">
@@ -84,50 +89,40 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                     <thead style="position: sticky ; top: 0; background-color: white; z-index: 20;">
                       <tr class="text-nowrap">
                         <th>#</th>
-                        <th>Mã Phiếu</th>
-                        <th>Ngày Muốn Nhận</th>
-                        <th>Kho Hàng</th>
-                        <th>Giá Trị Mặt hàng</th>
-                        <th>Nhà cung cấp</th>
-                        <th>Nhân Viên Nhận</th>
+                        <th>Mã Phiếu kiểm kê</th>
+                        <th>Ngày kiểm kê</th>
+                        <th>Kho kiểm kê</th>
+                        <th>Nhân Viên phụ trách</th>
                         <th>Ghi chú</th>
-                        <th>Hành động</th>
+                        
                       </tr>
                     </thead>
-                    <%! int i = 1; %> 
+                    <%! int i = 0; %> 
                     <tbody id="vertical-example">
-                           <c:forEach var="ir" items="${listIR}">
+                           <c:forEach var="ir" items="${listIvt}">
                       <tr>
                         <th scope="row"><%out.println( i); i++;%>
                           </th>
-                        <td>${ir.importReceiptID}</td>
-                        <td>${ir.receiptDate}</td>
-                        <td>${ir.shopID}</td>
-                        <td>${ir.totalAmount}</td>
-                        <td>${ir.supplierID}</td>
-                        <td>${ir.employeeID}</td>
-                        <td>${ir.note}</td>
+                          
+                        <td>${ir.inventoryCheckID}</td>
+                        <td>${ir.checkDate}</td>
                         <td>
-                          <div class="dropdown">
-                            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                              <i class="bx bx-dots-vertical-rounded"></i>
-                            </button>
-                            <div class="dropdown-menu">
-                                <form class="dropdown-item" action="ImportReceipt" method="GET">
-                                    <input type="hidden" name="action" value="edit" />
-                                    <input type="hidden" name="receiptId" value="${ir.importReceiptID}" />
-                                    <button class="btn btn-secondary" type="submit"><i>Edit</i></button>
-                                </form>
-                                <form class="dropdown-item" action="ImportReceipt" method="GET">
-                                    <input type="hidden" name="action" value="delete" />
-                                    <input type="hidden" name="receiptId" value="${ir.importReceiptID}" />
-                                    <button class="btn btn-secondary" type="submit"><i>Delete</i></button>
-                                </form>
-                            </div>
-                          </div>
-                        </td>
+                             <c:forEach var="shp" items="${listShop}">
+    <c:if test="${shp.shopID ==ir.shopID}">${shp.shopName}
+    </c:if>
+</c:forEach>
+                            ${ir.shopID}</td>
+                        <td>
+                            <c:forEach var="emp" items="${listEmp}">
+    <c:if test="${emp.id ==ir.employeeID }">${emp.fullName}
+    </c:if>
+</c:forEach>
+                            </td>
+                        <td>${ir.note}</td>
+                        
                       </tr>
                       </c:forEach>
+                    
                     </tbody>
                   </table>
                 </div>
@@ -149,3 +144,5 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
 
     </body>
 </html>
+
+
