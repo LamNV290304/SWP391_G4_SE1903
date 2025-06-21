@@ -7,14 +7,12 @@ package Dal;
 import Context.DBContext;
 import Models.Invoice;
 import Models.InvoiceDetail;
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
-import java.util.ArrayList;
-import java.util.List;
-import java.sql.SQLException;
 
+import java.util.ArrayList;
+
+import java.sql.Date;
 import java.sql.Connection;
-import java.util.Vector;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -35,7 +33,8 @@ public class InvoiceDAO {
         this.connection = connection;
     }
 
-    public List<Invoice> getAllInvoices(String sql) {
+    public List<Invoice> getAllInvoices() {
+        String sql = "Select * From Invoice";
         List<Invoice> list = new ArrayList<>();
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);
@@ -87,7 +86,7 @@ public class InvoiceDAO {
 
                 } catch (SQLException ex) {
 
-                    ex.printStackTrace(); 
+                    ex.printStackTrace();
                     generatedId = -1;
                 }
 
@@ -146,6 +145,93 @@ public class InvoiceDAO {
             ex.printStackTrace();
         }
         return null;
+    }
+
+    // =============================================================
+    public List<Invoice> getInvoicesByDateRange_UsingCastInSQL(Date startDate, Date endDate, int pageIndex, int pageSize) {
+        List<Invoice> invoices = new ArrayList<>();
+        StringBuilder sqlBuilder = new StringBuilder("SELECT i.*, c.CustomerName, s.ShopName, e.FullName AS EmployeeName \n"
+                + "FROM [dbo].[Invoice] i \n"
+                + "JOIN [dbo].[Customer] c ON i.CustomerID = c.CustomerID\n"
+                + "JOIN [dbo].[Shop] s ON i.ShopID = s.ShopID\n"
+                + "JOIN [dbo].[Employee] e ON i.EmployeeID = e.EmployeeID\n"
+                + "WHERE 1=1 ");
+
+        if (startDate != null) {
+            sqlBuilder.append(" AND CAST(i.InvoiceDate AS DATE) >= ?");
+        }
+        if (endDate != null) {
+            sqlBuilder.append(" AND CAST(i.InvoiceDate AS DATE) <= ?");
+        }
+
+        sqlBuilder.append(" ORDER BY i.InvoiceID DESC "); 
+        sqlBuilder.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY"); 
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sqlBuilder.toString())) {
+            int paramIndex = 1;
+            if (startDate != null) {
+                pstmt.setDate(paramIndex++, startDate);
+            }
+            if (endDate != null) {
+                pstmt.setDate(paramIndex++, endDate);
+            }
+
+            // Tham số cho phân trang
+            int offset = (pageIndex - 1) * pageSize;
+            pstmt.setInt(paramIndex++, offset);
+            pstmt.setInt(paramIndex++, pageSize);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Invoice invoice = new Invoice(
+                            rs.getInt("InvoiceID"),
+                            rs.getInt("CustomerID"),
+                            rs.getString("CustomerName"),
+                            rs.getInt("EmployeeID"),
+                            rs.getString("EmployeeName"),
+                            rs.getInt("ShopID"),
+                            rs.getTimestamp("InvoiceDate"),
+                            rs.getDouble("TotalAmount"),
+                            rs.getString("Note"),
+                            rs.getBoolean("Status"),
+                            rs.getString("ShopName")
+                    );
+                    invoices.add(invoice);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return invoices;
+    }
+
+    public int getTotalInvoiceCount_UsingCastInSQL(Date startDate, Date endDate) {
+        StringBuilder sqlBuilder = new StringBuilder("SELECT COUNT(*) FROM [dbo].[Invoice] i WHERE 1=1 ");
+
+        if (startDate != null) {
+            sqlBuilder.append(" AND CAST(i.InvoiceDate AS DATE) >= ?");
+        }
+        if (endDate != null) {
+            sqlBuilder.append(" AND CAST(i.InvoiceDate AS DATE) <= ?");
+        }
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sqlBuilder.toString())) {
+            int paramIndex = 1;
+            if (startDate != null) {
+                pstmt.setDate(paramIndex++, startDate);
+            }
+            if (endDate != null) {
+                pstmt.setDate(paramIndex++, endDate);
+            }
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     public List<Invoice> searchInvoiceByKey(String key) {
@@ -214,15 +300,14 @@ public class InvoiceDAO {
 
         }
     }
-    
-// phan trang
 
+// phan trang
     public List<Invoice> getInvoicesByPage(int pageIndex, int pageSize) {
         List<Invoice> list = new ArrayList<>();
         String sql = "SELECT i.*, c.CustomerName, s.ShopName \n"
                 + "FROM [dbo].[Invoice] i \n"
                 + "JOIN [dbo].[Customer] c ON i.CustomerID = c.CustomerID\n"
-                + "JOIN [dbo].[Shop] s ON i.ShopID = s.ShopID\n" 
+                + "JOIN [dbo].[Shop] s ON i.ShopID = s.ShopID\n"
                 + "ORDER BY i.InvoiceID DESC \n"
                 + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         try {
@@ -268,8 +353,8 @@ public class InvoiceDAO {
 
         DBContext connection = new DBContext("SWP1");
         InvoiceDAO dao = new InvoiceDAO(connection.getConnection());
-        int pageIndex = 2; 
-        int pageSize = 2;  
+        int pageIndex = 2;
+        int pageSize = 2;
 
         List<Invoice> invoices1 = dao.getInvoicesByPage(pageIndex, pageSize);
         for (Invoice inv : invoices1) {

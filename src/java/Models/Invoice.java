@@ -16,6 +16,7 @@ public class Invoice {
     private int customerID;
     private String customerName;
     private int employeeID;
+    private String employeeName;
     private int shopID;
     private Timestamp invoiceDate;
     private Double totalAmount;
@@ -23,8 +24,22 @@ public class Invoice {
     private boolean status;
 
     private String shopName;
-    
+
     public Invoice() {
+    }
+
+    public Invoice(int invoiceID, int customerID, String customerName, int employeeID, String employeeName, int shopID, Timestamp invoiceDate, Double totalAmount, String note, boolean status, String shopName) {
+        this.invoiceID = invoiceID;
+        this.customerID = customerID;
+        this.customerName = customerName;
+        this.employeeID = employeeID;
+        this.employeeName = employeeName;
+        this.shopID = shopID;
+        this.invoiceDate = invoiceDate;
+        this.totalAmount = totalAmount;
+        this.note = note;
+        this.status = status;
+        this.shopName = shopName;
     }
 
     public Invoice(int invoiceID, int customerID, String customerName, int employeeID, int shopID, Timestamp invoiceDate, Double totalAmount, String note, boolean status, String shopName) {
@@ -71,6 +86,14 @@ public class Invoice {
         this.totalAmount = totalAmount;
         this.note = note;
         this.status = status;
+    }
+
+    public String getEmployeeName() {
+        return employeeName;
+    }
+
+    public void setEmployeeName(String employeeName) {
+        this.employeeName = employeeName;
     }
 
     public String getShopName() {
