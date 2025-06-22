@@ -296,12 +296,14 @@ public class AddImportReceipt extends HttpServlet {
         String code = request.getParameter("code");
         String supplierID = request.getParameter("SupplierID");
         String employeeID = request.getParameter("EmployeeID");
-        String shopID = request.getParameter("shopID");
+        String shopID_raw = request.getParameter("shopID");
         String importDateStr = request.getParameter("Date");
-if(code==null || supplierID==null || employeeID ==null || shopID ==null || importDateStr ==null){
+if(code==null || supplierID==null || employeeID ==null || shopID_raw ==null || importDateStr ==null){
     request.setAttribute("erroll", "Type,Supplier,Employee,Shop,ImportDate must be not null");
     request.getRequestDispatcher("ErrolReceipt.jsp").forward(request, response);
+    
 }
+Integer shopID = Integer.parseInt(shopID_raw);
 Date importDate = null;
 if (importDateStr != null && !importDateStr.isEmpty()) {
     try {
@@ -337,7 +339,7 @@ ShopDAO shopDAO = new ShopDAO();
             receipt.setCode(code); // Tên sản phẩm không cần ở đây
             receipt.setSupplierID(supplierID);  
             receipt.setEmployeeID(employeeID);// Tên cửa hàng không cần ở đây
-            receipt.setShopID(shopID);
+            receipt.setShopID(shopID_raw);
             receipt.setReceiptDate(importDate);
             receipt.setNote(note);
             receipt.setTotalAmount(value);
@@ -368,7 +370,7 @@ for(int i=0;i<size;i++){
 for(ImportReceiptDetail importDetail : listImportDetail){
    
      // Kiểm tra và cập nhật tồn kho
-            Inventory inv = inventoryDAO.getInventoryByShopAndProduct( Integer.parseInt(importDetail.getProductID()),Integer.parseInt(shopID));
+            Inventory inv = inventoryDAO.getInventoryByShopAndProduct( Integer.parseInt(importDetail.getProductID()),Integer.parseInt(shopID_raw));
             
           
             if (inv != null) {

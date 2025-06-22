@@ -8,19 +8,18 @@ import Context.DBContext;
 import Models.Invoice;
 import Models.InvoiceDetail;
 
+import java.util.ArrayList;
+
+import java.sql.Date;
 import java.sql.Connection;
-import java.util.Vector;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.sql.Statement;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -35,8 +34,7 @@ public class InvoiceDAO {
     }
 
     public List<Invoice> getAllInvoices() {
-        String sql = "SELECT *\n"
-                + "  FROM [dbo].[Invoice]";
+        String sql = "Select * From Invoice";
         List<Invoice> list = new ArrayList<>();
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);
@@ -57,16 +55,16 @@ public class InvoiceDAO {
         return list;
     }
 
-    public int addInvoice(Invoice i) {
+    public int addInvoice(Invoice i) throws SQLException {
+        // Thêm Statement.RETURN_GENERATED_KEYS vào prepareStatement
         String sqlInsert = "INSERT INTO [dbo].[Invoice]\n"
                 + "           ([CustomerID],[EmployeeID],[ShopID],[InvoiceDate],[TotalAmount],[Note],[Status])\n"
                 + "VALUES (?,?,?,?,?,?,?)";
-        String sqlGetId = "SELECT SCOPE_IDENTITY()"; // Hoặc Statement.RETURN_GENERATED_KEYS
 
         int generatedId = -1;
         long startTime = System.currentTimeMillis();
-        // Sử dụng try-with-resources để đảm bảo ptmInsert được đóng
-        try (PreparedStatement ptmInsert = connection.prepareStatement(sqlInsert)) {
+
+        try (java.sql.PreparedStatement ptmInsert = connection.prepareStatement(sqlInsert, java.sql.Statement.RETURN_GENERATED_KEYS)) {
             ptmInsert.setInt(1, i.getCustomerID());
             ptmInsert.setInt(2, i.getEmployeeID());
             ptmInsert.setInt(3, i.getShopID());
@@ -81,24 +79,19 @@ public class InvoiceDAO {
             System.out.println("Time for executeUpdate: " + (postUpdate - preUpdate) + "ms");
 
             if (affectedRows > 0) {
-                // Sử dụng try-with-resources lồng nhau cho Statement và ResultSet
-                try (Statement stmtGetId = connection.createStatement(); ResultSet rs = stmtGetId.executeQuery(sqlGetId)) {
+                try (java.sql.ResultSet rs = ptmInsert.getGeneratedKeys()) {
                     if (rs.next()) {
                         generatedId = rs.getInt(1);
-                    } else {
-                        Logger.getLogger(InvoiceDAO.class.getName()).log(Level.WARNING, "Inserted invoice but could not retrieve ID.");
-                        generatedId = -1;
                     }
-                } // stmtGetId và rs tự động đóng ở đây
-            } else {
-                Logger.getLogger(InvoiceDAO.class.getName()).log(Level.WARNING, "No rows affected.");
-                generatedId = -1;
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(InvoiceDAO.class.getName()).log(Level.SEVERE, "Database error: " + ex.getMessage(), ex);
-            generatedId = -1;
-        } // ptmInsert tự động đóng ở đây
 
+                } catch (SQLException ex) {
+
+                    ex.printStackTrace();
+                    generatedId = -1;
+                }
+
+            }
+        }
         return generatedId;
     }
 
@@ -128,7 +121,7 @@ public class InvoiceDAO {
             ptm.setInt(1, invoiceID);
             return ptm.executeUpdate() > 0;
         } catch (SQLException ex) {
-            Logger.getLogger(InvoiceDAO.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
 
         return false;
@@ -154,11 +147,99 @@ public class InvoiceDAO {
         return null;
     }
 
+    // =============================================================
+    public List<Invoice> getInvoicesByDateRange_UsingCastInSQL(Date startDate, Date endDate, int pageIndex, int pageSize) {
+        List<Invoice> invoices = new ArrayList<>();
+        StringBuilder sqlBuilder = new StringBuilder("SELECT i.*, c.CustomerName, s.ShopName, e.FullName AS EmployeeName \n"
+                + "FROM [dbo].[Invoice] i \n"
+                + "JOIN [dbo].[Customer] c ON i.CustomerID = c.CustomerID\n"
+                + "JOIN [dbo].[Shop] s ON i.ShopID = s.ShopID\n"
+                + "JOIN [dbo].[Employee] e ON i.EmployeeID = e.EmployeeID\n"
+                + "WHERE 1=1 ");
+
+        if (startDate != null) {
+            sqlBuilder.append(" AND CAST(i.InvoiceDate AS DATE) >= ?");
+        }
+        if (endDate != null) {
+            sqlBuilder.append(" AND CAST(i.InvoiceDate AS DATE) <= ?");
+        }
+
+        sqlBuilder.append(" ORDER BY i.InvoiceID DESC "); 
+        sqlBuilder.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY"); 
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sqlBuilder.toString())) {
+            int paramIndex = 1;
+            if (startDate != null) {
+                pstmt.setDate(paramIndex++, startDate);
+            }
+            if (endDate != null) {
+                pstmt.setDate(paramIndex++, endDate);
+            }
+
+            // Tham số cho phân trang
+            int offset = (pageIndex - 1) * pageSize;
+            pstmt.setInt(paramIndex++, offset);
+            pstmt.setInt(paramIndex++, pageSize);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Invoice invoice = new Invoice(
+                            rs.getInt("InvoiceID"),
+                            rs.getInt("CustomerID"),
+                            rs.getString("CustomerName"),
+                            rs.getInt("EmployeeID"),
+                            rs.getString("EmployeeName"),
+                            rs.getInt("ShopID"),
+                            rs.getTimestamp("InvoiceDate"),
+                            rs.getDouble("TotalAmount"),
+                            rs.getString("Note"),
+                            rs.getBoolean("Status"),
+                            rs.getString("ShopName")
+                    );
+                    invoices.add(invoice);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return invoices;
+    }
+
+    public int getTotalInvoiceCount_UsingCastInSQL(Date startDate, Date endDate) {
+        StringBuilder sqlBuilder = new StringBuilder("SELECT COUNT(*) FROM [dbo].[Invoice] i WHERE 1=1 ");
+
+        if (startDate != null) {
+            sqlBuilder.append(" AND CAST(i.InvoiceDate AS DATE) >= ?");
+        }
+        if (endDate != null) {
+            sqlBuilder.append(" AND CAST(i.InvoiceDate AS DATE) <= ?");
+        }
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sqlBuilder.toString())) {
+            int paramIndex = 1;
+            if (startDate != null) {
+                pstmt.setDate(paramIndex++, startDate);
+            }
+            if (endDate != null) {
+                pstmt.setDate(paramIndex++, endDate);
+            }
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public List<Invoice> searchInvoiceByKey(String key) {
-        String sql = "SELECT i.*,s.shopName, c.CustomerName \n"
-                + "FROM Invoice i Join Customer c  on i.CustomerID = c.CustomerID\n"
-                + "Join Shop s on i.ShopID = s.ShopID\n"
-                + "WHERE i.InvoiceID Like ? OR c.CustomerName Like ?";
+        String sql = "SELECT i.*, c.CustomerName, i.EmployeeID, i.ShopID, s.ShopName\n"
+                + "                FROM Invoice i\n"
+                + "                JOIN Customer c ON i.CustomerID = c.CustomerID\n"
+                + "                JOIN Shop s ON i.ShopID = s.ShopID \n"
+                + "               WHERE i.InvoiceID  LIKE ? OR c.CustomerName LIKE ?";
         List<Invoice> l = new ArrayList<>();
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);
@@ -166,10 +247,11 @@ public class InvoiceDAO {
             ptm.setString(2, "%" + key + "%");
             ResultSet rs = ptm.executeQuery();
             while (rs.next()) {
+
                 Invoice i = new Invoice(
                         rs.getInt("InvoiceID"),
                         rs.getInt("CustomerID"),
-                        rs.getInt("EmployeeID"), 
+                        rs.getInt("EmployeeID"),
                         rs.getInt("ShopID"),
                         rs.getTimestamp("InvoiceDate"),
                         rs.getDouble("TotalAmount"),
@@ -177,7 +259,8 @@ public class InvoiceDAO {
                         rs.getBoolean("Status")
                 );
                 i.setCustomerName(rs.getString("CustomerName"));
-                 i.setShopName(rs.getString("shopName"));
+                i.setShopName(rs.getString("shopName"));
+
                 l.add(i);
             }
         } catch (SQLException ex) {
@@ -217,15 +300,14 @@ public class InvoiceDAO {
 
         }
     }
-// phan trang
 
+// phan trang
     public List<Invoice> getInvoicesByPage(int pageIndex, int pageSize) {
         List<Invoice> list = new ArrayList<>();
-        String sql = "SELECT i.*, c.CustomerName, s.ShopName, e.FullName\n"
+        String sql = "SELECT i.*, c.CustomerName, s.ShopName \n"
                 + "FROM [dbo].[Invoice] i \n"
                 + "JOIN [dbo].[Customer] c ON i.CustomerID = c.CustomerID\n"
-                + "Join Shop s on s.ShopID = i.ShopID\n"
-                + "JOIN [dbo].[Employee] e on e.EmployeeID = i.EmployeeID \n"
+                + "JOIN [dbo].[Shop] s ON i.ShopID = s.ShopID\n"
                 + "ORDER BY i.InvoiceID DESC \n"
                 + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         try {
@@ -238,15 +320,14 @@ public class InvoiceDAO {
                 list.add(new Invoice(
                         rs.getInt("InvoiceID"),
                         rs.getInt("CustomerID"),
+                        rs.getString("CustomerName"),
                         rs.getInt("EmployeeID"),
                         rs.getInt("ShopID"),
                         rs.getTimestamp("InvoiceDate"),
                         rs.getDouble("TotalAmount"),
                         rs.getString("Note"),
                         rs.getBoolean("Status"),
-                        rs.getString("CustomerName"),
-                        rs.getString("ShopName"),
-                        rs.getString("FullName")
+                        rs.getString("ShopName")
                 ));
             }
         } catch (SQLException ex) {
@@ -269,22 +350,20 @@ public class InvoiceDAO {
     }
 
     public static void main(String[] args) {
+
         DBContext connection = new DBContext("SWP1");
         InvoiceDAO dao = new InvoiceDAO(connection.getConnection());
-        int pageIndex = 1; // Trang thứ mấy (ví dụ trang 1)
-        int pageSize = 1;  // Số lượng hóa đơn mỗi trang
-//        Invoice in = new Invoice(1, 1, 1, Timestamp.valueOf(LocalDateTime.MIN), 100000.0, "123123", true);
-//        dao.addInvoice(in);
-//        System.out.println(in);
+        int pageIndex = 2;
+        int pageSize = 2;
+
         List<Invoice> invoices1 = dao.getInvoicesByPage(pageIndex, pageSize);
         for (Invoice inv : invoices1) {
-            System.out.printf("%s | %s | %s | %s | %s| %s | %s | %.2f | %s | %b%n",
+            System.out.printf("%s | %s | %s | %s | %s | %s | %.2f | %s | %b%n",
                     inv.getInvoiceID(),
                     inv.getCustomerID(),
                     inv.getCustomerName(),
                     inv.getEmployeeID(),
                     inv.getShopID(),
-                    inv.getShopName(),
                     inv.getInvoiceDate(),
                     inv.getTotalAmount(),
                     inv.getNote(),
