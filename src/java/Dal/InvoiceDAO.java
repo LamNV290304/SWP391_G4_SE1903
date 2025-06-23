@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 import java.sql.Date;
 import java.sql.Connection;
-
+import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -56,7 +56,6 @@ public class InvoiceDAO {
     }
 
     public int addInvoice(Invoice i) throws SQLException {
-        // Thêm Statement.RETURN_GENERATED_KEYS vào prepareStatement
         String sqlInsert = "INSERT INTO [dbo].[Invoice]\n"
                 + "           ([CustomerID],[EmployeeID],[ShopID],[InvoiceDate],[TotalAmount],[Note],[Status])\n"
                 + "VALUES (?,?,?,?,?,?,?)";
@@ -64,7 +63,7 @@ public class InvoiceDAO {
         int generatedId = -1;
         long startTime = System.currentTimeMillis();
 
-        try (java.sql.PreparedStatement ptmInsert = connection.prepareStatement(sqlInsert, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement ptmInsert = connection.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS)) {
             ptmInsert.setInt(1, i.getCustomerID());
             ptmInsert.setInt(2, i.getEmployeeID());
             ptmInsert.setInt(3, i.getShopID());
@@ -176,7 +175,6 @@ public class InvoiceDAO {
                 pstmt.setDate(paramIndex++, endDate);
             }
 
-            // Tham số cho phân trang
             int offset = (pageIndex - 1) * pageSize;
             pstmt.setInt(paramIndex++, offset);
             pstmt.setInt(paramIndex++, pageSize);

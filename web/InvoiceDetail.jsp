@@ -53,37 +53,7 @@
                     display: none !important;
                 }
 
-                .content-wrapper {
-                    padding: 0 !important; /* Loại bỏ padding trên content wrapper */
-                }
-
-                .container-xxl {
-                    padding: 0 !important; /* Loại bỏ padding trên container chính */
-                    max-width: 100% !important; /* Cho phép hóa đơn chiếm toàn bộ chiều rộng khi in */
-                }
-
-                .card { /* Sử dụng .card thay cho .invoice-card */
-                    box-shadow: none !important;
-                    border: none !important;
-                    margin: 0 !important;
-                    padding: 0 !important;
-                    max-width: 100% !important; /* Full width khi in */
-                }
-                .invoice-header, .invoice-title {
-                    margin-bottom: 10px !important; /* Giảm margin khi in */
-                }
-                .invoice-info-section {
-                    margin-bottom: 8px !important; /* Giảm margin khi in */
-                    font-size: 9pt !important;
-                }
-                .table th, .table td {
-                    font-size: 9pt !important;
-                }
-                .total-amount-footer {
-                    font-size: 12pt !important;
-                    margin-top: 10px !important;
-                    padding-top: 5px !important;
-                }
+       
             }
         </style>
 
@@ -189,7 +159,7 @@
                                         </div>
                                     </c:when>
                                     <c:otherwise>
-                                        <%-- Thông tin hóa đơn và khách hàng/nhân viên được chia thành 2 cột --%>
+                                     
                                         <div class="invoice-info-section d-flex justify-content-between flex-wrap mb-4 fs-6">
                                             <div class="flex-grow-1 p-0 pe-md-4 text-start">
                                                 <p class="mb-1"><strong>Mã Hóa đơn:</strong> #${invoice.invoiceID}</p>
@@ -264,7 +234,7 @@
                                                             </td>
                                                             <td><fmt:formatNumber value="${detail.unitPrice}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></td>
                                                             <td>${detail.quantity}</td>
-                                                            <td><fmt:formatNumber value="${detail.discount}" type="number" maxFractionDigits="2"/></td>
+                                                            <td><fmt:formatNumber value="${detail.discount}" type="number" maxFractionDigits="2"/>%</td>
                                                             <td><fmt:formatNumber value="${detail.totalPrice}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></td>
                                                         </tr>
                                                         <c:set var="grandTotal" value="${grandTotal + detail.totalPrice}"/>

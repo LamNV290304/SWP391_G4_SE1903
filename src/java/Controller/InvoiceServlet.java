@@ -160,7 +160,7 @@ public class InvoiceServlet extends HttpServlet {
                 pageIndex = 1;
             }
         }
-        int pageSize = 5; 
+        int pageSize = 5;
 
         int totalInvoices = idao.getTotalInvoiceCount_UsingCastInSQL(startDate, endDate);
         int totalPages = (int) Math.ceil((double) totalInvoices / pageSize);
@@ -183,8 +183,8 @@ public class InvoiceServlet extends HttpServlet {
         request.setAttribute("totalRecords", totalInvoices);
         request.setAttribute("invoiceList", invoicesForCurrentPage);
         request.setAttribute("startDate", startDateParam);
-        request.setAttribute("endDate", endDateParam);     
-        request.setAttribute("searchType", "date"); 
+        request.setAttribute("endDate", endDateParam);
+        request.setAttribute("searchType", "date");
 
         request.getRequestDispatcher("listInvoice.jsp").forward(request, response);
     }
@@ -483,7 +483,7 @@ public class InvoiceServlet extends HttpServlet {
             Timestamp invoiceDate = Timestamp.from(Instant.now());
             double totalAmount = Double.parseDouble(request.getParameter("totalAmount"));
             String note = request.getParameter("note");
-            boolean status = Boolean.parseBoolean(request.getParameter("status"));
+            boolean status = false;
 
             Invoice newInvoice = new Invoice(customerID, employeeID, shopID, invoiceDate, totalAmount, note, status);
             int generatedInvoiceID = idao.addInvoice(newInvoice);
@@ -499,27 +499,19 @@ public class InvoiceServlet extends HttpServlet {
                 request.getRequestDispatcher("addInvoice.jsp").forward(request, response);
                 return;
             }
-
         } catch (NumberFormatException e) {
             request.setAttribute("errorMessage", "Lỗi định dạng dữ liệu: Mã khách hàng, cửa hàng hoặc tổng tiền phải là số.");
-            e.printStackTrace(); // In stack trace để debug
-            try {
-                request.setAttribute("customers", cDAO.getAllCustomer());
-                request.setAttribute("allShops", sDAO.getAllShops("SWP1"));
-            } catch (Exception daoEx) {
-                System.err.println("Error fetching dropdown data on error: " + daoEx.getMessage());
-                daoEx.printStackTrace();
-            }
+            request.setAttribute("customers", cDAO.getAllCustomer());
+            request.setAttribute("allShops", sDAO.getAllShops("SWP1"));
+
             request.getRequestDispatcher("addInvoice.jsp").forward(request, response);
         } catch (Exception e) {
             request.setAttribute("errorMessage", "Đã xảy ra lỗi không mong muốn khi thêm hóa đơn: " + e.getMessage());
-            e.printStackTrace(); // In stack trace để debug
             try {
                 request.setAttribute("customers", cDAO.getAllCustomer());
                 request.setAttribute("allShops", sDAO.getAllShops("SWP1"));
             } catch (Exception daoEx) {
-                System.err.println("Error fetching dropdown data on error: " + daoEx.getMessage());
-                daoEx.printStackTrace();
+                System.err.println("Error fetching dropdown data on error in general catch: " + daoEx.getMessage());
             }
             request.getRequestDispatcher("addInvoice.jsp").forward(request, response);
         }
