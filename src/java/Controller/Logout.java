@@ -4,28 +4,19 @@
  */
 package Controller;
 
-import Context.DBContext;
-import DTO.EmployeeDto;
-import Dal.EmployeeDAO;
-import Dal.RoleDAO;
-import Dal.ShopDAO;
-import Models.Role;
-import Models.Shop;
-import Utils.Validator;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.sql.*;
-import java.util.List;
+import jakarta.servlet.http.HttpSession;
 
 /**
  *
  * @author Admin
  */
-public class ShowEmployeeList extends HttpServlet {
+public class Logout extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -44,10 +35,10 @@ public class ShowEmployeeList extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ShowEmployeeList</title>");
+            out.println("<title>Servlet Logout</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ShowEmployeeList at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet Logout at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -65,46 +56,13 @@ public class ShowEmployeeList extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int page = 1;
-        int recordsPerPage = 10;
+        HttpSession session = request.getSession(false);
 
-        if (request.getParameter("page") != null) {
-            page = Integer.parseInt(request.getParameter("page"));
+        if (session != null) {
+            session.removeAttribute("Employee");
         }
 
-        String sort = request.getParameter("sort");
-        String shopIdParam = request.getParameter("shopId");
-        String roleIdParam = request.getParameter("roleId");
-        String statusParam = request.getParameter("status");
-        String search = request.getParameter("keyword");
-        String keyword = Validator.normalizeInput(search);
-
-        Integer shopId = (shopIdParam != null && !shopIdParam.isEmpty()) ? Integer.parseInt(shopIdParam) : null;
-        Integer roleId = (roleIdParam != null && !roleIdParam.isEmpty()) ? Integer.parseInt(roleIdParam) : null;
-        Boolean status = (statusParam != null && !statusParam.isEmpty()) ? statusParam.equals("1") : null;
-
-        try (Connection conn = DBContext.getConnection("ShopDB_TTest")) {
-            EmployeeDAO dao = new EmployeeDAO(conn);
-            ShopDAO shopDAO = new ShopDAO();
-            RoleDAO roleDAO = new RoleDAO(conn);
-            
-            List<EmployeeDto> employeeList = dao.getEmployeesByPage(page, recordsPerPage, shopId, roleId, status, sort, keyword);
-            int totalRecords = dao.getTotalEmployeeCount(shopId,roleId, status, keyword);
-            int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
-
-            List<Shop> shopList = shopDAO.getAllShops("ShopDB_TTest");
-            List<Role> roleList = roleDAO.getAllRoles();
-            request.setAttribute("employeeList", employeeList);
-            request.setAttribute("currentPage", page);
-            request.setAttribute("totalPages", totalPages);
-            request.setAttribute("shopList", shopList);
-            request.setAttribute("roleList", roleList);
-
-            request.getRequestDispatcher("showEmployeeList.jsp").forward(request, response);
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi khi truy xuất danh sách nhân viên");
-        }
+        response.sendRedirect("login.jsp");
     }
 
     /**

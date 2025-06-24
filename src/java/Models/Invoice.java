@@ -18,28 +18,41 @@ public class Invoice {
     private int employeeID;
     private String employeeName;
     private int shopID;
-    private String shopName;
     private Timestamp invoiceDate;
     private Double totalAmount;
     private String note;
     private boolean status;
 
+    private String shopName;
+
     public Invoice() {
     }
 
-    public Invoice(int invoiceID, int customerID, int employeeID, int shopID,
-            Timestamp invoiceDate, double totalAmount, String note, boolean status, String customerName, String shopName, String employeeName) {
+    public Invoice(int invoiceID, int customerID, String customerName, int employeeID, String employeeName, int shopID, Timestamp invoiceDate, Double totalAmount, String note, boolean status, String shopName) {
         this.invoiceID = invoiceID;
         this.customerID = customerID;
+        this.customerName = customerName;
+        this.employeeID = employeeID;
+        this.employeeName = employeeName;
+        this.shopID = shopID;
+        this.invoiceDate = invoiceDate;
+        this.totalAmount = totalAmount;
+        this.note = note;
+        this.status = status;
+        this.shopName = shopName;
+    }
+
+    public Invoice(int invoiceID, int customerID, String customerName, int employeeID, int shopID, Timestamp invoiceDate, Double totalAmount, String note, boolean status, String shopName) {
+        this.invoiceID = invoiceID;
+        this.customerID = customerID;
+        this.customerName = customerName;
         this.employeeID = employeeID;
         this.shopID = shopID;
         this.invoiceDate = invoiceDate;
         this.totalAmount = totalAmount;
         this.note = note;
         this.status = status;
-        this.customerName = customerName;
         this.shopName = shopName;
-        this.employeeName = employeeName;
     }
 
     public Invoice(int invoiceID, int customerID, String customerName, int employeeID, int shopID, Timestamp invoiceDate, Double totalAmount, String note, boolean status) {

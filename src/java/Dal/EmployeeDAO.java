@@ -46,11 +46,11 @@ public class EmployeeDAO {
                 + "      ,[CreatedDate]\n"
                 + "      ,[CreatedBy]\n"
                 + "  FROM [dbo].[Employee]";
-                
+
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);
             ResultSet rs = ptm.executeQuery();
-            while (rs.next()) {                
+            while (rs.next()) {
                 Employee emp = new Employee();
                  emp.setId(rs.getInt("EmployeeID"));
                     emp.setUsername(rs.getString("Username"));
@@ -58,7 +58,7 @@ public class EmployeeDAO {
                     emp.setFullname(rs.getString("Fullname"));
                     emp.setPhone(rs.getString("Phone"));
                     emp.setStatus(rs.getBoolean("Status"));
-                    emp.setCreateDate(rs.getDate("CreateDate"));
+                    emp.setCreateDate(rs.getDate("CreatedDate"));
                     emp.setRoleId(rs.getInt("RoleID"));
                     emp.setShopId(rs.getInt("ShopID"));
                     l.add(emp);
@@ -69,28 +69,24 @@ public class EmployeeDAO {
         return l;
     }
 
-    public boolean addEmployee(Employee employee) throws SQLException {
-        String sql = "INSERT INTO Employee (Username, Password, Fullname, Phone, Email, Status, CreateDate, RoleId, ShopId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, employee.getUsername());
-            stmt.setString(2, employee.getPassword());
-            stmt.setString(3, employee.getFullname());
-            stmt.setString(4, employee.getPhone());
-            stmt.setString(5, employee.getEmail());  // thêm email ở vị trí thứ 5
-            stmt.setBoolean(6, employee.isStatus());
-            stmt.setDate(7, new java.sql.Date(employee.getCreateDate().getTime()));
-            stmt.setInt(8, employee.getRole().getId());
-            stmt.setString(9, employee.getShop().getShopID());
-            stmt.executeUpdate();
-            return true;
-        } catch (Exception ex) {
-            System.out.println("Error: " + ex.getMessage() + ex.getStackTrace());
-            return false;
+    public void addEmployee(Employee e) throws SQLException {
+        String sql = "INSERT INTO Employee (FullName, Username, Email, Phone, Password, ShopId, RoleId, Status, CreatedDate) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, GETDATE())";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, e.getFullname());
+            ps.setString(2, e.getUsername());
+            ps.setString(3, e.getEmail());
+            ps.setString(4, e.getPhone());
+            ps.setString(5, e.getPassword());
+            ps.setInt(6, e.getShopId());
+            ps.setInt(7, e.getRoleId());
+            ps.setBoolean(8, e.isStatus());
+            ps.executeUpdate();
         }
     }
 
     public Employee findEmployeeByUsernameAndPassword(String username, String plainPassword) throws SQLException {
-        String sql = "SELECT * FROM Employee WHERE Username = ?";
+        String sql = "SELECT * FROM Employee WHERE Username = ? and Status = 1";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, username);
 
@@ -257,6 +253,10 @@ public class EmployeeDAO {
             stmt.setString(2, employee.getEmail());
             stmt.setString(3, employee.getPhone());
             stmt.setString(4, employee.getUsername());
+            stmt.setBoolean(5, employee.isStatus());
+            stmt.setInt(6, employee.getRole().getId());
+            stmt.setInt(7, employee.getShop().getShopID());
+            stmt.setInt(8, employee.getId());
 
             int affectedRows = stmt.executeUpdate();
             return affectedRows > 0;
@@ -335,23 +335,121 @@ public class EmployeeDAO {
         }
         return null;
     }
+public List<EmployeeDto> listAllEmployeeDTO() throws SQLException {
+    List<EmployeeDto> list = new ArrayList<>();
+
+    String sql = """
+        SELECT e.EmployeeID, e.Fullname, e.Email, e.Username, e.Phone, e.Status, e.CreatedDate,
+               s.ShopName, r.RoleName
+        FROM Employee e
+        LEFT JOIN Shop s ON e.ShopID = s.ShopID
+        JOIN Role r ON e.RoleID = r.RoleID
+    """;
+
+    try (PreparedStatement ps = connection.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        while (rs.next()) {
+            EmployeeDto emp = new EmployeeDto();
+            emp.setId(rs.getInt("EmployeeID"));
+            emp.setFullName(rs.getString("Fullname"));
+            emp.setEmail(rs.getString("Email"));
+            emp.setUsername(rs.getString("Username"));
+            emp.setPhone(rs.getString("Phone"));
+            emp.setStatus(rs.getBoolean("Status"));
+            emp.setCreatedDate(rs.getDate("CreatedDate"));
+            emp.setShopName(rs.getString("ShopName"));
+            emp.setRole(rs.getString("RoleName"));
+            list.add(emp);
+        }
+    } catch (SQLException ex) {
+        Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, null, ex);
+    }
+
+    return list;
+}
+
+    public boolean isEmailExists(String email) throws SQLException {
+        String sql = "SELECT 1 FROM Employee WHERE email = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next(); // Nếu có bản ghi trả về true
+            }
+        }
+    }
+
+    // Kiểm tra phone đã tồn tại chưa
+    public boolean isPhoneExists(String phone) throws SQLException {
+        String sql = "SELECT 1 FROM Employee WHERE phone = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, phone);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    // Kiểm tra username đã tồn tại chưa
+    public boolean isUsernameExists(String username) throws SQLException {
+        String sql = "SELECT 1 FROM Employee WHERE username = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
 
     public static void main(String[] args) throws ClassNotFoundException {
 
-        try (Connection conn = DBContext.getConnection("ShopDB_TTest")) {
-            EmployeeDAO dao = new EmployeeDAO(conn);
-
+        try (Connection conn = new DBContext("SWP7").getConnection()) {
+        EmployeeDAO dao = new EmployeeDAO(conn);
+        List<EmployeeDto> list = dao.listAllEmployeeDTO();
+        for (EmployeeDto emp : list) {
+            System.out.println(emp.getId() + " - " + emp.getFullName() + " - " + emp.getShopName() + " - " + emp.getRole());
+        }
+        } catch (SQLException ex) {
+            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
             // 🔢 Test getTotalEmployeeCount()
             //int total = dao.getTotalEmployeeCount();
             //System.out.println("🧮 Tổng số nhân viên: " + total);
             // 🔁 Test getEmployeesByPage(page, size)
-            EmployeeDto employee = dao.getEmployeeById(5);
-
+  
             //List<EmployeeDto> list = dao.getEmployeesByPage(page, size);
-            System.out.println(employee);
-        } catch (SQLException ex) {
-            System.err.println("❌ Lỗi kết nối SQL: " + ex.getMessage());
 
+    }
+
+    public boolean updateEmployeeStatus(int id, boolean status) throws SQLException {
+        String sql = "UPDATE Employee SET status = ? WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setBoolean(1, status);
+            stmt.setInt(2, id);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    public boolean checkPasswordEmployee(int employeeId, String plainPassword) throws SQLException {
+        String sql = "SELECT Password FROM Employee WHERE EmployeeID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, employeeId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String hashedPassword = rs.getString("Password");
+                    return checkPassword(plainPassword, hashedPassword);
+                }
+            }
+        }
+        return false;
+    }
+
+    public void updatePassword(int employeeId, String newHashedPassword) throws SQLException {
+        String sql = "UPDATE Employee SET Password = ? WHERE EmployeeID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, newHashedPassword);
+            ps.setInt(2, employeeId);
+            ps.executeUpdate();
         }
     }
 }

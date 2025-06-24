@@ -36,6 +36,7 @@ public class ProductDAO {
                 + "      ,[CreatedDate]\n"
                 + "      ,[CreatedBy]\n"
                 + "  FROM [dbo].[Product]";
+
         List<Product> l = new ArrayList<>();
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);

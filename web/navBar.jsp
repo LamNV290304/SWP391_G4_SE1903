@@ -5,6 +5,7 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!--Nav bar-->
 
                   <nav
@@ -21,7 +22,7 @@
               <!-- titletitle -->
               <div class="navbar-nav w-100 d-flex justify-content-center align-items-center">
                 <div class="Brand-Logo fs-4 fw-bold">
-                  Tên Thương Hiệu
+                  ${sessionScope.shopName}
                 </div>
               </div>
               <!-- /title -->
@@ -55,16 +56,16 @@
                       </a>
                     </li>
                     <li>
-                      <a class="dropdown-item" href="#">
+                      <a class="dropdown-item" href="changePassword.jsp">
                         <i class="bx bx-cog me-2"></i>
-                        <span class="align-middle">Cài Đặt </span>
+                        <span class="align-middle"> Đổi mật khẩu </span>
                       </a>
                     </li>
                     <li>
                       <div class="dropdown-divider"></div>
                     </li>
                     <li>
-                      <a class="dropdown-item" href="auth-login-basic.html">
+                      <a class="dropdown-item" href="Logout">
                         <i class="bx bx-power-off me-2"></i>
                         <span class="align-middle">Đăng Xuất</span>
                       </a>

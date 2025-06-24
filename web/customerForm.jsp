@@ -1,4 +1,5 @@
-<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
+<%-- customerForm.jsp --%>
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <!DOCTYPE html>
@@ -11,7 +12,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Thêm Hóa đơn mới - Sneat</title>
+        <title>Thêm Hóa đơn mới - Thông tin Khách hàng</title>
 
         <link rel="icon" type="image/x-icon" href="${pageContext.request.contextPath}/assets/img/favicon/favicon.ico" />
 
@@ -39,67 +40,59 @@
                     <jsp:include page="navBar.jsp" />
                     <div class="content-wrapper">
                         <div class="container-xxl flex-grow-1 container-p-y">
-                            <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Hóa đơn /</span> Thêm mới</h4>
+                            <h4 class="fw-bold py-3 mb-4">
+                                <span class="text-muted fw-light">Hóa đơn /</span> Nhập thông tin Khách hàng
+                            </h4>
 
+                            <%-- Hiển thị thông báo lỗi hoặc thành công --%>
                             <c:if test="${not empty errorMessage}">
                                 <div class="alert alert-danger" role="alert">
                                     ${errorMessage}
                                 </div>
                             </c:if>
+                            <c:if test="${not empty successMessage}">
+                                <div class="alert alert-success" role="alert">
+                                    ${successMessage}
+                                </div>
+                            </c:if>
 
                             <div class="card mb-4">
-                                <h5 class="card-header">Thông tin Hóa đơn mới</h5>
+                                <h5 class="card-header">Thông tin Khách hàng</h5>
                                 <div class="card-body">
-                                    <form method="post" action="InvoiceServlet">
-                                        <input type="hidden" name="action" value="add" />
+                                    <form action="InvoiceServlet" method="post">
+                                        <input type="hidden" name="action" value="processCustomerOnly"/> <%-- ĐỔI ACTION TẠI ĐÂY --%>
 
                                         <div class="mb-3">
-                                            <label for="customerID" class="form-label">Khách hàng:</label>
-                                            <select class="form-select" id="customerID" name="customerID" required>
-                                                <option value="">-- Chọn khách hàng --</option>
-                                                <c:forEach var="customer" items="${customers}">
-                                                    <option value="${customer.customerID}">${customer.customerName}</option>
-                                                </c:forEach>
-                                            </select>
+                                            <label for="customerName" class="form-label">Tên Khách hàng:</label>
+                                            <input type="text" class="form-control" id="customerName" name="customerName" placeholder="Nhập tên khách hàng (có thể bỏ trống)" value="${param.customerName != null ? param.customerName : ''}"/>
+                                            <small class="form-text text-muted">Bỏ trống để sử dụng khách vãng lai.</small>
                                         </div>
-
                                         <div class="mb-3">
-                                            <label for="shopID" class="form-label">Cửa hàng:</label>
-                                            <select class="form-select" id="shopID" name="shopID" required>
-                                                <option value="">-- Chọn cửa hàng --</option>
-                                                <c:forEach var="shop" items="${allShops}">
-                                                    <option value="${shop.shopID}">${shop.shopName}</option>
-                                                </c:forEach>
-                                            </select>
+                                            <label for="customerPhone" class="form-label">Số điện thoại:</label>
+                                            <input type="text" class="form-control" id="customerPhone" name="customerPhone" placeholder="Nhập số điện thoại (có thể bỏ trống)" value="${param.customerPhone != null ? param.customerPhone : ''}"/>
+                                            <small class="form-text text-muted">Nếu số điện thoại đã tồn tại, hệ thống sẽ sử dụng thông tin khách hàng hiện có.</small>
                                         </div>
-
-                                        <input type="hidden" name="totalAmount" value="0" />
-<!--
                                         <div class="mb-3">
-                                            <label for="status" class="form-label">Trạng thái:</label>
-                                            <select class="form-select" id="status" name="status" required>
-                                                <option value="false" selected>Chưa thanh toán</option>
-                                                <option value="true">Đã thanh toán</option>
-                                            </select>
-                                            <small class="form-text text-muted">Thường mặc định là "Chưa thanh toán" khi mới tạo.</small>
-                                        </div>-->
-
+                                            <label for="customerAddress" class="form-label">Địa chỉ:</label>
+                                            <input type="text" class="form-control" id="customerAddress" name="customerAddress" placeholder="Nhập địa chỉ (có thể bỏ trống)" value="${param.customerAddress != null ? param.customerAddress : ''}"/>
+                                        </div>
+                                        <%-- Nếu bạn có trường email trong customerForm.jsp --%>
                                         <div class="mb-3">
-                                            <label for="note" class="form-label">Ghi chú (tùy chọn):</label>
-                                            <textarea class="form-control" id="note" name="note" rows="3" placeholder="Ghi chú về hóa đơn này"></textarea>
+                                            <label for="customerEmail" class="form-label">Email:</label>
+                                            <input type="email" class="form-control" id="customerEmail" name="customerEmail" placeholder="Nhập email (có thể bỏ trống)" value="${param.customerEmail != null ? param.customerEmail : ''}"/>
                                         </div>
 
                                         <button type="submit" class="btn btn-primary me-2">
-                                            <i class='bx bx-check me-1'></i> Thêm Hóa đơn
+                                            <i class='bx bx-right-arrow-alt me-1'></i> Tiếp tục
                                         </button>
                                         <a href="InvoiceServlet?action=list" class="btn btn-secondary">
-                                            <i class='bx bx-arrow-back me-1'></i> Hủy
+                                            <i class='bx bx-x me-1'></i> Hủy bỏ
                                         </a>
                                     </form>
                                 </div>
                             </div>
                         </div>
-                        <jsp:include page="footer.jsp" /> <%-- Assuming you have a footer.jsp --%>
+                        <jsp:include page="footer.jsp" />
                         <div class="content-backdrop fade"></div>
                     </div>
                 </div>
@@ -111,7 +104,9 @@
         <script src="${pageContext.request.contextPath}/assets/vendor/libs/popper/popper.js"></script>
         <script src="${pageContext.request.contextPath}/assets/vendor/js/bootstrap.js"></script>
         <script src="${pageContext.request.contextPath}/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+
         <script src="${pageContext.request.contextPath}/assets/vendor/js/menu.js"></script>
+
         <script src="${pageContext.request.contextPath}/assets/js/main.js"></script>
 
         <script async defer src="https://buttons.github.io/buttons.js"></script>
