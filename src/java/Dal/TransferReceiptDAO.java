@@ -32,8 +32,8 @@ public class TransferReceiptDAO {
             ResultSet rs = ptm.executeQuery();
             while (rs.next()) {
                 TransferReceipt p = new TransferReceipt(rs.getInt(1),
-                        rs.getString(2),
-                        rs.getString(3),
+                        rs.getInt(2),
+                        rs.getInt(3),
                         rs.getDate(4),
                         rs.getString(5),
                         rs.getInt(6));
@@ -51,14 +51,14 @@ public class TransferReceiptDAO {
 
                 + "( [FromShopID], [ToShopID], [TransferDate], [Note], [Status])\n"
 
-                + "VALUES (?, ?, ?, ?, ?, ?)";
+                + "VALUES (?, ?, ?, ?, ?)";
 
         int n = 0;
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);
 
-            ptm.setString(1, p.getFromShopID());
-            ptm.setString(2, p.getToShopID());
+            ptm.setInt(1, p.getFromShopID());
+            ptm.setInt(2, p.getToShopID());
             ptm.setDate(3, new java.sql.Date(p.getTransferDate().getTime()));
             ptm.setString(4, p.getNote());
             ptm.setInt(5, p.getStatus());
@@ -100,8 +100,8 @@ public class TransferReceiptDAO {
             ResultSet rs = ptm.executeQuery();
             if (rs.next()) {
                 TransferReceipt p = new TransferReceipt(rs.getInt(1),
-                        rs.getString(2),
-                        rs.getString(3),
+                        rs.getInt(2),
+                        rs.getInt(3),
                         rs.getDate(4),
                         rs.getString(5),
                         rs.getInt(6)
@@ -128,8 +128,8 @@ public class TransferReceiptDAO {
                 + " WHERE TransferReceiptID=?";
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);
-            ptm.setString(1, p.getFromShopID());
-            ptm.setString(2, p.getToShopID());
+            ptm.setInt(1, p.getFromShopID());
+            ptm.setInt(2, p.getToShopID());
             ptm.setDate(3, (java.sql.Date) (Date) p.getTransferDate());
             ptm.setString(4, p.getNote());
             ptm.setInt(5, p.getStatus());
@@ -153,34 +153,6 @@ public class TransferReceiptDAO {
         return result;
     }
 
-    public static void main(String[] args) {
-        try {
-            DBContext connection = new DBContext("SWP6");
-            TransferReceiptDAO dao = new TransferReceiptDAO(connection.getConnection());
-
-            // Tạo đối tượng TransferReceipt
-            TransferReceipt newReceipt = new TransferReceipt(
-
-                    "S001", // FromInventoryID
-                    "S002", // ToInventoryID
-                    new java.util.Date(), // TransferDate (ngày hiện tại)
-                    "Test insert transfer", // Note
-                    0 // Status
-            );
-
-            // Gọi hàm insert
-            int result = dao.insertTransferReceipt(newReceipt);
-
-            // Kiểm tra kết quả
-            if (result > 0) {
-                System.out.println("Insert thành công phiếu chuyển kho: " + newReceipt.getTransferReceiptID());
-            } else {
-                System.out.println("Insert thất bại.");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    
      
 }
