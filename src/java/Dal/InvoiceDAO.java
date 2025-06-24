@@ -237,7 +237,7 @@ public class InvoiceDAO {
                 + "                FROM Invoice i\n"
                 + "                JOIN Customer c ON i.CustomerID = c.CustomerID\n"
                 + "                JOIN Shop s ON i.ShopID = s.ShopID \n"
-                + "               WHERE i.InvoiceID  LIKE ? OR c.CustomerName LIKE ?";
+                + "               WHERE i.InvoiceID  LIKE ? OR c.CustomerName COLLATE Latin1_General_CI_AI LIKE ?";
         List<Invoice> l = new ArrayList<>();
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);
