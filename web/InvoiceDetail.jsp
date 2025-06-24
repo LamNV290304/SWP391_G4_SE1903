@@ -164,7 +164,7 @@
                                             <div class="flex-grow-1 p-0 pe-md-4 text-start">
                                                 <p class="mb-1"><strong>Mã Hóa đơn:</strong> #${invoice.invoiceID}</p>
                                                 <p class="mb-1"><strong>Ngày lập:</strong> <fmt:formatDate value="${invoice.invoiceDate}" pattern="dd/MM/yyyy HH:mm:ss"/></p>
-                                                <p class="mb-1">
+<!--                                                <p class="mb-1">
                                                     <strong>Nhân viên:</strong>
                                                     <c:choose>
                                                         <c:when test="${not empty selectedEmployee}">
@@ -180,7 +180,7 @@
                                                             ${employeeName} <span class="text-muted fst-italic">(ID: ${invoice.employeeID})</span>
                                                         </c:otherwise>
                                                     </c:choose>
-                                                </p>
+                                                </p>-->
                                             </div>
                                             <div class="flex-grow-1 p-0 ps-md-4 text-end">
                                                 <p class="mb-1">
@@ -279,7 +279,7 @@
                                 </c:choose>
                             </div>
                         </div>
-                        <jsp:include page="footer.jsp" /> <%-- Footer --%>
+                    
                     </div>
                 </div>
             </div>
