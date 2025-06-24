@@ -87,6 +87,61 @@
                             >Mess</a
                         >
                     </li>
+                    <!-- Notification -->
+                    <li class="nav-item dropdown-notifications dropdown me-3">
+                        <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+                            <i class="bx bx-bell bx-sm"></i>
+                            <span class="badge bg-danger rounded-pill badge-notifications">3</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li class="dropdown-header">
+                                <div class="d-flex justify-content-between">
+                                    <h6 class="dropdown-title mb-0">Thông báo</h6>
+                                    <span class="badge rounded-pill bg-label-primary">3 mới</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="dropdown-divider"></div>
+                            </li>
+                            <li class="dropdown-notifications-item">
+                                <a class="dropdown-item" href="#">
+                                    <div class="d-flex">
+                                        <div class="flex-shrink-0 me-3">
+                                            <div class="avatar">
+                                                <img src="img/logoSale.png" alt class="w-px-40 h-auto rounded-circle">
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <p class="mb-0">Bạn có đơn hàng mới cần duyệt</p>
+                                            <small class="text-muted">5 phút trước</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="dropdown-notifications-item">
+                                <a class="dropdown-item" href="#">
+                                    <div class="d-flex">
+                                        <div class="flex-shrink-0 me-3">
+                                            <div class="avatar bg-info">
+                                                <i class="bx bx-transfer-alt text-white"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <p class="mb-0">Một cửa hàng đã gửi yêu cầu chuyển hàng</p>
+                                            <small class="text-muted">10 phút trước</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <div class="dropdown-divider"></div>
+                            </li>
+                            <li class="dropdown-footer">
+                                <a class="dropdown-item text-center" href="#">Xem tất cả thông báo</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- /Notification -->
 
                     <!-- User -->
                     <li class="nav-item navbar-dropdown dropdown-user dropdown">

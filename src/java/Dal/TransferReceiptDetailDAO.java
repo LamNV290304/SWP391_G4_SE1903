@@ -32,7 +32,7 @@ public class TransferReceiptDetailDAO {
             while (rs.next()) {
                 TransferReceiptDetail p = new TransferReceiptDetail(rs.getInt(1),
                         rs.getInt(2),
-                        rs.getString(3),
+                        rs.getInt(3),
                         rs.getInt(4));
 
                 listTransferReceiptDetail.add(p);
@@ -54,7 +54,7 @@ public class TransferReceiptDetailDAO {
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);
             ptm.setInt(1, p.getTransferReceiptID());
-            ptm.setString(2, p.getProductID());
+            ptm.setInt(2, p.getProductID());
             ptm.setInt(3, p.getQuantity());
 
             n = ptm.executeUpdate();
@@ -91,7 +91,7 @@ public class TransferReceiptDetailDAO {
             if (rs.next()) {
                 TransferReceiptDetail p = new TransferReceiptDetail(rs.getInt(1),
                         rs.getInt(2),
-                        rs.getString(3),
+                        rs.getInt(3),
                         rs.getInt(4)
                 );
 
@@ -116,7 +116,7 @@ public class TransferReceiptDetailDAO {
             PreparedStatement ptm = connection.prepareStatement(sql);
             ptm.setInt(1, p.getTransferReceiptDetailID());
             ptm.setInt(2, p.getTransferReceiptID());
-            ptm.setString(3, p.getProductID());
+            ptm.setInt(3, p.getProductID());
             ptm.setInt(4, p.getQuantity());
             ptm.executeUpdate();
         } catch (SQLException ex) {
@@ -134,7 +134,7 @@ public class TransferReceiptDetailDAO {
 
         // Bước 3: Tạo đối tượng cần insert
         // Giả sử TransferReceiptID = "TR001", ProductID = "P002", Quantity = 10
-        TransferReceiptDetail newDetail = new TransferReceiptDetail(1, "P002", 10);
+        TransferReceiptDetail newDetail = new TransferReceiptDetail(1, 2, 10);
 
         // Bước 4: Gọi hàm insert
         int result = dao.insertTransferReceiptDetail(newDetail);

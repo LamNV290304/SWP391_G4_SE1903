@@ -51,7 +51,7 @@ public class TransferReceiptDAO {
 
                 + "( [FromShopID], [ToShopID], [TransferDate], [Note], [Status])\n"
 
-                + "VALUES (?, ?, ?, ?, ?, ?)";
+                + "VALUES (?, ?, ?, ?, ?)";
 
         int n = 0;
         try {

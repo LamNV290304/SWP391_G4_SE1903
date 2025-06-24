@@ -15,6 +15,7 @@ import Models.Product;
 import Models.Shop;
 import Models.TransferReceipt;
 import Models.TransferReceiptDetail;
+import Utils.MailUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -184,7 +185,7 @@ public class TransferReceiptController extends HttpServlet {
         String setStatus = request.getParameter("setStatus");
 
         listDetail = transferReceiptDetailDAO.getAllTransferReceiptDetail("SELECT * FROM TransferReceiptDetail WHERE TransferReceiptID = '" + TransferReceiptID + "'");
-        Map<String, Integer> product = new HashMap<>();
+        Map<Integer, Integer> product = new HashMap<>();
         for (TransferReceiptDetail transferReceiptDetail : listDetail) {
             product.put(transferReceiptDetail.getProductID(), transferReceiptDetail.getQuantity());
         }
@@ -199,8 +200,8 @@ public class TransferReceiptController extends HttpServlet {
             List<Inventory> toI = inventoryDAO.getAllInventoriesInStore(p.getToShopID());
 
             //giam so luong o from Shop
-            for (Map.Entry<String, Integer> entry : product.entrySet()) {
-                String key = entry.getKey();
+            for (Map.Entry<Integer, Integer> entry : product.entrySet()) {
+                int key = entry.getKey();
                 int val = entry.getValue();
                 for (Inventory inventory : fromI) {
                     if (inventory.getProduct().getProductID().equals(key)) {
@@ -209,8 +210,8 @@ public class TransferReceiptController extends HttpServlet {
                 }
             }
             //tang so luong o to shop
-            for (Map.Entry<String, Integer> entry : product.entrySet()) {
-                String key = entry.getKey();
+            for (Map.Entry<Integer, Integer> entry : product.entrySet()) {
+                int key = entry.getKey();
                 int val = entry.getValue();
                 for (Inventory inventory : toI) {
                     if (inventory.getProduct().getProductID().equals(key)) {
@@ -238,18 +239,32 @@ public class TransferReceiptController extends HttpServlet {
             ListAddToCartTransfer = new ArrayList<>();
         }
         String submit = request.getParameter("submit");
-
+        log("day la nut submit: " + submit);
         if (submit == null) {
+            log("new");
             String checkFromShopID = request.getParameter("FromShopID");
-            int FromShopID = Integer.parseInt(request.getParameter("FromShopID"));
-            int ToShopID = Integer.parseInt(request.getParameter("ToShopID"));
+            int FromShopID = 0;
+            int ToShopID = 0;
+
             String Note = request.getParameter("Note");
-            if (checkFromShopID != null) {
+            if (checkFromShopID != null && !checkFromShopID.trim().isEmpty()) {
+                FromShopID = Integer.parseInt(request.getParameter("FromShopID"));
                 ListInventory = inventoryDAO.getAllInventoriesInStore(FromShopID);
+
+            }
+
+            if (request.getParameter("ToShopID") != null && !request.getParameter("ToShopID").trim().isEmpty()) {
+                ToShopID = Integer.parseInt(request.getParameter("ToShopID"));
+
             }
 
             //search Product
-            int searchProduct = Integer.parseInt(request.getParameter("searchProduct"));
+            int searchProduct;
+            if (request.getParameter("searchProduct") != null && !request.getParameter("searchProduct").trim().isEmpty()) {
+                searchProduct = Integer.parseInt(request.getParameter("searchProduct"));
+                request.setAttribute("searchProduct", searchProduct);
+
+            }
             String search = request.getParameter("search");
             if (search != null) {
                 //ListInventory = inventoryDAO.getAllInventoriesInProductIDAndStoreID(searchProduct, FromShopID);
@@ -257,18 +272,22 @@ public class TransferReceiptController extends HttpServlet {
             } else {
                 vectorProduct = productDAO.getProduct("SELECT *  FROM Product");
             }
-            request.setAttribute("searchProduct", searchProduct);
 
             String addProduct = request.getParameter("addProduct");
             int stt = 0;
             //addProduct
             if (addProduct != null) {
-                String ProductID = request.getParameter("productID");
+                int ProductID = -1;
+                if (request.getParameter("productID") != null && !request.getParameter("productID").trim().isEmpty()) {
+                    ProductID = Integer.parseInt(request.getParameter("productID"));
+
+                }
+
                 boolean check = false;
                 int T = -1;
                 //check ton tai trong session ListAddToCartTransfer
                 for (int i = 0; i < ListAddToCartTransfer.size(); i++) {
-                    if (ListAddToCartTransfer.get(i).getProductID().equalsIgnoreCase(ProductID)) {
+                    if (ListAddToCartTransfer.get(i).getProductID() == ProductID) {
                         check = true;
                         T = i;
                     }
@@ -278,7 +297,6 @@ public class TransferReceiptController extends HttpServlet {
                     int Quantity = 1;
 
                     TransferReceiptDetail TD = new TransferReceiptDetail(stt++, ProductID, Quantity);
-                    log("Detail : " + TD.getTransferReceiptID());
                     ListAddToCartTransfer.add(TD);
                 } else {
                     int newQuantity = ListAddToCartTransfer.get(T).getQuantity() + 1;
@@ -289,10 +307,17 @@ public class TransferReceiptController extends HttpServlet {
             //update Quantity
             String updateQuantity = request.getParameter("updateQuantity");
             if (updateQuantity != null) {
-                String ProductID = request.getParameter("ProductID");
+
+                int ProductID = 0;
+                if (request.getParameter("ProductID") != null && !request.getParameter("ProductID").trim().isEmpty()) {
+                    ProductID = Integer.parseInt(request.getParameter("ProductID"));
+                    log("ProductID" + ProductID);
+                }
                 int Quantity = Integer.parseInt(request.getParameter("Quantity"));
+
                 for (TransferReceiptDetail transferReceiptDetail : ListAddToCartTransfer) {
-                    if (transferReceiptDetail.getProductID().equalsIgnoreCase(ProductID)) {
+                    if (transferReceiptDetail.getProductID() == ProductID) {
+                        log("quantity: " + Quantity);
                         transferReceiptDetail.setQuantity(Quantity);
                     }
                 }
@@ -301,9 +326,12 @@ public class TransferReceiptController extends HttpServlet {
             //xoa trong ListAddToCartTransfer
             String remove = request.getParameter("remove");
             if (remove != null) {
-                String ProductID = request.getParameter("ProductID");
+                int ProductID = 0;
+                if (request.getParameter("ProductID") != null && !request.getParameter("ProductID").trim().isEmpty()) {
+                    ProductID = Integer.parseInt(request.getParameter("ProductID"));
+                }
                 for (int i = 0; i < ListAddToCartTransfer.size(); i++) {
-                    if (ListAddToCartTransfer.get(i).getProductID().equalsIgnoreCase(ProductID)) {
+                    if (ListAddToCartTransfer.get(i).getProductID() == ProductID) {
                         ListAddToCartTransfer.remove(i);
                     }
                 }
@@ -322,12 +350,12 @@ public class TransferReceiptController extends HttpServlet {
             int FromShopID = Integer.parseInt(request.getParameter("FromShopID"));
             int ToShopID = Integer.parseInt(request.getParameter("ToShopID"));
             String Note = request.getParameter("Note");
-
             java.util.Date TransferDate = new java.util.Date();
             int Status = 0;
             TransferReceipt T = new TransferReceipt(FromShopID, ToShopID, TransferDate, Note, Status);
 
             dao.insertTransferReceipt(T);
+
             list = dao.getAllTransferReceipt(SQLStatusZero);
             int maxID = 0;
             for (TransferReceipt transferReceipt : list) {
@@ -337,14 +365,78 @@ public class TransferReceiptController extends HttpServlet {
             }
             for (TransferReceiptDetail transferReceiptDetail : ListAddToCartTransfer) {
 
-                log(transferReceiptDetail.getProductID());
-
                 transferReceiptDetail.setTransferReceiptID(maxID);
                 transferReceiptDetailDAO.insertTransferReceiptDetail(transferReceiptDetail);
             }
 
+            //Send Mail
+            String email = "xuanhieu20012004@gmail.com";
+            MailUtil sendMail = new MailUtil();
+            String FromShopName = "", ToShopName = "";
+
+            for (Shop s : ListShop) {
+                if (s.getShopID() == FromShopID) {
+                    FromShopName = s.getShopName();
+                } else if (s.getShopID() == ToShopID) {
+                    ToShopName = s.getShopName();
+                }
+            }
+            //Thiếu check Status, nếu status khác 0 thì trả về đã Accept
+            String linkA = "http://localhost:9999/SWP391_G4_SE1903/TransferReceipt?service=updateStatus&setStatus=accept&TransferReceiptID=" + maxID;
+            String linkR = "http://localhost:9999/SWP391_G4_SE1903/TransferReceipt?service=updateStatus&setStatus=reject&TransferReceiptID=" + maxID;
+
+            String content = sendContent(FromShopName, ToShopName, Note, ListAddToCartTransfer, linkA, linkR);
+            sendMail.sendRequest(email, content);
+
             response.sendRedirect("TransferReceipt");
         }
+    }
+
+    private String sendContent(String FromShopID, String ToShopID, String Note, List<TransferReceiptDetail> list, String linkA, String linkR) {
+        String content = "";
+        content += "<h1>From Shop " + FromShopID + " To Shop " + ToShopID + " Note " + Note + "</h1>"
+                + "<h2 style=\"font-family: Arial, sans-serif; color: #333;\">Product Details</h2>\n"
+                + "        <table border=\"1\" cellpadding=\"5\" cellspacing=\"0\" style=\"width: 60%; border-collapse: collapse; font-family: Arial, sans-serif;\">\n"
+                + "            <thead>\n"
+                + "                <tr>\n"
+                + "                    <th style=\"background-color: #f2f2f2; text-align: left; padding: 8px;\">Product Name</th>\n"
+                + "                    <th style=\"background-color: #f2f2f2; text-align: left; padding: 8px;\">Quantity</th>\n"
+                + "                </tr>\n"
+                + "            </thead>\n"
+                + "            <tbody>\n";
+        for (int i = 0; i < list.size(); i++) {
+            int ProductID = list.get(i).getProductID();
+            String ProductName = "";
+            for (Product p : vectorProduct) {
+                if (p.getProductID() == ProductID) {
+                    ProductName = p.getProductName();
+                    break;
+                }
+            }
+            int Quantity = list.get(i).getQuantity();
+            content
+                    += "                <tr>\n"
+                    + "                    <td style=\"padding: 8px;\">" + ProductName + "</td>\n"
+                    + "                    <td style=\"padding: 8px;\">" + Quantity + "</td>\n"
+                    + "                </tr>\n";
+
+        }
+
+        content += "            </tbody>\n"
+                + "        </table>"
+                + "<div style=\"margin-top: 20px;\">\n"
+                + "            <a href=\"" + linkA + "\""
+                + "               style=\"display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; margin-right: 10px;\">\n"
+                + "                Accept\n"
+                + "            </a>\n"
+                + "\n"
+                + "            <a href=\"" + linkR + "\""
+                + "               style=\"display: inline-block; padding: 10px 20px; background-color: #f44336; color: white; text-decoration: none; border-radius: 5px;\">\n"
+                + "                Reject\n"
+                + "            </a>\n"
+                + "        </div>";
+
+        return content;
     }
 
     private void Detail(HttpServletRequest request, HttpServletResponse response)
@@ -352,9 +444,6 @@ public class TransferReceiptController extends HttpServlet {
         String TransferReceiptID = request.getParameter("TransferReceiptID");
         log(TransferReceiptID);
         listDetail = transferReceiptDetailDAO.getAllTransferReceiptDetail("SELECT * FROM TransferReceiptDetail WHERE TransferReceiptID = '" + TransferReceiptID + "'");
-        for (TransferReceiptDetail transferReceiptDetail : listDetail) {
-            log(transferReceiptDetail.getProductID());
-        }
 
         request.setAttribute("vectorP", vectorProduct);
         request.setAttribute("listDetail", listDetail);
