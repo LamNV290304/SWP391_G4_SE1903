@@ -77,22 +77,6 @@
         <servlet-class>Controller.ShowDetailEmployee</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>AddEmployee</servlet-name>
-        <servlet-class>Controller.AddEmployee</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>UpdateStatusEmployee</servlet-name>
-        <servlet-class>Controller.UpdateStatusEmployee</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>ChangePassword</servlet-name>
-        <servlet-class>Controller.ChangePassword</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>Logout</servlet-name>
-        <servlet-class>Controller.Logout</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>Test</servlet-name>
         <servlet-class>Controller.Test</servlet-class>
     </servlet>
@@ -103,6 +87,10 @@
     <servlet>
         <servlet-name>AddInventoryCheck</servlet-name>
         <servlet-class>Controller.AddInventoryCheck</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CustomerServlet</servlet-name>
+        <servlet-class>Controller.CustomerServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>StartProject</servlet-name>
@@ -182,22 +170,6 @@
         <url-pattern>/ShowDetailEmployee</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>AddEmployee</servlet-name>
-        <url-pattern>/AddEmployee</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>UpdateStatusEmployee</servlet-name>
-        <url-pattern>/UpdateStatusEmployee</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>ChangePassword</servlet-name>
-        <url-pattern>/ChangePassword</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>Logout</servlet-name>
-        <url-pattern>/Logout</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>Test</servlet-name>
         <url-pattern>/Test</url-pattern>
     </servlet-mapping>
@@ -208,6 +180,10 @@
     <servlet-mapping>
         <servlet-name>AddInventoryCheck</servlet-name>
         <url-pattern>/AddInventoryCheck</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CustomerServlet</servlet-name>
+        <url-pattern>/CustomerServlet</url-pattern>
     </servlet-mapping>
     <error-page>
         <error-code>404</error-code>

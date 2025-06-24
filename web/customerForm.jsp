@@ -46,46 +46,60 @@
 
                             <%-- Hiển thị thông báo lỗi hoặc thành công --%>
                             <c:if test="${not empty errorMessage}">
-                                <div class="alert alert-danger" role="alert">
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                     ${errorMessage}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
+                                <c:remove var="errorMessage" scope="request"/> <%-- Xóa attribute sau khi hiển thị --%>
                             </c:if>
                             <c:if test="${not empty successMessage}">
-                                <div class="alert alert-success" role="alert">
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
                                     ${successMessage}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
+                                <c:remove var="successMessage" scope="request"/> <%-- Xóa attribute sau khi hiển thị --%>
                             </c:if>
 
                             <div class="card mb-4">
                                 <h5 class="card-header">Thông tin Khách hàng</h5>
                                 <div class="card-body">
-                                    <form action="InvoiceServlet" method="post">
-                                        <input type="hidden" name="action" value="processCustomerOnly"/> <%-- ĐỔI ACTION TẠI ĐÂY --%>
+                                    <form action="${pageContext.request.contextPath}/CustomerServlet" method="post">
+                                        <input type="hidden" name="action" value="${customer != null ? 'updateCustomer' : 'addCustomer'}"/>
+                                        <c:if test="${customer != null}">
+                                            <input type="hidden" name="customerID" value="${customer.customerID}"/>
+                                        </c:if>
 
                                         <div class="mb-3">
                                             <label for="customerName" class="form-label">Tên Khách hàng:</label>
-                                            <input type="text" class="form-control" id="customerName" name="customerName" placeholder="Nhập tên khách hàng (có thể bỏ trống)" value="${param.customerName != null ? param.customerName : ''}"/>
+                                            <input type="text" class="form-control" id="customerName" name="customerName"
+                                                   placeholder="Nhập tên khách hàng (có thể bỏ trống)"
+                                                   value="${customer != null ? customer.customerName : (requestScope.customerName != null ? requestScope.customerName : '')}"/>
                                             <small class="form-text text-muted">Bỏ trống để sử dụng khách vãng lai.</small>
                                         </div>
                                         <div class="mb-3">
                                             <label for="customerPhone" class="form-label">Số điện thoại:</label>
-                                            <input type="text" class="form-control" id="customerPhone" name="customerPhone" placeholder="Nhập số điện thoại (có thể bỏ trống)" value="${param.customerPhone != null ? param.customerPhone : ''}"/>
+                                            <input type="text" class="form-control" id="customerPhone" name="customerPhone"
+                                                   placeholder="Nhập số điện thoại (có thể bỏ trống)"
+                                                   value="${customer != null ? customer.phone : (requestScope.customerPhone != null ? requestScope.customerPhone : '')}"/>
                                             <small class="form-text text-muted">Nếu số điện thoại đã tồn tại, hệ thống sẽ sử dụng thông tin khách hàng hiện có.</small>
                                         </div>
                                         <div class="mb-3">
                                             <label for="customerAddress" class="form-label">Địa chỉ:</label>
-                                            <input type="text" class="form-control" id="customerAddress" name="customerAddress" placeholder="Nhập địa chỉ (có thể bỏ trống)" value="${param.customerAddress != null ? param.customerAddress : ''}"/>
+                                            <input type="text" class="form-control" id="customerAddress" name="customerAddress"
+                                                   placeholder="Nhập địa chỉ (có thể bỏ trống)"
+                                                   value="${customer != null ? customer.address : (requestScope.customerAddress != null ? requestScope.customerAddress : '')}"/>
                                         </div>
-                                        <%-- Nếu bạn có trường email trong customerForm.jsp --%>
                                         <div class="mb-3">
                                             <label for="customerEmail" class="form-label">Email:</label>
-                                            <input type="email" class="form-control" id="customerEmail" name="customerEmail" placeholder="Nhập email (có thể bỏ trống)" value="${param.customerEmail != null ? param.customerEmail : ''}"/>
+                                            <input type="email" class="form-control" id="customerEmail" name="customerEmail"
+                                                   placeholder="Nhập email (có thể bỏ trống)"
+                                                   value="${customer != null ? customer.email : (requestScope.customerEmail != null ? requestScope.customerEmail : '')}"/>
                                         </div>
 
                                         <button type="submit" class="btn btn-primary me-2">
-                                            <i class='bx bx-right-arrow-alt me-1'></i> Tiếp tục
+                                            <i class='bx bx-right-arrow-alt me-1'></i> Thêm khách hàng
                                         </button>
-                                        <a href="InvoiceServlet?action=list" class="btn btn-secondary">
+                                        <a href="${pageContext.request.contextPath}/CustomerServlet?action=list" class="btn btn-secondary"> <%-- Đổi link hủy về trang danh sách khách hàng --%>
                                             <i class='bx bx-x me-1'></i> Hủy bỏ
                                         </a>
                                     </form>

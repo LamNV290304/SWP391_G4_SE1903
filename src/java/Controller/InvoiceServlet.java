@@ -129,7 +129,6 @@ public class InvoiceServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }
-
     private void searchInvoicesByDateRange(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String startDateParam = request.getParameter("startDate");
@@ -270,7 +269,7 @@ public class InvoiceServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("errorMessage", "Lỗi khi tải form thêm hóa đơn: " + e.getMessage());
-            request.getRequestDispatcher("error.jsp").forward(request, response); // Hoặc listInvoice.jsp
+            request.getRequestDispatcher("listInvoice.jsp").forward(request, response); 
         }
     }
 
