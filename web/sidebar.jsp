@@ -211,23 +211,28 @@
                 <div data-i18n="Extended UI">Quản lý kho</div>
             </a>
             <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="extended-ui-perfect-scrollbar.html" class="menu-link">
-                        <div data-i18n="Perfect Scrollbar">Nhập Hàng</div>
+                 <li class="menu-item">
+                    <a href="listInventoryHome" class="menu-link">
+                        <div >Hàng hóa trong kho</div>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="extended-ui-text-divider.html" class="menu-link">
-                        <div data-i18n="Text Divider">Xuất Hàng</div>
+                    <a href="ImportReceiptServlet" class="menu-link">
+                        <div >Nhập Hàng</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="ExportReceiptServlet" class="menu-link">
+                        <div>Xuất Hàng</div>
                     </a>
                 </li>
             </ul>
         </li>
 
         <li class="menu-item">
-            <a href="icons-boxicons.html" class="menu-link">
+            <a href="InventoryCheckServlet" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-crown"></i>
-                <div data-i18n="Boxicons">Kiểm kê</div>
+                <div >Kiểm kê</div>
             </a>
         </li>
 

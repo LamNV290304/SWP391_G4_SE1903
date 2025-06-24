@@ -70,129 +70,108 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
            <!-- / Navbar -->
 
             <!-- Content wrapper -->  
-                <div class="container" style="padding-top: 20px;"> 
-                  <!-- Responsive Table -->
-             <div class="card col-sm-12" style="height: 90vh; overflow: hidden;">
-  <h5 class="card-header">Thêm mới phiếu Kiểm kê</h5>
-
- <form class="row" action="AddExportReceipt" method="POST"> 
-  <!-- Cột trái: Card thông tin -->
-  <div class="col-md-3"style="max-height: 80vh; overflow-y: auto;">
-    <div class="card mb-2">
-      <h5 class="card-header">Thông Tin</h5>
-      <div class="card-body">
-        <!-- Các input như bạn đã có -->
-       
-       
-        <div class="mb-3">
+                <div class="container-xxl flex-grow-1 container-p-y">
+  <form class="row g-3" action="AddInventoryCheck" method="POST">
+    
+    <!-- Cột trái -->
+    <div class="col-md-2">
+      <div class="card h-100">
+        <h5 class="card-header">Thông Tin Phiếu Kiểm Kê</h5>
+        <div class="card-body">
+          <div class="mb-3">
             <label for="receiptId" class="form-label">Mã Nhân Viên</label>
-          <input type="text" name="EmployeeID" class="form-control" id="receiptId" placeholder="PN001" />
-        </div>
-      
-        <div class="mb-3">
-          <label for="warehouse" class="form-label">Kho Kiểm kê</label>
-          <select class="form-select" id="warehouse" name="shopID">
-            <option selected disabled>Chọn kho</option>
-             <c:forEach var="ls" items="${listShop}">
-                      <option value="${ls.shopID}">${ls.shopName}</option>
-                      </c:forEach>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label for="receiptId" class="form-label">Ngày kiểm kê (cuối ngày)</label>
-          <input type="date" id="importDate" name="Date" class="form-control" required />
-        </div>
-
-        <div>
-          <label for="note" class="form-label">Ghi chú</label>
-          <textarea class="form-control" id="note" name="note" rows="3"></textarea>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!--Cot phai  -->
-<div class="col-md-9" id="horizontal-example">
-  <div class="card h-100 d-flex flex-column">
-    <h5 class="card-header">Chi Tiết Hàng kiểm kê </h5>
-    <div class="card-body" id="horizontal-example">
-
-      <!-- ✅ Bọc bảng trong div có cuộn ngang -->
-      <div class="card-body py-2 px-3 overflow-auto" style="max-height: 60vh;">
-          <div class="table-responsive">
-               <table class="table table-bordered" id="productTable" style="min-width: 1000px;">
-          <thead>
-            <tr>
-              <th>Tên Sản Phẩm</th>
-              <th>Số lượng hệ thống</th>
-              <th>Số lượng thực tế</th>
-              <th>Chênh lệch</th>
-              <th>Ghi Chú</th>
-              <th>Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
-             <tr>
-                
-                  <c:forEach var="prod" items="${listProduct}">
-                             <td>
-                                    <input type="text" name="productID[]" class="form-control" value="${prod.productID}" readonly />${prod.productName}
-                            </td>
-                             <td><input type="number" name="quantity[]" class="form-control" required /></td>
-                             <td><input type="number" name="price[]" class="form-control" required /></td>
-                             <td><input type="number" name="total[]" class="form-control" readonly /></td>
-                             <td><input type="text" name="note[]" class="form-control" required /></td>
-                             <td><button type="button" class="btn btn-danger btn-sm remove-row">Xóa</button></td>
-                   </c:forEach>
-            </tr>
-          </tbody>
-        </table>
+            <input type="text" name="EmployeeID" class="form-control" id="receiptId" placeholder="PN001" />
           </div>
-       
+          <div class="mb-3">
+            <label for="warehouse" class="form-label">Kho Kiểm kê</label>
+            <select class="form-select" id="warehouse" name="shopID">
+              <option selected disabled>Chọn kho</option>
+              <c:forEach var="ls" items="${listShop}">
+                <option value="${ls.shopID}">${ls.shopName}</option>
+              </c:forEach>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="importDate" class="form-label">Ngày kiểm kê (cuối ngày)</label>
+            <input type="date" id="importDate" name="Date" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label for="note" class="form-label">Ghi chú</label>
+            <textarea class="form-control" id="note" name="note" rows="3"></textarea>
+          </div>
+        </div>
       </div>
-
-      <!-- Nút thêm dòng -->
-      <button type="button" class="btn btn-secondary mb-3" id="addRowBtn">+ Thêm dòng</button>
-
-      <!-- Nút submit -->
-      <button type="submit" class="btn btn-primary">Lưu phiếu xuất</button>
-   
     </div>
-  </div>
+
+    <!-- Cột phải -->
+    <div class="col-md-10">
+      <div class="card h-100">
+        <h5 class="card-header">Chi Tiết Hàng Kiểm Kê</h5>
+        <div class="card-body">
+         <div class="table-responsive" style="max-height: 55vh; overflow: auto;">
+  <table class="table table-striped table-hover" id="productTable">
+    <thead >
+      <tr>
+        <th style="width: 30%">Tên Sản Phẩm</th>
+        <th style="width: 15%">Hệ thống</th>
+        <th style="width: 15%">Thực tế</th>
+        <th style="width: 15%">Chênh lệch</th>
+        <th style="width: 15%">Ghi Chú</th>
+        <th style="width: 10%">Hành động</th>
+      </tr>
+    </thead>
+    <tbody>
+        <!--
+      <c:forEach var="prod" items="${listIvt}">
+        <tr>
+          <td>
+            <input type="hidden" name="productID[]" value="${prod.product.productID}" />
+            ${prod.product.productName}
+          </td>
+          <td>
+            <input type="number" name="systemQuantity[]" class="form-control system-qty" 
+         value="${prod.quantity != null ? prod.quantity : 0}" readonly />
+          </td>
+<td>
+  <input type="number" name="actualQuantity[]" class="form-control actual-qty" required />
+</td>
+<td>
+  <input type="number" name="total[]" class="form-control difference-qty" readonly />
+</td>
+
+          <td><input type="text" name="note[]" class="form-control" /></td>
+          <td><button type="button" class="btn btn-icon btn-danger btn-sm remove-row">
+            <i class="bx bx-trash"></i>
+          </button></td>
+        </tr>
+      </c:forEach>
+        -->
+    </tbody>
+  </table>
 </div>
 
-<!-- JavaScript: Thêm/Xóa dòng và tính Thành tiền -->
+          <!-- Nút submit -->           
+          <div class="mt-4">
+            <button type="submit" class="btn btn-primary w-100">Lưu phiếu kiểm kê</button>
+          </div>
+        </div>
+      </div>
+    </div>
 <script>
-
-// Khi thêm dòng mới, cũng tự động gán luôn importReceiptID
-document.getElementById("addRowBtn").addEventListener("click", function () {
-  const tableBody = document.querySelector("#productTable tbody");
-  const newRow = document.createElement("tr");
-  newRow.innerHTML = `
-    <td><select class="form-select" name="productID[]">
-      <option selected disabled>Chọn Phiếu</option>
-      ${productOptions}
-    </select></td>
-    <td><input type="number" name="quantity[]" class="form-control" required /></td>
-    <td><input type="number" name="price[]" class="form-control" required /></td>
-    <td><input type="number" name="total[]" class="form-control" readonly /></td>
-    <td><input type="text" name="note[]" class="form-control" required /></td>
-    <td><button type="button" class="btn btn-danger btn-sm remove-row">Xóa</button></td>
-  `;
-  tableBody.appendChild(newRow);
-});
-
-  // Tính thành tiền + tổng cộng mỗi khi người dùng nhập số
 document.addEventListener("input", function (e) {
-  if (e.target.name === "quantity[]" || e.target.name === "price[]") {
+  if (e.target.classList.contains("actual-qty")) {
     const row = e.target.closest("tr");
-    const qty = parseFloat(row.querySelector('input[name="quantity[]"]').value) || 0;
-    const price = parseFloat(row.querySelector('input[name="price[]"]').value) || 0;
-    const total = qty * price;
-    row.querySelector('input[name="total[]"]').value = total.toFixed(2);
 
-    calculateGrandTotal();
+    const actual = parseFloat(row.querySelector(".actual-qty").value) || 0;
+    const system = parseFloat(row.querySelector(".system-qty").value) || 0;
+    const diff = actual - system;
+
+    row.querySelector(".difference-qty").value = diff;
   }
 });
+
+
+
 
   // Xóa dòng
   document.addEventListener("click", function (e) {
@@ -223,26 +202,103 @@ const productOptions = `
   // ✅ Cập nhật giá trị input hidden
   document.getElementById("grandTotalInput").value = sum.toFixed(2);
 }
+document.getElementById("warehouse").addEventListener("change", function () {
+  const shopID = parseInt(this.value);
+  const filtered = allInventories.filter(i => i.shopID === shopID);
+  const tbody = document.querySelector("#productTable tbody");
+  tbody.innerHTML = "";
+
+  filtered.forEach(item => {
+    const row = document.createElement("tr");
+
+    // Tên sản phẩm + hidden productID
+    const tdName = document.createElement("td");
+    const inputHidden = document.createElement("input");
+    inputHidden.type = "hidden";
+    inputHidden.name = "productID[]";
+    inputHidden.value = item.productID;
+    const spanName = document.createElement("span");
+    spanName.className = "product-name";
+    spanName.textContent = item.productName;
+    tdName.appendChild(inputHidden);
+    tdName.appendChild(spanName);
+    row.appendChild(tdName);
+
+    // Hệ thống
+    const tdSystem = document.createElement("td");
+    const inputSystem = document.createElement("input");
+    inputSystem.type = "number";
+    inputSystem.name = "systemQuantity[]";
+    inputSystem.className = "form-control system-qty";
+    inputSystem.readOnly = true;
+    inputSystem.value = item.quantity != null ? item.quantity : 0;
+    tdSystem.appendChild(inputSystem);
+    row.appendChild(tdSystem);
+
+    // Thực tế
+    const tdActual = document.createElement("td");
+    const inputActual = document.createElement("input");
+    inputActual.type = "number";
+    inputActual.name = "actualQuantity[]";
+    inputActual.className = "form-control actual-qty";
+    inputActual.required = true;
+    tdActual.appendChild(inputActual);
+    row.appendChild(tdActual);
+
+    // Chênh lệch
+    const tdDiff = document.createElement("td");
+    const inputDiff = document.createElement("input");
+    inputDiff.type = "number";
+    inputDiff.name = "total[]";
+    inputDiff.className = "form-control difference-qty";
+    inputDiff.readOnly = true;
+    tdDiff.appendChild(inputDiff);
+    row.appendChild(tdDiff);
+
+    // Ghi chú
+    const tdNote = document.createElement("td");
+    const inputNote = document.createElement("input");
+    inputNote.type = "text";
+    inputNote.name = "note[]";
+    inputNote.className = "form-control";
+    tdNote.appendChild(inputNote);
+    row.appendChild(tdNote);
+
+    // Xóa dòng
+    const tdAction = document.createElement("td");
+    const btnRemove = document.createElement("button");
+    btnRemove.type = "button";
+    btnRemove.className = "btn btn-icon btn-danger btn-sm remove-row";
+    btnRemove.innerHTML = '<i class="bx bx-trash"></i>';
+    tdAction.appendChild(btnRemove);
+    row.appendChild(tdAction);
+
+    tbody.appendChild(row);
+  });
+});
+
+
 </script>
-
-  </div>
-</form>
-
-   
-
-
-
-
-
-    
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<script>
+ const allInventories = [
+    <c:forEach var="ivt" items="${listIvt}" varStatus="loop">
+      {
+        shopID: ${ivt.shop.shopID},
+        productID: ${ivt.product.productID},
+        productName: "${fn:replace(fn:escapeXml(ivt.product.productName), '"', '\\"')}",
+        quantity: ${ivt.quantity}
+      }<c:if test="${!loop.last}">,</c:if>
+    </c:forEach>
+  ];
+</script>
+  </form>
+</div>
                 </div>
               </div>
               <!--/ Responsive Table -->
                 </div>
-            </div>
         
-
-        </div>
 
 
         <script src="assets/vendor/libs/jquery/jquery.js"></script>
