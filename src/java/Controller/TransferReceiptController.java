@@ -6,12 +6,16 @@
 package Controller;
 
 import Context.DBContext;
+import Dal.EmployeeDAO;
 import Dal.InventoryDAO;
+import Dal.NotiDAO;
 import Dal.ProductDAO;
 import Dal.ShopDAO;
 import Dal.TransferReceiptDAO;
 import Dal.TransferReceiptDetailDAO;
+import Models.Employee;
 import Models.Inventory;
+import Models.Noti;
 import Models.Product;
 import Models.Shop;
 import Models.TransferReceipt;
@@ -49,14 +53,16 @@ public class TransferReceiptController extends HttpServlet {
     InventoryDAO inventoryDAO = new InventoryDAO(connection.getConnection());
     TransferReceiptDetailDAO transferReceiptDetailDAO = new TransferReceiptDetailDAO(connection.getConnection());
     ShopDAO shopDAO = new ShopDAO();
-
+    EmployeeDAO employeeDAO = new EmployeeDAO(connection.getConnection());
+    NotiDAO notiDAO = new NotiDAO(connection.getConnection());
     //List
     Vector<Product> vectorProduct = productDAO.getProduct("SELECT *  FROM Product");
     List<Inventory> ListInventory = inventoryDAO.getAllInventories();
     List<Shop> ListShop = shopDAO.getAllShops("SWP7");
     Vector<TransferReceipt> list = dao.getAllTransferReceipt("SELECT * FROM TransferReceipt");
     Vector<TransferReceiptDetail> listDetail = transferReceiptDetailDAO.getAllTransferReceiptDetail("SELECT * FROM TransferReceiptDetail");
-
+    List<Employee> ListEmployee = employeeDAO.getAllEmployee();
+    
     private static final String SQLStatusZero = "SELECT * FROM TransferReceipt WHERE Status = 0";
     private static final String SQLStatusNotZero = "SELECT * FROM TransferReceipt WHERE Status != 0";
 
@@ -369,12 +375,8 @@ public class TransferReceiptController extends HttpServlet {
                 transferReceiptDetail.setTransferReceiptID(maxID);
                 transferReceiptDetailDAO.insertTransferReceiptDetail(transferReceiptDetail);
             }
-
-            //Send Mail
-            String email = "xuanhieu20012004@gmail.com";
-            MailUtil sendMail = new MailUtil();
+            //Lay Shop Name
             String FromShopName = "", ToShopName = "";
-
             for (Shop s : ListShop) {
                 if (s.getShopID() == FromShopID) {
                     FromShopName = s.getShopName();
@@ -382,6 +384,27 @@ public class TransferReceiptController extends HttpServlet {
                     ToShopName = s.getShopName();
                 }
             }
+
+//            //Insert Noti
+//            String Title = "Transfer Receipt";
+//            String Message = "From Shop: " + FromShopName + "To Shop" + ToShopName +"\n"
+//                    + "Note: " + Note;
+//            String Link = "TransferReceipt?service=listProcessTransferReceipt";
+//            int ReceiverEmployeeID = 0;
+//            for (Employee e : ListEmployee) {
+//                if (e.getRole().getId() == 2 && e.getShop().getShopID() == ToShopID) {
+//                    ReceiverEmployeeID = e.getId();
+//                }
+//            }
+//            java.util.Date CreatedDate = new java.util.Date();
+//            int IsRead = 0;
+//            Noti n = new Noti(Title, Message, Link, ReceiverEmployeeID, CreatedDate, IsRead);
+//            notiDAO.insertNoti(n);
+            
+            //Send Mail
+            String email = "xuanhieu20012004@gmail.com";
+            MailUtil sendMail = new MailUtil();
+
             //Thiếu check Status, nếu status khác 0 thì trả về đã Accept
             String linkA = "http://localhost:9999/SWP391_G4_SE1903/TransferReceipt?service=updateStatus&setStatus=accept&TransferReceiptID=" + maxID;
             String linkR = "http://localhost:9999/SWP391_G4_SE1903/TransferReceipt?service=updateStatus&setStatus=reject&TransferReceiptID=" + maxID;
@@ -560,4 +583,3 @@ public class TransferReceiptController extends HttpServlet {
     }// </editor-fold>
 
 }
-
