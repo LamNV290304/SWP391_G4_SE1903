@@ -41,102 +41,16 @@
         <servlet-class>Controller.ImportReceiptServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>listInventoryHome</servlet-name>
-        <servlet-class>Controller.listInventoryHome</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>AddImportReceipt</servlet-name>
         <servlet-class>Controller.AddImportReceipt</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>ExportReceiptServlet</servlet-name>
-        <servlet-class>Controller.ExportReceiptServlet</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>AddExportReceipt</servlet-name>
-        <servlet-class>Controller.AddExportReceipt</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>listInventory</servlet-name>
-        <servlet-class>Controller.listInventory</servlet-class>
+        <servlet-name>ThemPhieuNhap</servlet-name>
+        <servlet-class>Controller.ThemPhieuNhap</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ShowEmployeeList</servlet-name>
         <servlet-class>Controller.ShowEmployeeList</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>Home</servlet-name>
-        <servlet-class>Controller.Home</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>ShowProfile</servlet-name>
-        <servlet-class>Controller.ShowProfile</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>UpdateProfile</servlet-name>
-        <servlet-class>Controller.UpdateProfile</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>ShowDetailEmployee</servlet-name>
-        <servlet-class>Controller.ShowDetailEmployee</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>AddEmployee</servlet-name>
-        <servlet-class>Controller.AddEmployee</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>UpdateStatusEmployee</servlet-name>
-        <servlet-class>Controller.UpdateStatusEmployee</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>ChangePassword</servlet-name>
-        <servlet-class>Controller.ChangePassword</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>Logout</servlet-name>
-        <servlet-class>Controller.Logout</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>InventoryCheckServlet</servlet-name>
-        <servlet-class>Controller.InventoryCheckServlet</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>AddInventoryCheck</servlet-name>
-        <servlet-class>Controller.AddInventoryCheck</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>ChangePasswordShopOwner</servlet-name>
-        <servlet-class>Controller.ChangePasswordShopOwner</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>ShowServicePackage</servlet-name>
-        <servlet-class>Controller.ShowServicePackage</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>ShowPaymentHistory</servlet-name>
-        <servlet-class>Controller.ShowPaymentHistory</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>AddInventoryProduct</servlet-name>
-        <servlet-class>Controller.AddInventoryProduct</servlet-class>
-    </servlet>
-
-    <servlet>
-        <servlet-name>CustomerServlet</servlet-name>
-        <servlet-class>Controller.CustomerServlet</servlet-class>
-    </servlet>
-
-    <servlet>
-        <servlet-name>listInventoryHome</servlet-name>
-        <servlet-class>Controller.listInventoryHome</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>ExportReceiptServlet</servlet-name>
-        <servlet-class>Controller.ExportReceiptServlet</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>AddExportReceipt</servlet-name>
-        <servlet-class>Controller.AddExportReceipt</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>StartProject</servlet-name>
@@ -184,88 +98,12 @@
         <url-pattern>/AddImportReceipt</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>ExportReceiptServlet</servlet-name>
-        <url-pattern>/ExportReceiptServlet</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>AddExportReceipt</servlet-name>
-        <url-pattern>/AddExportReceipt</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>listInventoryHome</servlet-name>
-        <url-pattern>/listInventoryHome</url-pattern>
+        <servlet-name>ThemPhieuNhap</servlet-name>
+        <url-pattern>/ThemPhieuNhap</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ShowEmployeeList</servlet-name>
         <url-pattern>/ShowEmployeeList</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>Home</servlet-name>
-        <url-pattern>/Home</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>ShowProfile</servlet-name>
-        <url-pattern>/ShowProfile</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>UpdateProfile</servlet-name>
-        <url-pattern>/UpdateProfile</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>ShowDetailEmployee</servlet-name>
-        <url-pattern>/ShowDetailEmployee</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>AddEmployee</servlet-name>
-        <url-pattern>/AddEmployee</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>UpdateStatusEmployee</servlet-name>
-        <url-pattern>/UpdateStatusEmployee</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>ChangePassword</servlet-name>
-        <url-pattern>/ChangePassword</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>Logout</servlet-name>
-        <url-pattern>/Logout</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>InventoryCheckServlet</servlet-name>
-        <url-pattern>/InventoryCheckServlet</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>AddInventoryCheck</servlet-name>
-        <url-pattern>/AddInventoryCheck</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>ChangePasswordShopOwner</servlet-name>
-        <url-pattern>/ChangePasswordShopOwner</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>ShowServicePackage</servlet-name>
-        <url-pattern>/ShowServicePackage</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>ShowPaymentHistory</servlet-name>
-        <url-pattern>/ShowPaymentHistory</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>AddInventoryProduct</servlet-name>
-        <url-pattern>/AddInventoryProduct</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>CustomerServlet</servlet-name>
-        <url-pattern>/CustomerServlet</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>ExportReceiptServlet</servlet-name>
-        <url-pattern>/ExportReceiptServlet</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>AddExportReceipt</servlet-name>
-        <url-pattern>/AddExportReceipt</url-pattern>
     </servlet-mapping>
     <error-page>
         <error-code>404</error-code>
