@@ -113,12 +113,12 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                               <i class="bx bx-dots-vertical-rounded"></i>
                             </button>
                             <div class="dropdown-menu">
-                                <form class="dropdown-item" action="ImportReceipt" method="GET">
+                                <form class="dropdown-item" action="AddImportReceipt" >
                                     <input type="hidden" name="action" value="edit" />
                                     <input type="hidden" name="receiptId" value="${ir.importReceiptID}" />
                                     <button class="btn btn-secondary" type="submit"><i>Edit</i></button>
                                 </form>
-                                <form class="dropdown-item" action="ImportReceipt" method="GET">
+                                <form class="dropdown-item" action="AddImportReceipt" method="GET">
                                     <input type="hidden" name="action" value="delete" />
                                     <input type="hidden" name="receiptId" value="${ir.importReceiptID}" />
                                     <button class="btn btn-secondary" type="submit"><i>Delete</i></button>
