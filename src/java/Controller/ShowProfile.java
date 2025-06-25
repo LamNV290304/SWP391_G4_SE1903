@@ -69,11 +69,9 @@ public class ShowProfile extends HttpServlet {
             String databaseName = (String) request.getSession().getAttribute("databaseName");
 
             if (databaseName.equals("CentralDB")) {
-                ShopOwner shopOwner = (ShopOwner) request.getSession().getAttribute("Employee");
-                /*\
-                Do sth here
-                 */
-                request.getRequestDispatcher("showProfile.jsp").forward(request, response);
+                ShopOwner shopOwner = (ShopOwner) request.getSession().getAttribute("shopOwner");
+                request.setAttribute("shopOwner", shopOwner);
+                request.getRequestDispatcher("/ShopOwner/showProfile.jsp").forward(request, response);
                 return;
             }
 

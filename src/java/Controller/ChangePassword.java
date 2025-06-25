@@ -5,6 +5,7 @@
 package Controller;
 
 import Dal.EmployeeDAO;
+import Dal.ShopOwnerDAO;
 import Models.Employee;
 import Utils.PasswordUtils;
 import java.io.IOException;
@@ -67,16 +68,28 @@ public class ChangePassword extends HttpServlet {
 
             String hashedNewPassword = PasswordUtils.hashPassword(newPassword);
 
+            if (loggedInEmployee.getRoleId() == 1) {
+                try (Connection centralConn = Context.DBContext.getConnection("CentralDB")) {
+                    ShopOwnerDAO shopOwnerDAO = new ShopOwnerDAO(centralConn);
+                    shopOwnerDAO.updatePasswordByUsername(loggedInEmployee.getUsername(), hashedNewPassword);
+                } catch (SQLException ex) {
+                    Logger.getLogger(ChangePassword.class.getName()).log(Level.SEVERE, null, ex);
+                    session.setAttribute("errorMessage", "Lỗi khi cập nhật mật khẩu bên CentralDB.");
+                    response.sendRedirect("changePassword.jsp");
+                    return;
+                }
+            }
+            
             dao.updatePassword(loggedInEmployee.getId(), hashedNewPassword);
 
             session.setAttribute("successMessage", "Đổi mật khẩu thành công.");
+            response.sendRedirect("changePassword.jsp");
 
         } catch (SQLException e) {
             e.printStackTrace();
             session.setAttribute("errorMessage", "Có lỗi xảy ra khi đổi mật khẩu. Vui lòng thử lại sau.");
         }
 
-        response.sendRedirect("changePassword.jsp");
     }
 
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

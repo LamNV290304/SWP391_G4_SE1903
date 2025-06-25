@@ -7,13 +7,13 @@ package Dal;
 import Context.DBContext;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import DTO.EmployeeDto;
 
 import java.sql.*;
 import Models.*;
+import Utils.PasswordUtils;
 import static Utils.PasswordUtils.checkPassword;
 import java.util.ArrayList;
 import java.util.List;
@@ -125,7 +125,7 @@ public class EmployeeDAO {
 
     public List<Employee> getAllEmployeesByShopID(int shopId) throws SQLException {
         List<Employee> employees = new ArrayList<>();
-        String sql = "SELECT * FROM Employees WHERE ShopID = ?";
+        String sql = "SELECT * FROM Employee WHERE ShopID = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, shopId);
@@ -139,7 +139,7 @@ public class EmployeeDAO {
                     emp.setPhone(rs.getString("Phone"));
                     emp.setEmail(rs.getString("Email"));
                     emp.setStatus(rs.getBoolean("Status"));
-                    emp.setCreateDate(rs.getDate("CreateDate"));
+                    emp.setCreateDate(rs.getDate("CreatedDate"));
                     emp.setRoleId(rs.getInt("RoleID"));
                     emp.setShopId(rs.getInt("ShopID"));
                     employees.add(emp);
@@ -410,7 +410,7 @@ public class EmployeeDAO {
 
 
     public boolean updateEmployeeStatus(int id, boolean status) throws SQLException {
-        String sql = "UPDATE Employee SET status = ? WHERE id = ?";
+        String sql = "UPDATE Employee SET status = ? WHERE EmployeeID = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setBoolean(1, status);
             stmt.setInt(2, id);

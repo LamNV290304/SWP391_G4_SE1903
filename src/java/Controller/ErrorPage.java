@@ -63,7 +63,7 @@ public class ErrorPage extends HttpServlet {
 
         request.getSession().setAttribute("databaseName", databaseName);
         request.getSession().setAttribute("shopName", shopName);
-        request.getRequestDispatcher("login.jsp").forward(request, response);
+        request.getRequestDispatcher("loginEmployee.jsp").forward(request, response);
 
     }
 

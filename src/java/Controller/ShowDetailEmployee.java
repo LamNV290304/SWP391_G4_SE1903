@@ -63,15 +63,16 @@ public class ShowDetailEmployee extends HttpServlet {
             throws ServletException, IOException {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
 
-            Connection conn = DBContext.getConnection("ShopDB_TTest");
+            Connection conn = DBContext.getConnection(databaseName);
             EmployeeDAO employeeDAO = new EmployeeDAO(conn);
             RoleDAO roleDAO = new RoleDAO(conn);
             ShopDAO shopDAO = new ShopDAO();
 
             EmployeeDto employee = employeeDAO.getEmployeeById(id);
             List<Role> roleList = roleDAO.getAllRoles();
-            List<Shop> shopList = shopDAO.getAllShops("ShopDB_TTest");
+            List<Shop> shopList = shopDAO.getAllShops(databaseName);
 
             request.setAttribute("employee", employee);
             request.setAttribute("roleList", roleList);
@@ -97,7 +98,8 @@ public class ShowDetailEmployee extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            Connection conn = DBContext.getConnection("ShopDB_TTest");
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
+            Connection conn = DBContext.getConnection(databaseName);
 
             int id = Integer.parseInt(request.getParameter("id"));
             String fullName = request.getParameter("fullName");

@@ -5,6 +5,7 @@
 package Controller;
 
 import Context.DBContext;
+import Context.DatabaseHelper;
 import DTO.EmployeeDto;
 import Dal.EmployeeDAO;
 import Dal.RoleDAO;
@@ -12,6 +13,7 @@ import Dal.ShopDAO;
 import Models.Employee;
 import Models.Role;
 import Models.Shop;
+import Utils.MailUtil;
 import static Utils.PasswordUtils.hashPassword;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -71,11 +73,13 @@ public class AddEmployee extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try (Connection conn = DBContext.getConnection("ShopDB_TTest")) {
+        String databaseName = (String) request.getSession().getAttribute("databaseName");
+
+        try (Connection conn = DBContext.getConnection(databaseName)) {
             ShopDAO shopDAO = new ShopDAO();
             RoleDAO roleDAO = new RoleDAO(conn);
 
-            List<Shop> shopList = shopDAO.getAllShops("ShopDB_TTest");
+            List<Shop> shopList = shopDAO.getAllShops(databaseName);
             List<Role> roleList = roleDAO.getAllRoles();
             request.setAttribute("shopList", shopList);
             request.setAttribute("roleList", roleList);
@@ -99,7 +103,9 @@ public class AddEmployee extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            Connection conn = DBContext.getConnection("ShopDB_TTest");
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
+
+            Connection conn = DBContext.getConnection(databaseName);
             String fullName = request.getParameter("fullName");
             String email = request.getParameter("email");
             String phone = request.getParameter("phone");
@@ -107,7 +113,7 @@ public class AddEmployee extends HttpServlet {
             int shopId = Integer.parseInt(request.getParameter("shopId"));
             int roleId = Integer.parseInt(request.getParameter("roleId"));
             boolean status = "1".equals(request.getParameter("status"));
-            
+
             EmployeeDAO dao = new EmployeeDAO(conn);
 
             if (dao.isEmailExists(email)) {
@@ -136,9 +142,14 @@ public class AddEmployee extends HttpServlet {
             e.setShopId(shopId);
             e.setRoleId(roleId);
             e.setStatus(status);
+            
+            String shopCode = DatabaseHelper.getShopCodeByDatabaseName(databaseName);
+            
+            String link = "http://localhost:9999/SWP391_G4_SE1903/" + shopCode;
 
             try {
                 dao.addEmployee(e);
+                MailUtil.sendAccountCredentials(email, username, password, link);
             } catch (SQLException ex) {
                 Logger.getLogger(AddEmployee.class.getName()).log(Level.SEVERE, null, ex);
             }

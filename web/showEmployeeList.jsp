@@ -162,12 +162,12 @@
                                                                 <a class="dropdown-item" href="ShowDetailEmployee?id=${e.id}"><i class="bx bx-edit-alt me-1"></i> Chi tiết</a>
                                                                 <c:choose>
                                                                     <c:when test="${e.status}">
-                                                                        <a class="dropdown-item" href="UpdateStatusEmployee?id=${e.id}&status=0">
+                                                                        <a class="dropdown-item" href="UpdateStatusEmployee?id=${e.id}&statusE=0">
                                                                             <i class="bx bx-lock me-1"></i> Khoá tài khoản
                                                                         </a>
                                                                     </c:when>
                                                                     <c:otherwise>
-                                                                        <a class="dropdown-item" href="UpdateStatusEmployee?id=${e.id}&status=1">
+                                                                        <a class="dropdown-item" href="UpdateStatusEmployee?id=${e.id}&statusE=1">
                                                                             <i class="bx bx-lock-open me-1"></i> Mở tài khoản
                                                                         </a>
                                                                     </c:otherwise>

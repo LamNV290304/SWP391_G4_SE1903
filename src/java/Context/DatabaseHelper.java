@@ -68,6 +68,21 @@ public final class DatabaseHelper {
         return null;
     }
 
+    public static String getShopCodeByDatabaseName(String shopCode) {
+        String sql = "SELECT ShopCode FROM ShopOwners WHERE DatabaseName = ?";
+        try (Connection conn = DBContext.getCentralConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, shopCode);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("DatabaseName");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static String getShopNameByShopCode(String shopCode) {
         String sql = "SELECT ShopName FROM ShopOwners WHERE ShopCode = ?";
         try (Connection conn = DBContext.getCentralConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -123,18 +138,15 @@ public final class DatabaseHelper {
                                              [Description] NVARCHAR(255),
                                              Status BIT DEFAULT 1
                                          );
-                                         
                                          CREATE TABLE Unit (
                                              UnitID INT IDENTITY(1,1) PRIMARY KEY,
                                              [Description] NVARCHAR(255)
                                          );
-                                         
                                          CREATE TABLE Role (
                                              RoleID INT PRIMARY KEY,
                                              RoleName NVARCHAR(100) NOT NULL,
                                              [Description] NVARCHAR(255)
                                          );
-                                         
                                          CREATE TABLE Shop (
                                              ShopID INT IDENTITY(1,1) PRIMARY KEY,
                                              ShopName NVARCHAR(100) NOT NULL,
@@ -145,7 +157,6 @@ public final class DatabaseHelper {
                                              CreatedDate DATETIME DEFAULT GETDATE(),
                                              CreatedBy NVARCHAR(100)
                                          );
-                                         
                                          CREATE TABLE Customer (
                                              CustomerID INT IDENTITY(1,1) PRIMARY KEY,
                                              CustomerName NVARCHAR(100) NOT NULL,
@@ -156,7 +167,6 @@ public final class DatabaseHelper {
                                              CreatedDate DATETIME DEFAULT GETDATE(),
                                              CreatedBy NVARCHAR(100)
                                          );
-                                         
                                          CREATE TABLE Supplier (
                                              SupplierID INT IDENTITY(1,1) PRIMARY KEY,
                                              SupplierName NVARCHAR(100) NOT NULL,
@@ -167,7 +177,6 @@ public final class DatabaseHelper {
                                              CreatedDate DATETIME DEFAULT GETDATE(),
                                              CreatedBy NVARCHAR(100)
                                          );
-                                         
                                          CREATE TABLE Employee (
                                              EmployeeID INT IDENTITY(1,1) PRIMARY KEY,
                                              Username NVARCHAR(100) NOT NULL UNIQUE,
@@ -183,7 +192,6 @@ public final class DatabaseHelper {
                                              FOREIGN KEY (RoleID) REFERENCES Role(RoleID),
                                              FOREIGN KEY (ShopID) REFERENCES Shop(ShopID)
                                          );
-                                         
                                          CREATE TABLE Product (
                                              ProductID INT IDENTITY(1,1) PRIMARY KEY,
                                              ProductName NVARCHAR(255) NOT NULL,
@@ -199,7 +207,6 @@ public final class DatabaseHelper {
                                              FOREIGN KEY (CategoryID) REFERENCES Category(CategoryID),
                                              FOREIGN KEY (UnitID) REFERENCES Unit(UnitID)
                                          );
-                                         
                                          CREATE TABLE Invoice (
                                              InvoiceID INT IDENTITY(1,1) PRIMARY KEY,
                                              CustomerID INT NOT NULL,
@@ -213,7 +220,6 @@ public final class DatabaseHelper {
                                              FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
                                              FOREIGN KEY (ShopID) REFERENCES Shop(ShopID)
                                          );
-                                         
                                          CREATE TABLE InvoiceDetail (
                                              InvoiceDetailID INT IDENTITY(1,1) PRIMARY KEY,
                                              InvoiceID INT NOT NULL,
@@ -225,7 +231,6 @@ public final class DatabaseHelper {
                                              FOREIGN KEY (InvoiceID) REFERENCES Invoice(InvoiceID),
                                              FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
                                          );
-                                         
                                          CREATE TABLE ImportReceipt (
                                              ImportReceiptID INT IDENTITY(1,1) PRIMARY KEY,
                                              Code NVARCHAR(20) NOT NULL,
@@ -240,7 +245,6 @@ public final class DatabaseHelper {
                                              FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
                                              FOREIGN KEY (ShopID) REFERENCES Shop(ShopID)
                                          );
-                                         
                                          CREATE TABLE ImportReceiptDetail (
                                              ImportReceiptDetailID INT IDENTITY(1,1) PRIMARY KEY,
                                              ImportReceiptID INT NOT NULL,
@@ -251,7 +255,6 @@ public final class DatabaseHelper {
                                              FOREIGN KEY (ImportReceiptID) REFERENCES ImportReceipt(ImportReceiptID),
                                              FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
                                          );
-                                         
                                          CREATE TABLE Inventory (
                                              InventoryID INT IDENTITY(1,1) PRIMARY KEY,
                                              ProductID INT NOT NULL,
@@ -261,18 +264,75 @@ public final class DatabaseHelper {
                                              FOREIGN KEY (ProductID) REFERENCES Product(ProductID),
                                              FOREIGN KEY (ShopID) REFERENCES Shop(ShopID)
                                          );
-                                         
                                          CREATE TABLE TransferReceipt (
                                              TransferReceiptID INT IDENTITY(1,1) PRIMARY KEY,
-                                             ProductID INT NOT NULL,
-                                             FromInventoryID INT NOT NULL,
-                                             ToInventoryID INT NOT NULL,
-                                             Quantity INT NOT NULL,
+                                             FromShopID INT NOT NULL,
+                                             ToShopID INT NOT NULL,
                                              TransferDate DATETIME DEFAULT GETDATE(),
                                              Note NVARCHAR(255),
-                                             FOREIGN KEY (ProductID) REFERENCES Product(ProductID),
-                                             FOREIGN KEY (FromInventoryID) REFERENCES Inventory(InventoryID),
-                                             FOREIGN KEY (ToInventoryID) REFERENCES Inventory(InventoryID)
+                                         	Status INT NOT NULL DEFAULT 0,
+                                             FOREIGN KEY (FromShopID) REFERENCES Shop(ShopID),
+                                             FOREIGN KEY (ToShopID) REFERENCES Shop(ShopID)
+                                         );
+                                         CREATE TABLE TransferReceiptDetail (
+                                             TransferReceiptDetailID INT IDENTITY PRIMARY KEY,
+                                             TransferReceiptID INT NOT NULL,
+                                             ProductID INT NOT NULL,
+                                             Quantity INT NOT NULL,
+                                             FOREIGN KEY (TransferReceiptID) REFERENCES TransferReceipt(TransferReceiptID),
+                                             FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
+                                         );
+                                         CREATE TABLE TypeImportReceipt (
+                                             TypeID INT IDENTITY(1,1) PRIMARY KEY,
+                                             TypeName NVARCHAR(100) NOT NULL
+                                         );
+                                         
+                                         CREATE TABLE TypeExportReceipt (
+                                             TypeID INT IDENTITY(1,1) PRIMARY KEY,
+                                             TypeName NVARCHAR(100) NOT NULL
+                                         );
+                                         CREATE TABLE ExportReceipt (
+                                             ExportReceiptID INT IDENTITY(1,1) PRIMARY KEY,
+                                             EmployeeID INT NOT NULL,
+                                             ShopID INT,
+                                             ReceiptDate DATETIME DEFAULT GETDATE(),
+                                             TotalAmount DECIMAL(18, 2) NOT NULL,
+                                             Note NVARCHAR(255),
+                                             Status BIT DEFAULT 1,
+                                             TypeID INT NOT NULL,
+                                             FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
+                                             FOREIGN KEY (ShopID) REFERENCES Shop(ShopID),
+                                             FOREIGN KEY (TypeID) REFERENCES TypeExportReceipt(TypeID)
+                                         );
+                                         CREATE TABLE ExportReceiptDetail (
+                                             ExportReceiptDetailID INT IDENTITY(1,1) PRIMARY KEY,
+                                             ExportReceiptID INT NOT NULL,
+                                             ProductID INT NOT NULL,
+                                             Quantity INT NOT NULL,
+                                             Price DECIMAL(18, 2) NOT NULL,
+                                             Note NVARCHAR(255),
+                                             FOREIGN KEY (ExportReceiptID) REFERENCES ExportReceipt(ExportReceiptID),
+                                             FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
+                                         );
+                                         CREATE TABLE InventoryCheck (
+                                             InventoryCheckID INT IDENTITY(1,1) PRIMARY KEY,
+                                             EmployeeID INT NOT NULL,
+                                             ShopID INT NOT NULL,
+                                             CheckDate DATETIME DEFAULT GETDATE(),
+                                             Note NVARCHAR(255),
+                                             FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
+                                             FOREIGN KEY (ShopID) REFERENCES Shop(ShopID)
+                                         );
+                                         CREATE TABLE InventoryCheckDetail (
+                                             InventoryCheckDetailID INT IDENTITY(1,1) PRIMARY KEY,
+                                             InventoryCheckID INT NOT NULL,
+                                             ProductID INT NOT NULL,
+                                             QuantitySystem INT NOT NULL,     
+                                             QuantityActual INT NOT NULL,     
+                                             Difference AS (QuantityActual - QuantitySystem) PERSISTED, 
+                                             Note NVARCHAR(255),
+                                             FOREIGN KEY (InventoryCheckID) REFERENCES InventoryCheck(InventoryCheckID),
+                                             FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
                                          );
                                         """;
 
