@@ -68,6 +68,21 @@ public final class DatabaseHelper {
         return null;
     }
 
+    public static String getShopCodeByDatabaseName(String shopCode) {
+        String sql = "SELECT ShopCode FROM ShopOwners WHERE DatabaseName = ?";
+        try (Connection conn = DBContext.getCentralConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, shopCode);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("DatabaseName");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static String getShopNameByShopCode(String shopCode) {
         String sql = "SELECT ShopName FROM ShopOwners WHERE ShopCode = ?";
         try (Connection conn = DBContext.getCentralConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -128,7 +143,7 @@ public final class DatabaseHelper {
                                              [Description] NVARCHAR(255)
                                          );
                                          CREATE TABLE Role (
-                                             RoleID INT IDENTITY(1,1) PRIMARY KEY,
+                                             RoleID INT PRIMARY KEY,
                                              RoleName NVARCHAR(100) NOT NULL,
                                              [Description] NVARCHAR(255)
                                          );
@@ -251,20 +266,27 @@ public final class DatabaseHelper {
                                          );
                                          CREATE TABLE TransferReceipt (
                                              TransferReceiptID INT IDENTITY(1,1) PRIMARY KEY,
-                                             ProductID INT NOT NULL,
-                                             FromInventoryID INT NOT NULL,
-                                             ToInventoryID INT NOT NULL,
-                                             Quantity INT NOT NULL,
+                                             FromShopID INT NOT NULL,
+                                             ToShopID INT NOT NULL,
                                              TransferDate DATETIME DEFAULT GETDATE(),
                                              Note NVARCHAR(255),
-                                             FOREIGN KEY (ProductID) REFERENCES Product(ProductID),
-                                             FOREIGN KEY (FromInventoryID) REFERENCES Inventory(InventoryID),
-                                             FOREIGN KEY (ToInventoryID) REFERENCES Inventory(InventoryID)
+                                         	Status INT NOT NULL DEFAULT 0,
+                                             FOREIGN KEY (FromShopID) REFERENCES Shop(ShopID),
+                                             FOREIGN KEY (ToShopID) REFERENCES Shop(ShopID)
+                                         );
+                                         CREATE TABLE TransferReceiptDetail (
+                                             TransferReceiptDetailID INT IDENTITY PRIMARY KEY,
+                                             TransferReceiptID INT NOT NULL,
+                                             ProductID INT NOT NULL,
+                                             Quantity INT NOT NULL,
+                                             FOREIGN KEY (TransferReceiptID) REFERENCES TransferReceipt(TransferReceiptID),
+                                             FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
                                          );
                                          CREATE TABLE TypeImportReceipt (
                                              TypeID INT IDENTITY(1,1) PRIMARY KEY,
                                              TypeName NVARCHAR(100) NOT NULL
                                          );
+                                         
                                          CREATE TABLE TypeExportReceipt (
                                              TypeID INT IDENTITY(1,1) PRIMARY KEY,
                                              TypeName NVARCHAR(100) NOT NULL
@@ -305,9 +327,9 @@ public final class DatabaseHelper {
                                              InventoryCheckDetailID INT IDENTITY(1,1) PRIMARY KEY,
                                              InventoryCheckID INT NOT NULL,
                                              ProductID INT NOT NULL,
-                                             QuantitySystem INT NOT NULL,
-                                             QuantityActual INT NOT NULL,
-                                             Difference AS (QuantityActual - QuantitySystem) PERSISTED,
+                                             QuantitySystem INT NOT NULL,     
+                                             QuantityActual INT NOT NULL,     
+                                             Difference AS (QuantityActual - QuantitySystem) PERSISTED, 
                                              Note NVARCHAR(255),
                                              FOREIGN KEY (InventoryCheckID) REFERENCES InventoryCheck(InventoryCheckID),
                                              FOREIGN KEY (ProductID) REFERENCES Product(ProductID)

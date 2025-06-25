@@ -67,8 +67,8 @@
                     <!-- Forgot Password -->
                     <div class="card">
                         <div class="card-body">
-                            <h4 class="mb-2">Forgot Password? 🔒</h4>
-                            <p class="mb-4">Enter your email and we'll send you instructions to reset your password</p>
+                            <h4 class="mb-2">Quên mật khẩu? 🔒</h4>
+                            <p class="mb-4">Nhập Email của bạn</p>
                             <form id="formAuthentication" class="mb-3" action="ForgotPassword" method="POST">
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email</label>
@@ -77,16 +77,16 @@
                                         class="form-control"
                                         id="email"
                                         name="email"
-                                        placeholder="Enter your email"
+                                        placeholder="Nhập email"
                                         autofocus
                                         />
                                 </div>
-                                <button class="btn btn-primary d-grid w-100">Send Verify OTP</button>
+                                <button class="btn btn-primary d-grid w-100">Gửi mã OTP</button>
                             </form>
                             <div class="text-center">
                                 <a href="login.jsp" class="d-flex align-items-center justify-content-center">
                                     <i class="bx bx-chevron-left scaleX-n1-rtl bx-sm"></i>
-                                    Back to login
+                                    Quay lại đăng nhập
                                 </a>
                             </div>
                         </div>

@@ -93,16 +93,24 @@
         <servlet-class>Controller.Logout</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>Test</servlet-name>
-        <servlet-class>Controller.Test</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>InventoryCheckServlet</servlet-name>
         <servlet-class>Controller.InventoryCheckServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>AddInventoryCheck</servlet-name>
         <servlet-class>Controller.AddInventoryCheck</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ChangePasswordShopOwner</servlet-name>
+        <servlet-class>Controller.ChangePasswordShopOwner</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ShowServicePackage</servlet-name>
+        <servlet-class>Controller.ShowServicePackage</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ShowPaymentHistory</servlet-name>
+        <servlet-class>Controller.ShowPaymentHistory</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>StartProject</servlet-name>
@@ -198,16 +206,24 @@
         <url-pattern>/Logout</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>Test</servlet-name>
-        <url-pattern>/Test</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>InventoryCheckServlet</servlet-name>
         <url-pattern>/InventoryCheckServlet</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>AddInventoryCheck</servlet-name>
         <url-pattern>/AddInventoryCheck</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ChangePasswordShopOwner</servlet-name>
+        <url-pattern>/ChangePasswordShopOwner</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ShowServicePackage</servlet-name>
+        <url-pattern>/ShowServicePackage</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ShowPaymentHistory</servlet-name>
+        <url-pattern>/ShowPaymentHistory</url-pattern>
     </servlet-mapping>
     <error-page>
         <error-code>404</error-code>

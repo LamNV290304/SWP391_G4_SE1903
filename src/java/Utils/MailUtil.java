@@ -6,14 +6,13 @@ package Utils;
 
 import java.util.Date;
 import java.util.Properties;
-import javax.mail.Authenticator; 
-import javax.mail.PasswordAuthentication; 
+import javax.mail.Authenticator;
+import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 import javax.mail.Message;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
-
 
 /**
  *
@@ -35,7 +34,7 @@ public class MailUtil {
         Authenticator auth = new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(FROM, PASSWORD); 
+                return new PasswordAuthentication(FROM, PASSWORD);
             }
         };
         // create a java mail session
@@ -53,7 +52,7 @@ public class MailUtil {
             e.printStackTrace();
         }
     }
-    
+
     public static void sendLink(String toEmail, String link) {
         Properties pros = new Properties();
         pros.put("mail.smtp.host", "smtp.gmail.com"); //using SMTP host of gmail
@@ -65,7 +64,7 @@ public class MailUtil {
         Authenticator auth = new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(FROM, PASSWORD); 
+                return new PasswordAuthentication(FROM, PASSWORD);
             }
         };
         // create a java mail session
@@ -83,8 +82,50 @@ public class MailUtil {
             e.printStackTrace();
         }
     }
-    
-    public static void main(String[] args){
+
+    public static void sendAccountCredentials(String toEmail, String username, String password, String link) {
+        Properties pros = new Properties();
+        pros.put("mail.smtp.host", "smtp.gmail.com");
+        pros.put("mail.smtp.port", "587");
+        pros.put("mail.smtp.auth", "true");
+        pros.put("mail.smtp.starttls.enable", "true");
+
+        Authenticator auth = new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(FROM, PASSWORD);
+            }
+        };
+
+        Session session = Session.getInstance(pros, auth);
+        MimeMessage msg = new MimeMessage(session);
+
+        try {
+            msg.addHeader("Content-type", "text/HTML; charset=UTF-8");
+            msg.setFrom(FROM);
+            msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail, false));
+            msg.setSubject("Thông tin tài khoản đăng nhập hệ thống");
+            msg.setSentDate(new Date());
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("Xin chào bạn,\n\n");
+            sb.append("Tài khoản của bạn đã được tạo thành công. Dưới đây là thông tin đăng nhập:\n\n");
+            sb.append("Tên đăng nhập: ").append(username).append("\n");
+            sb.append("Mật khẩu: ").append(password).append("\n\n");
+            sb.append("Hãy đăng nhập và đổi mật khẩu để bảo mật thông tin.\n");
+            sb.append("Đăng nhập ở link: ").append(link).append("\n");
+            sb.append("Trân trọng,\n");
+            sb.append("Phòng Hệ Thống");
+
+            msg.setText(sb.toString());
+
+            Transport.send(msg);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
         sendCode("vietlam2k4@gmail.com", "203817");
     }
 

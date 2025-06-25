@@ -67,6 +67,7 @@ public class ShowEmployeeList extends HttpServlet {
             throws ServletException, IOException {
         int page = 1;
         int recordsPerPage = 10;
+        String databaseName = (String) request.getSession().getAttribute("databaseName");
 
         if (request.getParameter("page") != null) {
             page = Integer.parseInt(request.getParameter("page"));
@@ -83,16 +84,16 @@ public class ShowEmployeeList extends HttpServlet {
         Integer roleId = (roleIdParam != null && !roleIdParam.isEmpty()) ? Integer.parseInt(roleIdParam) : null;
         Boolean status = (statusParam != null && !statusParam.isEmpty()) ? statusParam.equals("1") : null;
 
-        try (Connection conn = DBContext.getConnection("ShopDB_TTest")) {
+        try (Connection conn = DBContext.getConnection(databaseName)) {
             EmployeeDAO dao = new EmployeeDAO(conn);
             ShopDAO shopDAO = new ShopDAO();
             RoleDAO roleDAO = new RoleDAO(conn);
-            
+
             List<EmployeeDto> employeeList = dao.getEmployeesByPage(page, recordsPerPage, shopId, roleId, status, sort, keyword);
-            int totalRecords = dao.getTotalEmployeeCount(shopId,roleId, status, keyword);
+            int totalRecords = dao.getTotalEmployeeCount(shopId, roleId, status, keyword);
             int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
 
-            List<Shop> shopList = shopDAO.getAllShops("ShopDB_TTest");
+            List<Shop> shopList = shopDAO.getAllShops(databaseName);
             List<Role> roleList = roleDAO.getAllRoles();
             request.setAttribute("employeeList", employeeList);
             request.setAttribute("currentPage", page);
@@ -118,7 +119,7 @@ public class ShowEmployeeList extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        doGet(request, response);
     }
 
     /**

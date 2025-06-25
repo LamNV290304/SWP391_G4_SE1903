@@ -11,6 +11,7 @@ import java.util.Date;
  * @author Admin
  */
 public class EmployeeDto {
+
     private int id;
     private String fullName;
     private String email;
@@ -43,7 +44,7 @@ public class EmployeeDto {
     public void setPhone(String phone) {
         this.phone = phone;
     }
-    
+
     public int getId() {
         return id;
     }
@@ -108,5 +109,18 @@ public class EmployeeDto {
         this.username = username;
     }
 
-    
+    @Override
+    public String toString() {
+        return "EmployeeDto {"
+                + "id=" + id
+                + ", fullName='" + fullName + '\''
+                + ", email='" + email + '\''
+                + ", username='" + username + '\''
+                + ", phone='" + phone + '\''
+                + ", status=" + status 
+                + ", createdDate=" + createdDate
+                + ", shopName='" + shopName + '\''
+                + ", role='" + role + '\''
+                + '}';
+    }
 }
