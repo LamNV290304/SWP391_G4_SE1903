@@ -257,7 +257,6 @@ public class AddImportReceipt extends HttpServlet {
         ShopDAO shopDao = new ShopDAO();
         SupplierDAO supDAO = new SupplierDAO(conn);
         ProductDAO ProDAO = new ProductDAO(conn);
-<<<<<<< Updated upstream
        
         request.setAttribute("listEmp", empDao.getAllEmployee());
         request.setAttribute("listSup", supDAO.getAllSuppliers());
@@ -267,13 +266,12 @@ public class AddImportReceipt extends HttpServlet {
          
         request.setAttribute("listProduct", ProDAO.getAllProducts());
         
-=======
+
         request.setAttribute("listEmp", empDao.getAllEmployee());
         request.setAttribute("listSup", supDAO.getAllSuppliers());
         request.setAttribute("listShop", shopDao.getAllShops("SWP7"));
         request.setAttribute("listType", typeImp.getAllTypeImportReceipts());
         request.setAttribute("listProduct", ProDAO.getAllProducts());
->>>>>>> Stashed changes
         request.getRequestDispatcher("AddImportReceipt.jsp").forward(request, response);
     } 
 
@@ -410,12 +408,6 @@ ShopDAO shopDAO = new ShopDAO();
             receiptDAO.insertImportReceipt(receipt);
             
             List<ImportReceiptDetail> listImportDetail = new ArrayList<>();
-<<<<<<< Updated upstream
-          
-=======
-             
->>>>>>> Stashed changes
-            
 String[] productIDs = request.getParameterValues("productID[]");
 String[] quantities = request.getParameterValues("quantity[]");
 String[] prices = request.getParameterValues("price[]");
@@ -424,11 +416,8 @@ String[] notes = request.getParameterValues("note[]");
 int size= productIDs.length;
 for(int i=0;i<size;i++){
     ImportReceiptDetail importDetail = new ImportReceiptDetail( 
-<<<<<<< Updated upstream
-            receiptDetailDAO.getImportReceiptIDByInfo(receipt), 
-=======
-            receiptDAO.get, 
->>>>>>> Stashed changes
+
+            receiptDetailDAO.getImportReceiptIDByInfo(receipt),
             productIDs[i],  Integer.parseInt(quantities[i]), Double.parseDouble(prices[i]), notes[i]);
     listImportDetail.add(importDetail);
           
@@ -439,11 +428,7 @@ for(int i=0;i<size;i++){
 for(ImportReceiptDetail importDetail : listImportDetail){
    
      // Kiểm tra và cập nhật tồn kho
-<<<<<<< Updated upstream
             Inventory inv = inventoryDAO.getInventoryByShopAndProduct( Integer.parseInt(importDetail.getProductID()),Integer.parseInt(shopID_raw));
-=======
-            Inventory inv = inventoryDAO.getInventoryByShopAndProduct( Integer.parseInt(importDetail.getProductID()),Integer.parseInt(shopID));
->>>>>>> Stashed changes
             
           
             if (inv != null) {
