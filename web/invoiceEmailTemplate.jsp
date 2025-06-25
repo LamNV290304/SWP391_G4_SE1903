@@ -7,8 +7,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Hóa Đơn Của Bạn</title>
         <style>
-            /* CSS nhúng trực tiếp vào HTML (Inline CSS) hoặc trong thẻ <style> */
-            /* Email client hỗ trợ CSS kém, nên tốt nhất là inline hoặc tối thiểu như thế này */
+
             body {
                 font-family: Arial, sans-serif;
                 font-size: 14px;
@@ -72,12 +71,12 @@
             <h2>HÓA ĐƠN BÁN HÀNG</h2>
             <p><strong>Mã Hóa đơn:</strong> #${selectedInvoice.invoiceID}</p>
             <p><strong>Ngày lập:</strong> <fmt:formatDate value="${selectedInvoice.invoiceDate}" pattern="dd/MM/yyyy HH:mm:ss"/></p>
-            <p><strong>Nhân viên:</strong>
+<!--            <p><strong>Nhân viên:</strong>
                 <c:choose>
                     <c:when test="${not empty selectedEmployee}">${selectedEmployee.fullName} (${selectedEmployee.id})</c:when>
                     <c:otherwise>${selectedInvoice.employeeID} <span class="text-muted-invoice"></span></c:otherwise>
                 </c:choose>
-            </p>
+            </p>-->
             <p><strong>Khách hàng:</strong>
                 <c:choose>
                     <c:when test="${not empty selectedCustomer}">${selectedCustomer.customerName}</c:when>

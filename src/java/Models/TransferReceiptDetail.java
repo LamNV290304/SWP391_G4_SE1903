@@ -12,16 +12,16 @@ public class TransferReceiptDetail {
 
     private int TransferReceiptDetailID;
     private int TransferReceiptID;
-    private String ProductID;
+    private int ProductID;
     private int Quantity;
 
-    public TransferReceiptDetail(int TransferReceiptID, String ProductID, int Quantity) { 
+    public TransferReceiptDetail(int TransferReceiptID, int ProductID, int Quantity) { 
         this.TransferReceiptID = TransferReceiptID;
         this.ProductID = ProductID;
         this.Quantity = Quantity;
     }
 
-    public TransferReceiptDetail(int TransferReceiptDetailID, int TransferReceiptID, String ProductID, int Quantity) {
+    public TransferReceiptDetail(int TransferReceiptDetailID, int TransferReceiptID, int ProductID, int Quantity) {
         this.TransferReceiptDetailID = TransferReceiptDetailID;
         this.TransferReceiptID = TransferReceiptID;
         this.ProductID = ProductID;
@@ -44,11 +44,11 @@ public class TransferReceiptDetail {
         this.TransferReceiptID = TransferReceiptID;
     }
 
-    public String getProductID() {
+    public int getProductID() {
         return ProductID;
     }
 
-    public void setProductID(String ProductID) {
+    public void setProductID(int ProductID) {
         this.ProductID = ProductID;
     }
 
