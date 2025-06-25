@@ -111,7 +111,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
     </select>
         </div>
         <div class="mb-3">
-          <label for="receiptId" class="form-label">ID Phiếu Nhập</label>
+          <label for="receiptId" class="form-label">Ngày nhập hàng</label>
           <input type="date" id="importDate" name="Date" class="form-control" required />
         </div>
         
@@ -164,21 +164,25 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
             </tr>
           </thead>
           <tbody>
-            <tr>
-                
-                <td> 
-          <select class="form-select" name="productID[]">
-    <option selected disabled>Chọn Sản Phẩm</option>
-    <c:forEach var="prod" items="${listProduct}">
-      <option value="${prod.productID}">${prod.productName}</option>
-    </c:forEach>
-  </select></td>
-    <td><input type="number" name="quantity[]" class="form-control" required /></td>
-    <td><input type="number" name="price[]" class="form-control" required /></td>
-    <td><input type="number" name="total[]" class="form-control" readonly /></td>
-    <td><input type="text" name="note[]" class="form-control" required /></td>
-    <td><button type="button" class="btn btn-danger btn-sm remove-row">Xóa</button></td>
-            </tr>
+            <c:forEach var="d" items="${details}">
+<tr>
+  <td>
+    <select class="form-select" name="productID[]">
+      <c:forEach var="prod" items="${listProduct}">
+        <option value="${prod.productID}" <c:if test="${prod.productID == d.productID}">selected</c:if>>
+          ${prod.productName}
+        </option>
+      </c:forEach>
+    </select>
+  </td>
+  <td><input type="number" name="quantity[]" class="form-control" value="${d.quantity}" required /></td>
+  <td><input type="number" name="price[]" class="form-control" value="${d.unitPrice}" required /></td>
+  <td><input type="number" name="total[]" class="form-control" value="${d.quantity * d.unitPrice}" readonly /></td>
+  <td><input type="text" name="note[]" class="form-control" value="${d.note}" required /></td>
+  <td><button type="button" class="btn btn-danger btn-sm remove-row">Xóa</button></td>
+</tr>
+</c:forEach>
+
           </tbody>
         </table>
           </div>
@@ -264,13 +268,6 @@ document.addEventListener("input", function (e) {
     </c:forEach>
   `;
 </script>
-<script>
-  const productOptions = `
-    <c:forEach var="ltype" items="${listProduct}">
-      <option value="${ltype.productID}">${ltype.productName}</option>
-    </c:forEach>
-  `;
-</script>
   </div>
 </form>
 
@@ -286,9 +283,6 @@ document.addEventListener("input", function (e) {
               <!--/ Responsive Table -->
                 </div>
             </div>
-        
-
-        </div>
 
 
         <script src="assets/vendor/libs/jquery/jquery.js"></script>

@@ -46,6 +46,7 @@
 
                 <div class="layout-page">
                     <jsp:include page="navBar.jsp" />
+<<<<<<< Updated upstream
                      <div class="container" style="padding-top: 20px;"> 
                   <!-- Responsive Table -->
                   <div class="card col-sm-12" style="height: 90vh; overflow: hidden;">
@@ -280,6 +281,9 @@
                   
                     <div class="content-wrapper">
                         
+=======
+                    <div class="content-wrapper">
+>>>>>>> Stashed changes
                         </div>
                     <jsp:include page="footer.jsp" />
                 </div>

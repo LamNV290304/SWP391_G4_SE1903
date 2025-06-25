@@ -69,6 +69,7 @@ public class EmployeeDAO {
         return l;
     }
 
+<<<<<<< Updated upstream
     public void addEmployee(Employee e) throws SQLException {
         String sql = "INSERT INTO Employee (FullName, Username, Email, Phone, Password, ShopId, RoleId, Status, CreatedDate) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, GETDATE())";
@@ -82,6 +83,25 @@ public class EmployeeDAO {
             ps.setInt(7, e.getRoleId());
             ps.setBoolean(8, e.isStatus());
             ps.executeUpdate();
+=======
+    public boolean addEmployee(Employee employee) throws SQLException {
+        String sql = "INSERT INTO Employee (Username, Password, Fullname, Phone, Email, Status, CreateDate, RoleId, ShopId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, employee.getUsername());
+            stmt.setString(2, employee.getPassword());
+            stmt.setString(3, employee.getFullname());
+            stmt.setString(4, employee.getPhone());
+            stmt.setString(5, employee.getEmail());  // thêm email ở vị trí thứ 5
+            stmt.setBoolean(6, employee.isStatus());
+            stmt.setDate(7, new java.sql.Date(employee.getCreateDate().getTime()));
+            stmt.setInt(8, employee.getRole().getId());
+            stmt.setInt(9, employee.getShop().getShopID());
+            stmt.executeUpdate();
+            return true;
+        } catch (Exception ex) {
+            System.out.println("Error: " + ex.getMessage() + ex.getStackTrace());
+            return false;
+>>>>>>> Stashed changes
         }
     }
 
@@ -403,6 +423,7 @@ public List<EmployeeDto> listAllEmployeeDTO() throws SQLException {
 
     public static void main(String[] args) throws ClassNotFoundException {
 
+<<<<<<< Updated upstream
         try (Connection conn = new DBContext("SWP7").getConnection()) {
         EmployeeDAO dao = new EmployeeDAO(conn);
         List<EmployeeDto> list = dao.listAllEmployeeDTO();
@@ -412,12 +433,30 @@ public List<EmployeeDto> listAllEmployeeDTO() throws SQLException {
         } catch (SQLException ex) {
             Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
+=======
+        try (Connection conn = DBContext.getConnection("SWP7")) {
+            EmployeeDAO dao = new EmployeeDAO(conn);
+
+>>>>>>> Stashed changes
             // 🔢 Test getTotalEmployeeCount()
             //int total = dao.getTotalEmployeeCount();
             //System.out.println("🧮 Tổng số nhân viên: " + total);
             // 🔁 Test getEmployeesByPage(page, size)
+<<<<<<< Updated upstream
   
             //List<EmployeeDto> list = dao.getEmployeesByPage(page, size);
+=======
+            int page = 1;
+            int size = 5;
+
+            List<Employee> list = dao.getAllEmployee();
+            System.out.println("📋 Danh sách nhân viên (trang " + page + "):");
+           for (Employee e : list) {
+               System.out.println("- " + e.getFullname() + " | " + e.getEmail()
+                        + " | Shop: " + e.getShopId()
+                       + " | Status: " + (e.isStatus() ? "Active" : "Inactive"));
+         }
+>>>>>>> Stashed changes
 
     }
 

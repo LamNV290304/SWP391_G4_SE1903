@@ -56,7 +56,10 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         <div  class="layout-wrapper layout-content-navbar">
             <div class="layout-container">
                 <!--menu-->
+<<<<<<< Updated upstream
 <<<<<<< HEAD
+=======
+>>>>>>> Stashed changes
                 <jsp:include page="sidebar.jsp" />
                
                 <div class="layout-page">
@@ -114,12 +117,20 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                               <i class="bx bx-dots-vertical-rounded"></i>
                             </button>
                             <div class="dropdown-menu">
+<<<<<<< Updated upstream
                                 <form class="dropdown-item" action="AddImportReceipt" >
+=======
+                                <form class="dropdown-item" action="ImportReceipt" method="GET">
+>>>>>>> Stashed changes
                                     <input type="hidden" name="action" value="edit" />
                                     <input type="hidden" name="receiptId" value="${ir.importReceiptID}" />
                                     <button class="btn btn-secondary" type="submit"><i>Edit</i></button>
                                 </form>
+<<<<<<< Updated upstream
                                 <form class="dropdown-item" action="AddImportReceipt" method="GET">
+=======
+                                <form class="dropdown-item" action="ImportReceipt" method="GET">
+>>>>>>> Stashed changes
                                     <input type="hidden" name="action" value="delete" />
                                     <input type="hidden" name="receiptId" value="${ir.importReceiptID}" />
                                     <button class="btn btn-secondary" type="submit"><i>Delete</i></button>

@@ -2,31 +2,42 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 package Controller;
 
 import Context.DBContext;
 import Dal.EmployeeDAO;
+<<<<<<< Updated upstream
 import Dal.ExportReceiptDAO;
 import Dal.ExportReceiptDetailDAO;
 import Dal.ImportReceiptDAO;
 import Dal.ImportReceiptDetailDAO;
 import Dal.InventoryDAO;
+=======
+>>>>>>> Stashed changes
 import Dal.ProductDAO;
 import Dal.ShopDAO;
 import Dal.SupplierDAO;
 import Dal.TypeExportReceiptDAO;
 import Dal.TypeImportReceiptDAO;
+<<<<<<< Updated upstream
 import Models.ExportReceipt;
 import Models.ExportReceiptDetail;
 import Models.ImportReceipt;
 import Models.ImportReceiptDetail;
 import Models.Inventory;
+=======
+>>>>>>> Stashed changes
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+<<<<<<< Updated upstream
 import static java.math.BigDecimal.valueOf;
 import java.sql.Connection;
 import java.sql.Timestamp;
@@ -35,24 +46,37 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+=======
+import java.sql.Connection;
+>>>>>>> Stashed changes
 
 /**
  *
  * @author Thai Anh
  */
 public class AddExportReceipt extends HttpServlet {
+<<<<<<< Updated upstream
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
      *
+=======
+   
+    /** 
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+>>>>>>> Stashed changes
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+<<<<<<< Updated upstream
             throws ServletException, IOException {
+=======
+    throws ServletException, IOException {
+>>>>>>> Stashed changes
         response.setContentType("text/html;charset=UTF-8");
         Connection conn = new DBContext("SWP7").getConnection();
         EmployeeDAO empDao = new EmployeeDAO(conn);
@@ -60,12 +84,16 @@ public class AddExportReceipt extends HttpServlet {
         ShopDAO shopDao = new ShopDAO();
         SupplierDAO supDAO = new SupplierDAO(conn);
         ProductDAO ProDAO = new ProductDAO(conn);
+<<<<<<< Updated upstream
         InventoryDAO ivtDAO = new InventoryDAO(conn);
+=======
+>>>>>>> Stashed changes
         request.setAttribute("listEmp", empDao.getAllEmployee());
         request.setAttribute("listSup", supDAO.getAllSuppliers());
         request.setAttribute("listShop", shopDao.getAllShops("SWP7"));
         request.setAttribute("listType", typeImp.getAllTypeExportReceipts());
         request.setAttribute("listProduct", ProDAO.getAllProducts());
+<<<<<<< Updated upstream
         request.setAttribute("listIvt", ivtDAO.getAllInventories());
         request.getRequestDispatcher("AddExportReceipt.jsp").forward(request, response);
     }
@@ -74,6 +102,14 @@ public class AddExportReceipt extends HttpServlet {
     /**
      * Handles the HTTP <code>GET</code> method.
      *
+=======
+        request.getRequestDispatcher("AddExportReceipt.jsp").forward(request, response);
+    } 
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /** 
+     * Handles the HTTP <code>GET</code> method.
+>>>>>>> Stashed changes
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -81,6 +117,7 @@ public class AddExportReceipt extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
+<<<<<<< Updated upstream
             throws ServletException, IOException {
         processRequest(request, response);
     }
@@ -88,6 +125,14 @@ public class AddExportReceipt extends HttpServlet {
     /**
      * Handles the HTTP <code>POST</code> method.
      *
+=======
+    throws ServletException, IOException {
+        processRequest(request, response);
+    } 
+
+    /** 
+     * Handles the HTTP <code>POST</code> method.
+>>>>>>> Stashed changes
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -95,6 +140,7 @@ public class AddExportReceipt extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
+<<<<<<< Updated upstream
             throws ServletException, IOException {
         String code = request.getParameter("code");
         String employeeID = request.getParameter("EmployeeID");
@@ -202,6 +248,14 @@ public class AddExportReceipt extends HttpServlet {
     /**
      * Returns a short description of the servlet.
      *
+=======
+    throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /** 
+     * Returns a short description of the servlet.
+>>>>>>> Stashed changes
      * @return a String containing servlet description
      */
     @Override
