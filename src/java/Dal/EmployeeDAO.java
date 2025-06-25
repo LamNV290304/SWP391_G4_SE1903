@@ -70,19 +70,25 @@ public class EmployeeDAO {
         return l;
     }
 
-    public void addEmployee(Employee e) throws SQLException {
-        String sql = "INSERT INTO Employee (FullName, Username, Email, Phone, Password, ShopId, RoleId, Status, CreatedDate) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, GETDATE())";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, e.getFullname());
-            ps.setString(2, e.getUsername());
-            ps.setString(3, e.getEmail());
-            ps.setString(4, e.getPhone());
-            ps.setString(5, e.getPassword());
-            ps.setInt(6, e.getShopId());
-            ps.setInt(7, e.getRoleId());
-            ps.setBoolean(8, e.isStatus());
-            ps.executeUpdate();
+ 
+    public boolean addEmployee(Employee employee) throws SQLException {
+        String sql = "INSERT INTO Employee (Username, Password, Fullname, Phone, Email, Status, CreateDate, RoleId, ShopId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, employee.getUsername());
+            stmt.setString(2, employee.getPassword());
+            stmt.setString(3, employee.getFullname());
+            stmt.setString(4, employee.getPhone());
+            stmt.setString(5, employee.getEmail());  // thêm email ở vị trí thứ 5
+            stmt.setBoolean(6, employee.isStatus());
+            stmt.setDate(7, new java.sql.Date(employee.getCreateDate().getTime()));
+            stmt.setInt(8, employee.getRole().getId());
+            stmt.setInt(9, employee.getShop().getShopID());
+            stmt.executeUpdate();
+            return true;
+        } catch (Exception ex) {
+            System.out.println("Error: " + ex.getMessage() + ex.getStackTrace());
+            return false;
+
         }
     }
 
@@ -401,6 +407,7 @@ public class EmployeeDAO {
             }
         }
     }
+
 
     public boolean updateEmployeeStatus(int id, boolean status) throws SQLException {
         String sql = "UPDATE Employee SET status = ? WHERE id = ?";

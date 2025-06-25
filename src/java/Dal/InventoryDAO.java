@@ -281,7 +281,7 @@ public class InventoryDAO {
     public static void main(String[] args) {
         try (Connection conn = new DBContext("SWP7").getConnection()) {
             InventoryDAO dao = new InventoryDAO(conn);
-            List<Inventory> inventories = dao.getAllInventoriesInStore(1);
+            List<Inventory> inventories = dao.getAllInventories();
             if (inventories.isEmpty()) {
                 System.out.println("❌ Không có hàng tồn kho nào.");
             } else {

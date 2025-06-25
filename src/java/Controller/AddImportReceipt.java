@@ -257,6 +257,7 @@ public class AddImportReceipt extends HttpServlet {
         ShopDAO shopDao = new ShopDAO();
         SupplierDAO supDAO = new SupplierDAO(conn);
         ProductDAO ProDAO = new ProductDAO(conn);
+<<<<<<< Updated upstream
        
         request.setAttribute("listEmp", empDao.getAllEmployee());
         request.setAttribute("listSup", supDAO.getAllSuppliers());
@@ -266,6 +267,13 @@ public class AddImportReceipt extends HttpServlet {
          
         request.setAttribute("listProduct", ProDAO.getAllProducts());
         
+=======
+        request.setAttribute("listEmp", empDao.getAllEmployee());
+        request.setAttribute("listSup", supDAO.getAllSuppliers());
+        request.setAttribute("listShop", shopDao.getAllShops("SWP7"));
+        request.setAttribute("listType", typeImp.getAllTypeImportReceipts());
+        request.setAttribute("listProduct", ProDAO.getAllProducts());
+>>>>>>> Stashed changes
         request.getRequestDispatcher("AddImportReceipt.jsp").forward(request, response);
     } 
 
@@ -278,10 +286,64 @@ public class AddImportReceipt extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        processRequest(request, response);
-    } 
+protected void doGet(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+
+    String action = request.getParameter("action");
+    String receiptIdRaw = request.getParameter("receiptId");
+
+    if (action != null && receiptIdRaw != null) {
+        try (Connection conn = new DBContext("SWP7").getConnection()) {
+            ImportReceiptDAO importReceiptDAO = new ImportReceiptDAO(conn);
+            ImportReceiptDetailDAO detailDAO = new ImportReceiptDetailDAO(conn);
+            InventoryDAO inventoryDAO = new InventoryDAO(conn);
+            ProductDAO productDAO = new ProductDAO(conn);
+            ShopDAO shopDAO = new ShopDAO();
+
+            int receiptId = Integer.parseInt(receiptIdRaw);
+
+            if (action.equals("delete")) {
+               
+                // Sau khi xóa chi tiết, xóa phiếu nhập
+                importReceiptDAO.deleteImportReceipt(receiptId);
+
+                // Chuyển hướng lại trang danh sách
+                request.getRequestDispatcher("ImportReceiptServlet").forward(request, response);
+
+            } else if (action.equals("edit")) {
+                // Lấy thông tin phiếu nhập
+                ImportReceipt receipt = importReceiptDAO.getImportReceiptByID(receiptId);
+                List<ImportReceiptDetail> detailList = detailDAO.getDetailsByReceiptID(receiptId);
+
+                // Lấy dữ liệu hỗ trợ để show form
+                EmployeeDAO empDao = new EmployeeDAO(conn);
+                TypeImportReceiptDAO typeImp = new TypeImportReceiptDAO(conn);
+                SupplierDAO supDAO = new SupplierDAO(conn);
+
+                request.setAttribute("receipt", receipt);
+                request.setAttribute("details", detailList);
+                request.setAttribute("listEmp", empDao.getAllEmployee());
+                request.setAttribute("listSup", supDAO.getAllSuppliers());
+                request.setAttribute("listShop", shopDAO.getAllShops("SWP7"));
+                request.setAttribute("listType", typeImp.getAllTypeImportReceipts());
+                request.setAttribute("listProduct", productDAO.getAllProducts());
+
+                // Chuyển đến trang chỉnh sửa
+                request.getRequestDispatcher("EditImportReceipt.jsp").forward(request, response);
+                return;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi xử lý yêu cầu: " + e.getMessage());
+            request.getRequestDispatcher("ImportReceipt.jsp").forward(request, response);
+            return;
+        }
+    }
+
+    // Nếu không phải edit/delete thì hiển thị form thêm mới (mặc định)
+    processRequest(request, response);
+}
+
 
     /** 
      * Handles the HTTP <code>POST</code> method.
@@ -301,7 +363,6 @@ public class AddImportReceipt extends HttpServlet {
 if(code==null || supplierID==null || employeeID ==null || shopID_raw ==null || importDateStr ==null){
     request.setAttribute("erroll", "Type,Supplier,Employee,Shop,ImportDate must be not null");
     request.getRequestDispatcher("ErrolReceipt.jsp").forward(request, response);
-    
 }
 Integer shopID = Integer.parseInt(shopID_raw);
 Date importDate = null;
@@ -349,7 +410,11 @@ ShopDAO shopDAO = new ShopDAO();
             receiptDAO.insertImportReceipt(receipt);
             
             List<ImportReceiptDetail> listImportDetail = new ArrayList<>();
+<<<<<<< Updated upstream
           
+=======
+             
+>>>>>>> Stashed changes
             
 String[] productIDs = request.getParameterValues("productID[]");
 String[] quantities = request.getParameterValues("quantity[]");
@@ -359,7 +424,11 @@ String[] notes = request.getParameterValues("note[]");
 int size= productIDs.length;
 for(int i=0;i<size;i++){
     ImportReceiptDetail importDetail = new ImportReceiptDetail( 
+<<<<<<< Updated upstream
             receiptDetailDAO.getImportReceiptIDByInfo(receipt), 
+=======
+            receiptDAO.get, 
+>>>>>>> Stashed changes
             productIDs[i],  Integer.parseInt(quantities[i]), Double.parseDouble(prices[i]), notes[i]);
     listImportDetail.add(importDetail);
           
@@ -370,7 +439,11 @@ for(int i=0;i<size;i++){
 for(ImportReceiptDetail importDetail : listImportDetail){
    
      // Kiểm tra và cập nhật tồn kho
+<<<<<<< Updated upstream
             Inventory inv = inventoryDAO.getInventoryByShopAndProduct( Integer.parseInt(importDetail.getProductID()),Integer.parseInt(shopID_raw));
+=======
+            Inventory inv = inventoryDAO.getInventoryByShopAndProduct( Integer.parseInt(importDetail.getProductID()),Integer.parseInt(shopID));
+>>>>>>> Stashed changes
             
           
             if (inv != null) {
@@ -395,8 +468,6 @@ for(ImportReceiptDetail importDetail : listImportDetail){
                 inventoryDAO.insertInventory(newInv); 
             }
 }
-           
-
             response.sendRedirect("ImportReceipt.jsp");
         } catch (Exception e) {
             e.printStackTrace();

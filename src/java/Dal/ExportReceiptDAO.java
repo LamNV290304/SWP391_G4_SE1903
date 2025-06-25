@@ -72,6 +72,7 @@ public class ExportReceiptDAO {
 
     // Thêm mới
     public boolean insert(ExportReceipt er) {
+<<<<<<< Updated upstream
         String sql = "INSERT INTO ExportReceipt (EmployeeID, ShopID, ReceiptDate, TotalAmount, Note, Status, TypeID) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, er.getEmployeeID());
@@ -81,12 +82,25 @@ public class ExportReceiptDAO {
             ps.setString(5, er.getNote());
             ps.setBoolean(6, er.getStatus() != null ? er.getStatus() : true);
             ps.setString(7, er.getTypeID());
+=======
+        String sql = "INSERT INTO ExportReceipt (ExportReceiptID, EmployeeID, ShopID, ReceiptDate, TotalAmount, Note, Status, TypeID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, er.getExportReceiptID());
+            ps.setString(2, er.getEmployeeID());
+            ps.setString(3, er.getShopID());
+            ps.setTimestamp(4, er.getReceiptDate() != null ? new Timestamp(er.getReceiptDate().getTime()) : null);
+            ps.setBigDecimal(5, er.getTotalAmount());
+            ps.setString(6, er.getNote());
+            ps.setBoolean(7, er.getStatus() != null ? er.getStatus() : true);
+            ps.setString(8, er.getTypeID());
+>>>>>>> Stashed changes
             return ps.executeUpdate() > 0;
         } catch (SQLException ex) {
             Logger.getLogger(ExportReceiptDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
         return false;
     }
+<<<<<<< Updated upstream
 public Integer insertAndReturnID(ExportReceipt er) {
     String sql = "INSERT INTO ExportReceipt (EmployeeID, ShopID, ReceiptDate, TotalAmount, Note, Status, TypeID) " +
                  "VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -134,6 +148,8 @@ public ExportReceipt getNewest() {
     }
     return null;
 }
+=======
+>>>>>>> Stashed changes
 
     // Cập nhật
     public boolean update(ExportReceipt er) {
@@ -156,17 +172,24 @@ public ExportReceipt getNewest() {
 
     // Xoá
     public boolean delete(int id) {
+<<<<<<< Updated upstream
         String sql = "DELETE FROM ExportReceiptDetail WHERE ExportReceiptID = ?\n" +
 "DELETE FROM ExportReceipt WHERE ExportReceiptID = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.setInt(2, id);
+=======
+        String sql = "DELETE FROM ExportReceipt WHERE ExportReceiptID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+>>>>>>> Stashed changes
             return ps.executeUpdate() > 0;
         } catch (SQLException ex) {
             Logger.getLogger(ExportReceiptDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
         return false;
     }
+<<<<<<< Updated upstream
     public Integer getExportReceiptIDByInfo(ExportReceipt er) {
     String sql = "SELECT ExportReceiptID FROM ExportReceipt " +
                  "WHERE EmployeeID = ? AND ShopID = ? AND TypeExportReceiptID = ? " +
@@ -194,14 +217,19 @@ public ExportReceipt getNewest() {
 
     return null; // Không tìm thấy
 }
+=======
+>>>>>>> Stashed changes
 
     // Test nhanh
     public static void main(String[] args) {
         try (Connection conn = new DBContext("SWP7").getConnection()) {
             ExportReceiptDAO dao = new ExportReceiptDAO(conn);
             List<ExportReceipt> list = dao.getAll();
+<<<<<<< Updated upstream
             System.out.println(dao.getNewest());
            
+=======
+>>>>>>> Stashed changes
             if (list.isEmpty()) {
                 System.out.println("❌ Không có phiếu xuất nào.");
             } else {
@@ -213,7 +241,10 @@ public ExportReceipt getNewest() {
                     System.out.println("------------------------");
                 }
             }
+<<<<<<< Updated upstream
              dao.delete(6);
+=======
+>>>>>>> Stashed changes
         } catch (SQLException e) {
             Logger.getLogger(ExportReceiptDAO.class.getName()).log(Level.SEVERE, null, e);
         }

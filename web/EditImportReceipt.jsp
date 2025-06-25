@@ -1,3 +1,8 @@
+<%-- 
+    Document   : EditImportReceipt
+    Created on : Jun 24, 2025, 3:07:16 PM
+    Author     : Thai Anh
+--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -67,37 +72,46 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                 <div class="container" style="padding-top: 20px;"> 
                   <!-- Responsive Table -->
              <div class="card col-sm-12" style="height: 90vh; overflow: hidden;">
-  <h5 class="card-header">Thêm mới phiếu Xuất Hàng</h5>
+  <h5 class="card-header">Thêm mới phiếu nhập Hàng</h5>
 
- <form class="row" action="AddExportReceipt" method="POST"> 
+ <form class="row" action="AddImportReceipt" method="POST"> 
   <!-- Cột trái: Card thông tin -->
-  <div class="col-md-3"style="max-height: 80vh; overflow-y: auto;">
+  <div class="col-md-3" style="max-height: 80vh; overflow-y: auto;">
     <div class="card mb-2">
       <h5 class="card-header">Thông Tin</h5>
       <div class="card-body">
         <!-- Các input như bạn đã có -->
        
-       
+        <div class="mb-3">
+          <label for="warehouse" class="form-label">Nhà cung cấp</label>
+           <select name="SupplierID" class="form-control" required>
+        <c:forEach var="s" items="${listSup}">
+            <option value="${s.supplierID}" 
+                <c:if test="${s.supplierID == receipt.supplierID}">selected</c:if>>
+                ${s.supplierName}
+            </option>
+        </c:forEach>
+    </select>
+        </div>
+        
+        
         <div class="mb-3">
             <label for="receiptId" class="form-label">Mã Nhân Viên</label>
-          <input type="text" name="EmployeeID" class="form-control" id="receiptId" placeholder="PN001" />
-        </div>
-      
-        <div class="mb-3">
-          <label for="warehouse" class="form-label">Kho Xuất</label>
-          <select class="form-select" id="warehouse" name="shopID">
-            <option selected disabled>Chọn kho</option>
-             <c:forEach var="ls" items="${listShop}">
-                      <option value="${ls.shopID}">${ls.shopName}</option>
-                      </c:forEach>
-          </select>
+            <input type="text" name="EmployeeID" class="form-control" id="receiptId" value="${receipt.employeeID}" />
         </div>
         <div class="mb-3">
-<<<<<<< Updated upstream
-          <label for="receiptId" class="form-label">Ngày Xuất</label>
-=======
-          <label for="receiptId" class="form-label">ID Phiếu Nhập</label>
->>>>>>> Stashed changes
+          <label for="warehouse" class="form-label">Kho Nhập</label>
+          <select name="shopID" class="form-control" required>
+        <c:forEach var="s" items="${listShop}">
+            <option value="${s.shopID}" 
+                <c:if test="${s.shopID == receipt.shopID}">selected</c:if>>
+                ${s.shopName}
+            </option>
+        </c:forEach>
+    </select>
+        </div>
+        <div class="mb-3">
+          <label for="receiptId" class="form-label">Ngày nhập hàng</label>
           <input type="date" id="importDate" name="Date" class="form-control" required />
         </div>
         
@@ -110,17 +124,21 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         
         
         <div class="mb-3">
-          <label for="warehouse" class="form-label">Loại Phiếu Xuất</label>
-          <select class="form-select" id="warehouse" name="code">
-            <option selected disabled>Chọn Phiếu</option>
-             <c:forEach var="ltype" items="${listType}">
-                      <option value="${ltype.typeID}">${ltype.typeName}</option>
-                      </c:forEach>
-          </select>
+          <label for="warehouse" class="form-label">Loại Phiếu Nhập</label>
+<select class="form-select" id="warehouse" name="code" required>
+    <option disabled <c:if test="${empty receipt || empty receipt.typeID}">selected</c:if>>Chọn Phiếu</option>
+    <c:forEach var="ltype" items="${listType}">
+        <option value="${ltype.typeID}" 
+            <c:if test="${receipt.typeID == ltype.typeID}">selected</c:if>>
+            ${ltype.typeName}
+        </option>
+    </c:forEach>
+</select>
+
         </div>
         <div>
           <label for="note" class="form-label">Ghi chú</label>
-          <textarea class="form-control" id="note" name="note" rows="3"></textarea>
+         <textarea name="note" class="form-control">${receipt.note}</textarea>
         </div>
       </div>
     </div>
@@ -128,7 +146,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
   <!--Cot phai  -->
 <div class="col-md-9" id="horizontal-example">
   <div class="card h-100 d-flex flex-column">
-    <h5 class="card-header">Chi Tiết Phiếu Xuất </h5>
+    <h5 class="card-header">Chi Tiết Phiếu Nhập </h5>
     <div class="card-body" id="horizontal-example">
 
       <!-- ✅ Bọc bảng trong div có cuộn ngang -->
@@ -146,30 +164,25 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
             </tr>
           </thead>
           <tbody>
-<<<<<<< Updated upstream
-             <tr>
-                
-                <td> 
-          <select class="form-select" name="productID[]">
-    <option selected disabled>Chọn Sản Phẩm</option>
-    <c:forEach var="prod" items="${listProduct}">
-      <option value="${prod.productID}">${prod.productName}</option>
-    </c:forEach>
-  </select></td>
-=======
-            <tr>
-                <td> 
-          <select class="form-select" name="productID[]">
-      <option selected disabled>Chọn Phiếu</option>
-      ${productOptions}
-    </select></td>
->>>>>>> Stashed changes
-    <td><input type="number" name="quantity[]" class="form-control" required /></td>
-    <td><input type="number" name="price[]" class="form-control" required /></td>
-    <td><input type="number" name="total[]" class="form-control" readonly /></td>
-    <td><input type="text" name="note[]" class="form-control" required /></td>
-    <td><button type="button" class="btn btn-danger btn-sm remove-row">Xóa</button></td>
-            </tr>
+            <c:forEach var="d" items="${details}">
+<tr>
+  <td>
+    <select class="form-select" name="productID[]">
+      <c:forEach var="prod" items="${listProduct}">
+        <option value="${prod.productID}" <c:if test="${prod.productID == d.productID}">selected</c:if>>
+          ${prod.productName}
+        </option>
+      </c:forEach>
+    </select>
+  </td>
+  <td><input type="number" name="quantity[]" class="form-control" value="${d.quantity}" required /></td>
+  <td><input type="number" name="price[]" class="form-control" value="${d.unitPrice}" required /></td>
+  <td><input type="number" name="total[]" class="form-control" value="${d.quantity * d.unitPrice}" readonly /></td>
+  <td><input type="text" name="note[]" class="form-control" value="${d.note}" required /></td>
+  <td><button type="button" class="btn btn-danger btn-sm remove-row">Xóa</button></td>
+</tr>
+</c:forEach>
+
           </tbody>
         </table>
           </div>
@@ -180,11 +193,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
       <button type="button" class="btn btn-secondary mb-3" id="addRowBtn">+ Thêm dòng</button>
 
       <!-- Nút submit -->
-<<<<<<< Updated upstream
-      <button type="submit" class="btn btn-primary">Lưu phiếu xuất</button>
-=======
       <button type="submit" class="btn btn-primary">Lưu phiếu nhập</button>
->>>>>>> Stashed changes
    
     </div>
   </div>
@@ -193,12 +202,14 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
 <!-- JavaScript: Thêm/Xóa dòng và tính Thành tiền -->
 <script>
 
+
 // Khi thêm dòng mới, cũng tự động gán luôn importReceiptID
 document.getElementById("addRowBtn").addEventListener("click", function () {
   const tableBody = document.querySelector("#productTable tbody");
   const newRow = document.createElement("tr");
   newRow.innerHTML = `
-    <td><select class="form-select" name="productID[]">
+  <td> 
+          <select class="form-select" name="productID[]">
       <option selected disabled>Chọn Phiếu</option>
       ${productOptions}
     </select></td>
@@ -231,11 +242,7 @@ document.addEventListener("input", function (e) {
       calculateGrandTotal();
     }
   });
-const productOptions = `
-    <c:forEach var="ltype" items="${listProduct}">
-      <option value="${ltype.productID}">${ltype.productName}</option>
-    </c:forEach>
-  `;
+
   // Hàm tính tổng cộng
  function calculateGrandTotal() {
   const totals = document.querySelectorAll('input[name="total[]"]');
@@ -254,7 +261,13 @@ const productOptions = `
   document.getElementById("grandTotalInput").value = sum.toFixed(2);
 }
 </script>
-
+<script>
+  const productOptions = `
+    <c:forEach var="ltype" items="${listProduct}">
+      <option value="${ltype.productID}">${ltype.productName}</option>
+    </c:forEach>
+  `;
+</script>
   </div>
 </form>
 
@@ -270,9 +283,6 @@ const productOptions = `
               <!--/ Responsive Table -->
                 </div>
             </div>
-        
-
-        </div>
 
 
         <script src="assets/vendor/libs/jquery/jquery.js"></script>
@@ -284,3 +294,4 @@ const productOptions = `
 
     </body>
 </html>
+

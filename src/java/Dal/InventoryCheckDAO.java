@@ -76,7 +76,37 @@ public class InventoryCheckDAO {
         }
         return false;
     }
+public Integer getInventoryCheckIDByInfo(InventoryCheck ic) {
+    String sql = "SELECT InventoryCheckID FROM InventoryCheck " +
+                 "WHERE EmployeeID = ? AND ShopID = ? AND CheckDate = ? AND Note = ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, ic.getEmployeeID());
+        ps.setInt(2, ic.getShopID());
+        ps.setTimestamp(3, new Timestamp(ic.getCheckDate().getTime()));
+        ps.setString(4, ic.getNote());
 
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("InventoryCheckID");
+            }
+        }
+    } catch (SQLException e) {
+        Logger.getLogger(InventoryCheckDAO.class.getName()).log(Level.SEVERE, null, e);
+    }
+    return null;
+}
+public int getLatestInventoryCheckID() {
+    String sql = "SELECT TOP 1 InventoryCheckID FROM InventoryCheck ORDER BY InventoryCheckID DESC";
+    try (PreparedStatement ps = connection.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+        if (rs.next()) {
+            return rs.getInt("InventoryCheckID");
+        }
+    } catch (SQLException e) {
+        Logger.getLogger(InventoryCheckDAO.class.getName()).log(Level.SEVERE, null, e);
+    }
+    return -1;
+}
     private InventoryCheck mapResultSetToInventoryCheck(ResultSet rs) throws SQLException {
         InventoryCheck ic = new InventoryCheck(
             rs.getInt("EmployeeID"),
@@ -93,7 +123,7 @@ public class InventoryCheckDAO {
 
         // Thêm kiểm kê mới
         InventoryCheck check = new InventoryCheck(2, 1, new java.util.Date(), "Kiểm kê test tháng 6");
-        dao.insertInventoryCheck(check);
+        //dao.insertInventoryCheck(check);
         System.out.println("✅ Đã thêm phiếu kiểm kê");
 
         // Lấy tất cả phiếu kiểm kê
@@ -106,8 +136,8 @@ public class InventoryCheckDAO {
         InventoryCheck found = dao.getInventoryCheckByID(list.get(list.size() - 1).getInventoryCheckID());
         System.out.println("🔍 Tìm thấy phiếu: " + found);
 
-        // Xoá phiếu kiểm kê (nếu cần)
-        // dao.deleteInventoryCheck(found.getInventoryCheckID());
+       // Xoá phiếu kiểm kê (nếu cần)
+         dao.deleteInventoryCheck(17);
 
     } catch (Exception e) {
         e.printStackTrace();

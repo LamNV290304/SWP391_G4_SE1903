@@ -27,6 +27,7 @@ public class ProductDAO {
 
     public List<Product> getAllProducts() {
         String sql = "SELECT [ProductID]\n"
+<<<<<<< Updated upstream
                 + "      ,[ProductName]\n"
                 + "      ,[CategoryID]\n"
                 + "      ,[UnitID]\n"
@@ -37,6 +38,18 @@ public class ProductDAO {
                 + "      ,[CreatedBy]\n"
                 + "  FROM [dbo].[Product]";
 
+=======
+                + " ,[ProductName]\n" +
+"      ,[CategoryID]\n" +
+"      ,[UnitID]\n" +
+"      ,[ImportPrice]\n" +
+"      ,[SellingPrice]\n" +
+"      ,[Description]\n" +
+"      ,[Status]\n" +
+"      ,[ImageUrl]\n" +
+"      ,[CreatedDate]\n" +
+"      ,[CreatedBy] FROM Product";
+>>>>>>> Stashed changes
         List<Product> l = new ArrayList<>();
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);
