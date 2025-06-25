@@ -73,9 +73,8 @@
                                             </select>
                                         </div>
 
-                                        <%-- totalAmount không cần nhập, sẽ được tính toán từ các chi tiết hóa đơn sau --%>
                                         <input type="hidden" name="totalAmount" value="0" />
-
+<!--
                                         <div class="mb-3">
                                             <label for="status" class="form-label">Trạng thái:</label>
                                             <select class="form-select" id="status" name="status" required>
@@ -83,7 +82,7 @@
                                                 <option value="true">Đã thanh toán</option>
                                             </select>
                                             <small class="form-text text-muted">Thường mặc định là "Chưa thanh toán" khi mới tạo.</small>
-                                        </div>
+                                        </div>-->
 
                                         <div class="mb-3">
                                             <label for="note" class="form-label">Ghi chú (tùy chọn):</label>

@@ -80,6 +80,12 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
           <!-- Card -->
           <div class="card">
             <h5 class="card-header">Danh sách hàng tồn kho</h5>
+<<<<<<< Updated upstream
+            <a href="AddInventoryProduct" >
+                             <button type="button" class="btn btn-outline-info">Thêm mới hàng tồn kho</button>
+                         </a>
+=======
+>>>>>>> Stashed changes
             <div class="table-responsive text-nowrap">
               <table class="table">
                 <thead>

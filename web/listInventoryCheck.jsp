@@ -78,7 +78,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                   <!-- Responsive Table -->
              <div class="card col-sm-12" style="height: 90vh; overflow: hidden;">
   <h5 class="card-header">Phiếu Kiểm Kê
-   <a href="AddExportReceipt" >
+   <a href="AddInventoryCheck" >
                              <button type="button" class="btn btn-outline-info">Thêm mới phiếu kiểm kê</button>
                          </a>
   </h5>

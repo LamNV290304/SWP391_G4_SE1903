@@ -10,7 +10,8 @@ import java.sql.Date;
  *
  * @author Admin
  */
-public class Employee extends User{
+public class Employee extends User {
+
     private int roleId;
     private Role role;
     private int shopId;
@@ -25,6 +26,14 @@ public class Employee extends User{
     }
 
     public Employee(int roleId, int shopId, int Id, String Username, String Password, String Fullname, String Phone, String Email, boolean Status, Date CreateDate) {
+        super(Id, Username, Password, Fullname, Phone, Email, Status, CreateDate);
+        this.roleId = roleId;
+        this.role = null;
+        this.shopId = shopId;
+        this.shop = null;
+    }
+
+    public Employee(int Id, String Username, String Password, String Fullname, String Email, String Phone, int roleId, int shopId, boolean Status, Date CreateDate) {
         super(Id, Username, Password, Fullname, Phone, Email, Status, CreateDate);
         this.roleId = roleId;
         this.role = null;

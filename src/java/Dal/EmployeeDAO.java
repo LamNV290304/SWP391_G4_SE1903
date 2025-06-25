@@ -17,6 +17,7 @@ import Utils.PasswordUtils;
 import static Utils.PasswordUtils.checkPassword;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -69,19 +70,25 @@ public class EmployeeDAO {
         return l;
     }
 
-    public void addEmployee(Employee e) throws SQLException {
-        String sql = "INSERT INTO Employee (FullName, Username, Email, Phone, Password, ShopId, RoleId, Status, CreatedDate) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, GETDATE())";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, e.getFullname());
-            ps.setString(2, e.getUsername());
-            ps.setString(3, e.getEmail());
-            ps.setString(4, e.getPhone());
-            ps.setString(5, e.getPassword());
-            ps.setInt(6, e.getShopId());
-            ps.setInt(7, e.getRoleId());
-            ps.setBoolean(8, e.isStatus());
-            ps.executeUpdate();
+ 
+    public boolean addEmployee(Employee employee) throws SQLException {
+        String sql = "INSERT INTO Employee (Username, Password, Fullname, Phone, Email, Status, CreateDate, RoleId, ShopId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, employee.getUsername());
+            stmt.setString(2, employee.getPassword());
+            stmt.setString(3, employee.getFullname());
+            stmt.setString(4, employee.getPhone());
+            stmt.setString(5, employee.getEmail());  // thêm email ở vị trí thứ 5
+            stmt.setBoolean(6, employee.isStatus());
+            stmt.setDate(7, new java.sql.Date(employee.getCreateDate().getTime()));
+            stmt.setInt(8, employee.getRole().getId());
+            stmt.setInt(9, employee.getShop().getShopID());
+            stmt.executeUpdate();
+            return true;
+        } catch (Exception ex) {
+            System.out.println("Error: " + ex.getMessage() + ex.getStackTrace());
+            return false;
+
         }
     }
 
@@ -401,23 +408,6 @@ public class EmployeeDAO {
         }
     }
 
-    public static void main(String[] args) throws ClassNotFoundException {
-        try (Connection conn = new DBContext("ShopDB_Test").getConnection()) {
-            EmployeeDAO dao = new EmployeeDAO(conn);
-
-
-            // 📑 5. Lấy phân trang
-            List<EmployeeDto> pageList = dao.getEmployeesByPage(1, 5, null, null, null, "name_asc", "");
-            System.out.println("📃 Trang 1 / 5 bản ghi:");
-            for (EmployeeDto dto : pageList) {
-                System.out.println(dto);
-            }
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            System.out.println("❌ Lỗi trong quá trình test DAO: " + ex.getMessage());
-        }
-    }
 
     public boolean updateEmployeeStatus(int id, boolean status) throws SQLException {
         String sql = "UPDATE Employee SET status = ? WHERE EmployeeID = ?";
@@ -450,4 +440,28 @@ public class EmployeeDAO {
             ps.executeUpdate();
         }
     }
+
+    public static void main(String[] args) {
+        // Tạo đối tượng DAO
+        DBContext connection = new DBContext("SWP8");
+        EmployeeDAO dao = new EmployeeDAO(connection.getConnection());
+
+        // Gọi phương thức getAllEmployee()
+        List<Employee> employees = dao.getAllEmployee();
+
+        // In kết quả ra màn hình
+        for (Employee emp : employees) {
+            System.out.println("ID: " + emp.getId());
+            System.out.println("Username: " + emp.getUsername());
+            System.out.println("Password: " + emp.getPassword());
+            System.out.println("Fullname: " + emp.getFullname());
+            System.out.println("Phone: " + emp.getPhone());
+            System.out.println("Status: " + emp.isStatus());
+            System.out.println("Created Date: " + emp.getCreateDate());
+            System.out.println("Role ID: " + emp.getRoleId());
+            System.out.println("Shop ID: " + emp.getShopId());
+            System.out.println("----------");
+        }
+    }
+
 }

@@ -57,10 +57,15 @@
         <servlet-class>Controller.AddExportReceipt</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>listInventory</servlet-name>
+        <servlet-class>Controller.listInventory</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>ShowEmployeeList</servlet-name>
         <servlet-class>Controller.ShowEmployeeList</servlet-class>
     </servlet>
     <servlet>
+<<<<<<< Updated upstream
         <servlet-name>Home</servlet-name>
         <servlet-class>Controller.Home</servlet-class>
     </servlet>
@@ -111,6 +116,24 @@
     <servlet>
         <servlet-name>ShowPaymentHistory</servlet-name>
         <servlet-class>Controller.ShowPaymentHistory</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddInventoryProduct</servlet-name>
+        <servlet-class>Controller.AddInventoryProduct</servlet-class>
+        <servlet-name>CustomerServlet</servlet-name>
+        <servlet-class>Controller.CustomerServlet</servlet-class>
+=======
+        <servlet-name>listInventoryHome</servlet-name>
+        <servlet-class>Controller.listInventoryHome</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ExportReceiptServlet</servlet-name>
+        <servlet-class>Controller.ExportReceiptServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddExportReceipt</servlet-name>
+        <servlet-class>Controller.AddExportReceipt</servlet-class>
+>>>>>>> Stashed changes
     </servlet>
     <servlet-mapping>
         <servlet-name>StartProject</servlet-name>
@@ -174,6 +197,7 @@
         <url-pattern>/ShowEmployeeList</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+<<<<<<< Updated upstream
         <servlet-name>Home</servlet-name>
         <url-pattern>/Home</url-pattern>
     </servlet-mapping>
@@ -224,6 +248,26 @@
     <servlet-mapping>
         <servlet-name>ShowPaymentHistory</servlet-name>
         <url-pattern>/ShowPaymentHistory</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddInventoryProduct</servlet-name>
+        <url-pattern>/AddInventoryProduct</url-pattern>
+
+    <servlet-mapping>
+        <servlet-name>CustomerServlet</servlet-name>
+        <url-pattern>/CustomerServlet</url-pattern>
+=======
+        <servlet-name>listInventoryHome</servlet-name>
+        <url-pattern>/listInventoryHome</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ExportReceiptServlet</servlet-name>
+        <url-pattern>/ExportReceiptServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddExportReceipt</servlet-name>
+        <url-pattern>/AddExportReceipt</url-pattern>
+>>>>>>> Stashed changes
     </servlet-mapping>
     <error-page>
         <error-code>404</error-code>

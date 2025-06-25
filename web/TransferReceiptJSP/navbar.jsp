@@ -5,6 +5,8 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <!DOCTYPE html>
 <html lang="en"
       class="light-style layout-menu-fixed"
@@ -13,46 +15,7 @@
       data-assets-path="../assets/"
       data-template="vertical-menu-template-free">
     <head>
-        <meta charset="utf-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
-            />
-
-        <title>Tables - Basic Tables | Sneat - Bootstrap 5 HTML Admin Template - Pro</title>
-
-        <meta name="description" content="" />
-
-        <!-- Favicon -->
-        <link rel="icon" type="image/x-icon" href="../assets/img/favicon/favicon.ico" />
-
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
-            rel="stylesheet"
-            />
-
-        <!-- Icons. Uncomment required icon fonts -->
-        <link rel="stylesheet" href="../assets/vendor/fonts/boxicons.css" />
-
-        <!-- Core CSS -->
-        <link rel="stylesheet" href="../assets/vendor/css/core.css" class="template-customizer-core-css" />
-        <link rel="stylesheet" href="../assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
-        <link rel="stylesheet" href="../assets/css/demo.css" />
-
-        <!-- Vendors CSS -->
-        <link rel="stylesheet" href="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
-
-        <!-- Page CSS -->
-
-        <!-- Helpers -->
-        <script src="../assets/vendor/js/helpers.js"></script>
-
-        <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
-        <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
-        <script src="../assets/js/config.js"></script>
+        <jsp:include page="LinkCSS.jsp" />
     </head>
     <body>
         <nav
@@ -87,6 +50,51 @@
                             >Mess</a
                         >
                     </li>
+                    <!-- Notification -->
+                    <li class="nav-item dropdown-notifications dropdown me-3">
+                        <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+                            <i class="bx bx-bell bx-sm"></i>
+                            <span class="badge bg-danger rounded-pill badge-notifications">${vectorNoti.size()}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li class="dropdown-header">
+                                <div class="d-flex justify-content-between">
+                                    <h6 class="dropdown-title mb-0">Thông báo</h6>
+                                    <span class="badge rounded-pill bg-label-primary">${vectorNoti.size()}</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="dropdown-divider"></div>
+                            </li>
+                            <c:forEach var="n" items="${vectorNoti}">
+                                <li class="dropdown-notifications-item">
+                                    <a class="dropdown-item" href="${n.link}">
+                                        <div class="d-flex">
+                                            <div class="flex-shrink-0 me-3">
+                                                <div class="avatar">
+                                                    <img src="img/logoSale.png" alt class="w-px-40 h-auto rounded-circle">
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <p class="mb-0">${n.title}</p>
+                                                <p class="mb-0">${n.message}</p>
+                                                
+                                                <small class="text-muted">5 phút trước</small>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                            </c:forEach>
+                            
+                            <li>
+                                <div class="dropdown-divider"></div>
+                            </li>
+                            <li class="dropdown-footer">
+                                <a class="dropdown-item text-center" href="#">Xem tất cả thông báo</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- /Notification -->
 
                     <!-- User -->
                     <li class="nav-item navbar-dropdown dropdown-user dropdown">
