@@ -46,7 +46,7 @@ import java.util.logging.Logger;
 @WebServlet(name = "TransferReceipt", urlPatterns = {"/TransferReceipt"})
 public class TransferReceiptController extends HttpServlet {
 
-    DBContext connection = new DBContext("SWP7");
+    DBContext connection = new DBContext("SWP8");
 
     TransferReceiptDAO dao = new TransferReceiptDAO(connection.getConnection());
     ProductDAO productDAO = new ProductDAO(connection.getConnection());
@@ -58,10 +58,11 @@ public class TransferReceiptController extends HttpServlet {
     //List
     Vector<Product> vectorProduct = productDAO.getProduct("SELECT *  FROM Product");
     List<Inventory> ListInventory = inventoryDAO.getAllInventories();
-    List<Shop> ListShop = shopDAO.getAllShops("SWP7");
+    List<Shop> ListShop = shopDAO.getAllShops("SWP8");
     Vector<TransferReceipt> list = dao.getAllTransferReceipt("SELECT * FROM TransferReceipt");
     Vector<TransferReceiptDetail> listDetail = transferReceiptDetailDAO.getAllTransferReceiptDetail("SELECT * FROM TransferReceiptDetail");
-    List<Employee> ListEmployee = employeeDAO.getAllEmployee();
+    List<Employee> employees = employeeDAO.getAllEmployee();
+    Vector<Noti> vectorNoti = notiDAO.getAllNoti("SELECT [Title], [Message], [Link], [ReceiverEmployeeID], [CreatedDate], [IsRead] FROM Noti");
     
     private static final String SQLStatusZero = "SELECT * FROM TransferReceipt WHERE Status = 0";
     private static final String SQLStatusNotZero = "SELECT * FROM TransferReceipt WHERE Status != 0";
@@ -100,6 +101,8 @@ public class TransferReceiptController extends HttpServlet {
 
     private void listProcessTransferReceipt(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        log("size: " + vectorNoti.size());
+        
         String submit = request.getParameter("submit");
         int page = 1;
         int select = 1;
@@ -163,6 +166,7 @@ public class TransferReceiptController extends HttpServlet {
         session.setAttribute("ListAddToCartTransfer", ListAddToCartTransfer);
 
         //Set data for view
+        request.setAttribute("vectorNoti", vectorNoti);
         request.setAttribute("currentPage", select);
         request.setAttribute("page", page);
         request.setAttribute("vectorS", ListShop);
@@ -385,22 +389,24 @@ public class TransferReceiptController extends HttpServlet {
                 }
             }
 
-//            //Insert Noti
-//            String Title = "Transfer Receipt";
-//            String Message = "From Shop: " + FromShopName + "To Shop" + ToShopName +"\n"
-//                    + "Note: " + Note;
-//            String Link = "TransferReceipt?service=listProcessTransferReceipt";
-//            int ReceiverEmployeeID = 0;
-//            for (Employee e : ListEmployee) {
-//                if (e.getRole().getId() == 2 && e.getShop().getShopID() == ToShopID) {
-//                    ReceiverEmployeeID = e.getId();
-//                }
-//            }
-//            java.util.Date CreatedDate = new java.util.Date();
-//            int IsRead = 0;
-//            Noti n = new Noti(Title, Message, Link, ReceiverEmployeeID, CreatedDate, IsRead);
-//            notiDAO.insertNoti(n);
-            
+            //Insert Noti
+            String Title = "Transfer Receipt";
+            String Message = "From Shop: " + FromShopName + "To Shop" + ToShopName + "\n"
+                    + "Note: " + Note;
+            String Link = "TransferReceipt?service=listProcessTransferReceipt";
+            int ReceiverEmployeeID = 0;
+            for (Employee e : employees) {
+                if (e.getRoleId() == 2 && e.getShopId() == ToShopID) {
+                    ReceiverEmployeeID = e.getId();
+                    log("Test: " + ReceiverEmployeeID);
+
+                }
+            }
+            java.util.Date CreatedDate = new java.util.Date();
+            int IsRead = 0;
+            Noti n = new Noti(Title, Message, Link, ReceiverEmployeeID, CreatedDate, IsRead);
+            notiDAO.insertNoti(n);
+
             //Send Mail
             String email = "xuanhieu20012004@gmail.com";
             MailUtil sendMail = new MailUtil();
@@ -468,7 +474,8 @@ public class TransferReceiptController extends HttpServlet {
         String TransferReceiptID = request.getParameter("TransferReceiptID");
         log(TransferReceiptID);
         listDetail = transferReceiptDetailDAO.getAllTransferReceiptDetail("SELECT * FROM TransferReceiptDetail WHERE TransferReceiptID = '" + TransferReceiptID + "'");
-
+        
+        request.setAttribute("vectorNoti", vectorNoti);
         request.setAttribute("vectorP", vectorProduct);
         request.setAttribute("listDetail", listDetail);
         request.getRequestDispatcher("TransferReceiptJSP/ListTransferReceiptDetail.jsp").forward(request, response);
@@ -532,6 +539,7 @@ public class TransferReceiptController extends HttpServlet {
             request.setAttribute("currentSearch", name);
         }
         //Set data for view
+        request.setAttribute("vectorNoti", vectorNoti);
         request.setAttribute("currentPage", select);
         request.setAttribute("page", page);
         request.setAttribute("vectorS", ListShop);

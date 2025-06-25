@@ -17,6 +17,10 @@ public class Noti {
     private Date CreatedDate;
     private int IsRead;
 
+    public Noti() {
+        
+    }
+
     public Noti(String Title, String Message, String Link, int ReceiverEmployeeID, Date CreatedDate, int IsRead) {
         this.Title = Title;
         this.Message = Message;

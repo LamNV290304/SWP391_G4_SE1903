@@ -4,12 +4,15 @@
  */
 package Dal;
 
+import Context.DBContext;
 import Models.Noti;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Vector;
 import java.sql.ResultSet;
+import java.util.Date;
+
 /**
  *
  * @author ADMIN
@@ -21,8 +24,8 @@ public class NotiDAO {
     public NotiDAO(Connection connection) {
         this.connection = connection;
     }
-    
-    public Vector<Noti> getAllNoti(String sql)  {
+
+    public Vector<Noti> getAllNoti(String sql) {
 
         Vector<Noti> listNoti = new Vector<>();
         try {
@@ -43,7 +46,7 @@ public class NotiDAO {
         }
         return listNoti;
     }
-    
+
     public int insertNoti(Noti p) {
         String sql = "INSERT INTO [dbo].[Noti]\n"
                 + "           ([Title]\n"
@@ -52,7 +55,7 @@ public class NotiDAO {
                 + "           ,[ReceiverEmployeeID]\n"
                 + "           ,[CreatedDate]\n"
                 + "           ,[IsRead])\n"
-                + "     VALUES (?, ?, ?, ?, ?)";
+                + "     VALUES (?, ?, ?, ?, ?,?)";
 
         int n = 0;
         try {
@@ -69,6 +72,27 @@ public class NotiDAO {
             ex.printStackTrace();
         }
         return n;
+    }
+
+    public static void main(String[] args) {
+        DBContext connection = new DBContext("SWP8");
+        // Tạo đối tượng DAO
+        NotiDAO dao = new NotiDAO(connection.getConnection());
+
+
+        String sql = "SELECT [Title], [Message], [Link], [ReceiverEmployeeID], [CreatedDate], [IsRead] FROM Noti";
+
+        Vector<Noti> notis = dao.getAllNoti(sql);
+
+        for (Noti n : notis) {
+            System.out.println("Tiêu đề: " + n.getTitle());
+            System.out.println("Nội dung: " + n.getMessage());
+            System.out.println("Link: " + n.getLink());
+            System.out.println("Người nhận ID: " + n.getReceiverEmployeeID());
+            System.out.println("Ngày tạo: " + n.getCreatedDate());
+            System.out.println("Đã đọc: " + (n.getIsRead() == 1 ? "Đã đọc" : "Chưa đọc"));
+            System.out.println("---------------------------");
+        }
     }
 
 }
