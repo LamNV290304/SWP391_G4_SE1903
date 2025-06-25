@@ -98,8 +98,9 @@ public class Login extends HttpServlet {
                     return;
                 }
 
-                request.getSession().setAttribute("Employee", shopOwner);
-                request.getRequestDispatcher("Home.jsp").forward(request, response);
+                request.getSession().setAttribute("shopOwner", shopOwner);
+                request.getRequestDispatcher("ShowServicePackage").forward(request, response);
+                return;
             }
 
             EmployeeDAO employeeDAO = new EmployeeDAO(con);
@@ -107,7 +108,7 @@ public class Login extends HttpServlet {
 
             if (employee == null) {
                 request.setAttribute("error", "Sai tài khoản hoặc mật khẩu");
-                request.getRequestDispatcher("login.jsp").forward(request, response);
+                request.getRequestDispatcher("loginEmployee.jsp").forward(request, response);
                 return;
             }
 

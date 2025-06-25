@@ -35,10 +35,12 @@ public class UpdateStatusEmployee extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            Connection conn = DBContext.getConnection("ShopDB_TTest");
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
+
+            Connection conn = DBContext.getConnection(databaseName);
             EmployeeDAO employeeDAO = new EmployeeDAO(conn);
             int id = Integer.parseInt(request.getParameter("id"));
-            boolean status = "1".equals(request.getParameter("status"));
+            boolean status = "1".equals(request.getParameter("statusE"));
 
             try {
                 boolean success = employeeDAO.updateEmployeeStatus(id, status);
@@ -51,7 +53,7 @@ public class UpdateStatusEmployee extends HttpServlet {
                 e.printStackTrace();
                 request.getSession().setAttribute("errorMessage", "Lỗi hệ thống.");
             }
-            
+            request.getRequestDispatcher("ShowEmployeeList").forward(request, response);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(UpdateStatusEmployee.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {

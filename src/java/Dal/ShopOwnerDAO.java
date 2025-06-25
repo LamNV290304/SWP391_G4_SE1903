@@ -209,6 +209,29 @@ public class ShopOwnerDAO {
         return owner;
     }
 
+    public void updatePasswordByUsername(String username, String hashedPassword) throws SQLException {
+        String sql = "UPDATE ShopOwners SET Password = ? WHERE Username = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, hashedPassword);
+            ps.setString(2, username);
+            ps.executeUpdate();
+        }
+    }
+
+    public boolean checkPasswordShopOwner(int ownerId, String plainPassword) throws SQLException {
+        String sql = "SELECT Password FROM ShopOwners WHERE Id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, ownerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String hashedPassword = rs.getString("Password");
+                    return checkPassword(plainPassword, hashedPassword);
+                }
+            }
+        }
+        return false;
+    }
+
     public static void main(String[] args) {
 
     }
