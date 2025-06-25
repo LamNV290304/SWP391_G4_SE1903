@@ -33,18 +33,11 @@ public class ExportReceiptServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
        response.setContentType("text/html;charset=UTF-8");
-<<<<<<< Updated upstream
         
         DBContext connection = new DBContext("SWP7");
     ExportReceiptDAO dao = new ExportReceiptDAO(connection.getConnection());
     List<ExportReceipt> list = dao.getAll();
-    
-=======
        
-        DBContext connection = new DBContext("SWP7");
-    ExportReceiptDAO dao = new ExportReceiptDAO(connection.getConnection());
-    List<ExportReceipt> list = dao.getAll();
->>>>>>> Stashed changes
     request.setAttribute("listIE", list);
     request.getRequestDispatcher("ExportReceipt.jsp").forward(request, response);
     } 
