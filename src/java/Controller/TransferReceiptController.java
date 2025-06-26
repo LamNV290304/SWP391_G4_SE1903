@@ -63,14 +63,7 @@ public class TransferReceiptController extends HttpServlet {
     Vector<TransferReceiptDetail> listDetail = transferReceiptDetailDAO.getAllTransferReceiptDetail("SELECT * FROM TransferReceiptDetail");
     List<Employee> employees = employeeDAO.getAllEmployee();
 
-    Vector<Noti> vectorNoti = notiDAO.getAllNoti("SELECT [NotiID]\n"
-            + "      ,[Title]\n"
-            + "      ,[Message]\n"
-            + "      ,[Link]\n"
-            + "      ,[ReceiverEmployeeID]\n"
-            + "      ,[CreatedDate]\n"
-            + "      ,[IsRead]\n"
-            + "  FROM [dbo].[Noti] "
+    Vector<Noti> vectorNoti = notiDAO.getAllNoti("SELECT [NotiID]* FROM [dbo].[Noti] "
             + "Where IsRead = 0"
             + "ORDER BY [CreatedDate] DESC");
 
@@ -175,15 +168,20 @@ public class TransferReceiptController extends HttpServlet {
         }
         session.setAttribute("ListAddToCartTransfer", ListAddToCartTransfer);
 
+        //view for Noti
         Vector<Noti> vectorNoti = notiDAO.getAllNoti("SELECT * FROM [dbo].[Noti] "
                 + "Where IsRead = 0"
                 + "ORDER BY [CreatedDate] DESC");
-        request.setAttribute("sizeNoti", vectorNoti.size());
-        vectorNoti = notiDAO.getAllNoti("SELECT * FROM [dbo].[Noti] "
-                + "ORDER BY [CreatedDate] DESC");
 
-        //Set data for view
+        request.setAttribute("sizeNoti", vectorNoti.size());
+        vectorNoti = notiDAO.getAllNoti("SELECT Top 5 * FROM [dbo].[Noti] "
+                + "ORDER BY [CreatedDate] DESC");
+        //set time for Noti
+        Map<Integer, Integer> mapNotiDate = notiDAO.MapListNotiDate();
+
+        request.setAttribute("mapNotiDate", mapNotiDate);
         request.setAttribute("vectorNoti", vectorNoti);
+
         request.setAttribute("currentPage", select);
         request.setAttribute("page", page);
         request.setAttribute("vectorS", ListShop);
@@ -308,16 +306,32 @@ public class TransferReceiptController extends HttpServlet {
             String checkFromShopID = request.getParameter("FromShopID");
             int FromShopID = 0;
             int ToShopID = 0;
-
+            List<Inventory> ListFromShop = new ArrayList<>();
             String Note = request.getParameter("Note");
             if (checkFromShopID != null && !checkFromShopID.trim().isEmpty()) {
-                FromShopID = Integer.parseInt(request.getParameter("FromShopID"));
-                ListInventory = inventoryDAO.getAllInventoriesInStore(FromShopID);
-                //xoa session neu select lai shop 
-                if (ListAddToCartTransfer != null) {
-                    ListAddToCartTransfer.clear();
+                //session de check xem co thay doi shop select ko
+                Object sessionShopIdObj = session.getAttribute("CFromShopID");
+                if (sessionShopIdObj != null) {
+                    int CFromShopID = Integer.parseInt(sessionShopIdObj.toString());
+                    FromShopID = Integer.parseInt(request.getParameter("FromShopID"));
+
+                    if (FromShopID != CFromShopID) {
+                        //xoa session neu select shop khac
+                        if (ListAddToCartTransfer != null) {
+                            ListAddToCartTransfer.clear();
+                        }
+                        session.setAttribute("ListAddToCartTransfer", ListAddToCartTransfer);
+                    }
                 }
-                session.setAttribute("ListAddToCartTransfer", ListAddToCartTransfer);
+                //cap nhap shop da chon
+                session.setAttribute("CFromShopID", FromShopID);
+                ListInventory = inventoryDAO.getAllInventoriesInStore(FromShopID);
+                for (Inventory i : ListInventory) {
+                    if (i.getQuantity() > 0) {
+                        ListFromShop.add(i);
+                    }
+                }
+
             }
             //Loc to shop
             List<Shop> ListToShop = new ArrayList<>();
@@ -424,13 +438,18 @@ public class TransferReceiptController extends HttpServlet {
                     }
                 }
             }
-            //set view for Noti
+            //view for Noti
             Vector<Noti> vectorNoti = notiDAO.getAllNoti("SELECT * FROM [dbo].[Noti] "
                     + "Where IsRead = 0"
                     + "ORDER BY [CreatedDate] DESC");
+
             request.setAttribute("sizeNoti", vectorNoti.size());
-            vectorNoti = notiDAO.getAllNoti("SELECT * FROM [dbo].[Noti] "
+            vectorNoti = notiDAO.getAllNoti("SELECT Top 5 * FROM [dbo].[Noti] "
                     + "ORDER BY [CreatedDate] DESC");
+            //set time for Noti
+            Map<Integer, Integer> mapNotiDate = notiDAO.MapListNotiDate();
+
+            request.setAttribute("mapNotiDate", mapNotiDate);
 
             request.setAttribute("listToShop", ListToShop);
             request.setAttribute("vectorNoti", vectorNoti);
@@ -440,7 +459,7 @@ public class TransferReceiptController extends HttpServlet {
             session.setAttribute("ListAddToCartTransfer", ListAddToCartTransfer);
             request.setAttribute("listShop", ListShop);
             request.setAttribute("vectorP", vectorProduct);
-            request.setAttribute("vectorI", ListInventory);
+            request.setAttribute("vectorI", ListFromShop);
             request.getRequestDispatcher("TransferReceiptJSP/AddTransferReceipt.jsp").forward(request, response);
         } //submit để add TransferReceipt
         else {
@@ -558,13 +577,18 @@ public class TransferReceiptController extends HttpServlet {
         log(TransferReceiptID);
         listDetail = transferReceiptDetailDAO.getAllTransferReceiptDetail("SELECT * FROM TransferReceiptDetail WHERE TransferReceiptID = '" + TransferReceiptID + "'");
 
-        Vector<Noti> vectorNoti = notiDAO.getAllNoti("SELECT * FROM [dbo].[Noti] "
+        //view for Noti
+        Vector<Noti> vectorNoti = notiDAO.getAllNoti("SELECT * FROM [dbo].[Noti]"
                 + "Where IsRead = 0"
                 + "ORDER BY [CreatedDate] DESC");
-        request.setAttribute("sizeNoti", vectorNoti.size());
-        vectorNoti = notiDAO.getAllNoti("SELECT * FROM [dbo].[Noti] "
-                + "ORDER BY [CreatedDate] DESC");
 
+        request.setAttribute("sizeNoti", vectorNoti.size());
+        vectorNoti = notiDAO.getAllNoti("SELECT Top 5 * FROM [dbo].[Noti] "
+                + "ORDER BY [CreatedDate] DESC");
+        //set time for Noti
+        Map<Integer, Integer> mapNotiDate = notiDAO.MapListNotiDate();
+
+        request.setAttribute("mapNotiDate", mapNotiDate);
         request.setAttribute("vectorNoti", vectorNoti);
         request.setAttribute("vectorP", vectorProduct);
         request.setAttribute("listDetail", listDetail);
@@ -630,12 +654,18 @@ public class TransferReceiptController extends HttpServlet {
             request.setAttribute("currentSearch", name);
 
         }
+        //view for Noti
         Vector<Noti> vectorNoti = notiDAO.getAllNoti("SELECT * FROM [dbo].[Noti] "
                 + "Where IsRead = 0"
                 + "ORDER BY [CreatedDate] DESC");
+
         request.setAttribute("sizeNoti", vectorNoti.size());
-        vectorNoti = notiDAO.getAllNoti("SELECT * FROM [dbo].[Noti] "
+        vectorNoti = notiDAO.getAllNoti("SELECT Top 5 * FROM [dbo].[Noti] "
                 + "ORDER BY [CreatedDate] DESC");
+        //set time for Noti
+        Map<Integer, Integer> mapNotiDate = notiDAO.MapListNotiDate();
+
+        request.setAttribute("mapNotiDate", mapNotiDate);
 
         request.setAttribute("vectorNoti", vectorNoti);
         request.setAttribute("currentPage", select);

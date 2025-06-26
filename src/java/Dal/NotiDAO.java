@@ -12,6 +12,8 @@ import java.sql.SQLException;
 import java.util.Vector;
 import java.sql.ResultSet;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -86,6 +88,25 @@ public class NotiDAO {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public Map<Integer, Integer> MapListNotiDate() {
+        String sql = "SELECT TOP 5\n"
+                + "    NotiID,\n"
+                + "    DATEDIFF(MINUTE, CreatedDate, GETDATE()) AS MinutesSinceCreated\n"
+                + "	FROM Noti\n"
+                + "	ORDER BY CreatedDate DESC;";
+        Map<Integer, Integer> map = new HashMap<>();
+        try {
+            PreparedStatement ptm = connection.prepareStatement(sql);
+            ResultSet rs = ptm.executeQuery();
+            while (rs.next()) {
+                map.put(rs.getInt(1), rs.getInt(2));
+            }
+        } catch (SQLException ex) {
+            ex.getStackTrace();
+        }
+        return map;
     }
 
     public static void main(String[] args) {

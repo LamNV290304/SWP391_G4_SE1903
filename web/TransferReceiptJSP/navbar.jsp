@@ -49,6 +49,7 @@
                                 </span>
                             </c:if>
                         </a>
+                        
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li class="dropdown-header">
                                 <div class="d-flex justify-content-between">
@@ -62,7 +63,7 @@
                                 </div>
                             </li>
                             <li>
-                                <div class="dropdown-divider"></div>
+                                <div class="dropdown-divider" ></div>
                             </li>
                             <c:forEach var="n" items="${vectorNoti}">
                                 <li class="dropdown-notifications-item
@@ -90,9 +91,22 @@
                                                 </p>
 
                                                 <!-- Thời gian -->
-                                                <small class="${n.isRead == 0 ? 'text-dark' : 'text-muted'}" style="font-size: 0.8rem;">
-                                                    5 phút trước
-                                                </small>
+                                                <c:forEach var="m" items="${mapNotiDate}">
+                                                    <c:if test="${m.key eq n.notiID}">
+                                                        <c:choose>
+                                                            <c:when test="${m.value < 60}">
+                                                                <small class="${n.isRead == 0 ? 'text-dark' : 'text-muted'}" style="font-size: 0.8rem;">
+                                                                    ${m.value} phút
+                                                                </small>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <small class="${n.isRead == 0 ? 'text-dark' : 'text-muted'}" style="font-size: 0.8rem;">
+                                                                    ${n.createdDate} 
+                                                                </small>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </c:if>
+                                                </c:forEach>
                                             </div>
                                         </div>
                                     </a>
