@@ -1,24 +1,30 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <!DOCTYPE html>
-<html lang="en">
+<html
+    lang="en"
+    class="light-style layout-menu-fixed"
+    dir="ltr"
+    data-theme="theme-default"
+    data-assets-path="../assets/"
+    data-template="vertical-menu-template-free"
+    >
     <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>${product != null ? 'Edit Product' : 'Add New Product'}</title>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+            />
+
+        <title>${product != null ? 'Edit Product' : 'Add New Product'} | Sneat - Product Management</title>
+
         <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap&subset=vietnamese" rel="stylesheet">
 
         <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
         <link rel="icon" type="image/x-icon" href="img/logoSale.png" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap&subset=vietnamese" rel="stylesheet">
-
-        <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
-        <link rel="icon" type="image/x-icon" href="img/logoSale.png" />
+        <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
@@ -26,413 +32,442 @@
             rel="stylesheet"
             />
 
+        <!-- Icons. Uncomment required icon fonts -->
         <link rel="stylesheet" href="./assets/css/custom.css" />
 
         <link rel="stylesheet" href="./assets/vendor/fonts/boxicons.css" />
 
+        <!-- Core CSS -->
         <link rel="stylesheet" href="./assets/vendor/css/core.css" class="template-customizer-core-css" />
         <link rel="stylesheet" href="./assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
         <link rel="stylesheet" href="./assets/css/demo.css" />
 
+        <!-- Vendors CSS -->
         <link rel="stylesheet" href="./assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
 
         <link rel="stylesheet" href="./assets/vendor/libs/apex-charts/apex-charts.css" />
 
+        <!-- Page CSS -->
+
+        <!-- Helpers -->
         <script src="./assets/vendor/js/helpers.js"></script>
 
+        <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+        <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
         <script src="./assets/js/config.js"></script>
+
+        <!-- Custom CSS -->
         <style>
-            .header-section {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                padding: 2rem 0;
-            }
-            .form-section {
-                background: #f8f9fa;
-                min-height: calc(100vh - 200px);
-                padding: 2rem 0;
-            }
             .image-preview {
                 width: 150px;
                 height: 150px;
-                border: 2px dashed #dee2e6;
+                border: 2px dashed #d9dee3;
                 border-radius: 8px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                background-color: #f8f9fa;
-                cursor: pointer;
+                background-color: rgba(67, 89, 113, 0.1);
+                position: relative;
                 transition: all 0.3s ease;
             }
+
             .image-preview:hover {
-                border-color: #007bff;
-                background-color: #e3f2fd;
+                border-color: #696cff;
+                background-color: rgba(105, 108, 255, 0.05);
             }
+
             .image-preview img {
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
                 border-radius: 6px;
             }
+
+            .upload-placeholder {
+                text-align: center;
+                color: #a1acb8;
+            }
+
             .profit-indicator {
-                padding: 0.5rem;
-                border-radius: 8px;
+                padding: 0.5rem 0.75rem;
+                border-radius: 6px;
                 margin-top: 0.5rem;
+                font-size: 0.875rem;
+                font-weight: 500;
             }
+
             .profit-positive {
-                background-color: #d1edff;
-                color: #0969da;
-                border: 1px solid #b6e3ff;
+                background-color: rgba(113, 221, 55, 0.16);
+                color: #71dd37;
+                border: 1px solid rgba(113, 221, 55, 0.4);
             }
+
             .profit-negative {
-                background-color: #ffeaea;
-                color: #d1242f;
-                border: 1px solid #ffc1cc;
+                background-color: rgba(255, 62, 29, 0.16);
+                color: #ff3e1d;
+                border: 1px solid rgba(255, 62, 29, 0.4);
             }
+
             .required-field::after {
                 content: ' *';
-                color: #dc3545;
+                color: #ff3e1d;
             }
-            .card-form {
-                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+
+            .input-group-text {
+                background-color: rgba(67, 89, 113, 0.04);
+                border-color: #d9dee3;
+                color: #697a8d;
+            }
+
+            .form-control:focus, .form-select:focus {
+                border-color: #696cff;
+                box-shadow: 0 0 0 0.2rem rgba(105, 108, 255, 0.25);
+            }
+
+            .alert {
                 border: none;
+                padding: 1rem 1.25rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .alert-success {
+                background-color: rgba(113, 221, 55, 0.16);
+                color: #71dd37;
+            }
+
+            .alert-danger {
+                background-color: rgba(255, 62, 29, 0.16);
+                color: #ff3e1d;
+            }
+
+            .breadcrumb-item + .breadcrumb-item::before {
+                color: #a1acb8;
             }
         </style>
+
+        <!-- Helpers -->
+        <script src="../assets/vendor/js/helpers.js"></script>
+        <script src="../assets/js/config.js"></script>
     </head>
-    <body class="bg-light">
-        <div  class="layout-wrapper layout-content-navbar">
+
+    <body>
+        <!-- Layout wrapper -->
+        <div class="layout-wrapper layout-content-navbar">
             <div class="layout-container">
-                <jsp:include page="sidebar.jsp" />
+                <!-- Menu -->                <jsp:include page="sidebar.jsp" />
 
+                 
+                <!-- / Menu -->
+
+                <!-- Layout container -->
                 <div class="layout-page">
-                    <jsp:include page="navBar.jsp" />
+                                        <jsp:include page="navBar.jsp" />
+
+                    <!-- / Navbar -->
+
+                    <!-- Content wrapper -->
                     <div class="content-wrapper">
-                        <!-- Navigation -->
-                        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-                            <div class="container-fluid">
-                                <a class="navbar-brand" href="products">
-                                    <i class="fas fa-boxes me-2"></i>Product Management
-                                </a>
-                                <div class="navbar-nav ms-auto">
-                                    <a class="nav-link" href="products">
-                                        <i class="fas fa-list me-1"></i>Back to List
-                                    </a>
+                        <!-- Content -->
+                        <div class="container-xxl flex-grow-1 container-p-y">
+                            <!-- Breadcrumb -->
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item">
+                                        <a href="index.html">Dashboard</a>
+                                    </li>
+                                    <li class="breadcrumb-item">
+                                        <a href="products">Products</a>
+                                    </li>
+                                    <li class="breadcrumb-item active">${product != null ? 'Edit Product' : 'Add Product'}</li>
+                                </ol>
+                            </nav>
+
+                            <h4 class="fw-bold py-3 mb-4">
+                                <span class="text-muted fw-light">Products /</span> ${product != null ? 'Edit Product' : 'Add New Product'}
+                            </h4>
+
+                            <!-- Success Messages -->
+                            <c:if test="${not empty param.success}">
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <strong>Success!</strong> ${param.success}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                                 </div>
-                            </div>
-                        </nav>
+                            </c:if>
 
-                        <!-- Header Section -->
-                        <div class="header-section">
-                            <div class="container">
-                                <div class="row">
-                                    <div class="col-12 text-center">
-                                        <h1 class="mb-2">
-                                            <i class="fas ${product != null ? 'fa-edit' : 'fa-plus-circle'} me-3"></i>
-                                            ${product != null ? 'Edit Product' : 'Add New Product'}
-                                        </h1>
-                                        <p class="lead mb-0">
-                                            ${product != null ? 'Update product information' : 'Fill in the details to create a new product'}
-                                        </p>
-                                    </div>
+                            <!-- Error Messages -->
+                            <c:if test="${not empty error}">
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <strong>Error!</strong> ${error}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                                 </div>
-                            </div>
-                        </div>
+                            </c:if>
 
-                        <!-- Form Section -->
-                        <div class="form-section">
-                            <div class="container">
-                                <!-- Error Messages -->
-                                <c:if test="${not empty error}">
-                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                        <i class="fas fa-exclamation-circle me-2"></i>${error}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                    </div>
-                                </c:if>
+                            <!-- Product Form -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">
+                                                <i class="bx ${product != null ? 'bx-edit' : 'bx-plus'} me-2"></i>
+                                                ${product != null ? 'Edit Product Information' : 'Create New Product'}
+                                            </h5>
+                                            <small class="text-muted float-end">
+                                                <c:if test="${product != null}">
+                                                    ID: ${product.productID}
+                                                </c:if>
+                                            </small>
+                                        </div>
+                                        <div class="card-body">
+                                            <form action="products" method="post" enctype="multipart/form-data">
+                                                <input type="hidden" name="action" value="${product != null ? 'update' : 'create'}">
+                                                <c:if test="${product != null}">
+                                                    <input type="hidden" name="productId" value="${product.productID}">
+                                                </c:if>
 
-                                <div class="row justify-content-center">
-                                    <div class="col-lg-10">
-                                        <div class="card card-form">
-                                            <div class="card-body p-4">
-                                                <form action="products" method="post" enctype="multipart/form-data" id="productForm">
-                                                    <input type="hidden" name="action" value="${product != null ? 'update' : 'create'}">
-                                                    <c:if test="${product != null}">
-                                                        <input type="hidden" name="productId" value="${product.productID}">
-                                                    </c:if>
+                                                <div class="row">
+                                                    <!-- Left Column - Basic Information -->
+                                                    <div class="col-xl-6">
+                                                        <h6 class="text-muted fw-bold mb-3">Basic Information</h6>
 
-                                                    <div class="row">
-                                                        <!-- Left Column -->
-                                                        <div class="col-md-6">
+                                                     
 
-                                                            <c:if test="${product != null}">
-
-                                                                <input type="hidden" id="productIdDisplay" value="${product.productID}">
-                                                            </c:if>
-
-                                                            <!-- Product Name -->
-                                                            <div class="mb-3">
-                                                                <label for="productName" class="form-label required-field">Product Name</label>
-                                                                <input type="text" class="form-control" id="productName" name="productName" 
-                                                                       value="${product.productName}" placeholder="Enter product name" required>
+                                                        <!-- Product Name -->
+                                                        <div class="mb-3">
+                                                            <label for="productName" class="form-label required-field">Product Name</label>
+                                                            <div class="input-group input-group-merge">
+                                                                <span class="input-group-text"><i class="bx bx-package"></i></span>
+                                                                <input 
+                                                                    type="text" 
+                                                                    class="form-control" 
+                                                                    id="productName" 
+                                                                    name="productName" 
+                                                                    value="${not empty formData ? paramValues.productName[0] : product.productName}" 
+                                                                    placeholder="Enter product name" 
+                                                                    required
+                                                                    >
                                                             </div>
+                                                        </div>
 
-                                                            <!-- Category -->
-                                                            <div class="mb-3">
-                                                                <label for="categoryId" class="form-label required-field">Category</label>
+                                                        <!-- Category -->
+                                                        <div class="mb-3">
+                                                            <label for="categoryId" class="form-label required-field">Category</label>
+                                                            <div class="input-group input-group-merge">
+                                                                <span class="input-group-text"><i class="bx bx-category"></i></span>
                                                                 <select class="form-select" id="categoryId" name="categoryId" required>
                                                                     <option value="">Select Category</option>
                                                                     <c:forEach var="category" items="${categories}">
+                                                                        <c:set var="selectedCategory" value="${not empty formData ? paramValues.categoryId[0] : product.categoryID}"/>
                                                                         <option value="${category.categoryID}" 
-                                                                                ${product.categoryID == category.categoryID ? 'selected' : ''}>
+                                                                                ${selectedCategory == category.categoryID ? 'selected' : ''}>
                                                                             ${category.categoryName}
                                                                         </option>
                                                                     </c:forEach>
                                                                 </select>
                                                             </div>
+                                                        </div>
 
-                                                            <!-- Unit -->
-                                                            <div class="mb-3">
-                                                                <label for="unitId" class="form-label required-field">Unit</label>
+                                                        <!-- Unit -->
+                                                        <div class="mb-3">
+                                                            <label for="unitId" class="form-label required-field">Unit</label>
+                                                            <div class="input-group input-group-merge">
+                                                                <span class="input-group-text"><i class="bx bx-cube"></i></span>
                                                                 <select class="form-select" id="unitId" name="unitId" required>
                                                                     <option value="">Select Unit</option>
                                                                     <c:forEach var="unit" items="${units}">
+                                                                        <c:set var="selectedUnit" value="${not empty formData ? paramValues.unitId[0] : product.unitID}"/>
                                                                         <option value="${unit.unitID}" 
-                                                                                ${product.unitID == unit.unitID ? 'selected' : ''}>
+                                                                                ${selectedUnit == unit.unitID ? 'selected' : ''}>
                                                                             ${unit.description}
                                                                         </option>
                                                                     </c:forEach>
                                                                 </select>
                                                             </div>
-
-                                                            <!-- Description -->
-                                                            <div class="mb-3">
-                                                                <label for="description" class="form-label">Description</label>
-                                                                <textarea class="form-control" id="description" name="description" 
-                                                                          rows="4" placeholder="Enter product description">${product.description}</textarea>
-                                                            </div>
                                                         </div>
 
-                                                        <!-- Right Column -->
-                                                        <div class="col-md-6">
-                                                            <!-- Image Upload -->
-                                                            <div class="mb-3">
-                                                                <label class="form-label">Product Image</label>
-                                                                <div class="d-flex align-items-start gap-3">
-                                                                    <div class="image-preview" onclick="document.getElementById('image').click()">
-                                                                        <c:choose>
-                                                                            <c:when test="${not empty product.imageUrl}">
-                                                                                <img src="${product.imageUrl}" alt="Product Image" id="imagePreview">
-                                                                            </c:when>
-                                                                            <c:otherwise>
-                                                                                <div class="text-center" id="imagePlaceholder">
-                                                                                    <i class="fas fa-camera fa-2x text-muted mb-2"></i>
-                                                                                    <div class="text-muted">Click to upload</div>
-                                                                                </div>
-                                                                            </c:otherwise>
-                                                                        </c:choose>
+                                                        <!-- Description -->
+                                                        <div class="mb-3">
+                                                            <label for="description" class="form-label">Description</label>
+                                                            <textarea 
+                                                                class="form-control" 
+                                                                id="description" 
+                                                                name="description" 
+                                                                rows="4" 
+                                                                placeholder="Enter product description"
+                                                                >${not empty formData ? paramValues.description[0] : product.description}</textarea>
+                                                        </div>
+
+                                                        <!-- Status -->
+                                                        <div class="mb-3">
+                                                            <div class="form-check form-switch">
+                                                                <input 
+                                                                    class="form-check-input" 
+                                                                    type="checkbox" 
+                                                                    id="status" 
+                                                                    name="status" 
+                                                                    ${(not empty formData and paramValues.status[0] == 'on') or (empty formData and product.status) ? 'checked' : ''}
+                                                                    >
+                                                                <label class="form-check-label" for="status">
+                                                                    Active Product
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-text">Enable this product for sale</div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Right Column - Pricing & Image -->
+                                                    <div class="col-xl-6">
+                                                        <h6 class="text-muted fw-bold mb-3">Pricing & Media</h6>
+
+                                                        <!-- Image Upload -->
+                                                        <div class="mb-4">
+                                                            <label class="form-label">Product Image</label>
+                                                            <div class="d-flex align-items-start gap-3">
+                                                                <div class="image-preview">
+                                                                    <c:choose>
+                                                                        <c:when test="${not empty product.imageUrl}">
+                                                                            <img src="${product.imageUrl}" alt="Product Image">
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            <div class="upload-placeholder">
+                                                                                <i class="bx bx-camera fs-2 mb-2"></i>
+                                                                                <div class="small">No Image</div>
+                                                                            </div>
+                                                                        </c:otherwise>
+                                                                    </c:choose>
+                                                                </div>
+                                                                <div class="flex-grow-1">
+                                                                    <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                                                                    <div class="form-text">
+                                                                        <i class="bx bx-info-circle me-1"></i>
+                                                                        Supported: JPG, PNG, GIF (Max 5MB)
                                                                     </div>
-                                                                    <div class="flex-grow-1">
-                                                                        <input type="file" class="form-control" id="image" name="image" 
-                                                                               accept="image/*" style="display: none;" onchange="previewImage(this)">
-                                                                        <button type="button" class="btn btn-outline-primary mb-2" 
-                                                                                onclick="document.getElementById('image').click()">
-                                                                            <i class="fas fa-upload me-2"></i>Choose Image
-                                                                        </button>
-                                                                        <div class="form-text">
-                                                                            Supported formats: JPG, PNG, GIF (Max 5MB)
+                                                                    <c:if test="${not empty product.imageUrl}">
+                                                                        <div class="mt-2">
+                                                                            <span class="badge bg-label-success">
+                                                                                <i class="bx bx-check me-1"></i>Image uploaded
+                                                                            </span>
                                                                         </div>
-                                                                        <c:if test="${not empty product.imageUrl}">
-                                                                            <button type="button" class="btn btn-outline-danger btn-sm mt-2" 
-                                                                                    onclick="removeImage()">
-                                                                                <i class="fas fa-trash me-2"></i>Remove Image
-                                                                            </button>
-                                                                        </c:if>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                            <!-- Import Price -->
-                                                            <div class="mb-3">
-                                                                <label for="importPrice" class="form-label required-field">Import Price ($)</label>
-                                                                <div class="input-group">
-                                                                    <span class="input-group-text">$</span>
-                                                                    <input type="number" class="form-control" id="importPrice" name="importPrice" 
-                                                                           value="${product.importPrice}" step="0.01" min="0" 
-                                                                           placeholder="0.00" required>
-                                                                </div>
-                                                            </div>
-
-                                                            <!-- Selling Price -->
-                                                            <div class="mb-3">
-                                                                <label for="sellingPrice" class="form-label required-field">Selling Price ($)</label>
-                                                                <div class="input-group">
-                                                                    <span class="input-group-text">$</span>
-                                                                    <input type="number" class="form-control" id="sellingPrice" name="sellingPrice" 
-                                                                           value="${product.sellingPrice}" step="0.01" min="0" 
-                                                                           placeholder="0.00" required>
-                                                                </div>                                              
-                                                            </div>
-
-                                                            <!-- Status -->
-                                                            <div class="mb-3">
-                                                                <div class="form-check form-switch">
-                                                                    <input class="form-check-input" type="checkbox" id="status" name="status" 
-                                                                           ${product == null || product.status ? 'checked' : ''} onchange="updateStatusBadge()">
-                                                                    <label class="form-check-label" for="status">
-                                                                        <span class="badge bg-success me-2" id="statusBadge">
-                                                                            <i class="fas fa-check me-1"></i>Active
-                                                                        </span>
-                                                                        Product Status
-                                                                    </label>
-                                                                </div>
-                                                                <div class="form-text">Toggle to activate/deactivate the product</div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Form Actions -->
-                                                    <div class="row mt-4">
-                                                        <div class="col-12">
-                                                            <div class="d-flex justify-content-between">
-                                                                <a href="products" class="btn btn-outline-secondary btn-lg">
-                                                                    <i class="fas fa-arrow-left me-2"></i>Cancel
-                                                                </a>
-                                                                <div>
-                                                                    <button type="reset" class="btn btn-outline-warning btn-lg me-2" onclick="resetForm()">
-                                                                        <i class="fas fa-undo me-2"></i>Reset
-                                                                    </button>
-                                                                    <button type="submit" class="btn btn-primary btn-lg">
-                                                                        <i class="fas ${product != null ? 'fa-save' : 'fa-plus'} me-2"></i>
-                                                                        ${product != null ? 'Update Product' : 'Create Product'}
-                                                                    </button>
+                                                                    </c:if>
                                                                 </div>
                                                             </div>
                                                         </div>
+
+                                                        <!-- Import Price -->
+                                                        <div class="mb-3">
+                                                            <label for="importPrice" class="form-label required-field">Import Price</label>
+                                                            <div class="input-group input-group-merge">
+                                                                <span class="input-group-text">$</span>
+                                                                <input 
+                                                                    type="number" 
+                                                                    class="form-control" 
+                                                                    id="importPrice" 
+                                                                    name="importPrice" 
+                                                                    value="${not empty formData ? paramValues.importPrice[0] : product.importPrice}" 
+                                                                    step="0.01" 
+                                                                    min="0" 
+                                                                    placeholder="0.00" 
+                                                                    required
+                                                                    >
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Selling Price -->
+                                                        <div class="mb-3">
+                                                            <label for="sellingPrice" class="form-label required-field">Selling Price</label>
+                                                            <div class="input-group input-group-merge">
+                                                                <span class="input-group-text">$</span>
+                                                                <input 
+                                                                    type="number" 
+                                                                    class="form-control" 
+                                                                    id="sellingPrice" 
+                                                                    name="sellingPrice" 
+                                                                    value="${not empty formData ? paramValues.sellingPrice[0] : product.sellingPrice}" 
+                                                                    step="0.01" 
+                                                                    min="0" 
+                                                                    placeholder="0.00" 
+                                                                    required
+                                                                    >
+                                                            </div>
+
+                                                            <!-- Profit Calculation -->
+                                                            <c:if test="${product != null && product.importPrice != null && product.sellingPrice != null}">
+                                                                <c:set var="profit" value="${product.sellingPrice - product.importPrice}"/>
+                                                                <c:set var="profitClass" value="${profit >= 0 ? 'profit-positive' : 'profit-negative'}"/>
+                                                                <div class="profit-indicator ${profitClass}">
+                                                                    <i class="bx ${profit >= 0 ? 'bx-trending-up' : 'bx-trending-down'} me-1"></i>
+                                                                    Profit: $<fmt:formatNumber value="${profit}" pattern="#,##0.00"/>
+                                                                    <c:if test="${product.importPrice > 0}">
+                                                                        <c:set var="profitPercentage" value="${(profit / product.importPrice) * 100}"/>
+                                                                        (<fmt:formatNumber value="${profitPercentage}" pattern="#,##0.00"/>%)
+                                                                    </c:if>
+                                                                </div>
+                                                            </c:if>
+                                                        </div>
                                                     </div>
-                                                </form>
-                                            </div> <!-- /.card-body -->
-                                        </div> <!-- /.card -->
-                                    </div> <!-- /.col-lg-10 -->
-                                </div> <!-- /.row -->
-                            </div> <!-- /.container -->
-                        </div> <!-- /.form-section -->
+                                                </div>
 
-                        
+                                                <!-- Form Actions -->
+                                                <div class="row mt-4">
+                                                    <div class="col-12">
+                                                        <div class="d-flex justify-content-between">
+                                                            <a href="products" class="btn btn-label-secondary">
+                                                                <i class="bx bx-arrow-back me-2"></i>Cancel
+                                                            </a>
+                                                            <div>
+                                                                <c:if test="${product != null}">
+                                                                    <a href="products?action=delete&id=${product.productID}" 
+                                                                       class="btn btn-label-danger me-2"
+                                                                       onclick="return confirm('Are you sure you want to delete this product?')">
+                                                                        <i class="bx bx-trash me-2"></i>Delete
+                                                                    </a>
+                                                                </c:if>
+                                                                <button type="submit" class="btn btn-primary">
+                                                                    <i class="bx ${product != null ? 'bx-save' : 'bx-plus'} me-2"></i>
+                                                                    ${product != null ? 'Update Product' : 'Create Product'}
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- / Content -->
 
-                        <!-- JavaScript -->
-                        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-                        <script>
+                        <!-- Footer -->
+                            <jsp:include page="footer.jsp" />
+                        <!-- / Footer -->
 
-                                                                        document.addEventListener('DOMContentLoaded', function () {
-                                                                            calculateProfit();
-                                                                            updateStatusBadge();
-                                                                        });
-
-                                                                        function previewImage(input) {
-                                                                            const preview = document.getElementById("imagePreview");
-                                                                            const placeholder = document.getElementById("imagePlaceholder");
-                                                                            if (input.files && input.files[0]) {
-                                                                                const reader = new FileReader();
-                                                                                reader.onload = function (e) {
-                                                                                    if (preview) {
-                                                                                        preview.src = e.target.result;
-                                                                                    } else {
-                                                                                        const img = document.createElement("img");
-                                                                                        img.id = "imagePreview";
-                                                                                        img.src = e.target.result;
-                                                                                        img.alt = "Product Image";
-                                                                                        img.style.width = "100%";
-                                                                                        img.style.height = "100%";
-                                                                                        img.style.objectFit = "cover";
-                                                                                        img.style.borderRadius = "6px";
-                                                                                        placeholder.replaceWith(img);
-                                                                                    }
-                                                                                };
-                                                                                reader.readAsDataURL(input.files[0]);
-                                                                            }
-                                                                        }
-
-                                                                        function removeImage() {
-                                                                            const imageInput = document.getElementById("image");
-                                                                            const preview = document.getElementById("imagePreview");
-                                                                            if (preview) {
-                                                                                preview.remove();
-                                                                                const placeholder = document.createElement("div");
-                                                                                placeholder.className = "text-center";
-                                                                                placeholder.id = "imagePlaceholder";
-                                                                                placeholder.innerHTML = `
-                                        <i class="fas fa-camera fa-2x text-muted mb-2"></i>
-                                        <div class="text-muted">Click to upload</div>
-                                    `;
-                                                                                document.querySelector(".image-preview").appendChild(placeholder);
-                                                                                imageInput.value = "";
-                                                                            }
-                                                                        }
-
-
-
-                                                                        function updateStatusBadge() {
-                                                                            const statusCheckbox = document.getElementById("status");
-                                                                            const statusBadge = document.getElementById("statusBadge");
-
-                                                                            if (statusCheckbox.checked) {
-                                                                                statusBadge.className = "badge bg-success me-2";
-                                                                                statusBadge.innerHTML = '<i class="fas fa-check me-1"></i>Active';
-                                                                            } else {
-                                                                                statusBadge.className = "badge bg-secondary me-2";
-                                                                                statusBadge.innerHTML = '<i class="fas fa-times me-1"></i>Inactive';
-                                                                            }
-                                                                        }
-
-                                                                        function resetForm() {
-
-                                                                            setTimeout(function () {
-                                                                                calculateProfit();
-                                                                                updateStatusBadge();
-
-
-                                                                                const preview = document.getElementById("imagePreview");
-                                                                                const placeholder = document.getElementById("imagePlaceholder");
-
-                            <c:if test="${empty product.imageUrl}">
-                                                                                if (preview) {
-                                                                                    removeImage();
-                                                                                }
-                            </c:if>
-                                                                            }, 100);
-                                                                        }
-
-
-                                                                        document.getElementById("productForm").addEventListener("submit", function (e) {
-
-                                                                            const name = document.getElementById("productName").value.trim();
-
-                                                                            if (name.length === 0) {
-                                                                                e.preventDefault();
-                                                                                alert("Product name cannot be empty or spaces only.");
-                                                                                return;
-                                                                            }
-                                                                            const importPrice = parseFloat(document.getElementById("importPrice").value) || 0;
-                                                                            const sellingPrice = parseFloat(document.getElementById("sellingPrice").value) || 0;
-
-                                                                            if (sellingPrice < importPrice) {
-                                                                                if (!confirm("Warning: Selling price is less than import price. This will result in a loss. Do you want to continue?")) {
-                                                                                    e.preventDefault();
-                                                                                }
-                                                                            }
-                                                                        });
-                        </script>
-
+                        <div class="content-backdrop fade"></div>
                     </div>
-                    <jsp:include page="footer.jsp" />
+                    <!-- / Content wrapper -->
                 </div>
-
+                <!-- / Layout page -->
             </div>
-            <script src="assets/vendor/libs/jquery/jquery.js"></script>
+            <!-- / Layout container -->
+        </div>
+        <!-- / Layout wrapper -->
+
+        <!-- Core JS -->
+        <!-- build:js assets/vendor/js/core.js -->
+       
             <script src="assets/vendor/libs/popper/popper.js"></script>
             <script src="assets/vendor/js/bootstrap.js"></script>
             <script src="assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
-            <script src="assets/vendor/js/menu.js"></script> <script src="assets/js/main.js"></script>
+            <script src="assets/vendor/js/menu.js"></script> <!-- X? lï¿½ toggle -->
+            <script src="assets/js/main.js"></script> <!-- Main logic -->
+        <!-- endbuild -->
 
+        <!-- Vendors JS -->
 
+        <!-- Main JS -->
+        <script src="../assets/js/main.js"></script>
+
+        <!-- Page JS -->
+
+        <!-- Optional Custom JS -->
     </body>
 </html>
