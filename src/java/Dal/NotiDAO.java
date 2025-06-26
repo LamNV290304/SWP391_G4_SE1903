@@ -32,12 +32,13 @@ public class NotiDAO {
             PreparedStatement ptm = connection.prepareStatement(sql);
             ResultSet rs = ptm.executeQuery();
             while (rs.next()) {
-                Noti p = new Noti(rs.getString(1),
+                Noti p = new Noti(rs.getInt(1),
                         rs.getString(2),
                         rs.getString(3),
-                        rs.getInt(4),
-                        rs.getDate(5),
-                        rs.getInt(6));
+                        rs.getString(4),
+                        rs.getInt(5),
+                        rs.getDate(6),
+                        rs.getInt(7));
 
                 listNoti.add(p);
             }
@@ -55,7 +56,7 @@ public class NotiDAO {
                 + "           ,[ReceiverEmployeeID]\n"
                 + "           ,[CreatedDate]\n"
                 + "           ,[IsRead])\n"
-                + "     VALUES (?, ?, ?, ?, ?,?)";
+                + "     VALUES (?, ?, ?, ?, GETDATE(),?)";
 
         int n = 0;
         try {
@@ -64,8 +65,7 @@ public class NotiDAO {
             ptm.setString(2, p.getMessage());
             ptm.setString(3, p.getLink());
             ptm.setInt(4, p.getReceiverEmployeeID());
-            ptm.setDate(5, new java.sql.Date(p.getCreatedDate().getTime()));
-            ptm.setInt(6, p.getIsRead());
+            ptm.setInt(5, p.getIsRead());
 
             n = ptm.executeUpdate();
         } catch (SQLException ex) {
@@ -74,17 +74,40 @@ public class NotiDAO {
         return n;
     }
 
+    public int updateNotiIsRead(int NotiID, int IsRead) {
+        int result = 0;
+        try {
+            String sql = "UPDATE Noti SET IsRead = ? WHERE NotiID = ?";
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, IsRead);
+            ps.setInt(2, NotiID);
+            result = ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     public static void main(String[] args) {
         DBContext connection = new DBContext("SWP8");
         // Tạo đối tượng DAO
         NotiDAO dao = new NotiDAO(connection.getConnection());
 
-
-        String sql = "SELECT [Title], [Message], [Link], [ReceiverEmployeeID], [CreatedDate], [IsRead] FROM Noti";
+        String sql = "SELECT [NotiID]\n"
+                + "      ,[Title]\n"
+                + "      ,[Message]\n"
+                + "      ,[Link]\n"
+                + "      ,[ReceiverEmployeeID]\n"
+                + "      ,[CreatedDate]\n"
+                + "      ,[IsRead]\n"
+                + "  FROM [dbo].[Noti]";
 
         Vector<Noti> notis = dao.getAllNoti(sql);
 
+        System.out.println(notis.size());
+
         for (Noti n : notis) {
+            System.out.println("ID: " + n.getNotiID());
             System.out.println("Tiêu đề: " + n.getTitle());
             System.out.println("Nội dung: " + n.getMessage());
             System.out.println("Link: " + n.getLink());

@@ -136,6 +136,13 @@
 
                                 </ul>
                             </nav>
+                            <c:if test="${not empty messageStatus}">
+                                <div class="d-flex justify-content-center">
+                                    <div class="alert alert-info mt-3 w-auto px-4 py-2 text-center" role="alert">
+                                        ${messageStatus}
+                                    </div>
+                                </div>
+                            </c:if>
                         </div>
                     </div>
                 </div>
