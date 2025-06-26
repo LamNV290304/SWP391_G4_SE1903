@@ -54,7 +54,7 @@
                                                 <label for="ToShop" class="form-label">To Shop</label>
                                                 <select name="ToShopID" class="form-select" onchange="this.form.submit()">
                                                     <option disabled ${ toShopSelect == 0 ? 'selected' : ''}>Select To Shop</option>
-                                                    <c:forEach var="c" items="${listShop}">
+                                                    <c:forEach var="c" items="${listToShop}">
                                                         <option value="${c.shopID}" ${c.shopID == toShopSelect ? 'selected' : ''}>${c.shopName}</option>
                                                     </c:forEach>
                                                 </select>
@@ -139,7 +139,7 @@
                                             <table class="table table-bordered table-hover text-center align-middle mb-0">
                                                 <thead class="table-light">
                                                     <tr>
-                                                        <th>TransferReceiptID</th>
+                                                        <th>Stt</th>
                                                         <th>ProductID</th>
                                                         <th>Quantity</th>
                                                         <th>Action</th>
@@ -182,18 +182,21 @@
                                                 </tbody>
                                             </table>
                                         </div>
-
                                         <!-- NÚT CREATE -->
                                         <form action="TransferReceipt" method="POST" class="d-flex flex-column flex-grow-1">
-                                            <div class="mt-auto d-flex justify-content-end p-3">
-                                                <button type="submit" class="btn btn-primary" name="submit" value="submit">
-                                                    Create Transfer
-                                                </button>
-                                                <input type="hidden" name="service" value="addTransferReceipt">
-                                                <input type="hidden" name="FromShopID" value="${select}">
-                                                <input type="hidden" name="ToShopID" value="${toShopSelect}">
-                                                <input type="hidden" name="Note" value="${Note}">
-                                            </div>
+                                            <div class="mt-auto d-flex justify-content-between align-items-center p-3">
+                                                <p class="mb-0 text-danger fw-bold">${messageQuantity}</p>
+                                                
+                                                <div class="d-flex align-items-center">
+                                                    <button type="submit" class="btn btn-primary" name="submit" value="submit">
+                                                        Create Transfer
+                                                    </button>
+                                                    <input type="hidden" name="service" value="addTransferReceipt">
+                                                    <input type="hidden" name="FromShopID" value="${select}">
+                                                    <input type="hidden" name="ToShopID" value="${toShopSelect}">
+                                                    <input type="hidden" name="Note" value="${Note}">
+                                                </div>
+                                            </div>                                        
                                         </form>
                                     </div>
                                 </div>

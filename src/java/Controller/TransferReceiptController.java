@@ -62,8 +62,18 @@ public class TransferReceiptController extends HttpServlet {
     Vector<TransferReceipt> list = dao.getAllTransferReceipt("SELECT * FROM TransferReceipt");
     Vector<TransferReceiptDetail> listDetail = transferReceiptDetailDAO.getAllTransferReceiptDetail("SELECT * FROM TransferReceiptDetail");
     List<Employee> employees = employeeDAO.getAllEmployee();
-    Vector<Noti> vectorNoti = notiDAO.getAllNoti("SELECT [Title], [Message], [Link], [ReceiverEmployeeID], [CreatedDate], [IsRead] FROM Noti");
-    
+
+    Vector<Noti> vectorNoti = notiDAO.getAllNoti("SELECT [NotiID]\n"
+            + "      ,[Title]\n"
+            + "      ,[Message]\n"
+            + "      ,[Link]\n"
+            + "      ,[ReceiverEmployeeID]\n"
+            + "      ,[CreatedDate]\n"
+            + "      ,[IsRead]\n"
+            + "  FROM [dbo].[Noti] "
+            + "Where IsRead = 0"
+            + "ORDER BY [CreatedDate] DESC");
+
     private static final String SQLStatusZero = "SELECT * FROM TransferReceipt WHERE Status = 0";
     private static final String SQLStatusNotZero = "SELECT * FROM TransferReceipt WHERE Status != 0";
 
@@ -102,7 +112,7 @@ public class TransferReceiptController extends HttpServlet {
     private void listProcessTransferReceipt(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         log("size: " + vectorNoti.size());
-        
+
         String submit = request.getParameter("submit");
         int page = 1;
         int select = 1;
@@ -165,6 +175,13 @@ public class TransferReceiptController extends HttpServlet {
         }
         session.setAttribute("ListAddToCartTransfer", ListAddToCartTransfer);
 
+        Vector<Noti> vectorNoti = notiDAO.getAllNoti("SELECT * FROM [dbo].[Noti] "
+                + "Where IsRead = 0"
+                + "ORDER BY [CreatedDate] DESC");
+        request.setAttribute("sizeNoti", vectorNoti.size());
+        vectorNoti = notiDAO.getAllNoti("SELECT * FROM [dbo].[Noti] "
+                + "ORDER BY [CreatedDate] DESC");
+
         //Set data for view
         request.setAttribute("vectorNoti", vectorNoti);
         request.setAttribute("currentPage", select);
@@ -200,45 +217,80 @@ public class TransferReceiptController extends HttpServlet {
         for (TransferReceiptDetail transferReceiptDetail : listDetail) {
             product.put(transferReceiptDetail.getProductID(), transferReceiptDetail.getQuantity());
         }
+        TransferReceipt t = dao.searchTransferReceipt(TransferReceiptID);
 
-        int status = 0;
-        if ("accept".equalsIgnoreCase(setStatus)) {
-            status = 1;
-            //setQuantity sau khi chuyen
+        int ToShopID = t.getToShopID();
 
-            TransferReceipt p = dao.searchTransferReceipt(TransferReceiptID);
-            List<Inventory> fromI = inventoryDAO.getAllInventoriesInStore(p.getFromShopID());
-            List<Inventory> toI = inventoryDAO.getAllInventoriesInStore(p.getToShopID());
+        if (t.getStatus() == 0) {
+            int status = 0;
+            if ("accept".equalsIgnoreCase(setStatus)) {
+                status = 1;
+                //setQuantity sau khi chuyen
 
-            //giam so luong o from Shop
-            for (Map.Entry<Integer, Integer> entry : product.entrySet()) {
-                int key = entry.getKey();
-                int val = entry.getValue();
-                for (Inventory inventory : fromI) {
-                    if (inventory.getProduct().getProductID().equals(key)) {
-                        inventoryDAO.updateInventoryQuantity(inventory.getInventoryID(), inventory.getQuantity() - val);
+                TransferReceipt p = dao.searchTransferReceipt(TransferReceiptID);
+                List<Inventory> fromI = inventoryDAO.getAllInventoriesInStore(p.getFromShopID());
+                List<Inventory> toI = inventoryDAO.getAllInventoriesInStore(p.getToShopID());
+
+                //giam so luong o from Shop
+                for (Map.Entry<Integer, Integer> entry : product.entrySet()) {
+                    int key = entry.getKey();
+                    int val = entry.getValue();
+                    for (Inventory inventory : fromI) {
+                        if (inventory.getProduct().getProductID().equals(key)) {
+                            inventoryDAO.updateInventoryQuantity(inventory.getInventoryID(), inventory.getQuantity() - val);
+                        }
                     }
                 }
-            }
-            //tang so luong o to shop
-            for (Map.Entry<Integer, Integer> entry : product.entrySet()) {
-                int key = entry.getKey();
-                int val = entry.getValue();
-                for (Inventory inventory : toI) {
-                    if (inventory.getProduct().getProductID().equals(key)) {
-                        inventoryDAO.updateInventoryQuantity(inventory.getInventoryID(), inventory.getQuantity() + val);
+                //tang so luong o to shop
+                for (Map.Entry<Integer, Integer> entry : product.entrySet()) {
+                    int key = entry.getKey();
+                    int val = entry.getValue();
+                    for (Inventory inventory : toI) {
+                        if (inventory.getProduct().getProductID().equals(key)) {
+                            inventoryDAO.updateInventoryQuantity(inventory.getInventoryID(), inventory.getQuantity() + val);
+                        }
                     }
+                }
+
+            } else if ("reject".equalsIgnoreCase(setStatus)) {
+                status = 2;
+            }
+
+            dao.updateTransferReceiptStatus(TransferReceiptID, status);
+
+            //Insert Noti
+            String Title = "Transfer Receipt";
+            String Message = "Status của TransferReceiptID: " + t.getTransferReceiptID() + " đã " + setStatus;
+            String Link = "TransferReceipt?service=listCompleteTransferReceipt";
+            int ReceiverEmployeeID = 0;
+            for (Employee e : employees) {
+                if (e.getRoleId() == 2 && e.getShopId() == ToShopID) {
+                    ReceiverEmployeeID = e.getId();
+                }
+            }
+            int IsRead = 0;
+            Noti n = new Noti(Title, Message, Link, ReceiverEmployeeID, IsRead);
+            notiDAO.insertNoti(n);
+
+        } else {
+            //Insert Noti
+            String Title = "Transfer Receipt";
+            String Message = "Status của TransferReceiptID: " + t.getTransferReceiptID() + " đã được xử lý";
+            String Link = "TransferReceipt?service=listCompleteTransferReceipt";
+            int ReceiverEmployeeID = 0;
+            for (Employee e : employees) {
+                if (e.getRoleId() == 2 && e.getShopId() == ToShopID) {
+                    ReceiverEmployeeID = e.getId();
                 }
             }
 
-        } else if ("reject".equalsIgnoreCase(setStatus)) {
-            status = 2;
+            int IsRead = 0;
+            Noti n = new Noti(Title, Message, Link, ReceiverEmployeeID, IsRead);
+            notiDAO.insertNoti(n);
         }
 
-        dao.updateTransferReceiptStatus(TransferReceiptID, status);
-
         // Sau khi cập nhật, quay về danh sách
-        response.sendRedirect("TransferReceipt");
+        response.sendRedirect("TransferReceipt?service=listCompleteTransferReceipt");
     }
 
     private void addTransferReceipt(HttpServletRequest request, HttpServletResponse response)
@@ -261,37 +313,43 @@ public class TransferReceiptController extends HttpServlet {
             if (checkFromShopID != null && !checkFromShopID.trim().isEmpty()) {
                 FromShopID = Integer.parseInt(request.getParameter("FromShopID"));
                 ListInventory = inventoryDAO.getAllInventoriesInStore(FromShopID);
-
+                //xoa session neu select lai shop 
+                if (ListAddToCartTransfer != null) {
+                    ListAddToCartTransfer.clear();
+                }
+                session.setAttribute("ListAddToCartTransfer", ListAddToCartTransfer);
+            }
+            //Loc to shop
+            List<Shop> ListToShop = new ArrayList<>();
+            for (Shop s : ListShop) {
+                if (s.getShopID() != FromShopID) {
+                    ListToShop.add(s);
+                }
             }
 
             if (request.getParameter("ToShopID") != null && !request.getParameter("ToShopID").trim().isEmpty()) {
                 ToShopID = Integer.parseInt(request.getParameter("ToShopID"));
-
             }
 
             //search Product
-            int searchProduct;
+            int searchProduct = 0;
             if (request.getParameter("searchProduct") != null && !request.getParameter("searchProduct").trim().isEmpty()) {
                 searchProduct = Integer.parseInt(request.getParameter("searchProduct"));
                 request.setAttribute("searchProduct", searchProduct);
 
             }
-            String search = request.getParameter("search");
-            if (search != null) {
-                //ListInventory = inventoryDAO.getAllInventoriesInProductIDAndStoreID(searchProduct, FromShopID);
+            if (searchProduct != 0) {
+                ListInventory = inventoryDAO.getAllInventoriesInProductIDAndStoreID(searchProduct, FromShopID);
 
-            } else {
-                vectorProduct = productDAO.getProduct("SELECT *  FROM Product");
             }
 
             String addProduct = request.getParameter("addProduct");
             int stt = 0;
             //addProduct
             if (addProduct != null) {
-                int ProductID = -1;
+                int ProductID = 0;
                 if (request.getParameter("productID") != null && !request.getParameter("productID").trim().isEmpty()) {
                     ProductID = Integer.parseInt(request.getParameter("productID"));
-
                 }
 
                 boolean check = false;
@@ -303,15 +361,27 @@ public class TransferReceiptController extends HttpServlet {
                         T = i;
                     }
                 }
+                //check quantity cua product
+                int validQuantity = 0;
+                for (Inventory i : ListInventory) {
+                    if (i.getProduct().getProductID() == ProductID) {
+                        validQuantity = i.getQuantity();
+                    }
+                }
                 //them moi or tang quantity neu ton tai
                 if (!check) {
                     int Quantity = 1;
-
-                    TransferReceiptDetail TD = new TransferReceiptDetail(stt++, ProductID, Quantity);
+                    stt = ListAddToCartTransfer.size() + 1;
+                    TransferReceiptDetail TD = new TransferReceiptDetail(stt, ProductID, Quantity);
                     ListAddToCartTransfer.add(TD);
                 } else {
+
                     int newQuantity = ListAddToCartTransfer.get(T).getQuantity() + 1;
-                    ListAddToCartTransfer.get(T).setQuantity(newQuantity);
+                    if (newQuantity <= validQuantity) {
+                        ListAddToCartTransfer.get(T).setQuantity(newQuantity);
+                    } else {
+                        request.setAttribute("messageQuantity", "Ko du so luong san pham");
+                    }
                 }
 
             }
@@ -322,15 +392,22 @@ public class TransferReceiptController extends HttpServlet {
                 int ProductID = 0;
                 if (request.getParameter("ProductID") != null && !request.getParameter("ProductID").trim().isEmpty()) {
                     ProductID = Integer.parseInt(request.getParameter("ProductID"));
-                    log("ProductID" + ProductID);
+                }
+                int validQuantity = 0;
+                for (Inventory i : ListInventory) {
+                    if (i.getProduct().getProductID() == ProductID) {
+                        validQuantity = i.getQuantity();
+                    }
                 }
                 int Quantity = Integer.parseInt(request.getParameter("Quantity"));
-
-                for (TransferReceiptDetail transferReceiptDetail : ListAddToCartTransfer) {
-                    if (transferReceiptDetail.getProductID() == ProductID) {
-                        log("quantity: " + Quantity);
-                        transferReceiptDetail.setQuantity(Quantity);
+                if (Quantity <= validQuantity) {
+                    for (TransferReceiptDetail transferReceiptDetail : ListAddToCartTransfer) {
+                        if (transferReceiptDetail.getProductID() == ProductID) {
+                            transferReceiptDetail.setQuantity(Quantity);
+                        }
                     }
+                } else {
+                    request.setAttribute("messageQuantity", "Ko du so luong san pham");
                 }
             }
 
@@ -347,7 +424,16 @@ public class TransferReceiptController extends HttpServlet {
                     }
                 }
             }
+            //set view for Noti
+            Vector<Noti> vectorNoti = notiDAO.getAllNoti("SELECT * FROM [dbo].[Noti] "
+                    + "Where IsRead = 0"
+                    + "ORDER BY [CreatedDate] DESC");
+            request.setAttribute("sizeNoti", vectorNoti.size());
+            vectorNoti = notiDAO.getAllNoti("SELECT * FROM [dbo].[Noti] "
+                    + "ORDER BY [CreatedDate] DESC");
 
+            request.setAttribute("listToShop", ListToShop);
+            request.setAttribute("vectorNoti", vectorNoti);
             request.setAttribute("toShopSelect", ToShopID);
             request.setAttribute("Note", Note);
             request.setAttribute("select", FromShopID);
@@ -391,8 +477,7 @@ public class TransferReceiptController extends HttpServlet {
 
             //Insert Noti
             String Title = "Transfer Receipt";
-            String Message = "From Shop: " + FromShopName + "To Shop" + ToShopName + "\n"
-                    + "Note: " + Note;
+            String Message = "From: " + FromShopName + " To: " + ToShopName;
             String Link = "TransferReceipt?service=listProcessTransferReceipt";
             int ReceiverEmployeeID = 0;
             for (Employee e : employees) {
@@ -402,21 +487,19 @@ public class TransferReceiptController extends HttpServlet {
 
                 }
             }
-            java.util.Date CreatedDate = new java.util.Date();
             int IsRead = 0;
-            Noti n = new Noti(Title, Message, Link, ReceiverEmployeeID, CreatedDate, IsRead);
+            Noti n = new Noti(Title, Message, Link, ReceiverEmployeeID, IsRead);
             notiDAO.insertNoti(n);
 
             //Send Mail
             String email = "xuanhieu20012004@gmail.com";
-            MailUtil sendMail = new MailUtil();
 
             //Thiếu check Status, nếu status khác 0 thì trả về đã Accept
             String linkA = "http://localhost:9999/SWP391_G4_SE1903/TransferReceipt?service=updateStatus&setStatus=accept&TransferReceiptID=" + maxID;
             String linkR = "http://localhost:9999/SWP391_G4_SE1903/TransferReceipt?service=updateStatus&setStatus=reject&TransferReceiptID=" + maxID;
 
             String content = sendContent(FromShopName, ToShopName, Note, ListAddToCartTransfer, linkA, linkR);
-            sendMail.sendRequest(email, content);
+            MailUtil.sendRequest(email, content);
 
             response.sendRedirect("TransferReceipt");
         }
@@ -424,7 +507,7 @@ public class TransferReceiptController extends HttpServlet {
 
     private String sendContent(String FromShopID, String ToShopID, String Note, List<TransferReceiptDetail> list, String linkA, String linkR) {
         String content = "";
-        content += "<h1>From Shop " + FromShopID + " To Shop " + ToShopID + " Note " + Note + "</h1>"
+        content += "<h1>From: " + FromShopID + " To: " + ToShopID + " Note: " + Note + "</h1>"
                 + "<h2 style=\"font-family: Arial, sans-serif; color: #333;\">Product Details</h2>\n"
                 + "        <table border=\"1\" cellpadding=\"5\" cellspacing=\"0\" style=\"width: 60%; border-collapse: collapse; font-family: Arial, sans-serif;\">\n"
                 + "            <thead>\n"
@@ -474,7 +557,14 @@ public class TransferReceiptController extends HttpServlet {
         String TransferReceiptID = request.getParameter("TransferReceiptID");
         log(TransferReceiptID);
         listDetail = transferReceiptDetailDAO.getAllTransferReceiptDetail("SELECT * FROM TransferReceiptDetail WHERE TransferReceiptID = '" + TransferReceiptID + "'");
-        
+
+        Vector<Noti> vectorNoti = notiDAO.getAllNoti("SELECT * FROM [dbo].[Noti] "
+                + "Where IsRead = 0"
+                + "ORDER BY [CreatedDate] DESC");
+        request.setAttribute("sizeNoti", vectorNoti.size());
+        vectorNoti = notiDAO.getAllNoti("SELECT * FROM [dbo].[Noti] "
+                + "ORDER BY [CreatedDate] DESC");
+
         request.setAttribute("vectorNoti", vectorNoti);
         request.setAttribute("vectorP", vectorProduct);
         request.setAttribute("listDetail", listDetail);
@@ -501,6 +591,7 @@ public class TransferReceiptController extends HttpServlet {
             //Select Page
             if (request.getParameter("selectPage") != null) {
                 select = Integer.parseInt(request.getParameter("selectPage"));
+
             }
             int start = (select - 1) * 5;
             int end = Math.min(select * 5, list.size());
@@ -537,8 +628,15 @@ public class TransferReceiptController extends HttpServlet {
                 selectList.add(list.get(i));
             }
             request.setAttribute("currentSearch", name);
+
         }
-        //Set data for view
+        Vector<Noti> vectorNoti = notiDAO.getAllNoti("SELECT * FROM [dbo].[Noti] "
+                + "Where IsRead = 0"
+                + "ORDER BY [CreatedDate] DESC");
+        request.setAttribute("sizeNoti", vectorNoti.size());
+        vectorNoti = notiDAO.getAllNoti("SELECT * FROM [dbo].[Noti] "
+                + "ORDER BY [CreatedDate] DESC");
+
         request.setAttribute("vectorNoti", vectorNoti);
         request.setAttribute("currentPage", select);
         request.setAttribute("page", page);
