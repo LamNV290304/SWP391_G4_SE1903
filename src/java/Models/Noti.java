@@ -11,16 +11,33 @@ import java.util.Date;
  * @author ADMIN
  */
 public class Noti {
-
+    private int NotiID;
     private String Title, Message, Link;
     private int ReceiverEmployeeID;
     private Date CreatedDate;
     private int IsRead;
 
+    public Noti(int NotiID, String Title, String Message, String Link, int ReceiverEmployeeID, Date CreatedDate, int IsRead) {
+        this.NotiID = NotiID;
+        this.Title = Title;
+        this.Message = Message;
+        this.Link = Link;
+        this.ReceiverEmployeeID = ReceiverEmployeeID;
+        this.CreatedDate = CreatedDate;
+        this.IsRead = IsRead;
+    }
+
     public Noti() {
         
     }
-
+    public Noti(String Title, String Message, String Link, int ReceiverEmployeeID, int IsRead) {
+        this.Title = Title;
+        this.Message = Message;
+        this.Link = Link;
+        this.ReceiverEmployeeID = ReceiverEmployeeID;
+        this.IsRead = IsRead;
+    }
+    
     public Noti(String Title, String Message, String Link, int ReceiverEmployeeID, Date CreatedDate, int IsRead) {
         this.Title = Title;
         this.Message = Message;
@@ -76,6 +93,14 @@ public class Noti {
 
     public void setCreatedDate(Date CreatedDate) {
         this.CreatedDate = CreatedDate;
+    }
+
+    public int getNotiID() {
+        return NotiID;
+    }
+
+    public void setNotiID(int NotiID) {
+        this.NotiID = NotiID;
     }
 
 }
