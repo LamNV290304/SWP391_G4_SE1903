@@ -116,15 +116,17 @@
         <servlet-name>AddInventoryProduct</servlet-name>
         <servlet-class>Controller.AddInventoryProduct</servlet-class>
     </servlet>
-
     <servlet>
         <servlet-name>CustomerServlet</servlet-name>
         <servlet-class>Controller.CustomerServlet</servlet-class>
     </servlet>
-
     <servlet>
         <servlet-name>listInventoryHome</servlet-name>
         <servlet-class>Controller.listInventoryHome</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>MySubscription</servlet-name>
+        <servlet-class>Controller.MySubscription</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>StartProject</servlet-name>
@@ -171,7 +173,6 @@
         <servlet-name>AddImportReceipt</servlet-name>
         <url-pattern>/AddImportReceipt</url-pattern>
     </servlet-mapping>
-
     <servlet-mapping>
         <servlet-name>AddExportReceipt</servlet-name>
         <url-pattern>/AddExportReceipt</url-pattern>
@@ -247,6 +248,10 @@
     <servlet-mapping>
         <servlet-name>ExportReceiptServlet</servlet-name>
         <url-pattern>/ExportReceiptServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MySubscription</servlet-name>
+        <url-pattern>/MySubscription</url-pattern>
     </servlet-mapping>
     <error-page>
         <error-code>404</error-code>
