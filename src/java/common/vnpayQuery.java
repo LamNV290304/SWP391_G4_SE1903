@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Common;
+package common;
 
 import com.google.gson.JsonObject;
 import java.io.BufferedReader;
