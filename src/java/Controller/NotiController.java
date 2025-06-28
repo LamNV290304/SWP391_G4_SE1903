@@ -2,49 +2,62 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-
 package Controller;
 
 import Context.DBContext;
-import Dal.*;
-import Models.ExportReceipt;
-import Models.ImportReceipt;
+import Dal.NotiDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
 
 /**
  *
- * @author Thai Anh
+ * @author ADMIN
  */
-public class ExportReceiptServlet extends HttpServlet {
-   
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+@WebServlet(name = "NotiController", urlPatterns = {"/NotiController"})
+public class NotiController extends HttpServlet {
+
+    DBContext connection = new DBContext("SWP8");
+
+    NotiDAO notiDAO = new NotiDAO(connection.getConnection());
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-       response.setContentType("text/html;charset=UTF-8");
+            throws ServletException, IOException {
+        String service = request.getParameter("service");
+
+        if (service == null) {
+        } else {
+            switch (service) {
+                case "SetIsRead":
+                    SetIsRead(request, response);
+                    break;
+            }
+        }
+    }
+
+    private void SetIsRead(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String check = request.getParameter("NotiID");
         
-        DBContext connection = new DBContext("SWP7");
-    ExportReceiptDAO dao = new ExportReceiptDAO(connection.getConnection());
-    List<ExportReceipt> list = dao.getAll();
-       
-    request.setAttribute("listIE", list);
-    request.getRequestDispatcher("ExportReceipt.jsp").forward(request, response);
-    } 
+        if (check != null) {
+            int NotiID = Integer.parseInt(request.getParameter("NotiID"));
+            notiDAO.updateNotiIsRead(NotiID, 1);
+        }
+        String link = request.getParameter("link");
+
+
+        response.sendRedirect(link);
+
+    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
+    /**
      * Handles the HTTP <code>GET</code> method.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -52,12 +65,13 @@ public class ExportReceiptServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         processRequest(request, response);
-    } 
+    }
 
-    /** 
+    /**
      * Handles the HTTP <code>POST</code> method.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -65,12 +79,13 @@ public class ExportReceiptServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /** 
+    /**
      * Returns a short description of the servlet.
+     *
      * @return a String containing servlet description
      */
     @Override

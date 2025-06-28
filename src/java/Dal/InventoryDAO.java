@@ -223,18 +223,18 @@ public class InventoryDAO {
         }
         return list;
     }
-    
+
     public List<Inventory> getAllInventoriesInProductIDAndStoreID(int search, int storeId) {
         List<Inventory> list = new ArrayList<>();
         String sql = "SELECT i.InventoryID, i.ProductID, p.ProductName, i.ShopID, s.ShopName, i.Quantity, i.LastUpdated "
                 + "FROM Inventory i "
                 + "JOIN Product p ON i.ProductID = p.ProductID "
                 + "LEFT JOIN Shop s ON i.ShopID = s.ShopID "
-                + "WHERE p.ProductName COLLATE Latin1_General_CI_AI LIKE ? AND i.ShopID = ?";
+                + "WHERE p.ProductID = ? AND i.ShopID = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, search);    
-            ps.setInt(2, storeId);                
+            ps.setInt(1, search);
+            ps.setInt(2, storeId);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -294,9 +294,9 @@ public class InventoryDAO {
                     System.out.println("----------------------------------");
                 }
             }
-           // Inventory inv = dao.getInventoryByShopAndProduct("1", "2");
+            // Inventory inv = dao.getInventoryByShopAndProduct("1", "2");
             //dao.updateInventoryQuantity(inv.getInventoryID(), inv.getQuantity()+10);
-           // System.out.println(inv.toString());
+            // System.out.println(inv.toString());
         } catch (SQLException e) {
             Logger.getLogger(InventoryDAO.class.getName()).log(Level.SEVERE, null, e);
         }
