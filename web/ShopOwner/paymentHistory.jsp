@@ -10,11 +10,20 @@
 <html lang="vi" class="light-style layout-menu-fixed">
     <head>
         <title>Lịch sử thanh toán</title>
+        <!-- Fonts & Style -->
+        <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap&subset=vietnamese" rel="stylesheet" />
+        <link rel="icon" type="image/x-icon" href="img/logoSale.png" />
         <link rel="stylesheet" href="./assets/vendor/fonts/boxicons.css" />
         <link rel="stylesheet" href="./assets/vendor/css/core.css" />
         <link rel="stylesheet" href="./assets/vendor/css/theme-default.css" />
         <link rel="stylesheet" href="./assets/css/demo.css" />
         <link rel="stylesheet" href="./assets/css/custom.css" />
+        <link rel="stylesheet" href="./assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+        <link rel="stylesheet" href="./assets/vendor/libs/apex-charts/apex-charts.css" />
+
+        <!-- Scripts -->
+        <script src="./assets/vendor/js/helpers.js"></script>
+        <script src="./assets/js/config.js"></script>
     </head>
     <body>
         <div class="layout-wrapper layout-content-navbar">
@@ -148,6 +157,12 @@
                 </div>
             </div>
         </div>
+        <script src="./assets/vendor/libs/jquery/jquery.js"></script>
+        <script src="./assets/vendor/libs/popper/popper.js"></script>
+        <script src="./assets/vendor/js/bootstrap.js"></script>
+        <script src="./assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+        <script src="./assets/vendor/js/menu.js"></script>
+        <script src="./assets/js/main.js"></script>
     </body>
 </html>
 
