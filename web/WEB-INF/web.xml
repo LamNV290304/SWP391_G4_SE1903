@@ -125,6 +125,14 @@
         <servlet-class>Controller.listInventoryHome</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>EditExportReceipt</servlet-name>
+        <servlet-class>Controller.EditExportReceipt</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>EditImportReceipt</servlet-name>
+        <servlet-class>Controller.EditImportReceipt</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>MySubscription</servlet-name>
         <servlet-class>Controller.MySubscription</servlet-class>
     </servlet>
@@ -248,6 +256,14 @@
     <servlet-mapping>
         <servlet-name>ExportReceiptServlet</servlet-name>
         <url-pattern>/ExportReceiptServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>EditExportReceipt</servlet-name>
+        <url-pattern>/EditExportReceipt</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>EditImportReceipt</servlet-name>
+        <url-pattern>/EditImportReceipt</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>MySubscription</servlet-name>
