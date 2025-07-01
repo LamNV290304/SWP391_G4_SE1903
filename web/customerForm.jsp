@@ -44,20 +44,19 @@
                                 <span class="text-muted fw-light">Hóa đơn /</span> Nhập thông tin Khách hàng
                             </h4>
 
-                            <%-- Hiển thị thông báo lỗi hoặc thành công --%>
                             <c:if test="${not empty errorMessage}">
                                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                     ${errorMessage}
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
-                                <c:remove var="errorMessage" scope="request"/> <%-- Xóa attribute sau khi hiển thị --%>
+                                <c:remove var="errorMessage" scope="request"/> 
                             </c:if>
                             <c:if test="${not empty successMessage}">
                                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                                     ${successMessage}
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
-                                <c:remove var="successMessage" scope="request"/> <%-- Xóa attribute sau khi hiển thị --%>
+                                <c:remove var="successMessage" scope="request"/>
                             </c:if>
 
                             <div class="card mb-4">

@@ -168,24 +168,25 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="card-footer d-flex justify-content-end">
+                                <div class="card-footer d-flex justify-content-center"> <%-- Thay đổi justify-content-end thành justify-content-center --%>
                                     <nav aria-label="Page navigation">
                                         <c:if test="${totalPages > 1}">
                                             <ul class="pagination mb-0">
                                                 <c:url var="baseLink" value="InvoiceServlet">
-                                                    <%-- Ưu tiên kiểm tra tìm kiếm theo ngày --%>
-                                                    <c:if test="${not empty param.startDate || not empty param.endDate}">
-                                                        <c:param name="action" value="searchByDate" />
+                                                    <c:if test="${not empty param.action}">
+                                                        <c:param name="action" value="${param.action}" />
+                                                    </c:if>
+                                                    <c:if test="${not empty param.startDate}">
                                                         <c:param name="startDate" value="${param.startDate}" />
+                                                    </c:if>
+                                                    <c:if test="${not empty param.endDate}">
                                                         <c:param name="endDate" value="${param.endDate}" />
                                                     </c:if>
-                                                    <%-- Sau đó kiểm tra tìm kiếm theo mã HĐ/tên KH --%>
-                                                    <c:if test="${not empty searchQuery && empty param.startDate && empty param.endDate}">
-                                                        <c:param name="action" value="search" />
-                                                        <c:param name="searchQuery" value="${searchQuery}" />
+                                                    <c:if test="${not empty param.searchQuery}">
+                                                        <c:param name="searchQuery" value="${param.searchQuery}" />
                                                     </c:if>
-                                                    <%-- Mặc định là list tất cả nếu không có tham số tìm kiếm nào --%>
-                                                    <c:if test="${empty searchQuery && empty param.startDate && empty param.endDate}">
+                                                    <%-- Nếu không có action nào, mặc định là list --%>
+                                                    <c:if test="${empty param.action && empty param.startDate && empty param.endDate && empty param.searchQuery}">
                                                         <c:param name="action" value="list" />
                                                     </c:if>
                                                 </c:url>
@@ -193,11 +194,34 @@
                                                 <li class="page-item <c:if test="${currentPage == 1}">disabled</c:if>">
                                                     <a class="page-link" href="${currentPage > 1 ? baseLink : '#'} &page=${currentPage - 1}"><i class="tf-icon bx bx-chevrons-left"></i></a>
                                                 </li>
-                                                <c:forEach begin="1" end="${totalPages}" var="i">
+
+                                                <%-- Logic để hiện thị 5 trang xung quanh trang hiện tại --%>
+                                                <c:set var="numPagesToShow" value="5" />
+                                                <c:set var="halfPagesToShow" value="${numPagesToShow / 2}" />
+
+                                                <c:set var="startPage" value="${currentPage - halfPagesToShow}" />
+                                                <c:set var="endPage" value="${currentPage + halfPagesToShow}" />
+
+                                                <%-- Điều chỉnh startPage và endPage để không vượt quá giới hạn và luôn hiển thị đủ số trang (nếu có) --%>
+                                                <c:if test="${startPage < 1}">
+                                                    <c:set var="startPage" value="1" />
+                                                    <c:set var="endPage" value="${numPagesToShow > totalPages ? totalPages : numPagesToShow}" />
+                                                </c:if>
+
+                                                <c:if test="${endPage > totalPages}">
+                                                    <c:set var="endPage" value="${totalPages}" />
+                                                    <c:set var="startPage" value="${totalPages - numPagesToShow + 1}" />
+                                                    <c:if test="${startPage < 1}">
+                                                        <c:set var="startPage" value="1" />
+                                                    </c:if>
+                                                </c:if>
+
+                                                <c:forEach begin="${startPage}" end="${endPage}" var="i">
                                                     <li class="page-item <c:if test="${i == currentPage}">active</c:if>">
                                                         <a class="page-link" href="${baseLink}&page=${i}">${i}</a>
                                                     </li>
                                                 </c:forEach>
+
                                                 <li class="page-item <c:if test="${currentPage == totalPages}">disabled</c:if>">
                                                     <a class="page-link" href="${currentPage < totalPages ? baseLink : '#'} &page=${currentPage + 1}"><i class="tf-icon bx bx-chevrons-right"></i></a>
                                                 </li>
@@ -207,7 +231,7 @@
                                 </div>
                             </div>
                         </div>
-                        <jsp:include page="footer.jsp" /> <%-- Assuming you have a footer.jsp --%>
+                        <jsp:include page="footer.jsp" /> 
                         <div class="content-backdrop fade"></div>
                     </div>
                 </div>

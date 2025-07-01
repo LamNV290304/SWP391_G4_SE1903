@@ -87,7 +87,7 @@
                                                         ${phoneCheckMessage}
                                                     </c:if>
                                                 </small>
-                                                <%-- Input ẩn để lưu customerID đã được chọn/tìm thấy/default (Khách vãng lai) --%>
+                                              
                                                 <input type="hidden" name="customerID" value="${customerID != null ? customerID : defaultCustomerId}" /> 
                                             </div>
                                         </div>
@@ -134,7 +134,7 @@
                                         <input type="hidden" name="action" value="selectProductForPrice" id="selectProductAction"/>
                                         <input type="hidden" name="invoiceID" value="${selectedInvoice.invoiceID}" />
                                         <input type="hidden" name="shopID" value="${selectedInvoice.shopID}" />
-                                        <%-- Thêm customerID vào đây để khi thêm chi tiết hóa đơn vẫn biết khách hàng là ai --%>
+                                  
                                         <input type="hidden" name="customerID" value="${customerID != null ? customerID : defaultCustomerId}" /> 
 
                                         <div class="mb-3">
@@ -197,7 +197,7 @@
                                                         <input type="hidden" name="action" value="updateDetail" />
                                                         <input type="hidden" name="invoiceDetailID" value="${detail.invoiceDetailID}" />
                                                         <input type="hidden" name="invoiceID" value="${selectedInvoice.invoiceID}" />
-                                                        <%-- Thêm customerID vào đây để khi thêm chi tiết hóa đơn vẫn biết khách hàng là ai --%>
+                                             
                                                         <input type="hidden" name="customerID" value="${customerID != null ? customerID : defaultCustomerId}" /> 
 
                                                         <td>

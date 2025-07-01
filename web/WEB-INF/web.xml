@@ -136,6 +136,10 @@
         <servlet-name>MySubscription</servlet-name>
         <servlet-class>Controller.MySubscription</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>StatisticServlet</servlet-name>
+        <servlet-class>Controller.StatisticServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>StartProject</servlet-name>
         <url-pattern>/StartProject</url-pattern>
@@ -193,12 +197,10 @@
         <servlet-name>ShowEmployeeList</servlet-name>
         <url-pattern>/ShowEmployeeList</url-pattern>
     </servlet-mapping>
-
     <servlet>
         <servlet-name>CustomerServlet</servlet-name>
         <servlet-class>Controller.CustomerServlet</servlet-class>
     </servlet>
-
     <servlet-mapping>
         <servlet-name>Home</servlet-name>
         <url-pattern>/Home</url-pattern>
@@ -255,12 +257,10 @@
         <servlet-name>AddInventoryProduct</servlet-name>
         <url-pattern>/AddInventoryProduct</url-pattern>
     </servlet-mapping>
-
     <servlet-mapping>
         <servlet-name>CustomerServlet</servlet-name>
         <url-pattern>/CustomerServlet</url-pattern>
     </servlet-mapping>
-
     <servlet-mapping>
         <servlet-name>ExportReceiptServlet</servlet-name>
         <url-pattern>/ExportReceiptServlet</url-pattern>
@@ -277,7 +277,10 @@
         <servlet-name>MySubscription</servlet-name>
         <url-pattern>/MySubscription</url-pattern>
     </servlet-mapping>
-
+    <servlet-mapping>
+        <servlet-name>StatisticServlet</servlet-name>
+        <url-pattern>/StatisticServlet</url-pattern>
+    </servlet-mapping>
     <error-page>
         <error-code>404</error-code>
         <location>/ErrorPage</location>
