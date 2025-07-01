@@ -8,6 +8,7 @@ package Controller;
 import Context.DBContext;
 import Dal.*;
 import Models.ExportReceipt;
+import Models.ExportReceiptDetail;
 import Models.ImportReceipt;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -15,6 +16,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.sql.Connection;
 import java.util.List;
 
 /**
@@ -66,6 +68,55 @@ public class ExportReceiptServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
+         String action = request.getParameter("action");
+    String receiptIdRaw = request.getParameter("receiptId");
+
+    if (action != null && receiptIdRaw != null) {
+        try (Connection conn = new DBContext("SWP7").getConnection()) {
+            ExportReceiptDAO exportReceiptDAO = new ExportReceiptDAO(conn);
+            ExportReceiptDetailDAO detailDAO = new ExportReceiptDetailDAO(conn);
+            InventoryDAO inventoryDAO = new InventoryDAO(conn);
+            ProductDAO productDAO = new ProductDAO(conn);
+            ShopDAO shopDAO = new ShopDAO();
+
+            int receiptId = Integer.parseInt(receiptIdRaw);
+
+            if (action.equals("delete")) {
+                exportReceiptDAO.delete(receiptId);
+                request.getRequestDispatcher("ExportReceiptServlet").forward(request, response);
+                return; // ✅ Ngăn servlet chạy tiếp
+            } else if (action.equals("edit")) {
+                ExportReceipt receipt = exportReceiptDAO.getByID(receiptId);
+                List<ExportReceiptDetail> detailList = detailDAO.getDetailsByReceiptID(receiptId);
+
+                EmployeeDAO empDao = new EmployeeDAO(conn);
+                TypeExportReceiptDAO typeExp = new TypeExportReceiptDAO(conn);
+                SupplierDAO supDAO = new SupplierDAO(conn);
+
+                request.setAttribute("receipt", receipt);
+                request.setAttribute("details", detailList);
+                request.setAttribute("listEmp", empDao.getAllEmployee());
+                request.setAttribute("listShop", shopDAO.getAllShops("SWP7"));
+                request.setAttribute("listType", typeExp.getAllTypeExportReceipts());
+                request.setAttribute("listProduct", productDAO.getAllProducts());
+
+                request.getRequestDispatcher("EditExportReceipt.jsp").forward(request, response);
+                return; // ✅ Ngăn servlet chạy tiếp
+            }
+        } catch (Exception e) {
+            // Log lỗi ra console
+            System.err.println("Lỗi xử lý: " + e.getMessage());
+            e.printStackTrace();
+
+            // Set lỗi và forward sang trang báo lỗi
+            request.setAttribute("error", "Lỗi xử lý yêu cầu: " + e.getMessage());
+            request.getRequestDispatcher("ImportReceipt.jsp").forward(request, response);
+            return; // ✅ Ngăn servlet chạy tiếp
+        }
+    } else {
+        // Nếu thiếu tham số thì chuyển hướng hoặc báo lỗi
+        response.sendRedirect("ImportReceiptServlet"); // hoặc forward nếu cần
+    }
         processRequest(request, response);
     }
 
