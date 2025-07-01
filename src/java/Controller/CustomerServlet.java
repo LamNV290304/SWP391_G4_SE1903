@@ -50,6 +50,9 @@ public class CustomerServlet extends HttpServlet {
             case "deactivate":
                 deactivateCustomer(request, response);
                 break;
+            case "showCreateForm":
+                showCreateForm(request, response);
+                break;
             case "activate":
                 activateCustomer(request, response);
                 break;
@@ -78,6 +81,7 @@ public class CustomerServlet extends HttpServlet {
             case "deleteCustomer":
                 deleteCustomer(request, response);
                 break;
+
             default:
                 listCustomers(request, response);
                 break;
@@ -87,6 +91,18 @@ public class CustomerServlet extends HttpServlet {
     @Override
     public String getServletInfo() {
         return "Short description";
+    }
+
+    private void showCreateForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String phone = request.getParameter("phone");
+        String invoiceID = request.getParameter("invoiceID");
+        request.setAttribute("customerPhone", phone);
+        if (invoiceID != null && !invoiceID.isEmpty()) {
+            request.setAttribute("returnInvoiceID", invoiceID);
+        }
+
+        request.getRequestDispatcher("customerForm.jsp").forward(request, response);
+
     }
 
     private void listCustomers(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -116,10 +132,13 @@ public class CustomerServlet extends HttpServlet {
         try {
             String name = request.getParameter("customerName");
             String phone = request.getParameter("customerPhone");
-            String email = request.getParameter("customerEmail");
-            String address = request.getParameter("customerAddress");
+            String email = request.getParameter("email");
+            String address = request.getParameter("address");
+            // Lấy invoiceID để quay lại hóa đơn
+            String returnInvoiceID = request.getParameter("returnInvoiceID");
+
             Timestamp createdDate = Timestamp.from(Instant.now());
-            String createdBy = (String) request.getAttribute("username");
+            String createdBy = (String) request.getAttribute("username"); //
             if (createdBy == null || createdBy.isEmpty()) {
                 createdBy = "System";
             }
@@ -135,24 +154,35 @@ public class CustomerServlet extends HttpServlet {
 
             int newCustomerID = cDAO.addCustomer(newCustomer);
             if (newCustomerID != -1) {
-
                 request.setAttribute("successMessage", "Thêm khách hàng thành công! ID: " + newCustomerID);
-                response.sendRedirect(request.getContextPath() + "/CustomerServlet?action=list");
+
+                if (returnInvoiceID != null && !returnInvoiceID.isEmpty()) {
+
+                    response.sendRedirect(request.getContextPath()
+                            + "/InvoiceServlet?action=manageInvoiceDetails&invoiceID=" + returnInvoiceID
+                            + "&newCustomerID=" + newCustomerID);
+                } else {
+
+                    response.sendRedirect(request.getContextPath() + "/CustomerServlet?action=list");
+                }
             } else {
 
                 request.setAttribute("customerName", name);
                 request.setAttribute("customerPhone", phone);
                 request.setAttribute("customerEmail", email);
                 request.setAttribute("customerAddress", address);
+                request.setAttribute("returnInvoiceID", returnInvoiceID);
 
                 request.setAttribute("errorMessage", "Thêm khách hàng thất bại: Số điện thoại **" + phone + "** đã tồn tại. Vui lòng sử dụng số khác.");
                 request.getRequestDispatcher("/customerForm.jsp").forward(request, response);
             }
         } catch (Exception e) {
+
             request.setAttribute("customerName", request.getParameter("customerName"));
-            request.setAttribute("customerPhone", request.getParameter("customerPhone"));
-            request.setAttribute("customerEmail", request.getParameter("customerEmail"));
-            request.setAttribute("customerAddress", request.getParameter("customerAddress"));
+            request.setAttribute("customerPhone", request.getParameter("phone"));
+            request.setAttribute("customerEmail", request.getParameter("email"));
+            request.setAttribute("customerAddress", request.getParameter("address"));
+            request.setAttribute("returnInvoiceID", request.getParameter("returnInvoiceID"));
 
             request.setAttribute("errorMessage", "Đã xảy ra lỗi hệ thống khi thêm khách hàng mới: " + e.getMessage());
             request.getRequestDispatcher("/customerForm.jsp").forward(request, response);
@@ -163,7 +193,7 @@ public class CustomerServlet extends HttpServlet {
         try {
             int customerID = Integer.parseInt(request.getParameter("customerID"));
             String name = request.getParameter("customerName");
-            String phone = request.getParameter("phone");
+            String phone = request.getParameter("customerPhone");
             String email = request.getParameter("email");
             String address = request.getParameter("address");
 

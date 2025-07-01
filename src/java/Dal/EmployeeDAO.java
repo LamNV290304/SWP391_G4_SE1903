@@ -10,7 +10,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import DTO.EmployeeDto;
-
+import DTO.SalesEmployeeStatisticDto;
 import java.sql.*;
 import Models.*;
 import Utils.PasswordUtils;
@@ -31,6 +31,95 @@ public class EmployeeDAO {
 
     public EmployeeDAO(Connection connection) {
         this.connection = connection;
+    }
+
+    public List<SalesEmployeeStatisticDto> getSalesStatisticsForSalesEmployees() throws SQLException {
+        List<SalesEmployeeStatisticDto> statistics = new ArrayList<>();
+        String sql = "SELECT "
+                + "    E.EmployeeID, "
+                + "    E.FullName, "
+                + "    SUM(I.TotalAmount) AS TotalRevenue, "
+                + "    COUNT(I.InvoiceID) AS TotalOrders "
+                + "FROM "
+                + "    Employee AS E "
+                + "JOIN "
+                + "    Invoice AS I ON E.EmployeeID = I.EmployeeID "
+                + "WHERE "
+                + "    E.RoleID = 2 "
+                + "GROUP BY "
+                + "    E.EmployeeID, E.FullName "
+                + "ORDER BY "
+                + "    TotalRevenue DESC";
+
+        try (PreparedStatement ptm = connection.prepareStatement(sql); ResultSet rs = ptm.executeQuery()) {
+            while (rs.next()) {
+
+                SalesEmployeeStatisticDto stat = new SalesEmployeeStatisticDto(
+                        rs.getInt("EmployeeID"),
+                        rs.getString("FullName"),
+                        rs.getDouble("TotalRevenue"),
+                        rs.getInt("TotalOrders")
+                );
+                statistics.add(stat);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, null, ex);
+
+        }
+        return statistics;
+    }
+
+    public List<SalesEmployeeStatisticDto> getSalesStatisticsForSalesEmployeesByDateRange(Date startDate, Date endDate) throws SQLException { // <<< Nhận java.sql.Date
+        List<SalesEmployeeStatisticDto> statistics = new ArrayList<>();
+        String sql = "SELECT "
+                + "    E.EmployeeID, "
+                + "    E.FullName, "
+                + "    SUM(I.TotalAmount) AS TotalRevenue, "
+                + "    COUNT(I.InvoiceID) AS TotalOrders "
+                + "FROM "
+                + "    Employee AS E "
+                + "JOIN "
+                + "    Invoice AS I ON E.EmployeeID = I.EmployeeID "
+                + "WHERE "
+                + "    E.RoleID = 2 ";
+
+        if (startDate != null) {
+            sql += "    AND CAST(I.InvoiceDate AS DATE) >= ? ";
+        }
+        if (endDate != null) {
+            sql += "    AND CAST(I.InvoiceDate AS DATE) <= ? ";
+        }
+
+        sql += "GROUP BY "
+                + "    E.EmployeeID, E.FullName "
+                + "ORDER BY "
+                + "    TotalRevenue DESC";
+
+        try (PreparedStatement ptm = connection.prepareStatement(sql)) {
+            int paramIndex = 1;
+            if (startDate != null) {
+                ptm.setDate(paramIndex++, startDate);
+            }
+            if (endDate != null) {
+                ptm.setDate(paramIndex++, endDate);
+            }
+
+            try (ResultSet rs = ptm.executeQuery()) {
+                while (rs.next()) {
+                    SalesEmployeeStatisticDto stat = new SalesEmployeeStatisticDto(
+                            rs.getInt("EmployeeID"),
+                            rs.getString("FullName"),
+                            rs.getDouble("TotalRevenue"),
+                            rs.getInt("TotalOrders")
+                    );
+                    statistics.add(stat);
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, "Error getting sales statistics for sales employees by date range (using CAST)", ex);
+            throw ex;
+        }
+        return statistics;
     }
 
     public List<Employee> getAllEmployee() {
@@ -57,6 +146,7 @@ public class EmployeeDAO {
                 emp.setUsername(rs.getString("Username"));
                 emp.setPassword(rs.getString("Password"));
                 emp.setFullname(rs.getString("Fullname"));
+                emp.setEmail(rs.getString("Email"));
                 emp.setPhone(rs.getString("Phone"));
                 emp.setStatus(rs.getBoolean("Status"));
                 emp.setCreateDate(rs.getDate("CreatedDate"));
@@ -70,7 +160,6 @@ public class EmployeeDAO {
         return l;
     }
 
- 
     public boolean addEmployee(Employee employee) throws SQLException {
         String sql = "INSERT INTO Employee (Username, Password, Fullname, Phone, Email, Status, CreateDate, RoleId, ShopId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -407,7 +496,6 @@ public class EmployeeDAO {
             }
         }
     }
-
 
     public boolean updateEmployeeStatus(int id, boolean status) throws SQLException {
         String sql = "UPDATE Employee SET status = ? WHERE EmployeeID = ?";

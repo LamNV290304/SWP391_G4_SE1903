@@ -64,7 +64,7 @@
                                     <div class="card">
                                         <h5 class="card-header">Danh sách Khách hàng</h5>
                                         <div class="card-body">
-                                            <a href="CustomerServlet?action=add" class="btn btn-primary mb-3">Thêm khách hàng mới</a>
+<!--                                            <a href="CustomerServlet?action=add" class="btn btn-primary mb-3">Thêm khách hàng mới</a>-->
 
                                             <form action="CustomerServlet" method="get" class="mb-3">
                                                 <input type="hidden" name="action" value="list">

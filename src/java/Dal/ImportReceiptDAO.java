@@ -96,6 +96,19 @@ public class ImportReceiptDAO {
         }
         return false;
     }
+// Lấy phiếu nhập mới nhất (theo ID lớn nhất)
+public ImportReceipt getLatestImportReceiptByID() {
+    String sql = "SELECT TOP 1 * FROM ImportReceipt ORDER BY ImportReceiptID DESC";
+    try (PreparedStatement ps = connection.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+        if (rs.next()) {
+            return mapResultSetToImportReceipt(rs);
+        }
+    } catch (SQLException e) {
+        Logger.getLogger(ImportReceiptDAO.class.getName()).log(Level.SEVERE, null, e);
+    }
+    return null;
+}
 
     // Xóa phiếu nhập
     public boolean deleteImportReceipt(int id) {

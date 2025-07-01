@@ -8,14 +8,15 @@ package Models;
  *
  * @author Thai Anh
  */
-public class TypeImportReceipt {
-     private int typeID;
+public class TypeReceiptVoucher {
+    private int typeID;
     private String typeName;
 
-    public TypeImportReceipt() {
+    public TypeReceiptVoucher() {
     }
 
-    public TypeImportReceipt(String typeName) {
+    public TypeReceiptVoucher(int typeID, String typeName) {
+        this.typeID = typeID;
         this.typeName = typeName;
     }
 
@@ -37,7 +38,7 @@ public class TypeImportReceipt {
 
     @Override
     public String toString() {
-        return "TypeImportReceipt{" + "typeID=" + typeID + ", typeName=" + typeName + '}';
+        return "TypeReceiptVoucher{" + "typeID=" + typeID + ", typeName=" + typeName + '}';
     }
     
 }
