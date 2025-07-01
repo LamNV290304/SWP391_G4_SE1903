@@ -65,6 +65,9 @@
                                 <div class="card-body">
                                     <form action="${pageContext.request.contextPath}/CustomerServlet" method="post">
                                         <input type="hidden" name="action" value="${customer != null ? 'updateCustomer' : 'addCustomer'}"/>
+                                        <c:if test="${not empty returnInvoiceID}">
+                                            <input type="hidden" name="returnInvoiceID" value="${returnInvoiceID}"/>
+                                        </c:if>
                                         <c:if test="${customer != null}">
                                             <input type="hidden" name="customerID" value="${customer.customerID}"/>
                                         </c:if>
