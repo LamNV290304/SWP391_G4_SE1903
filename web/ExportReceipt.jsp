@@ -75,16 +75,10 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
              <div class="card col-sm-12" style="height: 90vh; overflow: hidden;">
   <h5 class="card-header">Phiếu Xuất Hàng
    <a href="AddExportReceipt" >
-<<<<<<< Updated upstream
-                             <button type="button" class="btn btn-outline-info">Thêm mới phiếu nhập mua hàng</button>
+                             <button type="button" class="btn btn-outline-info">Thêm mới phiếu xuất hàng</button>
                          </a>
   </h5>
-=======
-                             <button type="button" class="btn btn-outline-info">Thêm mới phiếu xuất hàng</button>
-                         </a></h5>
->>>>>>> Stashed changes
-  
-  
+
   <div class="table-responsive text-nowrap" style="height: calc(80vh - 80px); overflow-y: auto;">
     <table class="table">
                     <thead style="position: sticky ; top: 0; background-color: white; z-index: 20;">
@@ -97,15 +91,13 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                         <th>Nhân Viên Xuất</th>
                         <th>Loại Xuất</th>
                         <th>Ghi chú</th>
-                        
+                         <th>Hành động</th>
                       </tr>
                     </thead>
-                    <%! int i = 0; %> 
                     <tbody id="vertical-example">
-                           <c:forEach var="ir" items="${listIE}">
+                           <c:forEach var="ir" items="${listIE}" varStatus="loop">
                       <tr>
-                        <th scope="row"><%out.println( i); i++;%>
-                          </th>
+                        <th scope="row">${loop.index + 1}</th>
                         <td>${ir.exportReceiptID}</td>
                         <td>${ir.receiptDate}</td>
                         <td>${ir.shopID}</td>
@@ -113,7 +105,26 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                         <td>${ir.employeeID}</td>
                         <td>${ir.typeID}</td>
                         <td>${ir.note}</td>
-                        
+                        <td>
+                          <div class="dropdown">
+                            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                              <i class="bx bx-dots-vertical-rounded"></i>
+                            </button>
+                            <div class="dropdown-menu">
+
+                                <form class="dropdown-item" action="ExportReceiptServlet" method="POST">
+                                    <input type="hidden" name="action" value="edit" />
+                                    <input type="hidden" name="receiptId" value="${ir.exportReceiptID}" />
+                                    <button class="btn btn-secondary" type="submit"><i>Edit</i></button>
+                                </form>
+                                <form class="dropdown-item" action="ExportReceiptServlet" method="POST">
+                                    <input type="hidden" name="action" value="delete" />
+                                    <input type="hidden" name="receiptId" value="${ir.exportReceiptID}" />
+                                    <button class="btn btn-secondary" type="submit"><i>Delete</i></button>
+                                </form>
+                            </div>
+                          </div>
+                        </td>
                       </tr>
                       </c:forEach>
                     

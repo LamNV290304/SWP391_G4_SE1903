@@ -9,7 +9,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
     <div class="app-brand demo">
-        <a href="${pageContext.request.contextPath}/ShowServicePackage" class="app-brand-link">
+        <a href="ShowServicePackage" class="app-brand-link">
             <span class="app-brand-logo demo">
                 <img src="${pageContext.request.contextPath}/ShopOwner/img/logoSale.png" alt="Logo" style="height: 80px;">
             </span>
@@ -23,7 +23,7 @@
     <ul class="menu-inner py-1">
         <!-- Dashboard -->
         <li class="menu-item">
-            <a href="${pageContext.request.contextPath}/ShowServicePackage" class="menu-link">
+            <a href="ShowServicePackage" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-home-circle"></i>
                 <div data-i18n="Analytics">Các gói dịch vụ</div>
             </a>
@@ -35,12 +35,12 @@
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
-                    <a href="${pageContext.request.contextPath}/ShowPaymentHistory" class="menu-link" target="_blank">
+                    <a href="ShowPaymentHistory" class="menu-link" >
                         <div data-i18n="Basic">Lịch sử thanh toán cá nhân</div>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="#" class="menu-link" target="_blank">
+                    <a href="MySubscription" class="menu-link" >
                         <div data-i18n="Basic">Gói đã đăng kí</div>
                     </a>
                 </li>

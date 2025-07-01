@@ -6,6 +6,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+
 <!DOCTYPE html>
 <!--
 Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -81,7 +83,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
       <h5 class="card-header">Thông Tin</h5>
       <div class="card-body">
         <!-- Các input như bạn đã có -->
-       
+        <input type="hidden" name="ReceiptID" class="form-control"  value="${receipt.importReceiptID}"  />
         <div class="mb-3">
           <label for="warehouse" class="form-label">Nhà cung cấp</label>
            <select name="SupplierID" class="form-control" required>
@@ -125,15 +127,15 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         
         <div class="mb-3">
           <label for="warehouse" class="form-label">Loại Phiếu Nhập</label>
-<select class="form-select" id="warehouse" name="code" required>
-    <option disabled <c:if test="${empty receipt || empty receipt.typeID}">selected</c:if>>Chọn Phiếu</option>
-    <c:forEach var="ltype" items="${listType}">
-        <option value="${ltype.typeID}" 
-            <c:if test="${receipt.typeID == ltype.typeID}">selected</c:if>>
-            ${ltype.typeName}
-        </option>
-    </c:forEach>
+<select class="form-select" name="code" required>
+   <option disabled selected>Chọn Phiếu</option>
+   <c:forEach var="ltype" items="${listType}">
+     <option value="${ltype.typeID}">
+       ${ltype.typeID} - ${ltype.typeName}
+     </option>
+   </c:forEach>
 </select>
+
 
         </div>
         <div>
@@ -176,8 +178,8 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
     </select>
   </td>
   <td><input type="number" name="quantity[]" class="form-control" value="${d.quantity}" required /></td>
-  <td><input type="number" name="price[]" class="form-control" value="${d.unitPrice}" required /></td>
-  <td><input type="number" name="total[]" class="form-control" value="${d.quantity * d.unitPrice}" readonly /></td>
+  <td><input type="number" name="price[]" class="form-control" value="${d.price}" required /></td>
+  <td><input type="number" name="total[]" class="form-control" value="${d.quantity * d.price}" readonly /></td>
   <td><input type="text" name="note[]" class="form-control" value="${d.note}" required /></td>
   <td><button type="button" class="btn btn-danger btn-sm remove-row">Xóa</button></td>
 </tr>
@@ -208,11 +210,13 @@ document.getElementById("addRowBtn").addEventListener("click", function () {
   const tableBody = document.querySelector("#productTable tbody");
   const newRow = document.createElement("tr");
   newRow.innerHTML = `
-  <td> 
+ <td> 
           <select class="form-select" name="productID[]">
-      <option selected disabled>Chọn Phiếu</option>
-      ${productOptions}
-    </select></td>
+    <option selected disabled>Chọn Sản Phẩm</option>
+    <c:forEach var="prod" items="${listProduct}">
+      <option value="${prod.productID}">${prod.productName}</option>
+    </c:forEach>
+  </select></td>
     <td><input type="number" name="quantity[]" class="form-control" required /></td>
     <td><input type="number" name="price[]" class="form-control" required /></td>
     <td><input type="number" name="total[]" class="form-control" readonly /></td>
