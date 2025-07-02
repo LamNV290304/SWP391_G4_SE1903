@@ -69,7 +69,7 @@ public class EmployeeDAO {
         return statistics;
     }
 
-    public List<SalesEmployeeStatisticDto> getSalesStatisticsForSalesEmployeesByDateRange(Date startDate, Date endDate) throws SQLException { // <<< Nhận java.sql.Date
+    public List<SalesEmployeeStatisticDto> getSalesStatisticsForSalesEmployeesByDateRange(Date startDate, Date endDate) throws SQLException {
         List<SalesEmployeeStatisticDto> statistics = new ArrayList<>();
         String sql = "SELECT "
                 + "    E.EmployeeID, "
@@ -167,7 +167,7 @@ public class EmployeeDAO {
             stmt.setString(2, employee.getPassword());
             stmt.setString(3, employee.getFullname());
             stmt.setString(4, employee.getPhone());
-            stmt.setString(5, employee.getEmail());  // thêm email ở vị trí thứ 5
+            stmt.setString(5, employee.getEmail());  
             stmt.setBoolean(6, employee.isStatus());
             stmt.setDate(7, new java.sql.Date(employee.getCreateDate().getTime()));
             stmt.setInt(8, employee.getRole().getId());
