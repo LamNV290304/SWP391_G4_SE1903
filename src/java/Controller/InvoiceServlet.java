@@ -105,7 +105,9 @@ public class InvoiceServlet extends HttpServlet {
             case "delete":
                 deleteInvoice(request, response);
                 break;
-
+            case "completeInvoice":
+                completeInvoice(request, response);
+                break;
             case "update":
                 updateInvoice(request, response);
                 break;
@@ -141,6 +143,7 @@ public class InvoiceServlet extends HttpServlet {
         request.setAttribute("customerFieldsReadonly", false);
         request.setAttribute("customerExists", false);
     }
+
     private void processCheckCustomerPhone(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -821,76 +824,136 @@ public class InvoiceServlet extends HttpServlet {
         request.getRequestDispatcher("listInvoice.jsp").forward(request, response);
     }
 
+    private void completeInvoice(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        try {
+            String invoiceIdStr = request.getParameter("invoiceID");
+
+            if (invoiceIdStr == null || invoiceIdStr.trim().isEmpty()) {
+                request.getSession().setAttribute("errorMessage", "Không tìm thấy mã hóa đơn để hoàn tất.");
+                response.sendRedirect("InvoiceServlet?action=list");
+                return;
+            }
+
+            int invoiceID = Integer.parseInt(invoiceIdStr);
+
+            Invoice invoice = idao.searchInvoice(invoiceID);
+
+            if (invoice != null) {
+
+                if (invoice.isStatus()) {
+                    request.getSession().setAttribute("warningMessage", "Hóa đơn #" + invoiceID + " đã được hoàn tất trước đó.");
+                    response.sendRedirect("InvoiceServlet?action=listDetail&invoiceID=" + invoiceID);
+                    return;
+                }
+
+                boolean success = idao.updateInvoiceStatus(invoiceID, true);
+
+                if (success) {
+                    request.getSession().setAttribute("successMessage", "Hóa đơn #" + invoiceID + " đã được hoàn tất và thanh toán thành công!");
+
+                    response.sendRedirect("InvoiceServlet?action=listDetail&invoiceID=" + invoiceID);
+                } else {
+                    request.getSession().setAttribute("errorMessage", "Không thể hoàn tất hóa đơn #" + invoiceID + ". Vui lòng thử lại.");
+
+                    response.sendRedirect("InvoiceServlet?action=listDetail&invoiceID=" + invoiceID);
+                }
+            } else {
+
+                request.getSession().setAttribute("errorMessage", "Không tìm thấy hóa đơn với ID: " + invoiceID + " để hoàn tất.");
+                response.sendRedirect("InvoiceServlet?action=list");
+            }
+
+        } catch (NumberFormatException e) {
+
+            request.getSession().setAttribute("errorMessage", "Mã hóa đơn không hợp lệ.");
+            response.sendRedirect("InvoiceServlet?action=list");
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            request.getSession().setAttribute("errorMessage", "Lỗi hệ thống khi hoàn tất hóa đơn: " + e.getMessage());
+            response.sendRedirect("InvoiceServlet?action=list");
+        }
+    }
+
     private void listInvoiceDetail(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String invoiceIDParam = request.getParameter("invoiceID");
         if (invoiceIDParam == null || invoiceIDParam.trim().isEmpty()) {
-            request.setAttribute("errorMessage", "Không tìm thấy mã hóa đơn để hiển thị chi tiết.");
-            request.getRequestDispatcher("/listInvoice.jsp").forward(request, response);
+
+            request.getSession().setAttribute("errorMessage", "Không tìm thấy mã hóa đơn để hiển thị chi tiết. Vui lòng chọn một hóa đơn.");
+            response.sendRedirect("InvoiceServlet?action=list");
             return;
         }
         try {
             int invoiceID = Integer.parseInt(invoiceIDParam);
             Invoice invoice = idao.searchInvoice(invoiceID);
             if (invoice == null) {
-                request.setAttribute("errorMessage", "Không tìm thấy hóa đơn với ID: " + invoiceID);
-                request.getRequestDispatcher("/listInvoice.jsp").forward(request, response);
+                request.getSession().setAttribute("errorMessage", "Không tìm thấy hóa đơn với ID: " + invoiceID + ".");
+                response.sendRedirect("InvoiceServlet?action=list");
                 return;
             }
-
-            List<Employee> em = eDAO.getAllEmployee();
-            int shopID = invoice.getShopID();
-            List<Inventory> inventoriesInShop = inventoryDAO.getAllInventoriesInStore(shopID);
-            Shop selectedShop = null;
-            try {
-                selectedShop = sDAO.getShopByID(shopID, "SWP1");
-            } catch (Exception e) {
-                request.setAttribute("errorMessage", "Không thể lấy thông tin cửa hàng.");
-            }
-            request.setAttribute("inventories", inventoriesInShop);
-            List<Product> products = pDAO.getAllProducts();
-            request.setAttribute("products", products);
-
-            List<InvoiceDetail> detail = idetail.getDetailByInvoiceID(invoiceID);
-            if (detail == null) {
-                detail = new ArrayList<>();
-            }
-            List<Customer> customers = cDAO.getAllCustomer();
-            String editDetailIDParam = request.getParameter("editDetailID");
-            if (editDetailIDParam != null && !editDetailIDParam.isEmpty()) {
-                try {
-                    int editDetailID = Integer.parseInt(editDetailIDParam);
-                    request.setAttribute("editDetailID", editDetailID);
-                } catch (NumberFormatException e) {
-                    request.setAttribute("editDetailID", null);
-                }
+            List<InvoiceDetail> details = idetail.getDetailByInvoiceID(invoiceID);
+            if (details == null) {
+                details = new ArrayList<>();
             }
             Customer selectedCustomer = null;
             if (invoice.getCustomerID() > 0) {
                 selectedCustomer = cDAO.getCustomerById(invoice.getCustomerID());
             }
             double totalAmount = 0;
-            for (InvoiceDetail d : detail) {
+            for (InvoiceDetail d : details) {
                 totalAmount += d.getTotalPrice();
             }
-            invoice.setTotalAmount(totalAmount);
-            idao.updateInvoice(invoice);
+            if (invoice.getTotalAmount() != totalAmount) {
+                invoice.setTotalAmount(totalAmount);
+            }
+            int shopID = invoice.getShopID();
+            List<Inventory> inventoriesInShop = inventoryDAO.getAllInventoriesInStore(shopID);
+            List<Product> products = pDAO.getAllProducts();
+            List<Customer> customers = cDAO.getAllCustomer(); 
+            List<Employee> employees = eDAO.getAllEmployee(); 
 
-//            request.setAttribute("employees", em);
+            Shop selectedShop = null;
+            try {
+                selectedShop = sDAO.getShopByID(shopID, "SWP1");
+            } catch (Exception e) {
+                System.err.println("Lỗi khi lấy thông tin cửa hàng: " + e.getMessage());
+        
+                request.setAttribute("warningMessage", "Không thể lấy thông tin cửa hàng liên quan đến hóa đơn.");
+            }
+
+            String editDetailIDParam = request.getParameter("editDetailID");
+            if (editDetailIDParam != null && !editDetailIDParam.isEmpty()) {
+                try {
+                    int editDetailID = Integer.parseInt(editDetailIDParam);
+                    request.setAttribute("editDetailID", editDetailID);
+                } catch (NumberFormatException e) {
+     
+                    System.err.println("ID chi tiết hóa đơn chỉnh sửa không hợp lệ: " + editDetailIDParam);
+                }
+            }
+
+            request.setAttribute("selectedInvoice", invoice); 
+            request.setAttribute("invoiceDetails", details);
+            request.setAttribute("selectedCustomer", selectedCustomer); 
+            request.setAttribute("inventories", inventoriesInShop);
+            request.setAttribute("products", products);
             request.setAttribute("customers", customers);
-            request.setAttribute("selectedCustomer", selectedCustomer);
-            request.setAttribute("selectedInvoice", invoice);
-            request.setAttribute("invoiceDetails", detail);
+            request.setAttribute("employees", employees); 
             request.setAttribute("selectedShop", selectedShop);
 
             request.getRequestDispatcher("InvoiceDetail.jsp").forward(request, response);
+
         } catch (NumberFormatException e) {
-            request.setAttribute("errorMessage", "ID hóa đơn không hợp lệ.");
-            request.getRequestDispatcher("/listInvoice.jsp").forward(request, response);
+       
+            request.getSession().setAttribute("errorMessage", "Mã hóa đơn không hợp lệ.");
+            response.sendRedirect("InvoiceServlet?action=list");
         } catch (Exception e) {
-            e.printStackTrace();
-            request.setAttribute("errorMessage", "Lỗi hệ thống khi tải chi tiết hóa đơn: " + e.getMessage());
-            request.getRequestDispatcher("/listInvoice.jsp").forward(request, response);
+       
+            e.printStackTrace(); 
+        
+            response.sendRedirect("InvoiceServlet?action=list");
         }
     }
 

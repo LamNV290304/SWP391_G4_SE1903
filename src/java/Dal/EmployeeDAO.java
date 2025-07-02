@@ -124,34 +124,32 @@ public class EmployeeDAO {
 
     public List<Employee> getAllEmployee() {
         List<Employee> l = new ArrayList<>();
-        String sql = "SELECT [EmployeeID]\n"
-                + "      ,[Username]\n"
-                + "      ,[Password]\n"
-                + "      ,[FullName]\n"
-                + "      ,[Email]\n"
-                + "      ,[Phone]\n"
-                + "      ,[RoleID]\n"
-                + "      ,[ShopID]\n"
-                + "      ,[Status]\n"
-                + "      ,[CreatedDate]\n"
-                + "      ,[CreatedBy]\n"
-                + "  FROM [dbo].[Employee]";
+        String sql = "SELECT e.[EmployeeID], e.[Username], e.[Password], e.[FullName], e.[Email], e.[Phone], "
+                + "e.[RoleID], e.[ShopID], e.[Status], e.[CreatedDate], e.[CreatedBy], "
+                + "r.RoleID AS Role_Id, r.RoleName AS Role_Name, r.Description AS Role_Description " // Lấy thông tin từ bảng Role
+                + "FROM [dbo].[Employee] AS e "
+                + "JOIN [dbo].[Role] AS r ON e.RoleID = r.RoleID"; // JOIN với bảng Role
 
-        try {
-            PreparedStatement ptm = connection.prepareStatement(sql);
-            ResultSet rs = ptm.executeQuery();
+        try (PreparedStatement ptm = connection.prepareStatement(sql); ResultSet rs = ptm.executeQuery()) {
             while (rs.next()) {
                 Employee emp = new Employee();
                 emp.setId(rs.getInt("EmployeeID"));
                 emp.setUsername(rs.getString("Username"));
                 emp.setPassword(rs.getString("Password"));
-                emp.setFullname(rs.getString("Fullname"));
+                emp.setFullname(rs.getString("FullName"));
                 emp.setEmail(rs.getString("Email"));
                 emp.setPhone(rs.getString("Phone"));
                 emp.setStatus(rs.getBoolean("Status"));
                 emp.setCreateDate(rs.getDate("CreatedDate"));
                 emp.setRoleId(rs.getInt("RoleID"));
+                Role role = new Role();
+                role.setId(rs.getInt("Role_Id")); 
+                role.setName(rs.getString("Role_Name")); 
+                role.setDescription(rs.getString("Role_Description")); 
+                emp.setRole(role); 
+
                 emp.setShopId(rs.getInt("ShopID"));
+              
                 l.add(emp);
             }
         } catch (SQLException ex) {
@@ -167,7 +165,7 @@ public class EmployeeDAO {
             stmt.setString(2, employee.getPassword());
             stmt.setString(3, employee.getFullname());
             stmt.setString(4, employee.getPhone());
-            stmt.setString(5, employee.getEmail());  
+            stmt.setString(5, employee.getEmail());
             stmt.setBoolean(6, employee.isStatus());
             stmt.setDate(7, new java.sql.Date(employee.getCreateDate().getTime()));
             stmt.setInt(8, employee.getRole().getId());

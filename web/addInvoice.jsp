@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <!DOCTYPE html>
@@ -57,20 +58,17 @@
                                             <label for="employeeID" class="form-label">Nhân viên:</label>
                                             <select class="form-select" id="employeeID" name="employeeID" required>
                                                 <option value="">-- Chọn nhân viên --</option>
+
                                                 <c:forEach var="employee" items="${employees}">
-                                                    
-                                                    <option value="${employee.id}">
-                                                       
-                                                        ${employee.fullname} 
-                                                      
-                                                        <c:if test="${not empty employee.role && not empty employee.role.roleName}">
-                                                            (Chức vụ: ${employee.role.roleName})
-                                                        </c:if>
-                                                    </option>
+                                                    <c:if test="${employee.role != null && employee.role.id == 2}">
+                                                        <option value="${employee.id}">
+                                                            ${employee.fullname}
+                                                        
+                                                        </option>
+                                                    </c:if>
                                                 </c:forEach>
                                             </select>
                                         </div>
-
                                         <div class="mb-3">
                                             <label for="shopID" class="form-label">Cửa hàng:</label>
                                             <select class="form-select" id="shopID" name="shopID" required>

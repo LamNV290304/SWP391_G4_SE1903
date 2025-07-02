@@ -403,7 +403,22 @@ public class InvoiceDAO {
             return false;
         }
     }
- 
+
+    public boolean finalizeInvoice(int invoiceID, int customerID) {
+        String sql = "UPDATE Invoices SET Status = ?, CustomerID = ? WHERE InvoiceID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setBoolean(1, true); // Set status to true (đã thanh toán)
+            ps.setInt(2, customerID); // Gán customerID vào hóa đơn
+            ps.setInt(3, invoiceID);
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Lỗi finalizeInvoice: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public static void main(String[] args) {
 
         DBContext connection = new DBContext("SWP1");

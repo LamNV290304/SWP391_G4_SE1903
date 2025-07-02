@@ -53,7 +53,7 @@
                     display: none !important;
                 }
 
-       
+
             }
         </style>
 
@@ -159,28 +159,28 @@
                                         </div>
                                     </c:when>
                                     <c:otherwise>
-                                     
+
                                         <div class="invoice-info-section d-flex justify-content-between flex-wrap mb-4 fs-6">
                                             <div class="flex-grow-1 p-0 pe-md-4 text-start">
                                                 <p class="mb-1"><strong>Mã Hóa đơn:</strong> #${invoice.invoiceID}</p>
                                                 <p class="mb-1"><strong>Ngày lập:</strong> <fmt:formatDate value="${invoice.invoiceDate}" pattern="dd/MM/yyyy HH:mm:ss"/></p>
-<!--                                                <p class="mb-1">
-                                                    <strong>Nhân viên:</strong>
-                                                    <c:choose>
-                                                        <c:when test="${not empty selectedEmployee}">
-                                                            ${selectedEmployee.fullname}
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                            <c:set var="employeeName" value="N/A"/>
-                                                            <c:forEach var="emp" items="${employees}">
-                                                                <c:if test="${emp.id == invoice.employeeID}">
-                                                                    <c:set var="employeeName" value="${emp.fullname}"/>
-                                                                </c:if>
-                                                            </c:forEach>
-                                                            ${employeeName} <span class="text-muted fst-italic">(ID: ${invoice.employeeID})</span>
-                                                        </c:otherwise>
-                                                    </c:choose>
-                                                </p>-->
+                                                <!--                                                <p class="mb-1">
+                                                                                                    <strong>Nhân viên:</strong>
+                                                <c:choose>
+                                                    <c:when test="${not empty selectedEmployee}">
+                                                        ${selectedEmployee.fullname}
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <c:set var="employeeName" value="N/A"/>
+                                                        <c:forEach var="emp" items="${employees}">
+                                                            <c:if test="${emp.id == invoice.employeeID}">
+                                                                <c:set var="employeeName" value="${emp.fullname}"/>
+                                                            </c:if>
+                                                        </c:forEach>
+                                                        ${employeeName} <span class="text-muted fst-italic">(ID: ${invoice.employeeID})</span>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </p>-->
                                             </div>
                                             <div class="flex-grow-1 p-0 ps-md-4 text-end">
                                                 <p class="mb-1">
@@ -198,7 +198,7 @@
                                                     <p class="mb-1"><strong>Điện thoại KH:</strong> ${customer.phone}</p>
                                                     <c:if test="${not empty customer.email}"><p class="mb-1"><strong>Email KH:</strong> ${customer.email}</p></c:if>
                                                 </c:if>
-                                            
+
                                             </div>
                                         </div>
                                         <div class="table-responsive">
@@ -273,13 +273,27 @@
                                                 <a href="InvoiceServlet?action=manageInvoiceDetails&invoiceID=${invoice.invoiceID}" class="btn btn-label-warning m-1">
                                                     <i class='bx bx-edit-alt me-1'></i> Quản lý chi tiết Hóa đơn
                                                 </a>
+                                                <form action="InvoiceServlet" method="post" style="display: inline-block;">
+                                                    <input type="hidden" name="action" value="completeInvoice" />
+                                                    <input type="hidden" name="invoiceID" value="${invoice.invoiceID}" />
+                                                    <button type="submit" class="btn btn-success m-1"
+                                                            onclick="return confirm('Bạn có chắc chắn muốn HOÀN TẤT HÓA ĐƠN và đánh dấu đã THANH TOÁN không? Hành động này không thể hoàn tác.');">
+                                                        <i class='bx bx-check-circle me-1'></i> Hoàn tất & Thanh toán
+                                                    </button>
+                                                </form>
                                             </c:if>
+
+                                            <c:if test="${invoice.status}">
+                                                <span class="badge bg-success p-2 fs-6 m-1">
+                                                    <i class='bx bx-dollar-circle me-1'></i> ĐÃ THANH TOÁN
+                                                </span>
+                                            </c:if>   
                                         </div>
                                     </c:otherwise>
                                 </c:choose>
                             </div>
                         </div>
-                    
+
                     </div>
                 </div>
             </div>
