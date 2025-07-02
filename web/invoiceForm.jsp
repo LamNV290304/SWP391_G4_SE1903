@@ -58,7 +58,7 @@
                                         <p><strong>Mã hóa đơn:</strong> ${selectedInvoice.invoiceID}</p>
                                         <p><strong>Ngày lập:</strong> <fmt:formatDate value="${selectedInvoice.invoiceDate}" pattern="dd/MM/yyyy HH:mm:ss" /></p>
                                         <p><strong>Tổng tiền:</strong> <fmt:formatNumber value="${selectedInvoice.totalAmount}" pattern="#,##0" /> VNĐ</p>
-                                        <%-- Thêm các thông tin hóa đơn khác nếu cần --%>
+                                       
                                     </div>
                                 </div>
                             </c:if>
@@ -186,7 +186,7 @@
                                                 <th>Giá bán</th>
                                                 <th>Giảm giá (%)</th>
                                                 <th>Thành tiền</th>
-                                                <th>Hành động</th>
+<!--                                                <th>Hành động</th>-->
                                             </tr>
                                         </thead>
                                         <tbody class="table-border-bottom-0">
@@ -237,14 +237,14 @@
                                                     <td><fmt:formatNumber value="${detail.unitPrice}" pattern="#,##0" /> VNĐ</td>
                                                     <td>${detail.discount} %</td>
                                                     <td><fmt:formatNumber value="${detail.totalPrice}" pattern="#,##0" /> VNĐ</td>
-                                                    <td>
+<!--                                                    <td>
                                                         <a href="InvoiceServlet?action=manageInvoiceDetails&invoiceID=${selectedInvoice.invoiceID}&editDetailID=${detail.invoiceDetailID}" class="btn btn-info btn-sm me-1">
                                                             <i class='bx bx-edit-alt me-1'></i> Sửa
                                                         </a>
                                                         <a href="InvoiceServlet?action=deleteDetail&invoiceID=${selectedInvoice.invoiceID}&invoiceDetailID=${detail.invoiceDetailID}&customerID=${customerID != null ? customerID : defaultCustomerId}" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa mặt hàng này?');">
                                                             <i class='bx bx-trash me-1'></i> Xóa
                                                         </a>
-                                                    </td>
+                                                    </td>-->
                                                 </c:otherwise>
                                             </c:choose>
                                             </tr>
@@ -291,17 +291,17 @@
 
         <script type="text/javascript">
                                                                     $(document).ready(function () {
-                                                                        // Initialize Select2 on the productID dropdown
+                                                                       
                                                                         $('#productID').select2({
                                                                             placeholder: "Tìm kiếm hoặc chọn sản phẩm...",
-                                                                            allowClear: true // Allows the user to clear the selection
+                                                                            allowClear: true 
                                                                         });
 
-                                                                        // When the productID selection changes, submit the form to update unitPrice
+                                                                       
                                                                         $('#productID').on('change', function () {
-                                                                            // Set the action for the form to 'selectProductForPrice'
+                                                                          
                                                                             document.getElementById('selectProductAction').value = 'selectProductForPrice';
-                                                                            // Submit the form
+                                                                          
                                                                             document.getElementById('addItemForm').submit();
                                                                         });
                                                                     });

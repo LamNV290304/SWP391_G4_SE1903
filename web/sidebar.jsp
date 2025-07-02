@@ -61,7 +61,7 @@
                     </a>
                 </li>
                 <li class="menu-item">
-<a href="auth-forgot-password-basic.html" class="menu-link" target="_blank">
+                    <a href="auth-forgot-password-basic.html" class="menu-link" target="_blank">
                         <div data-i18n="Basic">Báo Cáo</div>
                     </a>
                 </li>
@@ -128,7 +128,7 @@
                 </li>
                 <li class="menu-item">
                     <a href="ui-carousel.html" class="menu-link">
-<div data-i18n="Carousel">Carousel</div>
+                        <div data-i18n="Carousel">Carousel</div>
                     </a>
                 </li>
                 <li class="menu-item">
@@ -195,7 +195,7 @@
                     <a href="ui-tooltips-popovers.html" class="menu-link">
                         <div data-i18n="Tooltips & Popovers">Tooltips &amp; popovers</div>
                     </a>
-</li>
+                </li>
                 <li class="menu-item">
                     <a href="ui-typography.html" class="menu-link">
                         <div data-i18n="Typography">Typography</div>
@@ -267,15 +267,15 @@
                     <a href="form-layouts-vertical.html" class="menu-link">
                         <div data-i18n="Vertical Form">Khách Hàng </div>
                     </a>
-                
+
                     <a href="InvoiceServlet" class="menu-link">
                         <div data-i18n="Vertical Form">Danh sách hóa đơn </div>
 
                     </a>
                 </li>
-<li class="menu-item">
-                    <a href="form-layouts-horizontal.html" class="menu-link">
-                        <div data-i18n="Horizontal Form">Báo Cáo Bán Hàng</div>
+                <li class="menu-item">
+                    <a href="StatisticServlet" class="menu-link">
+                        <div data-i18n="Horizontal Form">Thống kê nhân viên bán hàng</div>
                     </a>
                 </li>
             </ul>

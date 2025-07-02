@@ -75,7 +75,7 @@ public class InvoiceServlet extends HttpServlet {
                 break;
             case "searchByDate":
                 searchInvoicesByDateRange(request, response);
-                break;
+                break;   
             case "showAddForm":
                 showAddInvoiceForm(request, response);
                 break;
@@ -246,7 +246,6 @@ public class InvoiceServlet extends HttpServlet {
 
         Date startDate = null;
         Date endDate = null;
-
         try {
             if (startDateParam != null && !startDateParam.isEmpty()) {
                 startDate = Date.valueOf(startDateParam);
@@ -540,7 +539,7 @@ public class InvoiceServlet extends HttpServlet {
         if (invoiceIDParam == null || productIDParam == null || quantityStr == null || unitPriceStr == null || shopIDParam == null) {
             request.setAttribute("errorMessage", "Thông tin chi tiết hóa đơn bị thiếu.");
             request.setAttribute("invoiceID", invoiceIDParam);
-            request.getRequestDispatcher("invoiceForm.jsp").forward(request, response); // Thay thế bằng forward tới invoiceForm.jsp
+            request.getRequestDispatcher("invoiceForm.jsp").forward(request, response); 
 
             return;
         }
@@ -573,17 +572,14 @@ public class InvoiceServlet extends HttpServlet {
                     idao.updateInvoice(invoice);
                 }
                 request.getSession().setAttribute("successMessage", "Thêm chi tiết hóa đơn thành công!");
-
-                // Chuyển hướng trình duyệt đến một URL GET mới
-                // Điều này sẽ xóa tất cả các tham số POST khỏi URL và request
                 response.sendRedirect(request.getContextPath() + "/InvoiceServlet?action=manageInvoiceDetails&invoiceID=" + invoiceID + "&customerID=" + customerIDParam);
-                return; // Rất quan trọng: kết thúc xử lý tại đây sau khi redirect
+                return; 
 
             } else {
                 request.setAttribute("errorMessage", "Thêm chi tiết hóa đơn thất bại hoặc không đủ số lượng sản phẩm trong kho.");
-                // Khi có lỗi, vẫn forward để giữ lại dữ liệu người dùng đã nhập
+               
                 request.setAttribute("invoiceID", invoiceIDParam);
-                // Các param khác đã được tự động giữ lại
+          
                 request.getRequestDispatcher("invoiceForm.jsp").forward(request, response);
             }
         } catch (NumberFormatException e) {
@@ -629,7 +625,7 @@ public class InvoiceServlet extends HttpServlet {
                 return;
             } else {
                 request.setAttribute("errorMessage", "Không thể thêm hóa đơn. Vui lòng thử lại.");
-                request.setAttribute("employees", eDAO.getAllEmployee()); // Cần lấy lại để hiển thị lại form
+                request.setAttribute("employees", eDAO.getAllEmployee());
                 request.setAttribute("allShops", sDAO.getAllShops("SWP1"));
                 request.getRequestDispatcher("addInvoice.jsp").forward(request, response);
                 return;
@@ -718,7 +714,7 @@ public class InvoiceServlet extends HttpServlet {
 
                     if (selectedInvoice.getCustomerID() == 0 || selectedInvoice.getCustomerID() != newCustomerID) {
                         selectedInvoice.setCustomerID(newCustomerID);
-                        boolean updated = idao.updateInvoice(selectedInvoice); // Cập nhật hóa đơn trong DB
+                        boolean updated = idao.updateInvoice(selectedInvoice);
                         if (updated) {
                             request.setAttribute("successMessage", "Đã thêm khách hàng mới và cập nhật hóa đơn.");
                         } else {
