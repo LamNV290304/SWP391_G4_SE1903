@@ -237,14 +237,14 @@ public class CustomerDAO {
         DBContext connection = new DBContext("SWP1");
         CustomerDAO dao = new CustomerDAO(connection.getConnection());
 
-        List<Customer> l = dao.searchCustomers("77");
-        for (Customer customer : l) {
-            System.out.println(customer.getCustomerName());
-        }
+//        List<Customer> l = dao.searchCustomers("1269");
+//        for (Customer customer : l) {
+//            System.out.println(customer.getCustomerName());
+//        }
         System.out.println("--- Bắt đầu Test Case 3: Xóa khách hàng ---");
 
       
-        int idToDelete=16;
+        int idToDelete=31;
     
             boolean deleted = dao.deleteCustomer(idToDelete);
 

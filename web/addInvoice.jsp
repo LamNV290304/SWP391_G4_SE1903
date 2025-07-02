@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <!DOCTYPE html>
@@ -54,15 +55,20 @@
                                         <input type="hidden" name="action" value="add" />
 
                                         <div class="mb-3">
-                                            <label for="customerID" class="form-label">Khách hàng:</label>
-                                            <select class="form-select" id="customerID" name="customerID" required>
-                                                <option value="">-- Chọn khách hàng --</option>
-                                                <c:forEach var="customer" items="${customers}">
-                                                    <option value="${customer.customerID}">${customer.customerName}</option>
+                                            <label for="employeeID" class="form-label">Nhân viên:</label>
+                                            <select class="form-select" id="employeeID" name="employeeID" required>
+                                                <option value="">-- Chọn nhân viên --</option>
+
+                                                <c:forEach var="employee" items="${employees}">
+                                                    <c:if test="${employee.role != null && employee.role.id == 2}">
+                                                        <option value="${employee.id}">
+                                                            ${employee.fullname}
+                                                        
+                                                        </option>
+                                                    </c:if>
                                                 </c:forEach>
                                             </select>
                                         </div>
-
                                         <div class="mb-3">
                                             <label for="shopID" class="form-label">Cửa hàng:</label>
                                             <select class="form-select" id="shopID" name="shopID" required>
@@ -74,23 +80,13 @@
                                         </div>
 
                                         <input type="hidden" name="totalAmount" value="0" />
-<!--
-                                        <div class="mb-3">
-                                            <label for="status" class="form-label">Trạng thái:</label>
-                                            <select class="form-select" id="status" name="status" required>
-                                                <option value="false" selected>Chưa thanh toán</option>
-                                                <option value="true">Đã thanh toán</option>
-                                            </select>
-                                            <small class="form-text text-muted">Thường mặc định là "Chưa thanh toán" khi mới tạo.</small>
-                                        </div>-->
-
                                         <div class="mb-3">
                                             <label for="note" class="form-label">Ghi chú (tùy chọn):</label>
                                             <textarea class="form-control" id="note" name="note" rows="3" placeholder="Ghi chú về hóa đơn này"></textarea>
                                         </div>
 
                                         <button type="submit" class="btn btn-primary me-2">
-                                            <i class='bx bx-check me-1'></i> Thêm Hóa đơn
+                                            <i class='bx bx-check me-1'></i> Tiếp tục tạo hóa đơn
                                         </button>
                                         <a href="InvoiceServlet?action=list" class="btn btn-secondary">
                                             <i class='bx bx-arrow-back me-1'></i> Hủy
@@ -99,7 +95,7 @@
                                 </div>
                             </div>
                         </div>
-                        <jsp:include page="footer.jsp" /> <%-- Assuming you have a footer.jsp --%>
+                        <jsp:include page="footer.jsp" /> 
                         <div class="content-backdrop fade"></div>
                     </div>
                 </div>

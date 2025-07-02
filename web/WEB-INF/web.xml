@@ -125,6 +125,14 @@
         <servlet-class>Controller.listInventoryHome</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>EditExportReceipt</servlet-name>
+        <servlet-class>Controller.EditExportReceipt</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>EditImportReceipt</servlet-name>
+        <servlet-class>Controller.EditImportReceipt</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>MySubscription</servlet-name>
         <servlet-class>Controller.MySubscription</servlet-class>
     </servlet>
@@ -151,6 +159,10 @@
     <servlet>
         <servlet-name>RevenueDashboard</servlet-name>
         <servlet-class>Controller.RevenueDashboard</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>StatisticServlet</servlet-name>
+        <servlet-class>Controller.StatisticServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>StartProject</servlet-name>
@@ -209,6 +221,10 @@
         <servlet-name>ShowEmployeeList</servlet-name>
         <url-pattern>/ShowEmployeeList</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>CustomerServlet</servlet-name>
+        <servlet-class>Controller.CustomerServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Home</servlet-name>
         <url-pattern>/Home</url-pattern>
@@ -274,6 +290,14 @@
         <url-pattern>/ExportReceiptServlet</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>EditExportReceipt</servlet-name>
+        <url-pattern>/EditExportReceipt</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>EditImportReceipt</servlet-name>
+        <url-pattern>/EditImportReceipt</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>MySubscription</servlet-name>
         <url-pattern>/MySubscription</url-pattern>
     </servlet-mapping>
@@ -300,6 +324,10 @@
     <servlet-mapping>
         <servlet-name>RevenueDashboard</servlet-name>
         <url-pattern>/RevenueDashboard</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>StatisticServlet</servlet-name>
+        <url-pattern>/StatisticServlet</url-pattern>
     </servlet-mapping>
     <error-page>
         <error-code>404</error-code>

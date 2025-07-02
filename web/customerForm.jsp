@@ -44,20 +44,19 @@
                                 <span class="text-muted fw-light">Hóa đơn /</span> Nhập thông tin Khách hàng
                             </h4>
 
-                            <%-- Hiển thị thông báo lỗi hoặc thành công --%>
                             <c:if test="${not empty errorMessage}">
                                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                     ${errorMessage}
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
-                                <c:remove var="errorMessage" scope="request"/> <%-- Xóa attribute sau khi hiển thị --%>
+                                <c:remove var="errorMessage" scope="request"/> 
                             </c:if>
                             <c:if test="${not empty successMessage}">
                                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                                     ${successMessage}
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
-                                <c:remove var="successMessage" scope="request"/> <%-- Xóa attribute sau khi hiển thị --%>
+                                <c:remove var="successMessage" scope="request"/>
                             </c:if>
 
                             <div class="card mb-4">
@@ -65,6 +64,9 @@
                                 <div class="card-body">
                                     <form action="${pageContext.request.contextPath}/CustomerServlet" method="post">
                                         <input type="hidden" name="action" value="${customer != null ? 'updateCustomer' : 'addCustomer'}"/>
+                                        <c:if test="${not empty returnInvoiceID}">
+                                            <input type="hidden" name="returnInvoiceID" value="${returnInvoiceID}"/>
+                                        </c:if>
                                         <c:if test="${customer != null}">
                                             <input type="hidden" name="customerID" value="${customer.customerID}"/>
                                         </c:if>

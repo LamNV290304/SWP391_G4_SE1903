@@ -94,16 +94,14 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                         <th>Kho kiểm kê</th>
                         <th>Nhân Viên phụ trách</th>
                         <th>Ghi chú</th>
-                        
+                        <th>Hành động</th>
                       </tr>
                     </thead>
                     <%! int i = 0; %> 
                     <tbody id="vertical-example">
-                           <c:forEach var="ir" items="${listIvt}">
+                           <c:forEach var="ir" items="${listIvt}" varStatus="loop">
                       <tr>
-                        <th scope="row"><%out.println( i); i++;%>
-                          </th>
-                          
+                        <th scope="row">${loop.index + 1}</th>
                         <td>${ir.inventoryCheckID}</td>
                         <td>${ir.checkDate}</td>
                         <td>
@@ -119,7 +117,21 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
 </c:forEach>
                             </td>
                         <td>${ir.note}</td>
-                        
+                        <td>
+                          <div class="dropdown">
+                            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                              <i class="bx bx-dots-vertical-rounded"></i>
+                            </button>
+                            <div class="dropdown-menu">
+
+                                <form class="dropdown-item" action="InventoryCheckServlet" method="POST">
+                                    <input type="hidden" name="action" value="edit" />
+                                    <input type="hidden" name="receiptId" value="${ir.inventoryCheckID}" />
+                                    <button class="btn btn-secondary" type="submit"><i>Edit</i></button>
+                                </form>
+                            </div>
+                          </div>
+                        </td>
                       </tr>
                       </c:forEach>
                     

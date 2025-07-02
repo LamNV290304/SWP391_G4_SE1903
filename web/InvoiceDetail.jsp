@@ -7,7 +7,7 @@
     class="light-style layout-menu-fixed"
     dir="ltr"
     data-theme="theme-default"
-    data-assets-path="./assets/" <%-- Đảm bảo đường dẫn này đúng với cấu hình của bạn --%>
+    data-assets-path="./assets/" 
     data-template="vertical-menu-template-free"
     >
     <head>
@@ -17,7 +17,7 @@
 
         <meta name="description" content="" />
 
-        <link rel="icon" type="image/x-icon" href="img/logoSale.png" /> <%-- Sử dụng icon của bạn --%>
+        <link rel="icon" type="image/x-icon" href="img/logoSale.png" /> 
 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -40,20 +40,20 @@
         <link rel="stylesheet" href="./assets/vendor/libs/apex-charts/apex-charts.css" /> <%-- Nếu cần, thêm các CSS của ApexCharts --%>
 
         <style>
-            /* Print styles - Vẫn giữ lại để điều chỉnh giao diện khi in */
+          
             @media print {
-                .layout-menu, /* Ẩn sidebar */
-                .layout-navbar, /* Ẩn navbar */
-                .layout-footer, /* Ẩn footer */
-                .buy-now, /* Ẩn nút mua template nếu có */
-                .customizer-toggler, /* Ẩn nút customizer */
+                .layout-menu,
+                .layout-navbar,
+                .layout-footer,
+                .buy-now, 
+                .customizer-toggler, 
                 .layout-overlay,
                 .drag-target,
-                .action-buttons /* Ẩn các nút hành động trên hóa đơn */ {
+                .action-buttons  {
                     display: none !important;
                 }
 
-       
+
             }
         </style>
 
@@ -61,22 +61,35 @@
 
         <script src="./assets/js/config.js"></script>
     </head>
-
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     <body>
         <div class="layout-wrapper layout-content-navbar">
             <div class="layout-container">
-                <%-- Sidebar --%>
+             
                 <jsp:include page="sidebar.jsp" />
 
                 <div class="layout-page">
-                    <%-- Navbar --%>
+                 
                     <jsp:include page="navBar.jsp" />
 
                     <div class="content-wrapper">
                         <div class="container-xxl flex-grow-1 container-p-y">
                             <%-- Main content card --%>
                             <div class="card p-4 p-md-5 my-4 mx-auto" style="max-width: 900px;">
-                                <%-- Phần thông tin cửa hàng - nằm giữa trên đỉnh bảng hóa đơn --%>
+                                <c:if test="${not empty sessionScope.successMessage}">
+                                    <div class="alert alert-success alert-dismissible fade show mt-4" role="alert">
+                                        ${sessionScope.successMessage}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                    <c:remove var="successMessage" scope="session"/> 
+                                </c:if>
+                                <c:if test="${not empty sessionScope.errorMessage}">
+                                    <div class="alert alert-danger alert-dismissible fade show mt-4" role="alert">
+                                        ${sessionScope.errorMessage}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                    <c:remove var="errorMessage" scope="session"/>
+                                </c:if>
                                 <div class="invoice-header text-center mb-5 pb-3 border-bottom">
                                     <h2 class="mb-2 text-heading fs-3">
                                         <c:choose>
@@ -125,7 +138,6 @@
                                     <h1 class="fs-1 text-primary d-inline-block pb-2 border-bottom border-primary">Hóa Đơn Bán Hàng</h1>
                                 </div>
 
-                                <%-- Display Messages --%>
                                 <c:if test="${not empty requestScope.successMessage}">
                                     <div class="alert alert-success alert-dismissible fade show mt-4" role="alert">
                                         ${requestScope.successMessage}
@@ -159,28 +171,28 @@
                                         </div>
                                     </c:when>
                                     <c:otherwise>
-                                     
+
                                         <div class="invoice-info-section d-flex justify-content-between flex-wrap mb-4 fs-6">
                                             <div class="flex-grow-1 p-0 pe-md-4 text-start">
                                                 <p class="mb-1"><strong>Mã Hóa đơn:</strong> #${invoice.invoiceID}</p>
                                                 <p class="mb-1"><strong>Ngày lập:</strong> <fmt:formatDate value="${invoice.invoiceDate}" pattern="dd/MM/yyyy HH:mm:ss"/></p>
-<!--                                                <p class="mb-1">
-                                                    <strong>Nhân viên:</strong>
-                                                    <c:choose>
-                                                        <c:when test="${not empty selectedEmployee}">
-                                                            ${selectedEmployee.fullname}
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                            <c:set var="employeeName" value="N/A"/>
-                                                            <c:forEach var="emp" items="${employees}">
-                                                                <c:if test="${emp.id == invoice.employeeID}">
-                                                                    <c:set var="employeeName" value="${emp.fullname}"/>
-                                                                </c:if>
-                                                            </c:forEach>
-                                                            ${employeeName} <span class="text-muted fst-italic">(ID: ${invoice.employeeID})</span>
-                                                        </c:otherwise>
-                                                    </c:choose>
-                                                </p>-->
+                                                <!--                                                <p class="mb-1">
+                                                                                                    <strong>Nhân viên:</strong>
+                                                <c:choose>
+                                                    <c:when test="${not empty selectedEmployee}">
+                                                        ${selectedEmployee.fullname}
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <c:set var="employeeName" value="N/A"/>
+                                                        <c:forEach var="emp" items="${employees}">
+                                                            <c:if test="${emp.id == invoice.employeeID}">
+                                                                <c:set var="employeeName" value="${emp.fullname}"/>
+                                                            </c:if>
+                                                        </c:forEach>
+                                                        ${employeeName} <span class="text-muted fst-italic">(ID: ${invoice.employeeID})</span>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </p>-->
                                             </div>
                                             <div class="flex-grow-1 p-0 ps-md-4 text-end">
                                                 <p class="mb-1">
@@ -198,7 +210,7 @@
                                                     <p class="mb-1"><strong>Điện thoại KH:</strong> ${customer.phone}</p>
                                                     <c:if test="${not empty customer.email}"><p class="mb-1"><strong>Email KH:</strong> ${customer.email}</p></c:if>
                                                 </c:if>
-                                            
+
                                             </div>
                                         </div>
                                         <div class="table-responsive">
@@ -273,13 +285,46 @@
                                                 <a href="InvoiceServlet?action=manageInvoiceDetails&invoiceID=${invoice.invoiceID}" class="btn btn-label-warning m-1">
                                                     <i class='bx bx-edit-alt me-1'></i> Quản lý chi tiết Hóa đơn
                                                 </a>
+                                                <form action="InvoiceServlet" method="post" style="display: inline-block;">
+                                                    <input type="hidden" name="action" value="completeInvoice" />
+                                                    <input type="hidden" name="invoiceID" value="${invoice.invoiceID}" />
+                                                    <button type="submit" class="btn btn-success m-1"
+                                                            onclick="return confirm('Bạn có chắc chắn muốn HOÀN TẤT HÓA ĐƠN và đánh dấu đã THANH TOÁN không? Hành động này không thể hoàn tác.');">
+                                                        <i class='bx bx-check-circle me-1'></i> Hoàn tất & Thanh toán
+                                                    </button>
+                                                </form>
+                                                <hr class="my-4"> 
+
+                                                <div class="vnpay-qr-section p-3 border rounded mb-4">
+                                                    <h5 class="mb-3 text-primary">Thanh toán qua MB Bank</h5>
+                                                    <p class="text-info fs-5">
+                                                        <strong>Tổng tiền cần thanh toán: <fmt:formatNumber value="${invoice.totalAmount}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></strong>
+                                                    </p>
+                                                    <div class="qr-code-display" style="width:250px; height:250px; margin: 15px auto; border: 1px solid #eee; padding: 5px;">
+                                                        <img src="img/QR_MBBank.jpg" alt="Mã QR VNPAY" style="width:100%; height:100%; object-fit: contain;">
+                                                    </div>
+                                                    <form action="InvoiceServlet" method="post" style="display: inline-block; margin-top: 15px;">
+                                                        <input type="hidden" name="action" value="completeInvoice" />
+                                                        <input type="hidden" name="invoiceID" value="${invoice.invoiceID}" />
+                                                        <button type="submit" class="btn btn-primary m-1"
+                                                                onclick="return confirm('Bạn có chắc chắn khách hàng đã thanh toán qua VNPAY-QR và bạn muốn HOÀN TẤT HÓA ĐƠN không?');">
+                                                            <i class='bx bx-check-circle me-1'></i> Đã thanh toán QR & Hoàn tất
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             </c:if>
+
+                                            <c:if test="${invoice.status}">
+                                                <span class="badge bg-success p-2 fs-6 m-1">
+                                                    <i class='bx bx-dollar-circle me-1'></i> ĐÃ THANH TOÁN
+                                                </span>
+                                            </c:if>   
                                         </div>
                                     </c:otherwise>
                                 </c:choose>
                             </div>
                         </div>
-                    
+
                     </div>
                 </div>
             </div>
@@ -291,11 +336,11 @@
         <script src="./assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
 
         <script src="./assets/vendor/js/menu.js"></script>
-        <script src="./assets/vendor/libs/apex-charts/apexcharts.js"></script> <%-- Nếu cần, thêm các JS của ApexCharts --%>
+        <script src="./assets/vendor/libs/apex-charts/apexcharts.js"></script>
 
         <script src="./assets/js/main.js"></script>
 
-        <script src="./assets/js/dashboards-analytics.js"></script> <%-- Nếu cần, thêm các JS cho dashboard/analytics --%>
+        <script src="./assets/js/dashboards-analytics.js"></script> 
 
         <script async defer src="https://buttons.github.io/buttons.js"></script>
     </body>

@@ -227,6 +227,7 @@ import Dal.TypeImportReceiptDAO;
 import Models.ImportReceiptDetail;
 import java.time.format.DateTimeFormatter;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -286,60 +287,9 @@ public class AddImportReceipt extends HttpServlet {
     @Override
 protected void doGet(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
-
-    String action = request.getParameter("action");
-    String receiptIdRaw = request.getParameter("receiptId");
-
-    if (action != null && receiptIdRaw != null) {
-        try (Connection conn = new DBContext("SWP7").getConnection()) {
-            ImportReceiptDAO importReceiptDAO = new ImportReceiptDAO(conn);
-            ImportReceiptDetailDAO detailDAO = new ImportReceiptDetailDAO(conn);
-            InventoryDAO inventoryDAO = new InventoryDAO(conn);
-            ProductDAO productDAO = new ProductDAO(conn);
-            ShopDAO shopDAO = new ShopDAO();
-
-            int receiptId = Integer.parseInt(receiptIdRaw);
-
-            if (action.equals("delete")) {
-               
-                // Sau khi xóa chi tiết, xóa phiếu nhập
-                importReceiptDAO.deleteImportReceipt(receiptId);
-
-                // Chuyển hướng lại trang danh sách
-                request.getRequestDispatcher("ImportReceiptServlet").forward(request, response);
-
-            } else if (action.equals("edit")) {
-                // Lấy thông tin phiếu nhập
-                ImportReceipt receipt = importReceiptDAO.getImportReceiptByID(receiptId);
-                List<ImportReceiptDetail> detailList = detailDAO.getDetailsByReceiptID(receiptId);
-
-                // Lấy dữ liệu hỗ trợ để show form
-                EmployeeDAO empDao = new EmployeeDAO(conn);
-                TypeImportReceiptDAO typeImp = new TypeImportReceiptDAO(conn);
-                SupplierDAO supDAO = new SupplierDAO(conn);
-
-                request.setAttribute("receipt", receipt);
-                request.setAttribute("details", detailList);
-                request.setAttribute("listEmp", empDao.getAllEmployee());
-                request.setAttribute("listSup", supDAO.getAllSuppliers());
-                request.setAttribute("listShop", shopDAO.getAllShops("SWP7"));
-                request.setAttribute("listType", typeImp.getAllTypeImportReceipts());
-                request.setAttribute("listProduct", productDAO.getAllProducts());
-
-                // Chuyển đến trang chỉnh sửa
-                request.getRequestDispatcher("EditImportReceipt.jsp").forward(request, response);
-                return;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            request.setAttribute("error", "Lỗi xử lý yêu cầu: " + e.getMessage());
-            request.getRequestDispatcher("ImportReceipt.jsp").forward(request, response);
-            return;
-        }
-    }
+processRequest(request, response);
 
     // Nếu không phải edit/delete thì hiển thị form thêm mới (mặc định)
-    processRequest(request, response);
 }
 
 
@@ -364,6 +314,7 @@ if(code==null || supplierID==null || employeeID ==null || shopID_raw ==null || i
 }
 Integer shopID = Integer.parseInt(shopID_raw);
 Date importDate = null;
+
 if (importDateStr != null && !importDateStr.isEmpty()) {
     try {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -393,34 +344,47 @@ if (importDateStr != null && !importDateStr.isEmpty()) {
          
 ProductDAO productDAO = new ProductDAO(conn);
 ShopDAO shopDAO = new ShopDAO();
+
             // Tạo đối tượng phiếu nhập
             ImportReceipt receipt = new ImportReceipt();
             receipt.setCode(code); // Tên sản phẩm không cần ở đây
             receipt.setSupplierID(supplierID);  
+          
             receipt.setEmployeeID(employeeID);// Tên cửa hàng không cần ở đây
+            
             receipt.setShopID(shopID_raw);
+             
             receipt.setReceiptDate(importDate);
             receipt.setNote(note);
             receipt.setTotalAmount(value);
-            receipt.setStatus(true );
-   
-            // Thêm phiếu nhập
-            receiptDAO.insertImportReceipt(receipt);
             
+            receipt.setStatus(true );
+             
+           
+            // Thêm phiếu nhập
+           
+            receiptDAO.insertImportReceipt(receipt);
+             
             List<ImportReceiptDetail> listImportDetail = new ArrayList<>();
 String[] productIDs = request.getParameterValues("productID[]");
 String[] quantities = request.getParameterValues("quantity[]");
 String[] prices = request.getParameterValues("price[]");
 String[] notes = request.getParameterValues("note[]");
-
+ 
 int size= productIDs.length;
 for(int i=0;i<size;i++){
+        
+    int impReId = receiptDAO.getLatestImportReceiptByID().getImportReceiptID();
+    int quantity = Integer.parseInt(quantities[i]);
+  
+    double price =Double.parseDouble(prices[i]);
+
     ImportReceiptDetail importDetail = new ImportReceiptDetail( 
 
-            receiptDetailDAO.getImportReceiptIDByInfo(receipt),
-            productIDs[i],  Integer.parseInt(quantities[i]), Double.parseDouble(prices[i]), notes[i]);
+           impReId,productIDs[i],  quantity, price, notes[i]);
+    
     listImportDetail.add(importDetail);
-          
+           
     receiptDetailDAO.insertDetail(importDetail);
 
 }
@@ -436,7 +400,7 @@ for(ImportReceiptDetail importDetail : listImportDetail){
                       int newQty = inv.getQuantity() + importDetail.getQuantity();
                  
                 inventoryDAO.updateInventoryQuantity(inv.getInventoryID(), newQty);
-                
+                productDAO.getProductById(Integer.parseInt(importDetail.getProductID())).setImportPrice(BigDecimal.valueOf(importDetail.getPrice())); 
             } else {
                  
                 // Tạo mới hàng tồn kho nếu chưa có
@@ -451,6 +415,7 @@ for(ImportReceiptDetail importDetail : listImportDetail){
                 newInv.setQuantity(importDetail.getQuantity());
                 newInv.setLastUpdated(Timestamp.from(Instant.now()));
                 inventoryDAO.insertInventory(newInv); 
+                 productDAO.getProductById(Integer.parseInt(importDetail.getProductID())).setImportPrice(BigDecimal.valueOf(importDetail.getPrice())); 
             }
 }
             response.sendRedirect("ImportReceipt.jsp");
@@ -458,6 +423,7 @@ for(ImportReceiptDetail importDetail : listImportDetail){
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi thêm phiếu nhập: " + e.getMessage());
             request.getRequestDispatcher("add_import_receipt.jsp").forward(request, response);
+            return;
         }
     }
 

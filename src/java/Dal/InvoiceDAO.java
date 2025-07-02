@@ -146,6 +146,39 @@ public class InvoiceDAO {
         return null;
     }
 
+    public List<Invoice> getInvoicesByCustomerID(int customerID) {
+        List<Invoice> list = new ArrayList<>();
+        String sql = "SELECT i.*, c.CustomerName, s.ShopName, e.FullName AS EmployeeName \n"
+                + "FROM [dbo].[Invoice] i \n"
+                + "JOIN [dbo].[Customer] c ON i.CustomerID = c.CustomerID\n"
+                + "JOIN [dbo].[Shop] s ON i.ShopID = s.ShopID\n"
+                + "JOIN [dbo].[Employee] e ON i.EmployeeID = e.EmployeeID\n"
+                + "WHERE i.CustomerID = ? ORDER BY i.InvoiceID DESC";
+        try (PreparedStatement ptm = connection.prepareStatement(sql)) {
+            ptm.setInt(1, customerID);
+            try (ResultSet rs = ptm.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new Invoice(
+                            rs.getInt("InvoiceID"),
+                            rs.getInt("CustomerID"),
+                            rs.getString("CustomerName"),
+                            rs.getInt("EmployeeID"),
+                            rs.getString("EmployeeName"), // Giả sử Invoice model có trường này
+                            rs.getInt("ShopID"),
+                            rs.getTimestamp("InvoiceDate"),
+                            rs.getDouble("TotalAmount"),
+                            rs.getString("Note"),
+                            rs.getBoolean("Status"),
+                            rs.getString("ShopName")
+                    ));
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
     // =============================================================
     public List<Invoice> getInvoicesByDateRange_UsingCastInSQL(Date startDate, Date endDate, int pageIndex, int pageSize) {
         List<Invoice> invoices = new ArrayList<>();
@@ -163,8 +196,8 @@ public class InvoiceDAO {
             sqlBuilder.append(" AND CAST(i.InvoiceDate AS DATE) <= ?");
         }
 
-        sqlBuilder.append(" ORDER BY i.InvoiceID DESC "); 
-        sqlBuilder.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY"); 
+        sqlBuilder.append(" ORDER BY i.InvoiceID DESC ");
+        sqlBuilder.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
 
         try (PreparedStatement pstmt = connection.prepareStatement(sqlBuilder.toString())) {
             int paramIndex = 1;
@@ -347,6 +380,30 @@ public class InvoiceDAO {
         return 0;
     }
 
+    public boolean updateInvoiceCustomer(Invoice invoice) {
+        String sql = "UPDATE [dbo].[Invoice] SET [CustomerID] = ? WHERE InvoiceID = ?";
+        try (PreparedStatement ptm = connection.prepareStatement(sql)) {
+            ptm.setInt(1, invoice.getCustomerID());
+            ptm.setInt(2, invoice.getInvoiceID());
+            return ptm.executeUpdate() > 0;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean updateInvoiceStatus(int invoiceID, boolean newStatus) {
+        String sql = "UPDATE [dbo].[Invoice] SET [Status] = ? WHERE InvoiceID = ?";
+        try (PreparedStatement ptm = connection.prepareStatement(sql)) {
+            ptm.setBoolean(1, newStatus);
+            ptm.setInt(2, invoiceID);
+            return ptm.executeUpdate() > 0;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+ 
     public static void main(String[] args) {
 
         DBContext connection = new DBContext("SWP1");
