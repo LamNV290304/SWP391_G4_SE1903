@@ -168,7 +168,7 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="card-footer d-flex justify-content-center"> <%-- Thay đổi justify-content-end thành justify-content-center --%>
+                                <div class="card-footer d-flex justify-content-center">
                                     <nav aria-label="Page navigation">
                                         <c:if test="${totalPages > 1}">
                                             <ul class="pagination mb-0">
@@ -185,7 +185,7 @@
                                                     <c:if test="${not empty param.searchQuery}">
                                                         <c:param name="searchQuery" value="${param.searchQuery}" />
                                                     </c:if>
-                                                    <%-- Nếu không có action nào, mặc định là list --%>
+                                             
                                                     <c:if test="${empty param.action && empty param.startDate && empty param.endDate && empty param.searchQuery}">
                                                         <c:param name="action" value="list" />
                                                     </c:if>
@@ -195,14 +195,12 @@
                                                     <a class="page-link" href="${currentPage > 1 ? baseLink : '#'} &page=${currentPage - 1}"><i class="tf-icon bx bx-chevrons-left"></i></a>
                                                 </li>
 
-                                                <%-- Logic để hiện thị 5 trang xung quanh trang hiện tại --%>
                                                 <c:set var="numPagesToShow" value="5" />
                                                 <c:set var="halfPagesToShow" value="${numPagesToShow / 2}" />
 
                                                 <c:set var="startPage" value="${currentPage - halfPagesToShow}" />
                                                 <c:set var="endPage" value="${currentPage + halfPagesToShow}" />
 
-                                                <%-- Điều chỉnh startPage và endPage để không vượt quá giới hạn và luôn hiển thị đủ số trang (nếu có) --%>
                                                 <c:if test="${startPage < 1}">
                                                     <c:set var="startPage" value="1" />
                                                     <c:set var="endPage" value="${numPagesToShow > totalPages ? totalPages : numPagesToShow}" />
