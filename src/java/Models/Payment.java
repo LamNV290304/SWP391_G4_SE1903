@@ -11,23 +11,67 @@ import java.sql.Date;
  * @author Admin
  */
 public class Payment {
+    private int id;
     private String packageName;
     private Date paymentDate;
     private Date expireAt;
     private double amount;
     private String status;
+    private int shopOwnerId;
+    private int packageId;
+    private String txnRef;
 
     public Payment() {
     }
 
-    public Payment(String packageName, Date paymentDate, Date expireAt, double amount, String status) {
+    public Payment(int id, String packageName, Date paymentDate, Date expireAt, double amount, String status, int shopOwnerId, int packageId, String txnRef) {
+        this.id = id;
         this.packageName = packageName;
         this.paymentDate = paymentDate;
         this.expireAt = expireAt;
         this.amount = amount;
         this.status = status;
+        this.shopOwnerId = shopOwnerId;
+        this.packageId = packageId;
+        this.txnRef = txnRef;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    
+
+    public String getTxnRef() {
+        return txnRef;
+    }
+
+    public void setTxnRef(String txnRef) {
+        this.txnRef = txnRef;
+    }
+
+    public int getShopOwnerId() {
+        return shopOwnerId;
+    }
+
+    public void setShopOwnerId(int shopOwnerId) {
+        this.shopOwnerId = shopOwnerId;
+    }
+
+    public int getPackageId() {
+        return packageId;
+    }
+
+    public void setPackageId(int packageId) {
+        this.packageId = packageId;
+    }
+
+    
+    
     public String getPackageName() {
         return packageName;
     }
