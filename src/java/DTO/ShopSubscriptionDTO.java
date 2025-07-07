@@ -11,7 +11,7 @@ import java.sql.Date;
  *
  * @author Admin
  */
-public class ShopSubscriptionDTO {
+public class ShopSubscriptionDto {
 
     private int id;
     private int shopOwnerId;
@@ -24,8 +24,9 @@ public class ShopSubscriptionDTO {
     private String packageName;
     private BigDecimal packagePrice;
     private String packageDescription;
+    private int packageDurationInDays;
 
-    public ShopSubscriptionDTO(int id, int shopOwnerId, int packageId, Date startDate, Date endDate, boolean isActive, String note, String shopName, String packageName, BigDecimal packagePrice, String packageDescription) {
+    public ShopSubscriptionDto(int id, int shopOwnerId, int packageId, Date startDate, Date endDate, boolean isActive, String note, String shopName, String packageName, BigDecimal packagePrice, String packageDescription, int packageDurationInDays) {
         this.id = id;
         this.shopOwnerId = shopOwnerId;
         this.packageId = packageId;
@@ -37,11 +38,19 @@ public class ShopSubscriptionDTO {
         this.packageName = packageName;
         this.packagePrice = packagePrice;
         this.packageDescription = packageDescription;
+        this.packageDurationInDays = packageDurationInDays;
     }
 
+    public int getPackageDurationInDays() {
+        return packageDurationInDays;
+    }
 
+    public void setPackageDurationInDays(int packageDurationInDays) {
+        this.packageDurationInDays = packageDurationInDays;
+    }
 
-    public ShopSubscriptionDTO() {
+    
+    public ShopSubscriptionDto() {
     }
 
     public int getId() {

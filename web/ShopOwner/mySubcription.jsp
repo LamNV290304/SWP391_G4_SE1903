@@ -55,27 +55,14 @@
                                             <p><strong>Thời gian kết thúc:</strong> <fmt:formatDate value="${subscription.endDate}" pattern="dd/MM/yyyy" /></p>
                                             <p><strong>Giá:</strong> <fmt:formatNumber value="${subscription.packagePrice}" type="currency" currencySymbol="₫"/></p>
                                             <p><strong>Mô tả:</strong> ${subscription.packageDescription}</p>
-                                            <span class="badge bg-success">Đang hoạt động</span>
                                         </div>
                                         <div class="card-footer d-flex justify-content-end gap-2">
-                                            <c:choose>
-                                                <c:when test="${subscription.isActive}">
-                                                    <!-- Nếu đang hoạt động -->
-                                                    <form method="post" action="cancel-subscription" onsubmit="return confirm('Bạn chắc chắn muốn huỷ gói này?');">
-                                                        <input type="hidden" name="subscriptionId" value="${subscription.id}" />
-                                                        <button type="submit" class="btn btn-outline-danger">Huỷ gói</button>
-                                                    </form>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <!-- Nếu đã huỷ -->
-                                                    <form method="post" action="reactivate-subscription" onsubmit="return confirm('Bạn muốn tái kích hoạt gói này?');">
-                                                        <input type="hidden" name="subscriptionId" value="${subscription.id}" />
-                                                        <button type="submit" class="btn btn-success">Tái kích hoạt</button>
-                                                    </form>
-                                                </c:otherwise>
-                                            </c:choose>
-
-                                            <form method="get" action="ShowServicePackage">
+                                            <form method="post" action="ExtendSubscription">
+                                                <input type="hidden" name="subscriptionId" value="${subscription.id}" />
+                                                <input type="hidden" name="packageId" value="${subscription.packageId}" />
+                                                <button type="submit" class="btn btn-outline-danger">Gia hạn</button>
+                                            </form>
+                                            <form method="get" action="ShowServicePackage" onsubmit="return confirmChangePackage();">
                                                 <button type="submit" class="btn btn-outline-primary">Thay đổi gói</button>
                                             </form>
                                         </div>
@@ -101,6 +88,11 @@
         <script src="./assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
         <script src="./assets/vendor/js/menu.js"></script>
         <script src="./assets/js/main.js"></script>
+        <script>
+            function confirmChangePackage() {
+                return confirm("Thao tác này sẽ huỷ gói dịch vụ hiện tại của bạn. Bạn có chắc chắn muốn tiếp tục?");
+            }
+        </script>
     </body>
 </html>
 

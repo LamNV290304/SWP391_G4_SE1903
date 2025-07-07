@@ -4,28 +4,31 @@
  */
 package Dal;
 
+import Context.DBContext;
 import Models.ServicePackage;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author Admin
  */
 public class ServicePackageDAO {
+
     private Connection connection;
 
     public ServicePackageDAO(Connection connection) {
         this.connection = connection;
     }
-    
+
     public List<ServicePackage> getAll() {
         List<ServicePackage> packages = new ArrayList<>();
         String sql = "SELECT * FROM ServicePackages";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 ServicePackage pkg = new ServicePackage();
@@ -103,5 +106,53 @@ public class ServicePackageDAO {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public boolean updatePackage(ServicePackage pkg) {
+        String sql = "UPDATE ServicePackages SET Name = ?, DurationInDays = ?, Price = ?, Description = ? WHERE Id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, pkg.getName());
+            ps.setInt(2, pkg.getDurationInDays());
+            ps.setDouble(3, pkg.getPrice());
+            ps.setString(4, pkg.getDescription());
+            ps.setInt(5, pkg.getId());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean createPackage(ServicePackage pkg) {
+        String sql = "INSERT INTO ServicePackages (Name, DurationInDays, Price, Description) VALUES (?, ?, ?, ?)";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, pkg.getName());
+            ps.setInt(2, pkg.getDurationInDays());
+            ps.setDouble(3, pkg.getPrice());
+            ps.setString(4, pkg.getDescription());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            ServicePackageDAO servicePackageDAO = new ServicePackageDAO(DBContext.getCentralConnection());
+
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(ServicePackageDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(ServicePackageDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

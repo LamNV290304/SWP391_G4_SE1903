@@ -33,57 +33,69 @@
                 <i class="menu-icon tf-icons bx bx-lock-open-alt"></i>
                 <div data-i18n="Authentications">Lịch sử thanh toán</div>
             </a>
-            <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="ShowPaymentHistory" class="menu-link" >
-                        <div data-i18n="Basic">Lịch sử thanh toán cá nhân</div>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="MySubscription" class="menu-link" >
-                        <div data-i18n="Basic">Gói đã đăng kí</div>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-cube-alt"></i>
-                <div data-i18n="Misc">Thanh toán</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="pages-misc-error.html" class="menu-link">
-                        <div data-i18n="Basic">Báo Cáo Lương </div>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-cube-alt"></i>
-                <div data-i18n="Misc">Thống kê</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="pages-misc-error.html" class="menu-link">
-                        <div data-i18n="Basic">Báo Cáo Lương </div>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-cube-alt"></i>
-                <div data-i18n="Misc">Quản lí khách hàng</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="pages-misc-error.html" class="menu-link">
-                        <div data-i18n="Basic">Danh sách khách hàng</div>
-                    </a>
-                </li>
-            </ul>
-        </li>
+            <c:choose>
+                <c:when test="${sessionScope.shopOwner.id == 1}">
+                    <ul class="menu-sub">
+                        <li class="menu-item">
+                            <a href="ShowPaymentHistory" class="menu-link" >
+                                <div data-i18n="Basic">Lịch sử thanh toán</div>
+                            </a>
+                        </li>
+                    </ul>
+                </c:when>
+                <c:otherwise>
+                    <ul class="menu-sub">
+                        <li class="menu-item">
+                            <a href="ShowPaymentHistory" class="menu-link" >
+                                <div data-i18n="Basic">Lịch sử thanh toán cá nhân</div>
+                            </a>
+                        </li>
+                    </ul>
+                </c:otherwise>
+            </c:choose>
+            <c:if test="${sessionScope.shopOwner.id != 1}">
+            </li>
+            <li class="menu-item">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bx-cube-alt"></i>
+                    <div data-i18n="Misc">Thanh toán</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item">
+                        <a href="MySubscription" class="menu-link" >
+                            <div data-i18n="Basic">Gói đã đăng kí</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </c:if>
+        <c:if test="${sessionScope.shopOwner.id == 1}">
+            <li class="menu-item">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bx-cube-alt"></i>
+                    <div data-i18n="Misc">Thống kê</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item">
+                        <a href="RevenueDashboard" class="menu-link">
+                            <div data-i18n="Basic">Báo Cáo Doanh Thu </div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="menu-item">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bx-cube-alt"></i>
+                    <div data-i18n="Misc">Quản lí khách hàng</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item">
+                        <a href="pages-misc-error.html" class="menu-link">
+                            <div data-i18n="Basic">Danh sách khách hàng</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </c:if>
     </ul>
 </aside>

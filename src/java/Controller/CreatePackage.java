@@ -5,27 +5,21 @@
 package Controller;
 
 import Context.DBContext;
-import DTO.ShopSubscriptionDto;
 import Dal.ServicePackageDAO;
-import Dal.ShopSubscriptionDAO;
 import Models.ServicePackage;
-import Models.ShopOwner;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import jakarta.servlet.http.HttpSession;
 
 /**
  *
  * @author Admin
  */
-public class ShowServicePackage extends HttpServlet {
+public class CreatePackage extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -44,10 +38,10 @@ public class ShowServicePackage extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ShowServicePackage</title>");
+            out.println("<title>Servlet CreatePackage</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ShowServicePackage at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet CreatePackage at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -65,39 +59,7 @@ public class ShowServicePackage extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        try {
-            ShopOwner shopOwner = (ShopOwner) request.getSession().getAttribute("shopOwner");
-            
-            if(shopOwner == null) {
-                response.sendRedirect("login.jsp");
-            }
-            
-            String success = request.getParameter("success");
-            String error = request.getParameter("error");
-
-            if (success != null) {
-                request.setAttribute("success", success);
-            }
-            if (error != null) {
-                request.setAttribute("error", error);
-            }
-
-            ServicePackageDAO dao = new ServicePackageDAO(DBContext.getCentralConnection());
-            List<ServicePackage> packages = dao.getAll();
-            request.setAttribute("packages", packages);
-
-            ShopSubscriptionDAO subDAO = new ShopSubscriptionDAO(DBContext.getCentralConnection());
-            ShopSubscriptionDto currentSub = subDAO.getActiveSubscriptionByShopId(shopOwner.getId());
-            if (currentSub != null) {
-                request.setAttribute("hasActivePackage", true);
-            }
-            request.getRequestDispatcher("ShopOwner/home.jsp").forward(request, response);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(ShowServicePackage.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(ShowServicePackage.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        processRequest(request, response);
     }
 
     /**
@@ -111,7 +73,36 @@ public class ShowServicePackage extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        doGet(request, response);
+
+        try {
+            String name = request.getParameter("name");
+            int duration = Integer.parseInt(request.getParameter("durationInDays"));
+            double price = Double.parseDouble(request.getParameter("price"));
+            String description = request.getParameter("description");
+
+            ServicePackage newPkg = new ServicePackage();
+            newPkg.setName(name);
+            newPkg.setDurationInDays(duration);
+            newPkg.setPrice(price);
+            newPkg.setDescription(description);
+
+            ServicePackageDAO dao = new ServicePackageDAO(DBContext.getCentralConnection());
+            boolean inserted = dao.createPackage(newPkg);
+
+            HttpSession session = request.getSession();
+
+            if (inserted) {
+                session.setAttribute("flash_success", "Cập nhật thành công!");
+                response.sendRedirect("ShowServicePackage");
+            } else {
+                session.setAttribute("flash_fail", "Cập nhật thất bại!");
+                response.sendRedirect("ShowServicePackage");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect("ShowServicePackage?error=Có lỗi khi thêm gói!");
+        }
     }
 
     /**

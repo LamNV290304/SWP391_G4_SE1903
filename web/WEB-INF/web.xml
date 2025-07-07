@@ -137,6 +137,30 @@
         <servlet-class>Controller.MySubscription</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>RegisterPackage</servlet-name>
+        <servlet-class>Controller.RegisterPackage</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>VNPayReturn</servlet-name>
+        <servlet-class>Controller.VNPayReturn</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ExtendSubscription</servlet-name>
+        <servlet-class>Controller.RenewPackage</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>EditPackage</servlet-name>
+        <servlet-class>Controller.EditPackage</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CreatePackage</servlet-name>
+        <servlet-class>Controller.CreatePackage</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>RevenueDashboard</servlet-name>
+        <servlet-class>Controller.RevenueDashboard</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>StatisticServlet</servlet-name>
         <servlet-class>Controller.StatisticServlet</servlet-class>
     </servlet>
@@ -276,6 +300,30 @@
     <servlet-mapping>
         <servlet-name>MySubscription</servlet-name>
         <url-pattern>/MySubscription</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RegisterPackage</servlet-name>
+        <url-pattern>/RegisterPackage</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>VNPayReturn</servlet-name>
+        <url-pattern>/VNPayReturn</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ExtendSubscription</servlet-name>
+        <url-pattern>/ExtendSubscription</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>EditPackage</servlet-name>
+        <url-pattern>/EditPackage</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CreatePackage</servlet-name>
+        <url-pattern>/CreatePackage</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RevenueDashboard</servlet-name>
+        <url-pattern>/RevenueDashboard</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>StatisticServlet</servlet-name>

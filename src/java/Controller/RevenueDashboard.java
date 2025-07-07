@@ -5,27 +5,21 @@
 package Controller;
 
 import Context.DBContext;
-import DTO.ShopSubscriptionDto;
-import Dal.ServicePackageDAO;
-import Dal.ShopSubscriptionDAO;
-import Models.ServicePackage;
-import Models.ShopOwner;
+import Dal.RevenueDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.time.LocalDate;
+import java.time.YearMonth;
 
 /**
  *
  * @author Admin
  */
-public class ShowServicePackage extends HttpServlet {
+public class RevenueDashboard extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -44,10 +38,10 @@ public class ShowServicePackage extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ShowServicePackage</title>");
+            out.println("<title>Servlet RevenueDashboard</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ShowServicePackage at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet RevenueDashboard at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -63,40 +57,38 @@ public class ShowServicePackage extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            ShopOwner shopOwner = (ShopOwner) request.getSession().getAttribute("shopOwner");
-            
-            if(shopOwner == null) {
-                response.sendRedirect("login.jsp");
-            }
-            
-            String success = request.getParameter("success");
-            String error = request.getParameter("error");
+            String fromMonth = request.getParameter("fromMonth");
+            String toMonth = request.getParameter("toMonth");
 
-            if (success != null) {
-                request.setAttribute("success", success);
-            }
-            if (error != null) {
-                request.setAttribute("error", error);
-            }
+            LocalDate now = LocalDate.now();
+            YearMonth defaultFrom = YearMonth.from(now).minusMonths(5);
+            YearMonth defaultTo = YearMonth.from(now);
 
-            ServicePackageDAO dao = new ServicePackageDAO(DBContext.getCentralConnection());
-            List<ServicePackage> packages = dao.getAll();
-            request.setAttribute("packages", packages);
+            YearMonth fromYM = (fromMonth != null && !fromMonth.isEmpty()) ? YearMonth.parse(fromMonth) : defaultFrom;
+            YearMonth toYM = (toMonth != null && !toMonth.isEmpty()) ? YearMonth.parse(toMonth) : defaultTo;
 
-            ShopSubscriptionDAO subDAO = new ShopSubscriptionDAO(DBContext.getCentralConnection());
-            ShopSubscriptionDto currentSub = subDAO.getActiveSubscriptionByShopId(shopOwner.getId());
-            if (currentSub != null) {
-                request.setAttribute("hasActivePackage", true);
-            }
-            request.getRequestDispatcher("ShopOwner/home.jsp").forward(request, response);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(ShowServicePackage.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(ShowServicePackage.class.getName()).log(Level.SEVERE, null, ex);
+            LocalDate startDate = fromYM.atDay(1);
+            LocalDate endDate = toYM.atEndOfMonth();
+
+            RevenueDAO dao = new RevenueDAO(DBContext.getCentralConnection());
+
+            request.setAttribute("fromMonth", fromYM);
+            request.setAttribute("toMonth", toYM);
+            request.setAttribute("totalRevenue", dao.getTotalRevenue(startDate, endDate));
+            request.setAttribute("totalTransactions", dao.getSuccessfulTransactionCount(startDate, endDate));
+            request.setAttribute("activeShops", dao.getActiveShopCount());
+            request.setAttribute("growthRate", dao.calculateGrowth(startDate, endDate));
+
+            request.setAttribute("monthlyRevenue", dao.getMonthlyRevenueData(startDate, endDate));
+            request.setAttribute("monthLabels", dao.getMonthLabels(startDate, endDate));
+            request.setAttribute("packageLabels", dao.getPackageLabels(startDate, endDate));
+            request.setAttribute("packageRatios", dao.getPackageRatios(startDate, endDate));
+
+            request.getRequestDispatcher("ShopOwner/revenueDashboard.jsp").forward(request, response);
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -111,7 +103,7 @@ public class ShowServicePackage extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        doGet(request, response);
+        processRequest(request, response);
     }
 
     /**
