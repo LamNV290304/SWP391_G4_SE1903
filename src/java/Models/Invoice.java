@@ -4,6 +4,7 @@
  */
 package Models;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 /**
@@ -19,7 +20,9 @@ public class Invoice {
     private String employeeName;
     private int shopID;
     private Timestamp invoiceDate;
-    private Double totalAmount;
+    private BigDecimal totalAmount;
+    private BigDecimal VatAmount;
+    private int vatRateID;
     private String note;
     private boolean status;
 
@@ -28,7 +31,21 @@ public class Invoice {
     public Invoice() {
     }
 
-    public Invoice(int invoiceID, int customerID, String customerName, int employeeID, String employeeName, int shopID, Timestamp invoiceDate, Double totalAmount, String note, boolean status, String shopName) {
+    public Invoice(int invoiceID, int customerID, int employeeID, int shopID, Timestamp invoiceDate, BigDecimal totalAmount, BigDecimal VatAmount, int vatRateID, String note, boolean status) {
+        this.invoiceID = invoiceID;
+        this.customerID = customerID;
+        this.employeeID = employeeID;
+        this.shopID = shopID;
+        this.invoiceDate = invoiceDate;
+        this.totalAmount = totalAmount;
+        this.VatAmount = VatAmount;
+        this.vatRateID = vatRateID;
+        this.note = note;
+        this.status = status;
+    }
+    
+
+    public Invoice(int invoiceID, int customerID, String customerName, int employeeID, String employeeName, int shopID, Timestamp invoiceDate, BigDecimal totalAmount, String note, boolean status, String shopName) {
         this.invoiceID = invoiceID;
         this.customerID = customerID;
         this.customerName = customerName;
@@ -42,7 +59,7 @@ public class Invoice {
         this.shopName = shopName;
     }
 
-    public Invoice(int invoiceID, int customerID, String customerName, int employeeID, int shopID, Timestamp invoiceDate, Double totalAmount, String note, boolean status, String shopName) {
+    public Invoice(int invoiceID, int customerID, String customerName, int employeeID, int shopID, Timestamp invoiceDate, BigDecimal totalAmount, String note, boolean status, String shopName) {
         this.invoiceID = invoiceID;
         this.customerID = customerID;
         this.customerName = customerName;
@@ -55,7 +72,7 @@ public class Invoice {
         this.shopName = shopName;
     }
 
-    public Invoice(int invoiceID, int customerID, String customerName, int employeeID, int shopID, Timestamp invoiceDate, Double totalAmount, String note, boolean status) {
+    public Invoice(int invoiceID, int customerID, String customerName, int employeeID, int shopID, Timestamp invoiceDate, BigDecimal totalAmount, String note, boolean status) {
         this.invoiceID = invoiceID;
         this.customerID = customerID;
         this.customerName = customerName;
@@ -67,7 +84,7 @@ public class Invoice {
         this.status = status;
     }
 
-    public Invoice(int customerID, int employeeID, int shopID, Timestamp invoiceDate, Double totalAmount, String note, boolean status) {
+    public Invoice(int customerID, int employeeID, int shopID, Timestamp invoiceDate, BigDecimal totalAmount, String note, boolean status) {
         this.customerID = customerID;
         this.employeeID = employeeID;
         this.shopID = shopID;
@@ -77,7 +94,7 @@ public class Invoice {
         this.status = status;
     }
 
-    public Invoice(int invoiceID, int customerID, int employeeID, int shopID, Timestamp invoiceDate, Double totalAmount, String note, boolean status) {
+    public Invoice(int invoiceID, int customerID, int employeeID, int shopID, Timestamp invoiceDate, BigDecimal totalAmount, String note, boolean status) {
         this.invoiceID = invoiceID;
         this.customerID = customerID;
         this.employeeID = employeeID;
@@ -86,6 +103,59 @@ public class Invoice {
         this.totalAmount = totalAmount;
         this.note = note;
         this.status = status;
+    }
+
+    public Invoice(int invoiceID, int customerID, String customerName, int employeeID, String employeeName, int shopID, Timestamp invoiceDate, BigDecimal totalAmount, BigDecimal VatAmount, int vatRateID, String note, boolean status, String shopName) {
+        this.invoiceID = invoiceID;
+        this.customerID = customerID;
+        this.customerName = customerName;
+        this.employeeID = employeeID;
+        this.employeeName = employeeName;
+        this.shopID = shopID;
+        this.invoiceDate = invoiceDate;
+        this.totalAmount = totalAmount;
+        this.VatAmount = VatAmount;
+        this.vatRateID = vatRateID;
+        this.note = note;
+        this.status = status;
+        this.shopName = shopName;
+    }
+
+    public Invoice(int customerID, int employeeID, int shopID, Timestamp invoiceDate, BigDecimal totalAmount, BigDecimal VatAmount, int vatRateID, String note, boolean status) {
+        this.customerID = customerID;
+        this.employeeID = employeeID;
+        this.shopID = shopID;
+        this.invoiceDate = invoiceDate;
+        this.totalAmount = totalAmount;
+        this.VatAmount = VatAmount;
+        this.vatRateID = vatRateID;
+        this.note = note;
+        this.status = status;
+
+    }
+
+    public int getVatRateID() {
+        return vatRateID;
+    }
+
+    public void setVatRateID(int vatRateID) {
+        this.vatRateID = vatRateID;
+    }
+
+    public BigDecimal getVatAmount() {
+        return VatAmount;
+    }
+
+    public void setVatAmount(BigDecimal VatAmount) {
+        this.VatAmount = VatAmount;
+    }
+
+    public BigDecimal getTotalAmountWithVAT() {
+        // Chuyển đổi totalAmount sang BigDecimal trước khi cộng để đảm bảo độ chính xác
+        BigDecimal totalAmountDecimal = (totalAmount != null) ? new BigDecimal(totalAmount.toString()) : BigDecimal.ZERO;
+        BigDecimal finalVatAmount = (VatAmount != null) ? VatAmount : BigDecimal.ZERO;
+
+        return totalAmountDecimal.add(finalVatAmount);
     }
 
     public String getEmployeeName() {
@@ -152,11 +222,11 @@ public class Invoice {
         this.invoiceDate = invoiceDate;
     }
 
-    public Double getTotalAmount() {
+    public BigDecimal getTotalAmount() {
         return totalAmount;
     }
 
-    public void setTotalAmount(Double totalAmount) {
+    public void setTotalAmount(BigDecimal totalAmount) {
         this.totalAmount = totalAmount;
     }
 

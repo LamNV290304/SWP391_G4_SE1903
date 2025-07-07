@@ -51,7 +51,7 @@ public class ReceiptVoucherDAO {
             }
 
             ps.setTimestamp(4, new Timestamp(rv.getReceiptDate().getTime()));
-            ps.setDouble(5, rv.getAmount());
+          //  ps.setDouble(5, rv.getAmount());
             ps.setString(6, rv.getNote());
             ps.setBoolean(7, rv.isStatus());
             ps.setTimestamp(8, new Timestamp(rv.getCreatedDate().getTime()));
@@ -91,7 +91,7 @@ public class ReceiptVoucherDAO {
                 ps.setNull(3, Types.INTEGER);
             }
             ps.setTimestamp(4, new Timestamp(rv.getReceiptDate().getTime()));
-            ps.setDouble(5, rv.getAmount());
+            //ps.setDouble(5, rv.getAmount());
             ps.setString(6, rv.getNote());
             ps.setBoolean(7, rv.isStatus());
             ps.setTimestamp(8, new Timestamp(rv.getCreatedDate().getTime()));

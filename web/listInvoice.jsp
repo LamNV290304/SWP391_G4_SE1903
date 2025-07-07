@@ -185,16 +185,17 @@
                                                     <c:if test="${not empty param.searchQuery}">
                                                         <c:param name="searchQuery" value="${param.searchQuery}" />
                                                     </c:if>
-                                             
+
                                                     <c:if test="${empty param.action && empty param.startDate && empty param.endDate && empty param.searchQuery}">
                                                         <c:param name="action" value="list" />
                                                     </c:if>
                                                 </c:url>
 
                                                 <li class="page-item <c:if test="${currentPage == 1}">disabled</c:if>">
-                                                    <a class="page-link" href="${currentPage > 1 ? baseLink : '#'} &page=${currentPage - 1}"><i class="tf-icon bx bx-chevrons-left"></i></a>
+                                                    <a class="page-link" href="${currentPage > 1 ? baseLink : '#'}**&**page=${currentPage - 1}"><i class="tf-icon bx bx-chevrons-left">
+                                                        </i>
+                                                    </a>                                               
                                                 </li>
-
                                                 <c:set var="numPagesToShow" value="5" />
                                                 <c:set var="halfPagesToShow" value="${numPagesToShow / 2}" />
 
@@ -221,8 +222,7 @@
                                                 </c:forEach>
 
                                                 <li class="page-item <c:if test="${currentPage == totalPages}">disabled</c:if>">
-                                                    <a class="page-link" href="${currentPage < totalPages ? baseLink : '#'} &page=${currentPage + 1}"><i class="tf-icon bx bx-chevrons-right"></i></a>
-                                                </li>
+                                                    <a class="page-link" href="${currentPage < totalPages ? baseLink : '#'}**&**page=${currentPage + 1}"><i class="tf-icon bx bx-chevrons-right"></i></a>                                                </li>
                                             </ul>
                                         </c:if>
                                     </nav>

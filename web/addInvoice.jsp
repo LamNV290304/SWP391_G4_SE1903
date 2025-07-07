@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %> <%-- DÒNG NÀY ĐÃ ĐƯỢC THÊM LẠI --%>
 
 <!DOCTYPE html>
 <html lang="en"
@@ -63,7 +64,7 @@
                                                     <c:if test="${employee.role != null && employee.role.id == 2}">
                                                         <option value="${employee.id}">
                                                             ${employee.fullname}
-                                                        
+
                                                         </option>
                                                     </c:if>
                                                 </c:forEach>
@@ -83,6 +84,17 @@
                                         <div class="mb-3">
                                             <label for="note" class="form-label">Ghi chú (tùy chọn):</label>
                                             <textarea class="form-control" id="note" name="note" rows="3" placeholder="Ghi chú về hóa đơn này"></textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="vatRateID" class="form-label">Tỷ lệ VAT:</label>
+                                            <select class="form-select" id="vatRateID" name="vatRateID" required>
+                                                <option value="" ${empty param_vatRateID ? 'selected' : ''}>-- Chọn tỷ lệ VAT --</option>
+                                                <c:forEach var="vatRate" items="${vatRatesList}">
+                                                    <option value="${vatRate.VATRateID}" ${param_vatRateID == vatRate.VATRateID ? 'selected' : ''}>
+                                                        <fmt:formatNumber value="${vatRate.rate * 100}" pattern="#0" />%<%-- Không có khoảng trắng thừa ở đây --%>
+                                                    </option>
+                                                </c:forEach>
+                                            </select>
                                         </div>
 
                                         <button type="submit" class="btn btn-primary me-2">

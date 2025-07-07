@@ -19,6 +19,7 @@ public class Shop {
     private boolean status;
     private Date createdDate;
     private String createdBy;
+    private String ShopCode;
  public Shop() {
     }
 
@@ -32,6 +33,28 @@ public class Shop {
         this.createdDate = createdDate;
         this.createdBy = createdBy;
     }
+
+    public Shop(int shopID, String shopName, String address, String phone, String email, boolean status, Date createdDate, String createdBy, String ShopCode) {
+        this.shopID = shopID;
+        this.shopName = shopName;
+        this.address = address;
+        this.phone = phone;
+        this.email = email;
+        this.status = status;
+        this.createdDate = createdDate;
+        this.createdBy = createdBy;
+        this.ShopCode = ShopCode;
+    }
+
+    public String getShopCode() {
+        return ShopCode;
+    }
+
+    public void setShopCode(String ShopCode) {
+        this.ShopCode = ShopCode;
+    }
+    
+    
 
     public int getShopID() {
         return shopID;
