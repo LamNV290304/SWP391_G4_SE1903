@@ -192,7 +192,7 @@
                                 color: '#fff', // Màu chữ trắng để dễ nhìn trên nền cột xanh
                                 font: {
                                     weight: 'bold',
-                                    size: 14 // Kích thước chữ
+                                    size: 11 // Kích thước chữ
                                 },
                                 anchor: 'center', // Vị trí nhãn: 'center', 'end', 'start'
                                 align: 'center'   // Căn chỉnh nhãn so với anchor
