@@ -164,6 +164,18 @@
         <servlet-name>StatisticServlet</servlet-name>
         <servlet-class>Controller.StatisticServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ItemCategoryServlet</servlet-name>
+        <servlet-class>Controller.ItemCategoryServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ShopItemServlet</servlet-name>
+        <servlet-class>Controller.ShopItemServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ReportItemServlet</servlet-name>
+        <servlet-class>Controller.ReportItemServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>StartProject</servlet-name>
         <url-pattern>/StartProject</url-pattern>
@@ -328,6 +340,18 @@
     <servlet-mapping>
         <servlet-name>StatisticServlet</servlet-name>
         <url-pattern>/StatisticServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ItemCategoryServlet</servlet-name>
+        <url-pattern>/ItemCategoryServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ShopItemServlet</servlet-name>
+        <url-pattern>/ShopItemServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ReportItemServlet</servlet-name>
+        <url-pattern>/ReportItemServlet</url-pattern>
     </servlet-mapping>
     <error-page>
         <error-code>404</error-code>

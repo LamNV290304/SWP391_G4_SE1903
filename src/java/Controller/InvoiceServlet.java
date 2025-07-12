@@ -479,9 +479,9 @@ public class InvoiceServlet extends HttpServlet {
                 return;
             }
 
-            BigDecimal unitPrice = new BigDecimal(unitPriceStr); 
+            BigDecimal unitPrice = new BigDecimal(unitPriceStr);
             int quantity = Integer.parseInt(quantityStr);
-            double discount = Double.parseDouble(discountStr); 
+            double discount = Double.parseDouble(discountStr);
 
             InvoiceDetail oldDetail = idetail.getInvoiceDetailByInvoiceDetailID(invoiceDetailID);
             if (oldDetail == null) {
@@ -533,28 +533,28 @@ public class InvoiceServlet extends HttpServlet {
 
         if (invoice != null) {
             List<InvoiceDetail> currentInvoiceDetails = idetail.getDetailByInvoiceID(invoiceID);
-            double totalAmountBeforeVAT = 0; 
+            double totalAmountBeforeVAT = 0;
 
             for (InvoiceDetail d : currentInvoiceDetails) {
-             
+
                 totalAmountBeforeVAT += d.getTotalPrice();
             }
 
             VATRate selectedVatRate = vatRateDAO.getVATRateById(invoice.getVatRateID());
             double vatPercentage = 0.0;
             if (selectedVatRate != null && selectedVatRate.getRate() != null) {
-              
+
                 vatPercentage = selectedVatRate.getRate().doubleValue();
             } else {
                 System.err.println("Warning: VAT Rate not found for Invoice ID: " + invoiceID + ". Using 0% VAT.");
-               
+
             }
 
             double vatAmount = totalAmountBeforeVAT * vatPercentage;
-            vatAmount = Math.round(vatAmount * 100.0) / 100.0; 
+            vatAmount = Math.round(vatAmount * 100.0) / 100.0;
 
             double finalTotalAmount = totalAmountBeforeVAT + vatAmount;
-            finalTotalAmount = Math.round(finalTotalAmount * 100.0) / 100.0; 
+            finalTotalAmount = Math.round(finalTotalAmount * 100.0) / 100.0;
 
             invoice.setTotalAmount(BigDecimal.valueOf(finalTotalAmount));
             invoice.setVatAmount(BigDecimal.valueOf(vatAmount));
@@ -588,8 +588,8 @@ public class InvoiceServlet extends HttpServlet {
             int productID = Integer.parseInt(productIDParam.trim());
             int shopID = Integer.parseInt(shopIDParam.trim());
             int quantity = Integer.parseInt(quantityStr.trim());
-            BigDecimal unitPrice = new BigDecimal(unitPriceStr); 
-            Double discount = 0.0; 
+            BigDecimal unitPrice = new BigDecimal(unitPriceStr);
+            Double discount = 0.0;
             if (discountStr != null && !discountStr.trim().isEmpty()) {
                 discount = Double.parseDouble(discountStr);
             }
@@ -600,11 +600,11 @@ public class InvoiceServlet extends HttpServlet {
             boolean success = idetail.addInvoiceDetailAndUpdateInventory(detail, shopID);
 
             if (success) {
-           
-                updateInvoiceTotals(request, invoiceID); 
+
+                updateInvoiceTotals(request, invoiceID);
 
                 response.sendRedirect(request.getContextPath() + "/InvoiceServlet?action=manageInvoiceDetails&invoiceID=" + invoiceID + "&customerID=" + customerIDParam);
-                return; 
+                return;
             } else {
                 request.setAttribute("errorMessage", "Thêm chi tiết hóa đơn thất bại hoặc không đủ số lượng sản phẩm trong kho.");
                 request.setAttribute("invoiceID", invoiceIDParam);
@@ -616,7 +616,7 @@ public class InvoiceServlet extends HttpServlet {
             request.setAttribute("invoiceID", invoiceIDParam);
             showManageInvoiceDetailForm(request, response);
         } catch (Exception e) {
-            e.printStackTrace(); 
+            e.printStackTrace();
             request.setAttribute("errorMessage", "Lỗi hệ thống xảy ra khi thêm chi tiết: " + e.getMessage());
             request.setAttribute("invoiceID", invoiceIDParam);
             showManageInvoiceDetailForm(request, response);
@@ -646,15 +646,15 @@ public class InvoiceServlet extends HttpServlet {
         request.setAttribute("vatRatesList", vatRatesList);
 
         try {
-            
+
             int defaultCustomerId = cDAO.getGuestCustomerID();
             if (defaultCustomerId == -1) {
                 errorMessage = "Lỗi: Không tìm thấy ID khách vãng lai trong cơ sở dữ liệu.";
-             
+
             }
 
             String customerIDParam = request.getParameter("customerID");
-            int customerID = defaultCustomerId; 
+            int customerID = defaultCustomerId;
             if (customerIDParam != null && !customerIDParam.isEmpty()) {
                 try {
                     customerID = Integer.parseInt(customerIDParam);
@@ -662,11 +662,11 @@ public class InvoiceServlet extends HttpServlet {
                     System.err.println("Cảnh báo: customerID không phải số, sử dụng mặc định. Chi tiết: " + customerIDParam);
                 }
             }
-        
+
             request.setAttribute("param_customerID", customerIDParam);
 
             String employeeIDParam = request.getParameter("employeeID");
-            int employeeID = -1; 
+            int employeeID = -1;
             if (employeeIDParam == null || employeeIDParam.isEmpty()) {
                 errorMessage = "Nhân viên không được để trống.";
             } else {
@@ -677,7 +677,7 @@ public class InvoiceServlet extends HttpServlet {
                     System.err.println("NumberFormatException for employeeID: " + employeeIDParam);
                 }
             }
-           
+
             request.setAttribute("param_employeeID", employeeIDParam);
 
             String shopIDParam = request.getParameter("shopID");
@@ -692,7 +692,7 @@ public class InvoiceServlet extends HttpServlet {
                     System.err.println("NumberFormatException for shopID: " + shopIDParam);
                 }
             }
-      
+
             request.setAttribute("param_shopID", shopIDParam);
 
             // Xử lý vatRateID
@@ -711,7 +711,7 @@ public class InvoiceServlet extends HttpServlet {
             request.setAttribute("param_vatRateID", vatRateIDParam);
 
             String note = request.getParameter("note");
-            request.setAttribute("param_note", note); 
+            request.setAttribute("param_note", note);
 
             if (errorMessage != null) {
                 request.setAttribute("errorMessage", errorMessage);
@@ -724,24 +724,24 @@ public class InvoiceServlet extends HttpServlet {
             newInvoice.setEmployeeID(employeeID);
             newInvoice.setShopID(shopID);
             newInvoice.setInvoiceDate(Timestamp.from(Instant.now()));
-            newInvoice.setTotalAmount(BigDecimal.ZERO); 
+            newInvoice.setTotalAmount(BigDecimal.ZERO);
             newInvoice.setNote(note);
             newInvoice.setStatus(false);
             newInvoice.setVatRateID(vatRateID);
-            newInvoice.setVatAmount(BigDecimal.ZERO); 
+            newInvoice.setVatAmount(BigDecimal.ZERO);
 
             int generatedInvoiceID = idao.addInvoice(newInvoice);
 
             if (generatedInvoiceID > 0) {
                 successMessage = "Hóa đơn đã được thêm thành công! Vui lòng thêm chi tiết.";
                 response.sendRedirect("InvoiceServlet?action=manageInvoiceDetails&invoiceID=" + generatedInvoiceID);
-                return; 
+                return;
             } else {
                 errorMessage = "Không thể thêm hóa đơn vào cơ sở dữ liệu. Vui lòng thử lại.";
-          
+
             }
 
-        } catch (Exception e) { 
+        } catch (Exception e) {
             errorMessage = "Đã xảy ra lỗi hệ thống khi thêm hóa đơn: " + e.getMessage();
             e.printStackTrace();
         }
@@ -926,7 +926,7 @@ public class InvoiceServlet extends HttpServlet {
         String invoiceIdParam = request.getParameter("invoiceID");
 
         if (invoiceIdParam == null || invoiceIdParam.trim().isEmpty()) {
-       
+
             request.getSession().setAttribute("errorMessage", "Mã hóa đơn không hợp lệ để hoàn tất.");
             response.sendRedirect(request.getContextPath() + "/InvoiceServlet?action=list"); // Redirect về trang danh sách
             return;
@@ -942,16 +942,16 @@ public class InvoiceServlet extends HttpServlet {
                 return;
             }
 
-            if (invoice.isStatus()) { 
+            if (invoice.isStatus()) {
                 request.getSession().setAttribute("errorMessage", "Hóa đơn này đã được hoàn tất rồi.");
                 response.sendRedirect(request.getContextPath() + "/InvoiceServlet?action=list");
                 return;
             }
 
             try {
-        
+
                 updateInvoiceTotals(request, invoiceID);
-             
+
             } catch (Exception e) {
                 e.printStackTrace();
                 request.getSession().setAttribute("errorMessage", "Hoàn tất hóa đơn thất bại do lỗi tính toán tổng tiền: " + e.getMessage());
@@ -997,11 +997,24 @@ public class InvoiceServlet extends HttpServlet {
                 response.sendRedirect("InvoiceServlet?action=list");
                 return;
             }
+            List<InvoiceDetail> detailss = idetail.getDetailByInvoiceID(invoiceID);
+            if (detailss == null) {
+                detailss = new ArrayList<>();
+            }
+            double totalAmountBeforeVAT = 0;
+            for (InvoiceDetail detail : detailss) {
+                totalAmountBeforeVAT += detail.getTotalPrice();
+            }
 
+            double vatRate = 0.10;
+            double vatAmount = totalAmountBeforeVAT * vatRate;
+
+            request.setAttribute("totalAmountBeforeVAT", totalAmountBeforeVAT);
+            request.setAttribute("vatAmount", vatAmount);
             try {
                 updateInvoiceTotals(request, invoiceID);
-          
-                invoice = idao.searchInvoice(invoiceID); 
+
+                invoice = idao.searchInvoice(invoiceID);
                 if (invoice == null) {
                     request.getSession().setAttribute("errorMessage", "Không tìm thấy hóa đơn sau khi cập nhật tổng tiền.");
                     response.sendRedirect("InvoiceServlet?action=list");
@@ -1013,7 +1026,7 @@ public class InvoiceServlet extends HttpServlet {
                 response.sendRedirect("InvoiceServlet?action=list");
                 return;
             }
-    
+
             List<InvoiceDetail> details = idetail.getDetailByInvoiceID(invoiceID);
             if (details == null) {
                 details = new ArrayList<>();
@@ -1048,7 +1061,7 @@ public class InvoiceServlet extends HttpServlet {
                 }
             }
 
-            request.setAttribute("selectedInvoice", invoice); 
+            request.setAttribute("selectedInvoice", invoice);
             request.setAttribute("invoiceDetails", details);
             request.setAttribute("selectedCustomer", selectedCustomer);
             request.setAttribute("inventories", inventoriesInShop);
@@ -1072,7 +1085,6 @@ public class InvoiceServlet extends HttpServlet {
     private void sendInvoiceEmail(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String invoiceIdStr = request.getParameter("invoiceID");
-
         request.setAttribute("invoiceID", invoiceIdStr);
 
         if (invoiceIdStr == null || invoiceIdStr.isEmpty()) {
@@ -1094,6 +1106,19 @@ public class InvoiceServlet extends HttpServlet {
             List<InvoiceDetail> invoiceDetails = idetail.getDetailByInvoiceID(invoiceID);
             List<Product> products = pDAO.getAllProducts();
             List<Inventory> inventoriesInShop = inventoryDAO.getAllInventoriesInStore(selectedInvoice.getShopID());
+            double totalAmountBeforeVAT = 0;
+            if (invoiceDetails != null) {
+                for (InvoiceDetail detail : invoiceDetails) {
+                    totalAmountBeforeVAT += detail.getTotalPrice();
+                }
+            }
+
+            double vatRate = 0.10; 
+            double vatAmount = totalAmountBeforeVAT * vatRate;
+
+            request.setAttribute("totalAmountBeforeVAT", totalAmountBeforeVAT);
+            request.setAttribute("vatAmount", vatAmount);
+            request.setAttribute("vatRate", vatRate * 100);
             request.setAttribute("selectedInvoice", selectedInvoice);
             request.setAttribute("selectedCustomer", selectedCustomer);
             request.setAttribute("invoiceDetails", invoiceDetails);

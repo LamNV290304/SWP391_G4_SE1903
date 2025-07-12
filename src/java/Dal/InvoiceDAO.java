@@ -7,12 +7,6 @@ package Dal;
 import Context.DBContext;
 import Models.Invoice;
 import Models.InvoiceDetail;
-import Models.VATRate;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-
-import java.util.ArrayList;
-
 import java.sql.Date;
 import java.sql.Connection;
 import java.sql.Statement;
@@ -390,7 +384,7 @@ public class InvoiceDAO {
                         rs.getInt("ShopID"),
                         rs.getTimestamp("InvoiceDate"),
                         rs.getBigDecimal("TotalAmount"),
-                        rs.getBigDecimal("VatAmount"), // Lấy VatAmount
+                        rs.getBigDecimal("VatAmount"), 
                         rs.getInt("VATRateID"),
                         rs.getString("Note"),
                         rs.getBoolean("Status"),
@@ -444,19 +438,17 @@ public class InvoiceDAO {
 
         Connection dbConnection = null;
         try {
-            // 1. Lấy kết nối từ DBContext
-            DBContext dbContext = new DBContext("SWP1"); // Thay "SWP1" bằng tên DB của bạn
+     
+            DBContext dbContext = new DBContext("SWP1"); 
             dbConnection = dbContext.getConnection();
 
             if (dbConnection != null) {
                 System.out.println("Kết nối cơ sở dữ liệu thành công!");
 
-                // 2. Khởi tạo InvoiceDAO
                 InvoiceDAO invoiceDAO = new InvoiceDAO(dbConnection);
 
-                // 3. Test chức năng searchInvoiceByKey
                 System.out.println("\n--- Test searchInvoiceByKey ---");
-                String searchKey = "c"; // Thay bằng từ khóa bạn muốn tìm (ví dụ: mã HĐ hoặc tên KH)
+                String searchKey = "c"; 
                 List<Invoice> searchResults = invoiceDAO.searchInvoiceByKey(searchKey);
 
                 if (searchResults.isEmpty()) {

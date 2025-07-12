@@ -280,6 +280,28 @@
                 </li>
             </ul>
         </li>
+           <li class="menu-header small text-uppercase"><span class="menu-header-text">Đồ dùng cửa hàng</span></li>
+        <!-- Forms -->
+        <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-detail"></i>
+                <div data-i18n="Form Elements">Đồ dùng</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="ShopItemServlet" class="menu-link">
+                        <div data-i18n="Basic Inputs">Quản lí đồ dùng</div>
+                    </a>
+                </li>
+                 <li class="menu-item">
+                    <a href="ReportItemServlet" class="menu-link">
+                        <div data-i18n="Basic Inputs">Thống kê</div>
+                    </a>
+                </li>
+               
+            </ul>
+        </li>
+        
         <!-- Danh M?c -->
         <li class="menu-item">
             <a href="tables-basic.html" class="menu-link">
