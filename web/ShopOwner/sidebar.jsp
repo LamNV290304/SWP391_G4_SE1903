@@ -37,7 +37,7 @@
                 <c:when test="${sessionScope.shopOwner.id == 1}">
                     <ul class="menu-sub">
                         <li class="menu-item">
-                            <a href="ShowPaymentHistory" class="menu-link" >
+                            <a href="AdminPaymentHistory" class="menu-link" >
                                 <div data-i18n="Basic">Lịch sử thanh toán</div>
                             </a>
                         </li>
@@ -90,7 +90,7 @@
                 </a>
                 <ul class="menu-sub">
                     <li class="menu-item">
-                        <a href="pages-misc-error.html" class="menu-link">
+                        <a href="ShowListShopOwner" class="menu-link">
                             <div data-i18n="Basic">Danh sách khách hàng</div>
                         </a>
                     </li>

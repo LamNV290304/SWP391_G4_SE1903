@@ -7,6 +7,7 @@ package Dal;
 import Context.DBContext;
 import Context.DatabaseHelper;
 import DTO.ShopSubscriptionDto;
+import Models.ServicePackage;
 import Models.ShopSubscription;
 import java.sql.*;
 import java.util.Calendar;
@@ -28,7 +29,8 @@ public class ShopSubscriptionDAO {
                 + "FROM ShopSubscriptions ss "
                 + "JOIN ShopOwners so ON ss.ShopOwnerId = so.Id "
                 + "JOIN ServicePackages sp ON ss.PackageId = sp.Id "
-                + "WHERE ss.ShopOwnerId = ? and ss.IsActive = 1";
+                + "WHERE ss.ShopOwnerId = ? and ss.IsActive = 1 "
+                + "ORDER BY ss.Id DESC ";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, shopOwnerId);
@@ -57,32 +59,42 @@ public class ShopSubscriptionDAO {
 
     public static void main(String[] args) {
         try {
-            // Kết nối tới DB
-            Connection connection = DBContext.getCentralConnection(); // đảm bảo method này tồn tại
+            // Bước 1: Kết nối tới database
+            Connection connection = DBContext.getCentralConnection();
 
-            // Khởi tạo DAO
+            // Bước 2: Khởi tạo DAO
             ShopSubscriptionDAO dao = new ShopSubscriptionDAO(connection);
+            ServicePackageDAO packageDAO = new ServicePackageDAO(connection);
 
-            // Test với một shopOwnerId cụ thể
-            int shopOwnerId = 8003; // sửa ID này theo dữ liệu có sẵn trong DB
+            // Bước 3: Gán ID bạn muốn test
+            int subscriptionId = 1004; // <- sửa ID này cho phù hợp với dữ liệu thực tế trong DB
 
-            ShopSubscriptionDto subscription = dao.getActiveSubscriptionByShopId(shopOwnerId);
+            // Bước 4: Gọi hàm getById()
+            ShopSubscription sub = dao.getById(subscriptionId);
 
-            // In kết quả
-            if (subscription != null) {
-                System.out.println("Subscription ID: " + subscription.getId());
-                System.out.println("Shop Name: " + subscription.getShopName());
-                System.out.println("Package Name: " + subscription.getPackageName());
-                System.out.println("Start Date: " + subscription.getStartDate());
-                System.out.println("End Date: " + subscription.getEndDate());
-                System.out.println("Price: " + subscription.getPackagePrice());
-                System.out.println("Description: " + subscription.getPackageDescription());
+            // Bước 5: In ra kết quả kiểm tra
+            if (sub != null) {
+                System.out.println("Subscription ID: " + sub.getId());
+                System.out.println("Shop Owner ID: " + sub.getShopOwnerId());
+                System.out.println("Package ID: " + sub.getPackageId());
+                System.out.println("Start Date: " + sub.getStartDate());
+                System.out.println("End Date: " + sub.getEndDate());
+                System.out.println("Duration In Days: " + sub.getPackageDurationInDays());
             } else {
-                System.out.println("Không tìm thấy đăng ký hoạt động nào cho shopOwnerId = " + shopOwnerId);
+                System.out.println("Không tìm thấy subscription với ID = " + subscriptionId);
             }
+            ServicePackage servicePackage = packageDAO.getById(sub.getPackageId());
 
+            Date now = new Date(System.currentTimeMillis());
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(sub.getEndDate().after(now) ? sub.getEndDate() : now);
+            cal.add(Calendar.DATE, servicePackage.getDurationInDays());
+            Date newExpireDate = new Date(cal.getTimeInMillis());
+            
+            System.out.println(newExpireDate);
+
+            // Đóng kết nối
             connection.close();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
