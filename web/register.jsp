@@ -74,12 +74,12 @@
                     <!-- Register Card -->
                     <div class="card">
                         <div class="card-body">
-                            <h4 class="mb-2">Make your business easy 🚀</h4>
+                            <h4 class="mb-2">Dễ dàng quản lí cửa hàng hơn 🚀</h4>
 
                             <div class="">
                                 <div class="card mb-4">
                                     <div class="card-header d-flex align-items-center justify-content-between">
-                                        <h5 class="mb-0">Register</h5>
+                                        <h5 class="mb-0">Đăng ký</h5>
                                     </div>
                                     <div class="card-body">
                                         <c:if test="${not empty error}">
@@ -89,57 +89,64 @@
                                         </c:if>
                                         <form method="post" action="Register">
                                             <div class="row mb-3">
-                                                <label class="col-sm-2 col-form-label" for="username">Username</label>
+                                                <label class="col-sm-2 col-form-label" for="username">Tên đăng nhập:</label>
                                                 <div class="col-sm-10">
-                                                    <input type="text" class="form-control" id="username" name="username" placeholder="Your username" required />
+                                                    <input type="text" class="form-control" id="username" name="username" placeholder="Tên đăng nhập" required />
                                                 </div>
                                             </div>
 
                                             <div class="row mb-3">
-                                                <label class="col-sm-2 col-form-label" for="password">Password</label>
+                                                <label class="col-sm-2 col-form-label" for="password">Mật khẩu:</label>
                                                 <div class="col-sm-10">
-                                                    <input type="password" class="form-control" id="password" name="password" placeholder="Your password" required minlength="8"/>
+                                                    <input type="password" class="form-control" id="password" name="password" placeholder="Mật khẩu" required minlength="8"/>
                                                 </div>
                                             </div>
 
                                             <div class="row mb-3">
-                                                <label class="col-sm-2 col-form-label" for="password">Confirm Password</label>
+                                                <label class="col-sm-2 col-form-label" for="password">Xác nhận mật khẩu:</label>
                                                 <div class="col-sm-10">
-                                                    <input type="password" class="form-control" id="password" name="re-password" placeholder="Confirm your password" required minlength="8"/>
+                                                    <input type="password" class="form-control" id="password" name="re-password" placeholder="Xác nhận mật khẩu của bạn" required minlength="8"/>
                                                 </div>
                                             </div>
 
                                             <div class="row mb-3">
-                                                <label class="col-sm-2 col-form-label" for="fullname">Fullname</label>
+                                                <label class="col-sm-2 col-form-label" for="fullname">Tên đầy đủ: </label>
                                                 <div class="col-sm-10">
                                                     <input type="text" class="form-control" id="fullname" name="fullname" placeholder="John Doe" required />
                                                 </div>
                                             </div>
 
                                             <div class="row mb-3">
-                                                <label class="col-sm-2 col-form-label" for="email">Email</label>
+                                                <label class="col-sm-2 col-form-label" for="email">Email: </label>
                                                 <div class="col-sm-10">
                                                     <input type="email" class="form-control" id="email" name="email" placeholder="john@example.com" required />
                                                 </div>
                                             </div>
 
                                             <div class="row mb-3">
-                                                <label class="col-sm-2 col-form-label" for="phone">Phone</label>
+                                                <label class="col-sm-2 col-form-label" for="phone">Số điện thoại: </label>
                                                 <div class="col-sm-10">
-                                                    <input type="text" class="form-control" id="phone" name="phone" placeholder="0658 799 894" required />
+                                                    <input type="number" class="form-control" id="phone" name="phone" placeholder="0658 799 894" required />
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row mb-3">
+                                                <label class="col-sm-2 col-form-label" for="taxNumber">Mã số thuế: </label>
+                                                <div class="col-sm-10">
+                                                    <input type="number" class="form-control" id="taxNumber" name="taxNumber" placeholder="Mã số thuế" required />
                                                 </div>
                                             </div>
 
                                             <div class="row mb-3">
-                                                <label class="col-sm-2 col-form-label" for="shopName">Shop Name</label>
+                                                <label class="col-sm-2 col-form-label" for="shopName">Tên cửa hàng:</label>
                                                 <div class="col-sm-10">
-                                                    <input type="text" class="form-control" id="shopName" name="shopName" placeholder="Your Shop Name" required />
+                                                    <input type="text" class="form-control" id="shopName" name="shopName" placeholder="Tên cửa hàng của bạn" required />
                                                 </div>
                                             </div>
 
                                             <div class="row justify-content-end">
                                                 <div class="col-sm-10">
-                                                    <button type="submit" class="btn btn-primary d-grid w-100">Sign up</button>
+                                                    <button type="submit" class="btn btn-primary d-grid w-100">Đăng ký</button>
                                                 </div>
                                             </div>
                                         </form>
@@ -150,9 +157,9 @@
 
 
                             <p class="text-center">
-                                <span>Already have an account?</span>
+                                <span>Đã có tài khoản ?</span>
                                 <a href="login.jsp">
-                                    <span>Sign in instead</span>
+                                    <span>Đăng nhập</span>
                                 </a>
                             </p>
                         </div>

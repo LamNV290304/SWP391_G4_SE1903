@@ -87,6 +87,7 @@ public class Register extends HttpServlet {
             String email = request.getParameter("email");
             String phone = request.getParameter("phone");
             String shopName = request.getParameter("shopName");
+            String taxNumber = request.getParameter("taxNumber"); 
 
             if (!password.equals(repassword)) {
                 request.setAttribute("error", "Mật khẩu không khớp!");
@@ -130,7 +131,7 @@ public class Register extends HttpServlet {
             }
             
             String hasPassword = PasswordUtils.hashPassword(password);
-            ShopOwner shopOwner = new ShopOwner(databaseName, shopCode, shopName, 0, username, hasPassword, fullname, phone, email, false, null);
+            ShopOwner shopOwner = new ShopOwner(databaseName, shopCode, shopName, taxNumber, 0, username, hasPassword, fullname, phone, email, false, null);
             
             shopOwnerDAO.addShopOwner(shopOwner);
 

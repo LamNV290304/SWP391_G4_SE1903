@@ -80,7 +80,7 @@
                                         <div class="row mb-3">
                                             <div class="col-md-6">
                                                 <label for="phone" class="form-label">Số điện thoại</label>
-                                                <input type="text" class="form-control" id="phone" name="phone" required />
+                                                <input type="number" class="form-control" id="phone" name="phone" required />
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="username" class="form-label">Tên tài khoản</label>

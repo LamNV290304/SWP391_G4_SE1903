@@ -75,7 +75,7 @@ public final class DatabaseHelper {
             ps.setString(1, shopCode);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return rs.getString("DatabaseName");
+                return rs.getString("ShopCode");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -334,6 +334,13 @@ public final class DatabaseHelper {
                                              FOREIGN KEY (InventoryCheckID) REFERENCES InventoryCheck(InventoryCheckID),
                                              FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
                                          );
+                                        CREATE TABLE OTPs (
+                                                              Id INT IDENTITY(1,1) PRIMARY KEY,
+                                                              Email NVARCHAR(100) NOT NULL,
+                                                              OTP CHAR(6) NOT NULL,
+                                                              ExpiredAt DATETIME NOT NULL,
+                                                              Status INT DEFAULT 0
+                                                          );
                                         """;
 
         String insertRolesSQL = """
