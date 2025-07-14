@@ -15,7 +15,7 @@
                 line-height: 1.6;
             }
             .container {
-                width: 80%; /* hoặc fixed width như 600px */
+                width: 80%; 
                 margin: 20px auto;
                 border: 1px solid #eee;
                 padding: 20px;
@@ -53,7 +53,7 @@
                 margin-bottom: 20px;
             }
             .total-row {
-                background-color: #e0f2f7; /* Màu nền nhẹ cho tổng cộng */
+                background-color: #e0f2f7;
                 font-weight: bold;
             }
         </style>

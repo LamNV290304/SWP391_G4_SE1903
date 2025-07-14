@@ -7,6 +7,8 @@ package Controller;
 import DTO.SalesEmployeeStatisticDto;
 import Context.DBContext;
 import Dal.EmployeeDAO;
+import Dal.ShopDAO;
+import Models.Shop;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -23,7 +25,7 @@ public class StatisticServlet extends HttpServlet {
 
     DBContext connection = new DBContext("SWP1");
     EmployeeDAO eDAO = new EmployeeDAO(connection.getConnection());
-
+    ShopDAO sDAO = new ShopDAO();
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -39,25 +41,53 @@ public class StatisticServlet extends HttpServlet {
         String statisticTitle; // Khai báo nhưng không gán giá trị mặc định ở đây, sẽ được gán trong khối try
         String startDateStr = request.getParameter("startDate");
         String endDateStr = request.getParameter("endDate");
-
+        Integer selectedShopId = null;
         Date startDate = null;
         Date endDate = null;
         try {
-            // Kiểm tra xem EmployeeDAO đã được khởi tạo thành công và kết nối có mở không
-            if (eDAO == null) {
-                // Log lỗi và ném ngoại lệ nếu kết nối database không sẵn sàng
+            // --- 1. Lấy danh sách các cửa hàng và đặt vào request ---
+            List<Shop> shops = sDAO.getAllShops("SWP1");
+            request.setAttribute("shops", shops);
 
+            // --- 2. Đọc tham số shopId từ request ---
+            String shopIdParam = request.getParameter("shopId");
+            if (shopIdParam != null && !shopIdParam.isEmpty()) {
+                try {
+                    selectedShopId = Integer.parseInt(shopIdParam);
+                    request.setAttribute("selectedShopId", selectedShopId); // Giữ lại lựa chọn trên dropdown
+                } catch (NumberFormatException e) {
+                   
+                    request.setAttribute("errorMessage", "ID cửa hàng không hợp lệ.");
+                    request.getRequestDispatcher("/error.jsp").forward(request, response);
+                    return; // Dừng xử lý nếu shopId không hợp lệ
+                }
             }
 
-            if (startDateStr != null && !startDateStr.isEmpty() && endDateStr != null && !endDateStr.isEmpty()) {
+            // Lưu trữ ngày tháng về lại request để hiển thị trên input type="date"
+            if (startDateStr != null && !startDateStr.isEmpty()) {
                 startDate = Date.valueOf(startDateStr);
+                request.setAttribute("startDate", startDateStr);
+            }
+            if (endDateStr != null && !endDateStr.isEmpty()) {
                 endDate = Date.valueOf(endDateStr);
-                salesStatistics = eDAO.getSalesStatisticsForSalesEmployeesByDateRange(startDate, endDate);
+                request.setAttribute("endDate", endDateStr);
+            }
+
+            // --- 4. Gọi DAO để lấy dữ liệu thống kê, truyền cả shopId ---
+            if (startDate != null && endDate != null) {
+                // Có khoảng ngày, gọi phương thức có tham số ngày và shopId
+                salesStatistics = eDAO.getSalesStatisticsForSalesEmployeesByDateRange(startDate, endDate, selectedShopId);
                 statisticTitle = "Thống kê Doanh số từ " + startDateStr + " đến " + endDateStr;
             } else {
-                // Lấy thống kê tổng cộng nếu không có khoảng thời gian
-                salesStatistics = eDAO.getSalesStatisticsForSalesEmployees();
+                // Không có khoảng ngày, gọi phương thức chỉ có shopId (tổng cộng)
+                salesStatistics = eDAO.getSalesStatisticsForSalesEmployees(selectedShopId);
                 statisticTitle = "Thống kê Doanh số của Nhân viên Bán hàng (Tổng cộng)";
+            }
+
+            // --- 5. Thêm tên cửa hàng vào tiêu đề thống kê nếu có lọc ---
+            if (selectedShopId != null) {
+                Shop shopName = sDAO.getShopByID(selectedShopId,"SWP1");
+                statisticTitle += " (Cửa hàng: " + shopName.getShopName() + ")";
             }
 
             request.setAttribute("statisticTitle", statisticTitle);

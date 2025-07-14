@@ -45,7 +45,7 @@
                         <div class="container-xxl flex-grow-1 container-p-y">
                             <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Quản lý /</span> Thêm Đồ dùng Cửa hàng mới</h4>
 
-                            <%-- Hiển thị thông báo thành công/thất bại --%>
+                       
                             <c:if test="${not empty sessionScope.successMessage}">
                                 <div class="alert alert-success alert-dismissible" role="alert">
                                     ${sessionScope.successMessage}
@@ -67,7 +67,7 @@
                                 </div>
                                 <c:remove var="errorMessage" scope="request"/>
                             </c:if>
-                            <%-- Form Thêm mới --%>
+                      
                             <div class="card mb-4">
                                 <h5 class="card-header">Thêm Đồ dùng mới</h5>
                                 <div class="card-body">
@@ -80,12 +80,7 @@
                                                 <input type="text" class="form-control" id="itemName" name="itemName" value="${itemToEdit.itemName}" required>
                                             </div>
                                         </div>
-                                        <div class="row mb-3">
-                                            <label class="col-sm-2 col-form-label" for="description">Mô tả:</label>
-                                            <div class="col-sm-10">
-                                                <textarea class="form-control" id="description" name="description">${itemToEdit.description}</textarea>
-                                            </div>
-                                        </div>
+                                 
                                         <div class="row mb-3">
                                             <label class="col-sm-2 col-form-label" for="categoryId">Danh mục:</label>
                                             <div class="col-sm-10">
@@ -129,13 +124,13 @@
                                             </div>
                                         </div>
 
-                                        <%-- Thời gian giao dịch sẽ được tự động gán ở backend --%>
+                                
 
                                         <div class="row mb-3">
                                             <label class="col-sm-2 col-form-label" for="shopId">Cửa hàng:</label>
                                             <div class="col-sm-10">
-                                                <select class="form-select" id="shopId" name="shopId">
-                                                    <option value="">-- Chọn cửa hàng (nếu có) --</option>
+                                                <select class="form-select" id="shopId" name="shopId" required>
+                                                    <option value="">-- Chọn cửa hàng--</option>
                                                     <c:forEach var="shop" items="${shops}">
                                                         <option value="${shop.shopID}"
                                                                 <c:if test="${shop.shopID == itemToEdit.shopId}">selected</c:if>>

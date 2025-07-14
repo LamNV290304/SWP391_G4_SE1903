@@ -34,7 +34,7 @@
     <body>
         <div class="layout-wrapper layout-content-navbar">
             <div class="layout-container">
-                <%-- Include Sidebar --%>
+
                 <jsp:include page="sidebar.jsp" />
 
                 <div class="layout-page">
@@ -71,14 +71,13 @@
                                         </div>
                                     </form>
 
-                                    <%-- Search by Keyword (Name/Description) --%>
-                                    <h6 class="mb-3">Tìm kiếm theo Tên đồ dùng hoặc ID</h6>
+                                    <h6 class="mb-3">Tìm kiếm theo Tên hoặc ID đồ dùng</h6>
                                     <form method="get" action="ShopItemServlet" class="mb-4">
                                         <input type="hidden" name="action" value="search" />
                                         <div class="mb-3">
                                             <label for="searchQuery" class="form-label">Tìm kiếm:</label>
                                             <input type="text" class="form-control" id="searchQuery" name="searchQuery"
-                                                   placeholder="Nhập tên hoặc mô tả đồ dùng"
+                                                   placeholder="Nhập tên hoặc ID đồ dùng"
                                                    value="${not empty requestScope.searchQuery ? requestScope.searchQuery : ''}" />
                                         </div>
                                         <button type="submit" class="btn btn-primary">
@@ -86,7 +85,6 @@
                                         </button>
                                     </form>
 
-                                    <%-- Message Display (from session scope, cleared after display) --%>
                                     <c:if test="${not empty sessionScope.successMessage}">
                                         <div class="alert alert-success alert-dismissible mt-3" role="alert">
                                             ${sessionScope.successMessage}
@@ -118,12 +116,12 @@
                                             <tr>
                                                 <th>ID</th>
                                                 <th>Tên Đồ dùng</th>
-                                                <th>Mô tả</th>
+
                                                 <th>Danh mục</th>
                                                 <th>Số lượng</th>
-                                                
+
                                                 <th>Giá</th>
-                                                <th>Thời gian giao dịch</th>
+                                                <th>Thời gian</th>
                                                 <th>Cửa hàng</th>
                                                 <th>Ghi chú</th>
                                                 <th>Thao tác</th>
@@ -139,7 +137,6 @@
                                                 <tr>
                                                     <td><strong>${item.itemId}</strong></td>
                                                     <td>${item.itemName}</td>
-                                                    <td>${item.description}</td>
                                                     <td>
                                                         <c:choose>
                                                             <c:when test="${not empty item.category}">
@@ -149,10 +146,14 @@
                                                         </c:choose>
                                                     </td>
                                                     <td>${item.quantity}</td>
-                                                
+
                                                     <td>
                                                         <c:if test="${item.price != null}">
-                                                            <fmt:formatNumber value="${item.price}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                                                            <c:set var="totalPrice" value="${item.price * item.quantity}" />
+                                                            <fmt:formatNumber value="${totalPrice}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                                                        </c:if>
+                                                        <c:if test="${item.price == null}">
+                                                            (Chưa có)
                                                         </c:if>
                                                     </td>
                                                     <td>
@@ -168,7 +169,7 @@
                                                             <c:when test="${not empty item.shop}">
                                                                 ${item.shop.shopName}
                                                             </c:when>
-                                                           
+
                                                         </c:choose>
                                                     </td>
                                                     <td>${item.notes}</td>
@@ -201,7 +202,7 @@
                                         <c:if test="${totalPages > 1}">
                                             <ul class="pagination mb-0">
                                                 <c:url var="baseLink" value="ShopItemServlet">
-                                               
+
                                                     <c:if test="${not empty param.action}">
                                                         <c:param name="action" value="${param.action}" />
                                                     </c:if>
@@ -214,7 +215,7 @@
                                                     <c:if test="${not empty param.searchQuery}">
                                                         <c:param name="searchQuery" value="${param.searchQuery}" />
                                                     </c:if>
-                                                    <%-- Default action to list if no specific action is present (e.g., first load) --%>
+
                                                     <c:if test="${empty param.action && empty param.startDate && empty param.endDate && empty param.searchQuery}">
                                                         <c:param name="action" value="list" />
                                                     </c:if>

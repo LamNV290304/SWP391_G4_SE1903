@@ -8,13 +8,16 @@ import Context.DBContext;
 import DTO.CategoryItemCountDto;
 import DTO.ShopTotalValueDto;
 import Dal.ItemCategoryDAO;
+import Dal.ShopDAO;
 import Dal.ShopItemDAO;
+import Models.Shop;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.util.List;
 import java.sql.SQLException;
 
@@ -25,8 +28,9 @@ import java.sql.SQLException;
 public class ReportItemServlet extends HttpServlet {
 
     DBContext connection = new DBContext("SWP1");
-    private ShopItemDAO shopItemDAO = new ShopItemDAO(connection.getConnection());
+    ShopItemDAO shopItemDAO = new ShopItemDAO(connection.getConnection());
     ItemCategoryDAO itemDao = new ItemCategoryDAO(connection.getConnection());
+    ShopDAO sDAO = new ShopDAO();
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -66,37 +70,65 @@ public class ReportItemServlet extends HttpServlet {
             throws ServletException, IOException, SQLException {
 
         String categoryNameFilter = request.getParameter("categoryName");
-        String shopNameFilter = request.getParameter("shopName");
+        String shopIdParam = request.getParameter("shopId"); 
+        Integer shopIdFilter = null; 
+        String shopNameFilter = null;
 
-        // Đảm bảo rằng các chuỗi rỗng được chuyển thành null nếu bạn muốn
-        // để DAO không lọc khi không có giá trị
+        BigDecimal calculatedTotalValue; 
+        if (shopIdParam != null && !shopIdParam.isEmpty()) {
+            try {
+                shopIdFilter = Integer.parseInt(shopIdParam);
+            
+                calculatedTotalValue = shopItemDAO.getTotalValueByShopId(shopIdFilter);
+           
+                Shop selectedShop = sDAO.getShopByID(shopIdFilter, "SWP1"); 
+                if (selectedShop != null) {
+                    shopNameFilter = selectedShop.getShopName();
+                }
+            } catch (NumberFormatException e) {
+                getServletContext().log("Lỗi định dạng ID cửa hàng: " + shopIdParam, e);
+                request.getSession().setAttribute("errorMessage", "ID cửa hàng không hợp lệ.");
+                request.getRequestDispatcher("shopItemReports.jsp").forward(request, response);
+                return;
+            }
+        } else {
+        
+            calculatedTotalValue = shopItemDAO.getTotalValueAllShops();
+       
+            shopNameFilter = null;
+        }
+        request.setAttribute("selectedShopTotalValue", calculatedTotalValue);
+
+
         if (categoryNameFilter != null && categoryNameFilter.trim().isEmpty()) {
             categoryNameFilter = null;
         }
-        if (shopNameFilter != null && shopNameFilter.trim().isEmpty()) {
-            shopNameFilter = null;
-        }
 
         try {
-            // 2. Gọi các phương thức DAO với các tham số tìm kiếm
             List<CategoryItemCountDto> categoryCounts = itemDao.getCategoryItemCounts(categoryNameFilter, shopNameFilter);
             request.setAttribute("categoryCounts", categoryCounts);
+
+            List<Shop> allShops = sDAO.getAllShops("SWP1");
+            request.setAttribute("allShops", allShops);
+
+            List<Models.ItemCategory> allCategories = itemDao.getAllCategories();
+            request.setAttribute("allCategories", allCategories);
 
             List<ShopTotalValueDto> shopTotalValues = shopItemDAO.getShopTotalValues(categoryNameFilter, shopNameFilter);
             request.setAttribute("shopTotalValues", shopTotalValues);
 
+            request.setAttribute("selectedCategoryName", categoryNameFilter);
+            request.setAttribute("selectedShopId", shopIdFilter);
+
         } catch (SQLException e) {
-            // Xử lý lỗi SQLException
-            e.printStackTrace(); // Log lỗi cho mục đích debug
+            e.printStackTrace();
             request.getSession().setAttribute("errorMessage", "Đã xảy ra lỗi khi tải báo cáo: " + e.getMessage());
         } catch (Exception e) {
-            // Xử lý các loại lỗi khác có thể xảy ra (ví dụ:ClassNotFoundException nếu có trong DAO)
             e.printStackTrace();
             request.getSession().setAttribute("errorMessage", "Đã xảy ra lỗi không mong muốn: " + e.getMessage());
         }
 
-        // 3. Chuyển tiếp request đến JSP
-        request.getRequestDispatcher("shopItemReports.jsp").forward(request, response); // Đảm bảo tên JSP là chính xác
+        request.getRequestDispatcher("shopItemReports.jsp").forward(request, response);
     }
 
     @Override

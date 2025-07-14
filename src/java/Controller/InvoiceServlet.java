@@ -746,9 +746,8 @@ public class InvoiceServlet extends HttpServlet {
             e.printStackTrace();
         }
 
-        // --- Phần này chỉ chạy nếu có lỗi và không có redirect ---
         request.setAttribute("errorMessage", errorMessage);
-        request.setAttribute("successMessage", successMessage); // Có thể có successMessage nếu redirect không thành công (ít xảy ra)
+        request.setAttribute("successMessage", successMessage);
         request.getRequestDispatcher("addInvoice.jsp").forward(request, response);
     }
 
