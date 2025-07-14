@@ -75,19 +75,13 @@ public class ShowPaymentHistory extends HttpServlet {
                 return;
             }
 
-            String sort = Optional.ofNullable(request.getParameter("sort")).orElse("paymentDate:desc");
-
-            Map<String, String> sortMap = new HashMap<>();
-            for (String pair : sort.split(",")) {
-                String[] parts = pair.split(":");
-                if (parts.length == 2) {
-                    sortMap.put(parts[0], parts[1]);
-                }
-            }
+            // Chỉ lấy sort theo paymentDate, mặc định là desc
+            String sortDir = Optional.ofNullable(request.getParameter("sort")).orElse("desc");
+            String sort = "paymentDate:" + sortDir;
 
             // Gói dịch vụ
-            String packageIdParam = request.getParameter("packageId");
             Integer selectedPackageId = null;
+            String packageIdParam = request.getParameter("packageId");
             if (packageIdParam != null && !packageIdParam.isEmpty()) {
                 try {
                     selectedPackageId = Integer.parseInt(packageIdParam);
@@ -108,27 +102,30 @@ public class ShowPaymentHistory extends HttpServlet {
             }
             int offset = (page - 1) * limit;
 
-            Connection conn = DBContext.getCentralConnection();
-            PaymentDAO paymentDAO = new PaymentDAO(conn);
-            ServicePackageDAO packageDAO = new ServicePackageDAO(conn);
+            try (Connection conn = DBContext.getCentralConnection()) {
+                PaymentDAO paymentDAO = new PaymentDAO(conn);
+                ServicePackageDAO packageDAO = new ServicePackageDAO(conn);
 
-            List<Payment> payments = paymentDAO.getPaymentsByShopOwner(shopOwner.getId(), offset, limit, sort, selectedPackageId, fromDateStr, toDateStr);
+                List<Payment> payments = paymentDAO.getPaymentsByShopOwner(
+                        shopOwner.getId(), offset, limit, sort, selectedPackageId, fromDateStr, toDateStr
+                );
 
-            int totalRecords = paymentDAO.countPaymentsByShopOwner(shopOwner.getId(), selectedPackageId, fromDateStr, toDateStr);
-            int totalPages = (int) Math.ceil((double) totalRecords / limit);
-            List<ServicePackage> packageList = packageDAO.getAll();
+                int totalRecords = paymentDAO.countPaymentsByShopOwner(
+                        shopOwner.getId(), selectedPackageId, fromDateStr, toDateStr
+                );
+                int totalPages = (int) Math.ceil((double) totalRecords / limit);
 
-            request.setAttribute("payments", payments);
-            request.setAttribute("sort", sort);
-            request.setAttribute("sortMap", sortMap);
-            request.setAttribute("currentPage", page);
-            request.setAttribute("totalPages", totalPages);
-            request.setAttribute("packageList", packageList);
-            request.setAttribute("selectedPackageId", selectedPackageId);
-            request.setAttribute("fromDate", fromDateStr);
-            request.setAttribute("toDate", toDateStr);
+                request.setAttribute("payments", payments);
+                request.setAttribute("sortDir", sortDir); // Để dùng hiển thị mũi tên
+                request.setAttribute("currentPage", page);
+                request.setAttribute("totalPages", totalPages);
+                request.setAttribute("packageList", packageDAO.getAll());
+                request.setAttribute("selectedPackageId", selectedPackageId);
+                request.setAttribute("fromDate", fromDateStr);
+                request.setAttribute("toDate", toDateStr);
 
-            request.getRequestDispatcher("ShopOwner/paymentHistory.jsp").forward(request, response);
+                request.getRequestDispatcher("ShopOwner/paymentHistory.jsp").forward(request, response);
+            }
         } catch (Exception ex) {
             Logger.getLogger(ShowPaymentHistory.class.getName()).log(Level.SEVERE, null, ex);
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi khi tải lịch sử thanh toán.");

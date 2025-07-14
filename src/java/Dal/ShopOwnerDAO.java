@@ -4,9 +4,12 @@
  */
 package Dal;
 
+import Context.DBContext;
 import java.sql.*;
 import Models.*;
 import static Utils.PasswordUtils.checkPassword;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -232,7 +235,96 @@ public class ShopOwnerDAO {
         return false;
     }
 
-    public static void main(String[] args) {
+    public List<ShopOwner> getAllWithPagination(String search, int offset, int limit) throws SQLException {
+        List<ShopOwner> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM ShopOwners WHERE 1=1 AND Id <> 1 ");
 
+        if (search != null && !search.isBlank()) {
+            sql.append("AND (FullName LIKE ? OR Email LIKE ?) ");
+        }
+
+        sql.append("ORDER BY Id DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int index = 1;
+
+            if (search != null && !search.isBlank()) {
+                String keyword = "%" + search + "%";
+                ps.setString(index++, keyword);
+                ps.setString(index++, keyword);
+            }
+
+            ps.setInt(index++, offset);
+            ps.setInt(index, limit);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ShopOwner owner = new ShopOwner();
+                    owner.setId(rs.getInt("Id"));
+                    owner.setEmail(rs.getString("Email"));
+                    owner.setFullname(rs.getString("FullName"));
+                    owner.setDatabaseName(rs.getString("DatabaseName"));
+                    owner.setCreateDate(rs.getDate("CreateAt"));
+                    owner.setShopName(rs.getString("ShopName"));
+                    owner.setPhone(rs.getString("Phone"));
+                    owner.setStatus(rs.getBoolean("Status"));
+                    list.add(owner);
+                }
+            }
+        }
+
+        return list;
     }
+
+    public int countAll(String search) throws SQLException {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM ShopOwners WHERE 1=1 ");
+        if (search != null && !search.isBlank()) {
+            sql.append("AND (Name LIKE ? OR Email LIKE ?)");
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int index = 1;
+            if (search != null && !search.isBlank()) {
+                String keyword = "%" + search + "%";
+                ps.setString(index++, keyword);
+                ps.setString(index, keyword);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
+
+    public static void main(String[] args) {
+        try (Connection conn = DBContext.getCentralConnection()) {
+
+            ShopOwnerDAO dao = new ShopOwnerDAO(conn);
+            String search = ""; // hoặc thử với từ khóa như "Nguyễn", "gmail" v.v.
+            int offset = 0;
+            int limit = 10;
+
+            List<ShopOwner> shopOwners = dao.getAllWithPagination(search, offset, limit);
+
+            System.out.println("==== Danh sách ShopOwner (trừ ID = 1) ====");
+            for (ShopOwner owner : shopOwners) {
+                System.out.println("ID: " + owner.getId());
+                System.out.println("Email: " + owner.getEmail());
+                System.out.println("Họ tên: " + owner.getFullname());
+                System.out.println("DB: " + owner.getDatabaseName());
+                System.out.println("Ngày tạo: " + owner.getCreateDate());
+                System.out.println("Shop Name: " + owner.getShopName());
+                System.out.println("SĐT: " + owner.getPhone());
+                System.out.println("Trạng thái: " + (owner.isStatus() ? "Đang hoạt động" : "Đã khóa"));
+                System.out.println("--------------------------------------------------");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

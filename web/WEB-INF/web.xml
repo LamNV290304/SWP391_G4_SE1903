@@ -164,6 +164,18 @@
         <servlet-name>StatisticServlet</servlet-name>
         <servlet-class>Controller.StatisticServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>AdminPaymentHistory</servlet-name>
+        <servlet-class>Controller.AdminPaymentHistory</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ShowListShopOwner</servlet-name>
+        <servlet-class>Controller.ShowListShopOwner</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ShowPaymentHistoryAdmin</servlet-name>
+        <servlet-class>Controller.ShowPaymentHistoryAdmin</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>StartProject</servlet-name>
         <url-pattern>/StartProject</url-pattern>
@@ -328,6 +340,18 @@
     <servlet-mapping>
         <servlet-name>StatisticServlet</servlet-name>
         <url-pattern>/StatisticServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AdminPaymentHistory</servlet-name>
+        <url-pattern>/AdminPaymentHistory</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ShowListShopOwner</servlet-name>
+        <url-pattern>/ShowListShopOwner</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ShowPaymentHistoryAdmin</servlet-name>
+        <url-pattern>/ShowPaymentHistoryAdmin</url-pattern>
     </servlet-mapping>
     <error-page>
         <error-code>404</error-code>
