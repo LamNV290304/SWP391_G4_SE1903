@@ -54,6 +54,7 @@
                                                 <th>Họ tên</th>
                                                 <th>Database</th>
                                                 <th>Ngày tạo</th>
+                                                <th>Mã số thuế</th>
                                                 <th>Tên shop</th>
                                                 <th>SĐT</th>
                                                 <th>Trạng thái</th>
@@ -79,6 +80,7 @@
                                                             <td>
                                                                 <fmt:formatDate value="${owner.createDate}" pattern="dd/MM/yyyy" />
                                                             </td>
+                                                            <td>${owner.taxNumber}</td>
                                                             <td>${owner.shopName}</td>
                                                             <td>${owner.phone}</td>
                                                             <td>

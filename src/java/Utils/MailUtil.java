@@ -125,8 +125,7 @@ public class MailUtil {
         }
     }
 
-
-    public static void sendRequest(String toEmail,  String content) {
+    public static void sendRequest(String toEmail, String content) {
         Properties pros = new Properties();
         pros.put("mail.smtp.host", "smtp.gmail.com"); //using SMTP host of gmail
         pros.put("mail.smtp.port", "587"); //using TLS: port 587, if use SSL port: 465
@@ -150,6 +149,44 @@ public class MailUtil {
             msg.setSubject("Request Transfer Receipt");
             msg.setContent(content, "text/html; charset=UTF-8");
             Transport.send(msg); //send email with the message
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void sendResetPasswordLink(String toEmail, String otp, String databaseName) {
+        String link = "http://localhost:9999/SWP391_G4_SE1903/ResetPassword?email=" + toEmail + "&otp=" + otp + "&databaseName=" + databaseName;
+
+        String htmlContent = "<h3>Yêu cầu đặt lại mật khẩu</h3>"
+                + "<p>Bạn vừa yêu cầu đặt lại mật khẩu. Nhấn vào nút bên dưới để tiếp tục:</p>"
+                + "<a href=\"" + link + "\" style=\""
+                + "display: inline-block; padding: 10px 20px; background-color: #7367F0; color: white;"
+                + "text-decoration: none; border-radius: 5px; font-weight: bold;\">"
+                + "Đặt lại mật khẩu</a>"
+                + "<p style=\"margin-top:15px;\">Nếu bạn không yêu cầu, hãy bỏ qua email này.</p>";
+
+        try {
+            Properties props = new Properties();
+            props.put("mail.smtp.host", "smtp.gmail.com");
+            props.put("mail.smtp.port", "587");
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.starttls.enable", "true");
+
+            Authenticator auth = new Authenticator() {
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(FROM, PASSWORD);
+                }
+            };
+
+            Session session = Session.getInstance(props, auth);
+            MimeMessage msg = new MimeMessage(session);
+            msg.setFrom(FROM);
+            msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail, false));
+            msg.setSubject("Đặt lại mật khẩu");
+            msg.setContent(htmlContent, "text/html; charset=UTF-8");
+            msg.setSentDate(new Date());
+
+            Transport.send(msg);
         } catch (Exception e) {
             e.printStackTrace();
         }

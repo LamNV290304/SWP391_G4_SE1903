@@ -67,6 +67,7 @@
                                         <li class="mb-3"><strong>Số điện thoại:</strong> ${shopOwner.phone}</li>
                                         <li class="mb-3"><strong>Tên đăng nhập:</strong> ${shopOwner.username}</li>
                                         <li class="mb-3"><strong>Tên cửa hàng:</strong> ${shopOwner.shopName}</li>
+                                        <li class="mb-3"><strong>Mã số thuế:</strong> ${shopOwner.taxNumber}</li>
                                         <li class="mb-3"><strong>Trạng thái:</strong>
                                             <c:choose>
                                                 <c:when test="${shopOwner.status}">
