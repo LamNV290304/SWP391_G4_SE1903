@@ -1,6 +1,8 @@
 package Dal;
 
+import DTO.PaymentDto;
 import Models.Payment;
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +21,7 @@ public class PaymentDAO {
 
         List<Payment> payments = new ArrayList<>();
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT p.PaymentDate, p.ExpireAt, p.Amount, p.Status, sp.Name AS PackageName ")
+        sql.append("SELECT p.Id, p.PaymentDate, p.ExpireAt, p.Amount, p.Status, sp.Name AS PackageName ")
                 .append("FROM Payments p JOIN ServicePackages sp ON p.PackageId = sp.Id ")
                 .append("WHERE p.ShopOwnerId = ? ");
 
@@ -33,34 +35,15 @@ public class PaymentDAO {
             sql.append("AND p.PaymentDate <= ? ");
         }
 
-        // xử lý sort
-        // xử lý sort
+        // Xử lý sort
         if (sort == null || sort.isBlank()) {
-            sql.append("ORDER BY p.PaymentDate DESC ");
+            sql.append("ORDER BY p.Id DESC ");
         } else {
-            sql.append("ORDER BY ");
-            String[] sortFields = sort.split(",");
-            for (int i = 0; i < sortFields.length; i++) {
-                String[] pair = sortFields[i].split(":");
-                if (pair.length == 2) {
-                    String field = switch (pair[0]) {
-                        case "expireAt" ->
-                            "p.ExpireAt";
-                        case "packageName" ->
-                            "sp.Name";
-                        default ->
-                            "p.PaymentDate";
-                    };
-                    String direction = "asc".equalsIgnoreCase(pair[1]) ? "ASC" : "DESC";
-                    sql.append(field).append(" ").append(direction);
-                    if (i < sortFields.length - 1) {
-                        sql.append(", ");
-                    }
-                }
-            }
+            String direction = "asc".equalsIgnoreCase(sort) ? "ASC" : "DESC";
+            sql.append("ORDER BY p.PaymentDate ").append(direction).append(" ");
         }
 
-        sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
 
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             int index = 1;
@@ -187,4 +170,179 @@ public class PaymentDAO {
         return null;
     }
 
+    public List<PaymentDto> getAllPaymentsForAdmin(int offset, int limit, String sort,
+            Integer packageId, String fromDate, String toDate, String search) {
+        List<PaymentDto> payments = new ArrayList<>();
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT p.PaymentDate, p.ExpireAt, p.Amount, p.Status, p.PackageId, ")
+                .append("sp.Name AS PackageName, so.FullName AS ShopOwnerName, so.ShopName ")
+                .append("FROM Payments p ")
+                .append("JOIN ServicePackages sp ON p.PackageId = sp.Id ")
+                .append("JOIN ShopOwners so ON p.ShopOwnerId = so.Id ")
+                .append("WHERE 1=1 ");
+
+        if (packageId != null) {
+            sql.append("AND p.PackageId = ? ");
+        }
+        if (fromDate != null && !fromDate.isBlank()) {
+            sql.append("AND p.PaymentDate >= ? ");
+        }
+        if (toDate != null && !toDate.isBlank()) {
+            sql.append("AND p.PaymentDate <= ? ");
+        }
+        if (search != null && !search.isBlank()) {
+            sql.append("AND (so.FullName LIKE ? OR so.ShopName LIKE ?) ");
+        }
+
+        if (sort == null || sort.isBlank()) {
+            sql.append("ORDER BY p.PaymentDate DESC ");
+        } else {
+            sql.append("ORDER BY ");
+            String[] sortFields = sort.split(",");
+            for (int i = 0; i < sortFields.length; i++) {
+                String[] pair = sortFields[i].split(":");
+                if (pair.length == 2) {
+                    String field = switch (pair[0]) {
+                        case "expireAt" ->
+                            "p.ExpireAt";
+                        case "packageName" ->
+                            "sp.Name";
+                        default ->
+                            "p.PaymentDate";
+                    };
+                    String direction = "asc".equalsIgnoreCase(pair[1]) ? "ASC" : "DESC";
+                    sql.append(field).append(" ").append(direction);
+                    if (i < sortFields.length - 1) {
+                        sql.append(", ");
+                    }
+                }
+            }
+        }
+
+        sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int index = 1;
+            if (packageId != null) {
+                ps.setInt(index++, packageId);
+            }
+            if (fromDate != null && !fromDate.isBlank()) {
+                ps.setDate(index++, Date.valueOf(fromDate));
+            }
+            if (toDate != null && !toDate.isBlank()) {
+                ps.setDate(index++, Date.valueOf(toDate));
+            }
+            if (search != null && !search.isBlank()) {
+                String keyword = "%" + search.trim() + "%";
+                ps.setString(index++, keyword);
+                ps.setString(index++, keyword);
+            }
+            ps.setInt(index++, offset);
+            ps.setInt(index, limit);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    PaymentDto dto = new PaymentDto();
+                    dto.setPackageId(rs.getInt("PackageId"));
+                    dto.setPackageName(rs.getString("PackageName"));
+                    dto.setShopOwnerName(rs.getString("ShopOwnerName"));
+                    dto.setShopName(rs.getString("ShopName"));
+                    dto.setPaymentDate(rs.getDate("PaymentDate"));
+                    dto.setExpireAt(rs.getDate("ExpireAt"));
+                    dto.setAmount(rs.getDouble("Amount"));
+                    dto.setStatus(rs.getString("Status"));
+                    payments.add(dto);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return payments;
+    }
+
+    public int countAllPaymentsForAdmin(Integer packageId, String fromDate, String toDate, String search) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM Payments p JOIN ShopOwners so ON p.ShopOwnerId = so.Id WHERE 1=1");
+
+        if (packageId != null) {
+            sql.append(" AND p.PackageId = ?");
+        }
+        if (fromDate != null && !fromDate.isBlank()) {
+            sql.append(" AND p.PaymentDate >= ?");
+        }
+        if (toDate != null && !toDate.isBlank()) {
+            sql.append(" AND p.PaymentDate <= ?");
+        }
+        if (search != null && !search.isBlank()) {
+            sql.append(" AND (so.FullName LIKE ? OR so.ShopName LIKE ?)");
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int index = 1;
+            if (packageId != null) {
+                ps.setInt(index++, packageId);
+            }
+            if (fromDate != null && !fromDate.isBlank()) {
+                ps.setDate(index++, Date.valueOf(fromDate));
+            }
+            if (toDate != null && !toDate.isBlank()) {
+                ps.setDate(index++, Date.valueOf(toDate));
+            }
+            if (search != null && !search.isBlank()) {
+                String keyword = "%" + search.trim() + "%";
+                ps.setString(index++, keyword);
+                ps.setString(index++, keyword);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public BigDecimal getTotalPaid(String fromDate, String toDate) throws SQLException {
+        String sql = "SELECT SUM(Amount) AS Total FROM Payments WHERE 1 = 1";
+
+        if (fromDate != null && !fromDate.isEmpty()) {
+            sql += " AND PaymentDate >= ?";
+        }
+        if (toDate != null && !toDate.isEmpty()) {
+            sql += " AND PaymentDate <= ?";
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            int index = 1;
+            if (fromDate != null && !fromDate.isEmpty()) {
+                ps.setDate(index++, Date.valueOf(fromDate));
+            }
+            if (toDate != null && !toDate.isEmpty()) {
+                ps.setDate(index++, Date.valueOf(toDate));
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getBigDecimal("Total") != null ? rs.getBigDecimal("Total") : BigDecimal.ZERO;
+            }
+        }
+        return BigDecimal.ZERO;
+    }
+
+    public double sumSuccessfulPayments(int shopOwnerId) {
+        String sql = "SELECT SUM(Amount) FROM Payments WHERE ShopOwnerId = ? AND Status = 'Thành công'";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, shopOwnerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0.0;
+    }
 }
