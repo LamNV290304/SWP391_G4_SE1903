@@ -71,12 +71,12 @@
             <h2>HÓA ĐƠN BÁN HÀNG</h2>
             <p><strong>Mã Hóa đơn:</strong> #${selectedInvoice.invoiceID}</p>
             <p><strong>Ngày lập:</strong> <fmt:formatDate value="${selectedInvoice.invoiceDate}" pattern="dd/MM/yyyy HH:mm:ss"/></p>
-<!--            <p><strong>Nhân viên:</strong>
-                <c:choose>
-                    <c:when test="${not empty selectedEmployee}">${selectedEmployee.fullName} (${selectedEmployee.id})</c:when>
-                    <c:otherwise>${selectedInvoice.employeeID} <span class="text-muted-invoice"></span></c:otherwise>
-                </c:choose>
-            </p>-->
+            <!--            <p><strong>Nhân viên:</strong>
+            <c:choose>
+                <c:when test="${not empty selectedEmployee}">${selectedEmployee.fullName} (${selectedEmployee.id})</c:when>
+                <c:otherwise>${selectedInvoice.employeeID} <span class="text-muted-invoice"></span></c:otherwise>
+            </c:choose>
+        </p>-->
             <p><strong>Khách hàng:</strong>
                 <c:choose>
                     <c:when test="${not empty selectedCustomer}">${selectedCustomer.customerName}</c:when>
@@ -123,8 +123,16 @@
                 </tbody>
                 <tfoot>
                     <tr class="total-row">
-                        <td colspan="5" class="text-right"><strong>Tổng cộng:</strong></td>
+                        <td colspan="5" class="text-right"><strong>Tổng tiền hàng:</strong></td>
                         <td class="text-right"><strong><fmt:formatNumber value="${totalItemsAmount}" type="number" pattern="#,##0"/> VNĐ</strong></td>
+                    </tr>
+                    <tr class="total-row">
+                        <td colspan="5" class="text-right"><strong>VAT (10%):</strong></td> <%-- Bạn có thể hiển thị tỷ lệ VAT động nếu bạn truyền nó từ Servlet --%>
+                        <td class="text-right"><strong><fmt:formatNumber value="${vatAmount}" type="number" pattern="#,##0"/> VNĐ</strong></td>
+                    </tr>
+                    <tr class="total-row">
+                        <td colspan="5" class="text-right"><strong>Tổng cộng phải thanh toán:</strong></td>
+                        <td class="text-right"><strong><fmt:formatNumber value="${selectedInvoice.totalAmount}" type="number" pattern="#,##0"/> VNĐ</strong></td>
                     </tr>
                 </tfoot>
             </table>

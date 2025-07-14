@@ -15,6 +15,7 @@ import java.sql.*;
 import Models.*;
 import Utils.PasswordUtils;
 import static Utils.PasswordUtils.checkPassword;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -45,7 +46,8 @@ public class EmployeeDAO {
                 + "JOIN "
                 + "    Invoice AS I ON E.EmployeeID = I.EmployeeID "
                 + "WHERE "
-                + "    E.RoleID = 2 "
+                + "    E.RoleID = 2 " // Giả sử RoleID = 2 là Sales Employee
+                + "    AND I.Status = 1 " // <--- THÊM ĐIỀU KIỆN NÀY: Chỉ tính hóa đơn đã hoàn thành/thanh toán
                 + "GROUP BY "
                 + "    E.EmployeeID, E.FullName "
                 + "ORDER BY "
@@ -53,18 +55,34 @@ public class EmployeeDAO {
 
         try (PreparedStatement ptm = connection.prepareStatement(sql); ResultSet rs = ptm.executeQuery()) {
             while (rs.next()) {
+                int employeeID = rs.getInt("EmployeeID");
+                String fullName = rs.getString("FullName");
+                // <--- SỬA TỪ rs.getDouble() SANG rs.getBigDecimal()
+                BigDecimal totalRevenue = rs.getBigDecimal("TotalRevenue");
+                int totalOrders = rs.getInt("TotalOrders");
 
+                // <--- TÍNH TOÁN CHỈ SỐ MỚI averageRevenuePerOrder
+                BigDecimal averageRevenuePerOrder;
+                if (totalOrders > 0) {
+                    // Sử dụng divide với MathContext hoặc scale và RoundingMode để đảm bảo độ chính xác
+                    averageRevenuePerOrder = totalRevenue.divide(new BigDecimal(totalOrders), 2, BigDecimal.ROUND_HALF_UP); // Làm tròn 2 chữ số thập phân
+                } else {
+                    averageRevenuePerOrder = BigDecimal.ZERO; // Tránh chia cho 0
+                }
+
+                // <--- CẬP NHẬT CONSTRUCTOR SalesEmployeeStatisticDto
                 SalesEmployeeStatisticDto stat = new SalesEmployeeStatisticDto(
-                        rs.getInt("EmployeeID"),
-                        rs.getString("FullName"),
-                        rs.getDouble("TotalRevenue"),
-                        rs.getInt("TotalOrders")
+                        employeeID,
+                        fullName,
+                        totalRevenue,
+                        totalOrders,
+                        averageRevenuePerOrder // <--- TRUYỀN CHỈ SỐ MỚI
                 );
                 statistics.add(stat);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, null, ex);
-
+            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, "Error getting sales statistics for sales employees (all time)", ex);
+            throw ex; // <--- ĐẢM BẢO THROW EXCEPTION ĐỂ SERVLET XỬ LÝ
         }
         return statistics;
     }
@@ -81,7 +99,8 @@ public class EmployeeDAO {
                 + "JOIN "
                 + "    Invoice AS I ON E.EmployeeID = I.EmployeeID "
                 + "WHERE "
-                + "    E.RoleID = 2 ";
+                + "    E.RoleID = 2 " // Giả sử RoleID = 2 là Sales Employee
+                + "    AND I.Status = 1 "; // <--- THÊM ĐIỀU KIỆN NÀY
 
         if (startDate != null) {
             sql += "    AND CAST(I.InvoiceDate AS DATE) >= ? ";
@@ -106,18 +125,34 @@ public class EmployeeDAO {
 
             try (ResultSet rs = ptm.executeQuery()) {
                 while (rs.next()) {
+                    int employeeID = rs.getInt("EmployeeID");
+                    String fullName = rs.getString("FullName");
+                    // <--- SỬA TỪ rs.getDouble() SANG rs.getBigDecimal()
+                    BigDecimal totalRevenue = rs.getBigDecimal("TotalRevenue");
+                    int totalOrders = rs.getInt("TotalOrders");
+
+                    // <--- TÍNH TOÁN CHỈ SỐ MỚI averageRevenuePerOrder
+                    BigDecimal averageRevenuePerOrder;
+                    if (totalOrders > 0) {
+                        averageRevenuePerOrder = totalRevenue.divide(new BigDecimal(totalOrders), 2, BigDecimal.ROUND_HALF_UP);
+                    } else {
+                        averageRevenuePerOrder = BigDecimal.ZERO;
+                    }
+
+                    // <--- CẬP NHẬT CONSTRUCTOR SalesEmployeeStatisticDto
                     SalesEmployeeStatisticDto stat = new SalesEmployeeStatisticDto(
-                            rs.getInt("EmployeeID"),
-                            rs.getString("FullName"),
-                            rs.getDouble("TotalRevenue"),
-                            rs.getInt("TotalOrders")
+                            employeeID,
+                            fullName,
+                            totalRevenue,
+                            totalOrders,
+                            averageRevenuePerOrder
                     );
                     statistics.add(stat);
                 }
             }
         } catch (SQLException ex) {
-            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, "Error getting sales statistics for sales employees by date range (using CAST)", ex);
-            throw ex;
+            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, "Error getting sales statistics for sales employees by date range", ex);
+            throw ex; 
         }
         return statistics;
     }
@@ -143,13 +178,13 @@ public class EmployeeDAO {
                 emp.setCreateDate(rs.getDate("CreatedDate"));
                 emp.setRoleId(rs.getInt("RoleID"));
                 Role role = new Role();
-                role.setId(rs.getInt("Role_Id")); 
-                role.setName(rs.getString("Role_Name")); 
-                role.setDescription(rs.getString("Role_Description")); 
-                emp.setRole(role); 
+                role.setId(rs.getInt("Role_Id"));
+                role.setName(rs.getString("Role_Name"));
+                role.setDescription(rs.getString("Role_Description"));
+                emp.setRole(role);
 
                 emp.setShopId(rs.getInt("ShopID"));
-              
+
                 l.add(emp);
             }
         } catch (SQLException ex) {

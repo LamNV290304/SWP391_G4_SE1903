@@ -40,13 +40,13 @@
         <link rel="stylesheet" href="./assets/vendor/libs/apex-charts/apex-charts.css" /> <%-- Nếu cần, thêm các CSS của ApexCharts --%>
 
         <style>
-          
+
             @media print {
                 .layout-menu,
                 .layout-navbar,
                 .layout-footer,
-                .buy-now, 
-                .customizer-toggler, 
+                .buy-now,
+                .customizer-toggler,
                 .layout-overlay,
                 .drag-target,
                 .action-buttons  {
@@ -65,11 +65,11 @@
     <body>
         <div class="layout-wrapper layout-content-navbar">
             <div class="layout-container">
-             
+
                 <jsp:include page="sidebar.jsp" />
 
                 <div class="layout-page">
-                 
+
                     <jsp:include page="navBar.jsp" />
 
                     <div class="content-wrapper">
@@ -254,8 +254,16 @@
                                                 </tbody>
                                                 <tfoot>
                                                     <tr>
-                                                        <td colspan="5" class="text-end pt-3 border-top border-dashed"><strong>Tổng tiền:</strong></td>
-                                                        <td class="pt-3 border-top border-dashed"><strong><fmt:formatNumber value="${invoice.totalAmount}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></strong></td>
+                                                        <td colspan="5" class="text-end pt-3 border-top border-dashed"><strong>Tổng tiền hàng:</strong></td>
+                                                        <td class="pt-3 border-top border-dashed"><strong><fmt:formatNumber value="${requestScope.totalAmountBeforeVAT}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></strong></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="5" class="text-end"><strong>Số tiền thuế:</strong></td>
+                                                        <td><strong><fmt:formatNumber value="${requestScope.vatAmount}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></strong></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="5" class="text-end"><strong>Tổng cộng:</strong></td>
+                                                        <td><strong><fmt:formatNumber value="${invoice.totalAmount}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></strong></td>
                                                     </tr>
                                                     <c:if test="${not empty invoice.note}">
                                                         <tr>
@@ -273,7 +281,6 @@
                                             <a href="#" onclick="window.print(); return false;" class="btn btn-label-primary m-1">
                                                 <i class='bx bx-printer me-1'></i> In Hóa Đơn
                                             </a>
-
                                             <c:if test="${not empty customer && not empty customer.email}">
                                                 <a href="InvoiceServlet?action=sendInvoiceEmail&invoiceID=${invoice.invoiceID}" class="btn btn-label-success m-1"
                                                    onclick="return confirm('Bạn có chắc chắn muốn gửi hóa đơn này qua email không?');">
