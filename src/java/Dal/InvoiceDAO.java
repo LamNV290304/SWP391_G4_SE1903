@@ -161,7 +161,7 @@ public class InvoiceDAO {
     public List<Invoice> getInvoicesByCustomerID(int customerID) {
         List<Invoice> list = new ArrayList<>();
         String sql = "SELECT i.InvoiceID, i.CustomerID, c.CustomerName, i.EmployeeID, e.FullName AS EmployeeName, "
-                + "i.ShopID, s.ShopName, i.InvoiceDate, i.TotalAmount, i.VatAmount, i.VATRateID, i.Note, i.Status \n" // THÊM VatAmount và VATRateID
+                + "i.ShopID, s.ShopName, i.InvoiceDate, i.TotalAmount, i.VatAmount, i.VATRateID, i.Note, i.Status \n" 
                 + "FROM [dbo].[Invoice] i \n"
                 + "JOIN [dbo].[Customer] c ON i.CustomerID = c.CustomerID\n"
                 + "JOIN [dbo].[Shop] s ON i.ShopID = s.ShopID\n"
@@ -285,7 +285,7 @@ public class InvoiceDAO {
 
     public List<Invoice> searchInvoiceByKey(String key) {
         String sql = "SELECT i.InvoiceID, i.CustomerID, c.CustomerName, i.EmployeeID, "
-                + "e.FullName AS EmployeeName, " // Vẫn cần EmployeeName vì Invoice constructor của bạn yêu cầu
+                + "e.FullName AS EmployeeName, " 
                 + "i.ShopID, s.ShopName, "
                 + "i.InvoiceDate, i.TotalAmount, i.VatAmount, i.VATRateID, i.Note, i.Status \n"
                 + "FROM Invoice i\n"

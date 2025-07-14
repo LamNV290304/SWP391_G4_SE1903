@@ -78,11 +78,11 @@ public class ShopItemServlet extends HttpServlet {
         } catch (SQLException e) {
             request.getSession().setAttribute("errorMessage", "Lỗi cơ sở dữ liệu: " + e.getMessage());
             e.printStackTrace();
-            response.sendRedirect("ShopItemServlet?action=list"); // Redirect để tránh lỗi khi refresh trang
+            response.sendRedirect("ShopItemServlet?action=list");
         } catch (NumberFormatException e) {
             request.getSession().setAttribute("errorMessage", "ID đồ dùng không hợp lệ.");
             e.printStackTrace();
-            response.sendRedirect("ShopItemServlet?action=list"); // Redirect để tránh lỗi khi refresh trang
+            response.sendRedirect("ShopItemServlet?action=list");
         }
     }
 
@@ -130,17 +130,17 @@ public class ShopItemServlet extends HttpServlet {
             throws ServletException, IOException, SQLException {
 
         String action = request.getParameter("action");
-        // Nếu action rỗng hoặc không có, đặt mặc định là "list"
+
         if (action == null || action.trim().isEmpty()) {
             action = "list";
         }
 
         String startDateStr = request.getParameter("startDate");
         String endDateStr = request.getParameter("endDate");
-        String searchQuery = request.getParameter("searchQuery"); // Tên tham số từ JSP của bạn
+        String searchQuery = request.getParameter("searchQuery");
 
         int page = 1;
-        int pageSize = 5; // Đặt mặc định kích thước trang
+        int pageSize = 5;
 
         String pageParam = request.getParameter("page");
         if (pageParam != null && !pageParam.trim().isEmpty()) {
@@ -151,7 +151,7 @@ public class ShopItemServlet extends HttpServlet {
                 }
             } catch (NumberFormatException e) {
                 e.printStackTrace();
-                // Xử lý lỗi hoặc log nếu cần
+
             }
         }
 
@@ -168,23 +168,22 @@ public class ShopItemServlet extends HttpServlet {
                 endDate = LocalDate.parse(endDateStr);
             }
 
-            // --- Logic tìm kiếm và phân trang ---
             if ("searchByDate".equals(action) && (startDate != null || endDate != null)) {
                 items = shopItemDAO.getShopItemsByDateRange(startDate, endDate, page, pageSize);
                 totalItems = shopItemDAO.countShopItemsByDateRange(startDate, endDate);
                 request.setAttribute("startDate", startDateStr);
                 request.setAttribute("endDate", endDateStr);
-                request.setAttribute("action", "searchByDate"); // GIỮ ACTION HIỆN TẠI
+                request.setAttribute("action", "searchByDate");
             } else if ("search".equals(action) && searchQuery != null && !searchQuery.trim().isEmpty()) {
                 items = shopItemDAO.searchShopItemsByKeyWithPagination(searchQuery, page, pageSize);
                 totalItems = shopItemDAO.countShopItemsByName(searchQuery);
                 request.setAttribute("searchQuery", searchQuery);
-                request.setAttribute("action", "search"); // GIỮ ACTION HIỆN TẠI
+                request.setAttribute("action", "search");
             } else {
-                // Mặc định hoặc khi không có tham số tìm kiếm cụ thể
+
                 items = shopItemDAO.getShopItemsByPage(page, pageSize);
                 totalItems = shopItemDAO.getTotalShopItemCount();
-                request.setAttribute("action", "list"); // ACTION MẶC ĐỊNH
+                request.setAttribute("action", "list");
             }
 
             int totalPages = (int) Math.ceil((double) totalItems / pageSize);
@@ -192,13 +191,11 @@ public class ShopItemServlet extends HttpServlet {
                 totalPages = 1;
             }
 
-            // Đặt các thuộc tính vào request để JSP có thể truy cập
             request.setAttribute("shopItems", items);
             request.setAttribute("currentPage", page);
             request.setAttribute("pageSize", pageSize);
             request.setAttribute("totalItems", totalItems);
             request.setAttribute("totalPages", totalPages);
-            // Các thuộc tính tìm kiếm đã được đặt ở trên trong từng nhánh if/else if
 
             request.getRequestDispatcher("shopItemList.jsp").forward(request, response);
 
@@ -216,13 +213,12 @@ public class ShopItemServlet extends HttpServlet {
     private void showAddShopItemForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
         try {
-            // Đặt thuộc tính rỗng để JSP hiển thị form trống
+
             request.setAttribute("itemToEdit", new ShopItem());
 
-            // Vẫn cần danh sách danh mục và cửa hàng cho dropdown
             List<ItemCategory> categories = itemDAO.getAllCategories();
             request.setAttribute("categories", categories);
-            List<Shop> shops = sDAO.getAllShops("SWP1"); // Kiểm tra lại cách ShopDAO lấy connection
+            List<Shop> shops = sDAO.getAllShops("SWP1");
             request.setAttribute("shops", shops);
             List<Unit> units = uDAO.getAllUnits();
             request.setAttribute("units", units);
@@ -230,7 +226,7 @@ public class ShopItemServlet extends HttpServlet {
         } catch (SQLException e) {
             request.getSession().setAttribute("errorMessage", "Lỗi khi hiển thị form thêm đồ dùng: " + e.getMessage());
             e.printStackTrace();
-            response.sendRedirect("ShopItemServlet?action=list"); // Redirect để tránh lỗi khi refresh
+            response.sendRedirect("ShopItemServlet?action=list");
         }
     }
 
@@ -276,22 +272,12 @@ public class ShopItemServlet extends HttpServlet {
             throws ServletException, IOException, SQLException {
         // Lấy dữ liệu từ form
         String itemName = request.getParameter("itemName");
-        String description = request.getParameter("description");
+
         int categoryId = Integer.parseInt(request.getParameter("categoryId"));
         int quantity = Integer.parseInt(request.getParameter("quantity"));
         int unitId = Integer.parseInt(request.getParameter("unitId"));
         request.setAttribute("units", uDAO.getAllUnits());
-        BigDecimal price = null;
-        String priceStr = request.getParameter("price");
-        if (priceStr != null && !priceStr.trim().isEmpty()) {
-            try {
-                price = new BigDecimal(priceStr);
-            } catch (NumberFormatException e) {
-                request.getSession().setAttribute("errorMessage", "Giá trị 'Giá' không hợp lệ. Vui lòng nhập số.");
-                response.sendRedirect("ShopItemServlet?action=add");
-                return;
-            }
-        }
+        BigDecimal price = new BigDecimal(request.getParameter("price"));
 
         Integer shopId = null;
         String shopIdStr = request.getParameter("shopId");
@@ -300,23 +286,40 @@ public class ShopItemServlet extends HttpServlet {
         }
 
         String notes = request.getParameter("notes");
+        ShopItem existingItem = shopItemDAO.getExistingItem(itemName, categoryId, unitId, shopId);
 
-        ShopItem newItem = new ShopItem();
-        newItem.setItemName(itemName);
-        newItem.setDescription(description);
-        newItem.setCategoryId(categoryId);
-        newItem.setQuantity(quantity);
-        newItem.setUnitId(unitId);
-        newItem.setPrice(price);
-        newItem.setItemDate(Timestamp.from(Instant.now()));
-        newItem.setShopId(shopId);
-        newItem.setNotes(notes);
+        if (existingItem != null) {
 
-        int newId = shopItemDAO.addItem(newItem);
-        if (newId != -1) {
-            request.getSession().setAttribute("successMessage", "Thêm đồ dùng thành công!");
+            int currentQuantity = existingItem.getQuantity();
+            int newTotalQuantity = currentQuantity + quantity;
+
+            boolean updated = shopItemDAO.updateItemQuantity(existingItem.getItemId(), newTotalQuantity, price);
+
+            if (updated) {
+                request.getSession().setAttribute("successMessage",
+                        "Đã cập nhật số lượng sản phẩm: " + itemName + " từ " + currentQuantity + " lên " + newTotalQuantity + ".");
+            } else {
+                request.getSession().setAttribute("errorMessage",
+                        "Có lỗi xảy ra khi cập nhật số lượng sản phẩm: " + itemName + "");
+            }
         } else {
-            request.getSession().setAttribute("errorMessage", "Thêm đồ dùng thất bại.");
+            ShopItem newItem = new ShopItem();
+            newItem.setItemName(itemName);
+
+            newItem.setCategoryId(categoryId);
+            newItem.setQuantity(quantity);
+            newItem.setUnitId(unitId);
+            newItem.setPrice(price);
+            newItem.setItemDate(Timestamp.from(Instant.now()));
+            newItem.setShopId(shopId);
+            newItem.setNotes(notes);
+
+            int newId = shopItemDAO.addItem(newItem);
+            if (newId != -1) {
+                request.getSession().setAttribute("successMessage", "Thêm đồ dùng thành công!");
+            } else {
+                request.getSession().setAttribute("errorMessage", "Thêm đồ dùng thất bại.");
+            }
         }
         response.sendRedirect("ShopItemServlet?action=list");
     }
@@ -352,7 +355,7 @@ public class ShopItemServlet extends HttpServlet {
         ShopItem itemToUpdate = new ShopItem();
         itemToUpdate.setItemId(itemId);
         itemToUpdate.setItemName(itemName);
-        itemToUpdate.setDescription(description);
+
         itemToUpdate.setCategoryId(categoryId);
         itemToUpdate.setQuantity(quantity);
         itemToUpdate.setPrice(price);

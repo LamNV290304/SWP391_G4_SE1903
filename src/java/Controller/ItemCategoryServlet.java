@@ -78,10 +78,10 @@ public class ItemCategoryServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.setCharacterEncoding("UTF-8"); // Quan trọng để xử lý tiếng Việt
+        request.setCharacterEncoding("UTF-8"); 
         String action = request.getParameter("action");
         if (action == null) {
-            action = "list"; // Mặc định chuyển hướng về danh sách
+            action = "list"; 
         }
 
         try {
@@ -128,8 +128,7 @@ public class ItemCategoryServlet extends HttpServlet {
         ItemCategory categoryToEdit = itemDao.getCategoryById(categoryId);
         request.setAttribute("categoryToEdit", categoryToEdit);
 
-        // Vẫn cần gửi danh sách tất cả danh mục để hiển thị bảng
-        listCategories(request, response); // Chuyển tiếp đến listCategories, nó sẽ forward tới JSP
+        listCategories(request, response); 
     }
 
     private void deleteCategory(HttpServletRequest request, HttpServletResponse response)

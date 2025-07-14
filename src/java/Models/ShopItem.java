@@ -17,7 +17,7 @@ public class ShopItem {
 
     private int itemId;
     private String itemName;
-    private String description;
+
     private int categoryId; 
     private int quantity;
     private int unitId;   
@@ -35,10 +35,10 @@ public class ShopItem {
     }
 
 
-    public ShopItem(int itemId, String itemName, String description, int categoryId, int quantity, int unitId, BigDecimal price, Timestamp itemDate, Integer shopId, String notes) {
+    public ShopItem(int itemId, String itemName, int categoryId, int quantity, int unitId, BigDecimal price, Timestamp itemDate, Integer shopId, String notes) {
         this.itemId = itemId;
         this.itemName = itemName;
-        this.description = description;
+     
         this.categoryId = categoryId;
         this.quantity = quantity;
         this.unitId = unitId;
@@ -64,15 +64,6 @@ public class ShopItem {
     public void setItemName(String itemName) {
         this.itemName = itemName;
     }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public int getCategoryId() {
         return categoryId;
     }

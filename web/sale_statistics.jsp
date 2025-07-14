@@ -36,21 +36,36 @@
                             </c:if>
 
                             <div class="card mb-4">
-                                <h5 class="card-header">Lọc thống kê theo thời gian</h5>
+                                <h5 class="card-header">Lọc thống kê</h5>
                                 <div class="card-body">
-                                    <form action="${pageContext.request.contextPath}/StatisticServlet" method="GET">
+                                    <form id="reportForm" action="StatisticServlet" method="GET">
                                         <div class="row align-items-end">
-                                            <div class="col-md-5 mb-3">
+                                         
+                                            <div class="col-md-4 mb-3">
+                                                <label for="shopSelect" class="form-label">Chọn cửa hàng:</label>
+                                                <select class="form-select" id="shopSelect" name="shopId" onchange="document.getElementById('reportForm').submit();">>
+                                             
+                                                    <option value="" ${selectedShopId == null ? 'selected' : ''}>Tất cả cửa hàng</option>
+                                                    <c:forEach var="shop" items="${shops}">
+                                                        <option value="${shop.shopID}" ${selectedShopId != null && selectedShopId == shop.shopID ? 'selected' : ''}>
+                                                            ${shop.shopName}
+                                                        </option>
+                                                    </c:forEach>
+                                                </select>
+                                            </div>  
+                                           
+
+                                            <div class="col-md-3 mb-3">
                                                 <label for="startDate" class="form-label">Từ ngày:</label>
                                                 <input type="date" class="form-control" id="startDate" name="startDate"
                                                        value="${not empty startDate ? startDate : ''}"
-                                                       max="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>" required>
+                                                       max="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>">
                                             </div>
-                                            <div class="col-md-5 mb-3">
+                                            <div class="col-md-3 mb-3">
                                                 <label for="endDate" class="form-label">Đến ngày:</label>
                                                 <input type="date" class="form-control" id="endDate" name="endDate"
                                                        value="${not empty endDate ? endDate : ''}"
-                                                       max="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>" required>
+                                                       max="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>">
                                             </div>
                                             <div class="col-md-2 mb-3">
                                                 <button type="submit" class="btn btn-primary d-grid w-100">Lọc</button>
@@ -58,14 +73,13 @@
                                         </div>
                                     </form>
                                     <div class="mt-3">
-                                        <a href="${pageContext.request.contextPath}/StatisticServlet" class="btn btn-outline-secondary">Xem thống kê tổng cộng</a>
+                                        <a href="StatisticServlet" class="btn btn-outline-secondary">Xem thống kê tổng cộng</a>
                                     </div>
                                 </div>
                             </div>
 
                             <c:if test="${not empty salesStatistics}">
                                 <div class="row">
-
                                     <div class="col-md-6 mb-2">
                                         <div class="card h-100">
                                             <div class="card-header py-1 px-3"><span class="fw-light small">📊 Doanh thu theo nhân viên</span></div>
@@ -142,10 +156,9 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
-
         <c:if test="${not empty salesStatistics}">
             <script>
-                // Đăng ký plugin Datalabels TOÀN CỤC sau khi cả Chart.js và plugin đã được tải
+           
                 Chart.register(ChartDataLabels);
 
                 const employeeNames = [
@@ -183,26 +196,26 @@
                                     label: ctx => ctx.formattedValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' VNĐ'
                                 }
                             },
-                            // --- THÊM PHẦN CẤU HÌNH DATALABELS NÀY VÀO BIỂU ĐỒ CỘT ---
+                      
                             datalabels: {
                                 formatter: function (value, context) {
-                                    // Định dạng số có dấu phẩy ngăn cách hàng nghìn
-                                    return value.toLocaleString('vi-VN') + ' VNĐ'; // Sử dụng 'vi-VN' cho định dạng tiếng Việt
+                             
+                                    return value.toLocaleString('vi-VN') + ' VNĐ'; 
                                 },
-                                color: '#fff', // Màu chữ trắng để dễ nhìn trên nền cột xanh
+                                color: '#fff', 
                                 font: {
                                     weight: 'bold',
-                                    size: 11 // Kích thước chữ
+                                    size: 11 
                                 },
-                                anchor: 'center', // Vị trí nhãn: 'center', 'end', 'start'
-                                align: 'center'   // Căn chỉnh nhãn so với anchor
+                                anchor: 'center',
+                                align: 'center'  
                             }
                             // --------------------------------------------------------
                         },
                         scales: {
                             y: {
                                 ticks: {
-                                    callback: value => value.toLocaleString('vi-VN') + ' VNĐ' // Đảm bảo cũng dùng toLocaleString cho trục Y
+                                    callback: value => value.toLocaleString('vi-VN') + ' VNĐ' 
                                 }
                             }
                         }
@@ -239,7 +252,7 @@
                                     }
                                 }
                             },
-                            // Cấu hình datalabels cho biểu đồ tròn
+                    
                             datalabels: {
                                 formatter: (value, ctx) => {
                                     let sum = 0;
@@ -259,8 +272,7 @@
                                 align: 'start',
                                 offset: 5,
                                 display: function (ctx) {
-                                    // Chỉ hiển thị nhãn nếu lát cắt lớn hơn 3% tổng số đơn hàng
-                                    // Điều này giúp tránh chồng chéo nhãn cho các lát cắt quá nhỏ
+                           
                                     return ctx.dataset.data[ctx.dataIndex] > (ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0) * 0.03);
                                 }
                             }

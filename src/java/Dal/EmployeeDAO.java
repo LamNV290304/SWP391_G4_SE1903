@@ -46,8 +46,8 @@ public class EmployeeDAO {
                 + "JOIN "
                 + "    Invoice AS I ON E.EmployeeID = I.EmployeeID "
                 + "WHERE "
-                + "    E.RoleID = 2 " // Giả sử RoleID = 2 là Sales Employee
-                + "    AND I.Status = 1 " // <--- THÊM ĐIỀU KIỆN NÀY: Chỉ tính hóa đơn đã hoàn thành/thanh toán
+                + "    E.RoleID = 2 "
+                + "    AND I.Status = 1 "
                 + "GROUP BY "
                 + "    E.EmployeeID, E.FullName "
                 + "ORDER BY "
@@ -57,102 +57,137 @@ public class EmployeeDAO {
             while (rs.next()) {
                 int employeeID = rs.getInt("EmployeeID");
                 String fullName = rs.getString("FullName");
-                // <--- SỬA TỪ rs.getDouble() SANG rs.getBigDecimal()
+
                 BigDecimal totalRevenue = rs.getBigDecimal("TotalRevenue");
                 int totalOrders = rs.getInt("TotalOrders");
 
-                // <--- TÍNH TOÁN CHỈ SỐ MỚI averageRevenuePerOrder
                 BigDecimal averageRevenuePerOrder;
                 if (totalOrders > 0) {
-                    // Sử dụng divide với MathContext hoặc scale và RoundingMode để đảm bảo độ chính xác
-                    averageRevenuePerOrder = totalRevenue.divide(new BigDecimal(totalOrders), 2, BigDecimal.ROUND_HALF_UP); // Làm tròn 2 chữ số thập phân
+
+                    averageRevenuePerOrder = totalRevenue.divide(new BigDecimal(totalOrders), 2, BigDecimal.ROUND_HALF_UP);
                 } else {
-                    averageRevenuePerOrder = BigDecimal.ZERO; // Tránh chia cho 0
+                    averageRevenuePerOrder = BigDecimal.ZERO;
                 }
 
-                // <--- CẬP NHẬT CONSTRUCTOR SalesEmployeeStatisticDto
                 SalesEmployeeStatisticDto stat = new SalesEmployeeStatisticDto(
                         employeeID,
                         fullName,
                         totalRevenue,
                         totalOrders,
-                        averageRevenuePerOrder // <--- TRUYỀN CHỈ SỐ MỚI
+                        averageRevenuePerOrder
                 );
                 statistics.add(stat);
             }
         } catch (SQLException ex) {
             Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, "Error getting sales statistics for sales employees (all time)", ex);
-            throw ex; // <--- ĐẢM BẢO THROW EXCEPTION ĐỂ SERVLET XỬ LÝ
+            throw ex;
         }
         return statistics;
     }
 
-    public List<SalesEmployeeStatisticDto> getSalesStatisticsForSalesEmployeesByDateRange(Date startDate, Date endDate) throws SQLException {
+    public List<SalesEmployeeStatisticDto> getSalesStatisticsForSalesEmployees(Integer shopId) throws SQLException {
         List<SalesEmployeeStatisticDto> statistics = new ArrayList<>();
-        String sql = "SELECT "
-                + "    E.EmployeeID, "
-                + "    E.FullName, "
-                + "    SUM(I.TotalAmount) AS TotalRevenue, "
-                + "    COUNT(I.InvoiceID) AS TotalOrders "
-                + "FROM "
-                + "    Employee AS E "
-                + "JOIN "
-                + "    Invoice AS I ON E.EmployeeID = I.EmployeeID "
-                + "WHERE "
-                + "    E.RoleID = 2 " // Giả sử RoleID = 2 là Sales Employee
-                + "    AND I.Status = 1 "; // <--- THÊM ĐIỀU KIỆN NÀY
+        StringBuilder sql = new StringBuilder("""
+            SELECT
+                e.EmployeeID,
+                e.Fullname,
+                SUM(od.Quantity * od.UnitPrice) AS TotalRevenue,
+                COUNT(DISTINCT o.InvoiceID) AS TotalOrders
+            FROM Employee e
+            JOIN Invoice o ON e.EmployeeID = o.EmployeeID
+            JOIN InvoiceDetail od ON o.InvoiceID = od.InvoiceID
+            WHERE e.RoleID = 2 -- Giả sử RoleID = 2 là nhân viên bán hàng
+        """);
 
-        if (startDate != null) {
-            sql += "    AND CAST(I.InvoiceDate AS DATE) >= ? ";
-        }
-        if (endDate != null) {
-            sql += "    AND CAST(I.InvoiceDate AS DATE) <= ? ";
+        if (shopId != null) {
+            sql.append(" AND e.ShopID = ?");
         }
 
-        sql += "GROUP BY "
-                + "    E.EmployeeID, E.FullName "
-                + "ORDER BY "
-                + "    TotalRevenue DESC";
+        sql.append("""
+            GROUP BY
+                e.EmployeeID,
+                e.Fullname
+            ORDER BY
+                TotalRevenue DESC
+        """);
 
-        try (PreparedStatement ptm = connection.prepareStatement(sql)) {
-            int paramIndex = 1;
-            if (startDate != null) {
-                ptm.setDate(paramIndex++, startDate);
-            }
-            if (endDate != null) {
-                ptm.setDate(paramIndex++, endDate);
+        try (PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
+            if (shopId != null) {
+                stmt.setInt(1, shopId);
             }
 
-            try (ResultSet rs = ptm.executeQuery()) {
+            try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     int employeeID = rs.getInt("EmployeeID");
-                    String fullName = rs.getString("FullName");
-                    // <--- SỬA TỪ rs.getDouble() SANG rs.getBigDecimal()
+                    String fullName = rs.getString("Fullname");
                     BigDecimal totalRevenue = rs.getBigDecimal("TotalRevenue");
                     int totalOrders = rs.getInt("TotalOrders");
-
-                    // <--- TÍNH TOÁN CHỈ SỐ MỚI averageRevenuePerOrder
-                    BigDecimal averageRevenuePerOrder;
+                    BigDecimal averageRevenuePerOrder = BigDecimal.ZERO;
                     if (totalOrders > 0) {
-                        averageRevenuePerOrder = totalRevenue.divide(new BigDecimal(totalOrders), 2, BigDecimal.ROUND_HALF_UP);
-                    } else {
-                        averageRevenuePerOrder = BigDecimal.ZERO;
+                        averageRevenuePerOrder = totalRevenue.divide(BigDecimal.valueOf(totalOrders), 2, BigDecimal.ROUND_HALF_UP);
                     }
-
-                    // <--- CẬP NHẬT CONSTRUCTOR SalesEmployeeStatisticDto
-                    SalesEmployeeStatisticDto stat = new SalesEmployeeStatisticDto(
-                            employeeID,
-                            fullName,
-                            totalRevenue,
-                            totalOrders,
-                            averageRevenuePerOrder
-                    );
-                    statistics.add(stat);
+                    statistics.add(new SalesEmployeeStatisticDto(employeeID, fullName, totalRevenue, totalOrders, averageRevenuePerOrder));
                 }
             }
         } catch (SQLException ex) {
-            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, "Error getting sales statistics for sales employees by date range", ex);
-            throw ex; 
+            ex.printStackTrace();
+            throw ex;
+        }
+        return statistics;
+    }
+
+    public List<SalesEmployeeStatisticDto> getSalesStatisticsForSalesEmployeesByDateRange(Date startDate, Date endDate, Integer shopId) throws SQLException {
+        List<SalesEmployeeStatisticDto> statistics = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("""
+            SELECT
+                e.EmployeeID,
+                e.Fullname,
+                SUM(od.Quantity * od.UnitPrice) AS TotalRevenue,
+                COUNT(DISTINCT o.InvoiceID) AS TotalOrders
+            FROM Employee e
+            JOIN Invoice o ON e.EmployeeID = o.EmployeeID
+            JOIN InvoiceDetail od ON o.InvoiceID = od.InvoiceID
+            WHERE e.RoleID = 2 -- Giả sử RoleID = 2 là nhân viên bán hàng
+            AND o.InvoiceDate BETWEEN ? AND ?
+        """);
+
+        if (shopId != null) {
+            sql.append(" AND e.ShopID = ?");
+        }
+
+        sql.append("""
+            GROUP BY
+                e.EmployeeID,
+                e.Fullname
+            ORDER BY
+                TotalRevenue DESC
+        """);
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
+            stmt.setDate(1, startDate);
+            stmt.setDate(2, endDate);
+
+            int paramIndex = 3;
+            if (shopId != null) {
+                stmt.setInt(paramIndex++, shopId);
+            }
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    int employeeID = rs.getInt("EmployeeID");
+                    String fullName = rs.getString("Fullname");
+                    BigDecimal totalRevenue = rs.getBigDecimal("TotalRevenue");
+                    int totalOrders = rs.getInt("TotalOrders");
+                    BigDecimal averageRevenuePerOrder = BigDecimal.ZERO;
+                    if (totalOrders > 0) {
+                        averageRevenuePerOrder = totalRevenue.divide(BigDecimal.valueOf(totalOrders), 2, BigDecimal.ROUND_HALF_UP);
+                    }
+                    statistics.add(new SalesEmployeeStatisticDto(employeeID, fullName, totalRevenue, totalOrders, averageRevenuePerOrder));
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            throw ex;
         }
         return statistics;
     }
@@ -161,9 +196,9 @@ public class EmployeeDAO {
         List<Employee> l = new ArrayList<>();
         String sql = "SELECT e.[EmployeeID], e.[Username], e.[Password], e.[FullName], e.[Email], e.[Phone], "
                 + "e.[RoleID], e.[ShopID], e.[Status], e.[CreatedDate], e.[CreatedBy], "
-                + "r.RoleID AS Role_Id, r.RoleName AS Role_Name, r.Description AS Role_Description " // Lấy thông tin từ bảng Role
+                + "r.RoleID AS Role_Id, r.RoleName AS Role_Name, r.Description AS Role_Description " 
                 + "FROM [dbo].[Employee] AS e "
-                + "JOIN [dbo].[Role] AS r ON e.RoleID = r.RoleID"; // JOIN với bảng Role
+                + "JOIN [dbo].[Role] AS r ON e.RoleID = r.RoleID";
 
         try (PreparedStatement ptm = connection.prepareStatement(sql); ResultSet rs = ptm.executeQuery()) {
             while (rs.next()) {

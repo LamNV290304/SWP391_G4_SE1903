@@ -45,7 +45,7 @@
                         <div class="container-xxl flex-grow-1 container-p-y">
                             <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Quản lý /</span> Chỉnh sửa Đồ dùng Cửa hàng</h4>
 
-                         
+
                             <c:if test="${not empty sessionScope.successMessage}">
                                 <div class="alert alert-success alert-dismissible" role="alert">
                                     ${sessionScope.successMessage}
@@ -82,12 +82,7 @@
                                                 <input type="text" class="form-control" id="itemName" name="itemName" value="${itemToEdit.itemName}" required>
                                             </div>
                                         </div>
-                                        <div class="row mb-3">
-                                            <label class="col-sm-2 col-form-label" for="description">Mô tả:</label>
-                                            <div class="col-sm-10">
-                                                <textarea class="form-control" id="description" name="description">${itemToEdit.description}</textarea>
-                                            </div>
-                                        </div>
+                                     
                                         <div class="row mb-3">
                                             <label class="col-sm-2 col-form-label" for="categoryId">Danh mục:</label>
                                             <div class="col-sm-10">
@@ -95,7 +90,7 @@
                                                     <option value="">-- Chọn danh mục --</option>
                                                     <c:forEach var="category" items="${categories}">
                                                         <option value="${category.categoryId}"
-                                                                <c:if test="${category.categoryId == itemToEdit.categoryId}">selected</c:if>
+                                                                <c:if test="${category.categoryId == itemToEdit.categoryId}">selected</c:if>>
                                                             ${category.categoryName}
                                                         </option>
                                                     </c:forEach>
@@ -135,12 +130,12 @@
                                             <label class="col-sm-2 col-form-label">Thời gian:</label>
                                             <div class="col-sm-10">
                                                 <p class="form-control-plaintext">
-                                                <c:if test="${not empty itemToEdit.itemDate}">
-                                                    <fmt:formatDate value="${itemToEdit.itemDate}" pattern="yyyy-MM-dd HH:mm"/>
-                                                </c:if>
-                                                <c:if test="${empty itemToEdit.itemDate}">
-                                                    (Chưa có)
-                                                </c:if>
+                                                    <c:if test="${not empty itemToEdit.itemDate}">
+                                                        <fmt:formatDate value="${itemToEdit.itemDate}" pattern="yyyy-MM-dd HH:mm"/>
+                                                    </c:if>
+                                                    <c:if test="${empty itemToEdit.itemDate}">
+                                                        (Chưa có)
+                                                    </c:if>
                                                 </p>
                                             </div>
                                         </div>
