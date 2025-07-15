@@ -51,18 +51,13 @@
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
-                    <a href="auth-login-basic.html" class="menu-link" target="_blank">
-                        <div data-i18n="Basic">Lịch Làm Việc Theo Ca</div>
+                    <a href="WorkSchedule" class="menu-link" >
+                        <div>Lịch Làm Việc</div>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="auth-register-basic.html" class="menu-link" target="_blank">
-                        <div data-i18n="Basic">Chấm Công</div>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="auth-forgot-password-basic.html" class="menu-link" target="_blank">
-                        <div data-i18n="Basic">Báo Cáo</div>
+                    <a href="WorkSchedule?service=workSchedule&view=shift" class="menu-link" >
+                        <div>Lịch Làm Việc Theo Ca</div>
                     </a>
                 </li>
             </ul>
@@ -74,18 +69,13 @@
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
-                    <a href="pages-misc-error.html" class="menu-link">
-                        <div data-i18n="Error">Báo Cáo Lương </div>
+                    <a href="SalaryController" class="menu-link">
+                        <div>Báo Cáo Lương </div>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="pages-misc-under-maintenance.html" class="menu-link">
-                        <div data-i18n="Under Maintenance">Phụ Lương </div>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="pages-misc-under-maintenance.html" class="menu-link">
-                        <div data-i18n="Under Maintenance">Thiết Lập Lương</div>
+                    <a href="SalarySettingController" class="menu-link">
+                        <div>Thiết Lập Lương</div>
                     </a>
                 </li>
             </ul>

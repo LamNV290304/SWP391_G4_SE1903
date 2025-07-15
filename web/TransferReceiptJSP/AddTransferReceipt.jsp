@@ -20,9 +20,9 @@
     <body>
         <div class="layout-wrapper layout-content-navbar">
             <div class="layout-container">
-                <jsp:include page="menu.jsp" />
+                <jsp:include page="../sidebar.jsp" />
                 <div class="layout-page">
-                    <jsp:include page="navbar.jsp" />
+                    <jsp:include page="../navBar.jsp" />
 
                     <div class="content-wrapper">
 
