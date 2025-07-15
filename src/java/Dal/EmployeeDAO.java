@@ -32,6 +32,63 @@ public class EmployeeDAO {
         this.connection = connection;
     }
 
+    public List<Employee> searchEmployeesByName(String name) {
+        List<Employee> employees = new ArrayList<>();
+        String sql = "SELECT * FROM Employee WHERE FullName LIKE ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, "%" + name + "%");  // Tìm kiếm có chứa tên
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Employee emp = new Employee();
+                    emp.setId(rs.getInt("EmployeeID"));
+                    emp.setUsername(rs.getString("Username"));
+                    emp.setPassword(rs.getString("Password"));
+                    emp.setFullname(rs.getString("FullName"));
+                    emp.setEmail(rs.getString("Email"));
+                    emp.setPhone(rs.getString("Phone"));
+                    emp.setStatus(rs.getBoolean("Status"));
+                    emp.setCreateDate(rs.getDate("CreatedDate"));
+                    emp.setRoleId(rs.getInt("RoleID"));
+                    emp.setShopId(rs.getInt("ShopID"));
+                    employees.add(emp);
+                }
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error searching employees by name: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+
+        return employees;
+    }
+
+    public Employee getEmployeeByID(int id) {
+        String sql = "SELECT * FROM Employee WHERE EmployeeID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Employee emp = new Employee();
+                    emp.setId(rs.getInt("EmployeeID"));
+                    emp.setUsername(rs.getString("Username"));
+                    emp.setPassword(rs.getString("Password"));
+                    emp.setFullname(rs.getString("FullName"));
+                    emp.setEmail(rs.getString("Email"));
+                    emp.setPhone(rs.getString("Phone"));
+                    emp.setStatus(rs.getBoolean("Status"));
+                    emp.setCreateDate(rs.getDate("CreatedDate"));
+                    emp.setRoleId(rs.getInt("RoleID"));
+                    emp.setShopId(rs.getInt("ShopID"));
+                    return emp;
+                }
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error in getEmployeeByID: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
     public List<SalesEmployeeStatisticDto> getSalesStatisticsForSalesEmployees() throws SQLException {
         List<SalesEmployeeStatisticDto> statistics = new ArrayList<>();
         String sql = "SELECT "
@@ -194,7 +251,7 @@ public class EmployeeDAO {
         List<Employee> l = new ArrayList<>();
         String sql = "SELECT e.[EmployeeID], e.[Username], e.[Password], e.[FullName], e.[Email], e.[Phone], "
                 + "e.[RoleID], e.[ShopID], e.[Status], e.[CreatedDate], e.[CreatedBy], "
-                + "r.RoleID AS Role_Id, r.RoleName AS Role_Name, r.Description AS Role_Description " 
+                + "r.RoleID AS Role_Id, r.RoleName AS Role_Name, r.Description AS Role_Description "
                 + "FROM [dbo].[Employee] AS e "
                 + "JOIN [dbo].[Role] AS r ON e.RoleID = r.RoleID";
 
