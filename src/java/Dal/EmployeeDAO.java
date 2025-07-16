@@ -520,9 +520,9 @@ public class EmployeeDAO {
     public Employee findEmployeeByUsernameAndPassword(String username, String plainPassword) throws SQLException {
         Employee employee = null;
 
-        String sql = "SELECT e.EmployeeID, e.Username, e.Password, e.FullName, e.Phone, e.Email, e.Status, e.CreatedDate, e.RoleID, e.ShopID, r.Name AS RoleName "
+        String sql = "SELECT e.EmployeeID, e.Username, e.Password, e.FullName, e.Phone, e.Email, e.Status, e.CreatedDate, e.RoleID, e.ShopID, r.RoleName "
                 + "FROM Employee e JOIN Role r ON e.RoleID = r.RoleID "
-                + "WHERE e.Username = ? AND e.Status = 1";
+                + "WHERE (e.Username = ? OR e.Email = ?) AND e.Status = 1";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, username);
@@ -964,7 +964,7 @@ public class EmployeeDAO {
     public static void main(String[] args) {
         try {
             // Kết nối CSDL (tên DB là SWP8)
-            DBContext db = new DBContext("Test");
+            DBContext db = new DBContext("ShopDB_Test");
             Connection conn = db.getConnection();
 
             // Tạo DAO
@@ -972,20 +972,11 @@ public class EmployeeDAO {
 
             // Gọi hàm tìm kiếm nhân viên theo tên
             String keyword = "Nguyen"; // bạn có thể thay đổi để test
-            List<Employee> list = dao.getEmployee();
+            Employee list = dao.findEmployeeByUsernameAndPassword("nguyenvietlam290304@gmail.com", "12345678");
 
+            System.out.println(list);
             // In ra kết quả
-            if (list.isEmpty()) {
-                System.out.println("Không tìm thấy nhân viên nào với tên chứa: " + keyword);
-            } else {
-                System.out.println("Kết quả tìm kiếm nhân viên theo tên '" + keyword + "':");
-                for (Employee e : list) {
-                    System.out.println("ID: " + e.getId()
-                            + ", Họ tên: " + e.getFullname()
-                            + ", Email: " + e.getEmail()
-                            + ", SĐT: " + e.getPhone());
-                }
-            }
+            
 
             conn.close();
         } catch (Exception ex) {
