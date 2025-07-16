@@ -72,8 +72,8 @@ public class ErrorPage extends HttpServlet {
             ShopSubscriptionDto subscript = shopSubscriptionDAO.getActiveSubscriptionByShopId(shopOwner.getId());
             
             Date currentDate = new Date(System.currentTimeMillis());
-            if (subscript.getEndDate().before(currentDate)){
-                request.setAttribute("error", "Vui lòng thanh toán gói đã đăng kí");
+            if (subscript == null || subscript.getEndDate().before(currentDate) ){
+                request.setAttribute("error", "Vui lòng thanh toán gói đã đăng kí hoặc đăng kí gói mới");
                 request.getRequestDispatcher("login.jsp").forward(request, response);
                 return;
             }
