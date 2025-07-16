@@ -5,7 +5,7 @@
 package Controller;
 
 import Context.DBContext;
-import DTO.ShopSubscriptionDto;
+import DTO.ShopSubscriptionDTO;
 import Dal.ShopSubscriptionDAO;
 import Models.ShopOwner;
 import java.io.IOException;
@@ -71,7 +71,7 @@ public class MySubscription extends HttpServlet {
 
         try (Connection conn = DBContext.getCentralConnection()) {
             ShopSubscriptionDAO dao = new ShopSubscriptionDAO(conn);
-            ShopSubscriptionDto subscription = dao.getActiveSubscriptionByShopId(loggedInOwner.getId());
+            ShopSubscriptionDTO subscription = dao.getActiveSubscriptionByShopId(loggedInOwner.getId());
 
             request.setAttribute("subscription", subscription);
             request.getRequestDispatcher("/ShopOwner/mySubcription.jsp").forward(request, response);

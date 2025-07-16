@@ -17,7 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import DTO.ShopSubscriptionDto;
+import DTO.ShopSubscriptionDTO;
 import java.sql.Date;
 
 /**
@@ -68,7 +68,7 @@ public class ErrorPage extends HttpServlet {
             ShopOwner shopOwner = shopOwnerDAO.getShopOwnerByDatabaseName(databaseName);
 
             ShopSubscriptionDAO shopSubscriptionDAO = new ShopSubscriptionDAO(DBContext.getCentralConnection());
-            ShopSubscriptionDto subscript = shopSubscriptionDAO.getActiveSubscriptionByShopId(shopOwner.getId());
+            ShopSubscriptionDTO subscript = shopSubscriptionDAO.getActiveSubscriptionByShopId(shopOwner.getId());
 
             Date currentDate = new Date(System.currentTimeMillis());
             if (subscript == null || subscript.getEndDate().before(currentDate)) {

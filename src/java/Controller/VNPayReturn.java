@@ -1,7 +1,7 @@
 package Controller;
 
 import Context.DBContext;
-import DTO.ShopSubscriptionDto;
+import DTO.ShopSubscriptionDTO;
 import Dal.PaymentDAO;
 import Dal.ShopSubscriptionDAO;
 import Models.Payment;
@@ -49,7 +49,7 @@ public class VNPayReturn extends HttpServlet {
 
             if (actionType.toLowerCase().contains("gia hạn")) {
                 // Gia hạn: cập nhật thời gian hết hạn cho gói đang dùng
-                ShopSubscriptionDto currentSub = subDAO.getActiveSubscriptionByShopId(shopOwnerId);
+                ShopSubscriptionDTO currentSub = subDAO.getActiveSubscriptionByShopId(shopOwnerId);
                 if (currentSub != null) {
                     Calendar cal = Calendar.getInstance();
                     cal.setTime(currentSub.getEndDate().after(payment.getPaymentDate()) ? currentSub.getEndDate() : payment.getPaymentDate());
