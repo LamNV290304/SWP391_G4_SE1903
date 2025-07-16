@@ -51,7 +51,7 @@ public class ShopOwnerDAO {
     }
 
     public ShopOwner findShopOwnerByUsernameForLogin(String username, String plainPassword) throws SQLException {
-        String sql = "SELECT * FROM ShopOwners WHERE (Username = ? OR Email = ?) and Status = 1";
+        String sql = "SELECT * FROM ShopOwners WHERE (Username = ? OR Email = ?)";
         ShopOwner owner = null;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -191,6 +191,30 @@ public class ShopOwnerDAO {
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0;
         }
+    }
+    
+    public ShopOwner getShopOwnerById(int id) throws SQLException {
+        String sql = "SELECT * FROM ShopOwners WHERE Id = ? AND Status = 1";
+        ShopOwner owner = null;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    owner = new ShopOwner();
+                    owner.setId(rs.getInt("Id"));
+                    owner.setUsername(rs.getString("Username"));
+                    owner.setPassword(rs.getString("Password"));
+                    owner.setFullname(rs.getString("Fullname"));
+                    owner.setPhone(rs.getString("Phone"));
+                    owner.setEmail(rs.getString("Email"));
+                    owner.setDatabaseName(rs.getString("DatabaseName"));
+                    owner.setShopCode(rs.getString("ShopCode"));
+                    owner.setShopName(rs.getString("ShopName"));
+                }
+            }
+        }
+        return owner;
     }
 
     public ShopOwner getShopOwnerByDatabaseName(String databaseName) throws SQLException {
