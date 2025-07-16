@@ -143,7 +143,7 @@ public final class DatabaseHelper {
             [Description] NVARCHAR(255)
         );
         CREATE TABLE Role (
-            RoleID INT IDENTITY(1,1) PRIMARY KEY,
+            RoleID INT PRIMARY KEY,
             RoleName NVARCHAR(100) NOT NULL,
             [Description] NVARCHAR(255)
         );
