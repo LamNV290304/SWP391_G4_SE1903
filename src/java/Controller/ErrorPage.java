@@ -86,10 +86,7 @@ public class ErrorPage extends HttpServlet {
             request.getSession().setAttribute("databaseName", databaseName);
             request.getSession().setAttribute("shopName", shopName);
             request.getRequestDispatcher("loginEmployee.jsp").forward(request, response);
-        } catch (ClassNotFoundException ex) {
-            response.sendRedirect("error.jsp");
-            
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             response.sendRedirect("error.jsp");
         }
 
