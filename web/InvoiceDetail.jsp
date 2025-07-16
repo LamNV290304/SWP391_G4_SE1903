@@ -7,7 +7,7 @@
     class="light-style layout-menu-fixed"
     dir="ltr"
     data-theme="theme-default"
-    data-assets-path="./assets/" 
+    data-assets-path="./assets/"
     data-template="vertical-menu-template-free"
     >
     <head>
@@ -17,7 +17,7 @@
 
         <meta name="description" content="" />
 
-        <link rel="icon" type="image/x-icon" href="img/logoSale.png" /> 
+        <link rel="icon" type="image/x-icon" href="img/logoSale.png" />
 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -33,11 +33,11 @@
         <link rel="stylesheet" href="./assets/vendor/css/core.css" class="template-customizer-core-css" />
         <link rel="stylesheet" href="./assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
         <link rel="stylesheet" href="./assets/css/demo.css" />
-        <link rel="stylesheet" href="./assets/css/custom.css" /> <%-- custom.css của bạn --%>
+        <link rel="stylesheet" href="./assets/css/custom.css" />
 
 
         <link rel="stylesheet" href="./assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
-        <link rel="stylesheet" href="./assets/vendor/libs/apex-charts/apex-charts.css" /> <%-- Nếu cần, thêm các CSS của ApexCharts --%>
+        <link rel="stylesheet" href="./assets/vendor/libs/apex-charts/apex-charts.css" />
 
         <style>
 
@@ -81,7 +81,7 @@
                                         ${sessionScope.successMessage}
                                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                     </div>
-                                    <c:remove var="successMessage" scope="session"/> 
+                                    <c:remove var="successMessage" scope="session"/>
                                 </c:if>
                                 <c:if test="${not empty sessionScope.errorMessage}">
                                     <div class="alert alert-danger alert-dismissible fade show mt-4" role="alert">
@@ -176,23 +176,26 @@
                                             <div class="flex-grow-1 p-0 pe-md-4 text-start">
                                                 <p class="mb-1"><strong>Mã Hóa đơn:</strong> #${invoice.invoiceID}</p>
                                                 <p class="mb-1"><strong>Ngày lập:</strong> <fmt:formatDate value="${invoice.invoiceDate}" pattern="dd/MM/yyyy HH:mm:ss"/></p>
-                                                <!--                                                <p class="mb-1">
-                                                                                                    <strong>Nhân viên:</strong>
-                                                <c:choose>
-                                                    <c:when test="${not empty selectedEmployee}">
-                                                        ${selectedEmployee.fullname}
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <c:set var="employeeName" value="N/A"/>
-                                                        <c:forEach var="emp" items="${employees}">
-                                                            <c:if test="${emp.id == invoice.employeeID}">
-                                                                <c:set var="employeeName" value="${emp.fullname}"/>
-                                                            </c:if>
-                                                        </c:forEach>
-                                                        ${employeeName} <span class="text-muted fst-italic">(ID: ${invoice.employeeID})</span>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                            </p>-->
+                                                <%-- Phần hiển thị thông tin nhân viên (đã comment trong code gốc) --%>
+                                                <%--
+                                                <p class="mb-1">
+                                                    <strong>Nhân viên:</strong>
+                                                    <c:choose>
+                                                        <c:when test="${not empty selectedEmployee}">
+                                                            ${selectedEmployee.fullname}
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <c:set var="employeeName" value="N/A"/>
+                                                            <c:forEach var="emp" items="${employees}">
+                                                                <c:if test="${emp.id == invoice.employeeID}">
+                                                                    <c:set var="employeeName" value="${emp.fullname}"/>
+                                                                </c:if>
+                                                            </c:forEach>
+                                                            ${employeeName} <span class="text-muted fst-italic">(ID: ${invoice.employeeID})</span>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </p>
+                                                --%>
                                             </div>
                                             <div class="flex-grow-1 p-0 ps-md-4 text-end">
                                                 <p class="mb-1">
@@ -255,11 +258,11 @@
                                                 <tfoot>
                                                     <tr>
                                                         <td colspan="5" class="text-end pt-3 border-top border-dashed"><strong>Tổng tiền hàng:</strong></td>
-                                                        <td class="pt-3 border-top border-dashed"><strong><fmt:formatNumber value="${requestScope.totalAmountBeforeVAT}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></strong></td>
+                                                        <td class="pt-3 border-top border-dashed"><strong><fmt:formatNumber value="${requestScope.calculatedTotalAmountBeforeVAT}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></strong></td>
                                                     </tr>
                                                     <tr>
                                                         <td colspan="5" class="text-end"><strong>Số tiền thuế:</strong></td>
-                                                        <td><strong><fmt:formatNumber value="${requestScope.vatAmount}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></strong></td>
+                                                        <td><strong><fmt:formatNumber value="${requestScope.calculatedVatAmount}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></strong></td>
                                                     </tr>
                                                     <tr>
                                                         <td colspan="5" class="text-end"><strong>Tổng cộng:</strong></td>
@@ -300,7 +303,7 @@
                                                         <i class='bx bx-check-circle me-1'></i> Hoàn tất & Thanh toán
                                                     </button>
                                                 </form>
-                                                <hr class="my-4"> 
+                                                <hr class="my-4">
 
                                                 <div class="vnpay-qr-section p-3 border rounded mb-4">
                                                     <h5 class="mb-3 text-primary">Thanh toán qua MB Bank</h5>
@@ -325,7 +328,7 @@
                                                 <span class="badge bg-success p-2 fs-6 m-1">
                                                     <i class='bx bx-dollar-circle me-1'></i> ĐÃ THANH TOÁN
                                                 </span>
-                                            </c:if>   
+                                            </c:if>
                                         </div>
                                     </c:otherwise>
                                 </c:choose>
@@ -347,7 +350,7 @@
 
         <script src="./assets/js/main.js"></script>
 
-        <script src="./assets/js/dashboards-analytics.js"></script> 
+        <script src="./assets/js/dashboards-analytics.js"></script>
 
         <script async defer src="https://buttons.github.io/buttons.js"></script>
     </body>

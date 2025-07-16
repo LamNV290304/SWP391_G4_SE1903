@@ -35,7 +35,7 @@ public class InvoiceDAO {
     public List<Invoice> getAllInvoices() {
 
         String sql = "SELECT InvoiceID, CustomerID, EmployeeID, ShopID, InvoiceDate, "
-                + "TotalAmount, VatAmount, VATRateID, Note, Status "
+                + "TotalAmount, VATRateID, Note, Status "
                 + "FROM Invoice";
         List<Invoice> list = new ArrayList<>();
         try {
@@ -49,7 +49,7 @@ public class InvoiceDAO {
                         rs.getInt("ShopID"),
                         rs.getTimestamp("InvoiceDate"),
                         rs.getBigDecimal("TotalAmount"),
-                        rs.getBigDecimal("VatAmount"),
+                   
                         rs.getInt("VATRateID"),
                         rs.getString("Note"),
                         rs.getBoolean("Status")
@@ -63,8 +63,8 @@ public class InvoiceDAO {
 
     public int addInvoice(Invoice i) throws SQLException {
         String sqlInsert = "INSERT INTO [dbo].[Invoice]\n"
-                + "           ([CustomerID],[EmployeeID],[ShopID],[InvoiceDate],[TotalAmount],VatAmount, VATRateID,[Note],[Status])\n"
-                + "VALUES (?,?,?,?,?,?,?,?,?)";
+                + "           ([CustomerID],[EmployeeID],[ShopID],[InvoiceDate],[TotalAmount], VATRateID,[Note],[Status])\n"
+                + "VALUES (?,?,?,?,?,?,?,?)";
 
         int generatedId = -1;
         long startTime = System.currentTimeMillis();
@@ -75,10 +75,10 @@ public class InvoiceDAO {
             ptmInsert.setInt(3, i.getShopID());
             ptmInsert.setTimestamp(4, Timestamp.from(Instant.now()));
             ptmInsert.setBigDecimal(5, i.getTotalAmount());
-            ptmInsert.setBigDecimal(6, i.getVatAmount());
-            ptmInsert.setInt(7, i.getVatRateID());
-            ptmInsert.setString(8, i.getNote());
-            ptmInsert.setBoolean(9, i.isStatus());
+           
+            ptmInsert.setInt(6, i.getVatRateID());
+            ptmInsert.setString(7, i.getNote());
+            ptmInsert.setBoolean(8, i.isStatus());
 
             long preUpdate = System.currentTimeMillis();
             int affectedRows = ptmInsert.executeUpdate();
@@ -134,7 +134,7 @@ public class InvoiceDAO {
 
     public Invoice searchInvoice(int invoiceID) {
         String sql = "SELECT InvoiceID, CustomerID, EmployeeID, ShopID, InvoiceDate, "
-                + "TotalAmount, VatAmount, VATRateID, Note, Status "
+                + "TotalAmount, VATRateID, Note, Status "
                 + "FROM Invoice WHERE InvoiceID = ?";
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);
@@ -148,7 +148,7 @@ public class InvoiceDAO {
                         rs.getInt("ShopID"),
                         rs.getTimestamp("InvoiceDate"),
                         rs.getBigDecimal("TotalAmount"),
-                        rs.getBigDecimal("VatAmount"),
+                    
                         rs.getInt("VATRateID"),
                         rs.getString("Note"),
                         rs.getBoolean("Status")
@@ -163,7 +163,9 @@ public class InvoiceDAO {
     public List<Invoice> getInvoicesByCustomerID(int customerID) {
         List<Invoice> list = new ArrayList<>();
         String sql = "SELECT i.InvoiceID, i.CustomerID, c.CustomerName, i.EmployeeID, e.FullName AS EmployeeName, "
-                + "i.ShopID, s.ShopName, i.InvoiceDate, i.TotalAmount, i.VatAmount, i.VATRateID, i.Note, i.Status \n"
+
+                + "i.ShopID, s.ShopName, i.InvoiceDate, i.TotalAmount, i.VATRateID, i.Note, i.Status \n" 
+
                 + "FROM [dbo].[Invoice] i \n"
                 + "JOIN [dbo].[Customer] c ON i.CustomerID = c.CustomerID\n"
                 + "JOIN [dbo].[Shop] s ON i.ShopID = s.ShopID\n"
@@ -182,7 +184,7 @@ public class InvoiceDAO {
                             rs.getInt("ShopID"),
                             rs.getTimestamp("InvoiceDate"),
                             rs.getBigDecimal("TotalAmount"),
-                            rs.getBigDecimal("VatAmount"),
+                            
                             rs.getInt("VATRateID"),
                             rs.getString("Note"),
                             rs.getBoolean("Status"),
@@ -200,7 +202,7 @@ public class InvoiceDAO {
     public List<Invoice> getInvoicesByDateRange_UsingCastInSQL(Date startDate, Date endDate, int pageIndex, int pageSize) {
         List<Invoice> invoices = new ArrayList<>();
         StringBuilder sqlBuilder = new StringBuilder("SELECT i.InvoiceID, i.CustomerID, c.CustomerName, i.EmployeeID, e.FullName AS EmployeeName, "
-                + "i.ShopID, s.ShopName, i.InvoiceDate, i.TotalAmount, i.VatAmount, i.VATRateID, i.Note, i.Status \n" // THÊM VatAmount và VATRateID
+                + "i.ShopID, s.ShopName, i.InvoiceDate, i.TotalAmount, i.VATRateID, i.Note, i.Status \n" // THÊM VatAmount và VATRateID
                 + "FROM [dbo].[Invoice] i \n"
                 + "JOIN [dbo].[Customer] c ON i.CustomerID = c.CustomerID\n"
                 + "JOIN [dbo].[Shop] s ON i.ShopID = s.ShopID\n"
@@ -241,7 +243,7 @@ public class InvoiceDAO {
                             rs.getInt("ShopID"),
                             rs.getTimestamp("InvoiceDate"),
                             rs.getBigDecimal("TotalAmount"),
-                            rs.getBigDecimal("VatAmount"),
+                          
                             rs.getInt("VATRateID"),
                             rs.getString("Note"),
                             rs.getBoolean("Status"),
@@ -289,7 +291,7 @@ public class InvoiceDAO {
         String sql = "SELECT i.InvoiceID, i.CustomerID, c.CustomerName, i.EmployeeID, "
                 + "e.FullName AS EmployeeName, "
                 + "i.ShopID, s.ShopName, "
-                + "i.InvoiceDate, i.TotalAmount, i.VatAmount, i.VATRateID, i.Note, i.Status \n"
+                + "i.InvoiceDate, i.TotalAmount, i.VATRateID, i.Note, i.Status \n"
                 + "FROM Invoice i\n"
                 + "JOIN Customer c ON i.CustomerID = c.CustomerID\n"
                 + "JOIN [dbo].[Employee] e ON i.EmployeeID = e.EmployeeID\n"
@@ -311,7 +313,7 @@ public class InvoiceDAO {
                         rs.getInt("ShopID"),
                         rs.getTimestamp("InvoiceDate"),
                         rs.getBigDecimal("TotalAmount"),
-                        rs.getBigDecimal("VatAmount"),
+                       
                         rs.getInt("VATRateID"),
                         rs.getString("Note"),
                         rs.getBoolean("Status"),
@@ -336,7 +338,7 @@ public class InvoiceDAO {
                 + "      ,[Note] = ?\n"
                 + "      ,[Status] = ?\n"
                 + "      ,[VATRateID] = ?\n"
-                + "      ,[VatAmount] = ?\n"
+            
                 + " WHERE InvoiceID = ? ";
 
         try (PreparedStatement ptm = connection.prepareStatement(sql)) {
@@ -348,9 +350,9 @@ public class InvoiceDAO {
             ptm.setString(6, i.getNote());
             ptm.setBoolean(7, i.isStatus());
             ptm.setInt(8, i.getVatRateID());
-            ptm.setBigDecimal(9, i.getVatAmount());
+           
 
-            ptm.setInt(10, i.getInvoiceID());
+            ptm.setInt(9, i.getInvoiceID());
 
             int n = ptm.executeUpdate();
             return n > 0;
@@ -386,7 +388,6 @@ public class InvoiceDAO {
                         rs.getInt("ShopID"),
                         rs.getTimestamp("InvoiceDate"),
                         rs.getBigDecimal("TotalAmount"),
-                        rs.getBigDecimal("VatAmount"),
                         rs.getInt("VATRateID"),
                         rs.getString("Note"),
                         rs.getBoolean("Status"),

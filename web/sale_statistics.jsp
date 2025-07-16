@@ -1,5 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
 <!DOCTYPE html>
 <html lang="en"
       class="light-style layout-menu-fixed"
@@ -11,11 +13,13 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Thống kê Doanh số Bán hàng</title>
-        <link rel="icon" type="image/x-x-icon" href="${pageContext.request.contextPath}/assets/img/favicon/favicon.ico" />
+        <link rel="icon" type="image/x-icon" href="${pageContext.request.contextPath}/assets/img/favicon/favicon.ico" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/vendor/fonts/boxicons.css" />
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/vendor/css/core.css" />
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/vendor/css/theme-default.css" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/vendor/css/core.css" class="template-customizer-core-css" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/demo.css" />
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
         <script src="${pageContext.request.contextPath}/assets/vendor/js/helpers.js"></script>
@@ -40,11 +44,9 @@
                                 <div class="card-body">
                                     <form id="reportForm" action="StatisticServlet" method="GET">
                                         <div class="row align-items-end">
-                                         
-                                            <div class="col-md-4 mb-3">
+                                            <div class="col-md-3 mb-3">
                                                 <label for="shopSelect" class="form-label">Chọn cửa hàng:</label>
-                                                <select class="form-select" id="shopSelect" name="shopId" onchange="document.getElementById('reportForm').submit();">>
-                                             
+                                                <select class="form-select" id="shopSelect" name="shopId">
                                                     <option value="" ${selectedShopId == null ? 'selected' : ''}>Tất cả cửa hàng</option>
                                                     <c:forEach var="shop" items="${shops}">
                                                         <option value="${shop.shopID}" ${selectedShopId != null && selectedShopId == shop.shopID ? 'selected' : ''}>
@@ -52,9 +54,7 @@
                                                         </option>
                                                     </c:forEach>
                                                 </select>
-                                            </div>  
-                                           
-
+                                            </div>
                                             <div class="col-md-3 mb-3">
                                                 <label for="startDate" class="form-label">Từ ngày:</label>
                                                 <input type="date" class="form-control" id="startDate" name="startDate"
@@ -67,14 +67,15 @@
                                                        value="${not empty endDate ? endDate : ''}"
                                                        max="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>">
                                             </div>
-                                            <div class="col-md-2 mb-3">
-                                                <button type="submit" class="btn btn-primary d-grid w-100">Lọc</button>
+                                            <div class="col-md-3 mb-3">
+                                                <button type="submit" class="btn btn-primary me-2">Lọc</button>
+                                                <a href="StatisticServlet" class="btn btn-outline-secondary">Xem tổng cộng</a>
                                             </div>
+
+                                            <input type="hidden" name="page" value="${currentPage}" />
+                                            <input type="hidden" name="recordsPerPage" value="${recordsPerPage}" />
                                         </div>
                                     </form>
-                                    <div class="mt-3">
-                                        <a href="StatisticServlet" class="btn btn-outline-secondary">Xem thống kê tổng cộng</a>
-                                    </div>
                                 </div>
                             </div>
 
@@ -120,9 +121,9 @@
                                                         <tr>
                                                             <td><strong>${stat.employeeID}</strong></td>
                                                             <td>${stat.fullName}</td>
-                                                            <td>${String.format("%,.0f", stat.totalRevenue)} VNĐ</td>
+                                                            <td><fmt:formatNumber value="${stat.totalRevenue}" pattern="#,##0" /> VNĐ</td>
                                                             <td>${stat.totalOrders}</td>
-                                                            <td>${String.format("%,.0f", stat.averageRevenuePerOrder)} VNĐ</td>
+                                                            <td><fmt:formatNumber value="${stat.averageRevenuePerOrder}" pattern="#,##0" /> VNĐ</td>
                                                         </tr>
                                                     </c:forEach>
                                                 </c:when>
@@ -134,6 +135,70 @@
                                             </c:choose>
                                         </tbody>
                                     </table>
+                                </div>
+                                <%-- Phần phân trang --%>
+                                <div class="card-footer d-flex justify-content-center flex-wrap align-items-center">
+                                    <nav aria-label="Page navigation" class="mb-2 mb-md-0">
+                                        <c:if test="${totalPages > 1}">
+                                            <ul class="pagination mb-0">
+                                                <c:url var="baseLink" value="StatisticServlet">
+                                                    <%-- Giữ lại các tham số lọc hiện tại --%>
+                                                    <c:if test="${not empty param.startDate}">
+                                                        <c:param name="startDate" value="${param.startDate}" />
+                                                    </c:if>
+                                                    <c:if test="${not empty param.endDate}">
+                                                        <c:param name="endDate" value="${param.endDate}" />
+                                                    </c:if>
+                                                    <c:if test="${not empty param.shopId}">
+                                                        <c:param name="shopId" value="${param.shopId}" />
+                                                    </c:if>
+                                                    <c:if test="${not empty recordsPerPage}">
+                                                        <c:param name="recordsPerPage" value="${recordsPerPage}" />
+                                                    </c:if>
+                                                </c:url>
+
+                                                <li class="page-item <c:if test="${currentPage == 1}">disabled</c:if>">
+                                                    <a class="page-link" href="<c:url value="${baseLink}"><c:param name="page" value="${currentPage - 1}"/></c:url>">
+                                                            <i class="tf-icon bx bx-chevrons-left"></i>
+                                                        </a>
+                                                    </li>
+                                                <c:set var="numPagesToShow" value="5" />
+                                                <c:set var="halfPagesToShow" value="${numPagesToShow / 2}" />
+
+                                                <c:set var="startPage" value="${currentPage - halfPagesToShow}" />
+                                                <c:set var="endPage" value="${currentPage + halfPagesToShow}" />
+
+                                                <c:if test="${startPage < 1}">
+                                                    <c:set var="startPage" value="1" />
+                                                    <c:set var="endPage" value="${numPagesToShow > totalPages ? totalPages : numPagesToShow}" />
+                                                </c:if>
+
+                                                <c:if test="${endPage > totalPages}">
+                                                    <c:set var="endPage" value="${totalPages}" />
+                                                    <c:set var="startPage" value="${totalPages - numPagesToShow + 1}" />
+                                                    <c:if test="${startPage < 1}">
+                                                        <c:set var="startPage" value="1" />
+                                                    </c:if>
+                                                </c:if>
+
+                                                <c:forEach begin="${startPage}" end="${endPage}" var="i">
+                                                    <li class="page-item <c:if test="${i == currentPage}">active</c:if>">
+                                                        <c:url var="pageLink" value="${baseLink}">
+                                                            <c:param name="page" value="${i}" />
+                                                        </c:url>
+                                                        <a class="page-link" href="${pageLink}">${i}</a>
+                                                    </li>
+                                                </c:forEach>
+
+                                                <li class="page-item <c:if test="${currentPage == totalPages}">disabled</c:if>">
+                                                    <a class="page-link" href="<c:url value="${baseLink}"><c:param name="page" value="${currentPage + 1}"/></c:url>">
+                                                            <i class="tf-icon bx bx-chevrons-right"></i>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                        </c:if>
+                                    </nav>
+                             
                                 </div>
                             </div>
                         </div>
@@ -158,7 +223,6 @@
 
         <c:if test="${not empty salesStatistics}">
             <script>
-           
                 Chart.register(ChartDataLabels);
 
                 const employeeNames = [
@@ -196,26 +260,23 @@
                                     label: ctx => ctx.formattedValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' VNĐ'
                                 }
                             },
-                      
                             datalabels: {
                                 formatter: function (value, context) {
-                             
-                                    return value.toLocaleString('vi-VN') + ' VNĐ'; 
+                                    return value.toLocaleString('vi-VN') + ' VNĐ';
                                 },
-                                color: '#fff', 
+                                color: '#fff',
                                 font: {
                                     weight: 'bold',
-                                    size: 11 
+                                    size: 11
                                 },
                                 anchor: 'center',
-                                align: 'center'  
+                                align: 'center'
                             }
-                            // --------------------------------------------------------
                         },
                         scales: {
                             y: {
                                 ticks: {
-                                    callback: value => value.toLocaleString('vi-VN') + ' VNĐ' 
+                                    callback: value => value.toLocaleString('vi-VN') + ' VNĐ'
                                 }
                             }
                         }
@@ -252,7 +313,6 @@
                                     }
                                 }
                             },
-                    
                             datalabels: {
                                 formatter: (value, ctx) => {
                                     let sum = 0;
@@ -272,16 +332,13 @@
                                 align: 'start',
                                 offset: 5,
                                 display: function (ctx) {
-                           
                                     return ctx.dataset.data[ctx.dataIndex] > (ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0) * 0.03);
                                 }
                             }
                         }
                     }
                 });
-
             </script>
         </c:if>
-
     </body>
 </html>

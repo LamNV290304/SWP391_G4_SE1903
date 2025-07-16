@@ -1,5 +1,6 @@
 package Dal;
 
+import Context.DBContext;
 import Models.WorkSchedule;
 import java.sql.Connection;
 import java.util.Vector;
@@ -228,5 +229,31 @@ public class WorkScheduleDAO {
             ex.printStackTrace();
         }
         return list;
+    }
+
+    public static void main(String[] args) {
+        DBContext connection = new DBContext("Test");
+        WorkScheduleDAO workScheduleDAO = new WorkScheduleDAO(connection.getConnection());
+        try {
+            
+
+            String sql = "SELECT * FROM WorkSchedule";
+            Vector<WorkSchedule> list = workScheduleDAO.getAllWorkSchedule(sql);
+
+            // In kết quả
+            for (WorkSchedule w : list) {
+                System.out.println("ID: " + w.getWorkScheduleID()
+                        + ", Employee: " + w.getEmployeeID()
+                        + ", Shop: " + w.getShopID()
+                        + ", Shift: " + w.getShiftID()
+                        + ", Date: " + w.getWorkDate()
+                        + ", Status: " + w.getStatus()
+                        + ", Note: " + w.getNote());
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

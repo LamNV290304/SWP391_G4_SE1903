@@ -36,6 +36,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -67,9 +70,17 @@ public class AddExportReceipt extends HttpServlet {
         SupplierDAO supDAO = new SupplierDAO(conn);
         ProductDAO ProDAO = new ProductDAO(conn);
         InventoryDAO ivtDAO = new InventoryDAO(conn);
-        request.setAttribute("listEmp", empDao.getAllEmployee());
+        try {
+            request.setAttribute("listEmp", empDao.getAllEmployee());
+        } catch (SQLException ex) {
+            Logger.getLogger(AddExportReceipt.class.getName()).log(Level.SEVERE, null, ex);
+        }
         request.setAttribute("listSup", supDAO.getAllSuppliers());
-        request.setAttribute("listShop", shopDao.getAllShops("SWP7"));
+        try {
+            request.setAttribute("listShop", shopDao.getAllShops("SWP7"));
+        } catch (SQLException ex) {
+            Logger.getLogger(AddExportReceipt.class.getName()).log(Level.SEVERE, null, ex);
+        }
         request.setAttribute("listType", typeImp.getAllTypeExportReceipts());
         request.setAttribute("listProduct", ProDAO.getAllProducts());
         request.setAttribute("listIvt", ivtDAO.getAllInventories());
