@@ -470,28 +470,31 @@ public class EmployeeDAO {
     }
 
     public List<Employee> getEmployee() {
-        List<Employee> employees = new ArrayList<>();
-        String sql = "SELECT e.EmployeeID, e.FullName, e.RoleID, r.Name AS RoleName "
-                + "FROM Employee e JOIN Role r ON e.RoleID = r.RoleID ORDER BY e.FullName";
-        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                Employee emp = new Employee();
-                emp.setId(rs.getInt("EmployeeID"));
-                emp.setFullname(rs.getString("FullName"));
-                emp.setRoleId(rs.getInt("RoleID"));
+    List<Employee> employees = new ArrayList<>();
+    String sql = "SELECT e.EmployeeID, e.FullName, e.RoleID, r.RoleName AS RoleName "
+               + "FROM Employee e JOIN Role r ON e.RoleID = r.RoleID ORDER BY e.FullName";
+    try (PreparedStatement ps = connection.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+            Employee emp = new Employee();
+            emp.setId(rs.getInt("EmployeeID"));
+            emp.setFullname(rs.getString("FullName"));
+            emp.setRoleId(rs.getInt("RoleID"));
 
-                Role role = new Role();
-                role.setId(rs.getInt("RoleID"));
-                role.setName(rs.getString("RoleName"));
-                emp.setRole(role);
+            Role role = new Role();
+            role.setId(rs.getInt("RoleID"));
+            role.setName(rs.getString("RoleName")); // đảm bảo RoleName đúng với cột DB
+            emp.setRole(role);
 
-                employees.add(emp);
-            }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
+            employees.add(emp);
         }
-        return employees;
+    } catch (SQLException ex) {
+        System.out.println("Lỗi khi lấy danh sách nhân viên: " + ex.getMessage());
+        ex.printStackTrace();
     }
+    return employees;
+}
+
 
     public boolean addEmployee(Employee employee) throws SQLException {
         String sql = "INSERT INTO Employee (Username, Password, Fullname, Phone, Email, Status, CreatedDate, RoleId, ShopId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -959,11 +962,35 @@ public class EmployeeDAO {
     }
 
     public static void main(String[] args) {
-        // Tạo đối tượng DAO
-        DBContext connection = new DBContext("SWP8");
-        EmployeeDAO dao = new EmployeeDAO(connection.getConnection());
+        try {
+            // Kết nối CSDL (tên DB là SWP8)
+            DBContext db = new DBContext("Test");
+            Connection conn = db.getConnection();
 
-        // Gọi phương thức getAllEmployee()
+            // Tạo DAO
+            EmployeeDAO dao = new EmployeeDAO(conn);
+
+            // Gọi hàm tìm kiếm nhân viên theo tên
+            String keyword = "Nguyen"; // bạn có thể thay đổi để test
+            List<Employee> list = dao.getEmployee();
+
+            // In ra kết quả
+            if (list.isEmpty()) {
+                System.out.println("Không tìm thấy nhân viên nào với tên chứa: " + keyword);
+            } else {
+                System.out.println("Kết quả tìm kiếm nhân viên theo tên '" + keyword + "':");
+                for (Employee e : list) {
+                    System.out.println("ID: " + e.getId()
+                            + ", Họ tên: " + e.getFullname()
+                            + ", Email: " + e.getEmail()
+                            + ", SĐT: " + e.getPhone());
+                }
+            }
+
+            conn.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
 }

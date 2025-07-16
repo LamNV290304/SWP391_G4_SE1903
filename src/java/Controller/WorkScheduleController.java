@@ -45,13 +45,11 @@ public class WorkScheduleController extends HttpServlet {
 
     DBContext connection = new DBContext("Test");
     WorkScheduleDAO workScheduleDAO = new WorkScheduleDAO(connection.getConnection());
-    ShopDAO shopDAO = new ShopDAO();
     EmployeeDAO employeeDAO = new EmployeeDAO(connection.getConnection());
     ShiftDAO shiftDAO = new ShiftDAO(connection.getConnection());
 
     private static final String sqlList = "SELECT * FROM [dbo].[WorkSchedule]";
 
-    Vector<WorkSchedule> list = workScheduleDAO.getAllWorkSchedule(sqlList);
     List<Employee> employees = employeeDAO.getEmployee();
     Vector<Shift> listShift = shiftDAO.getAllShift("SELECT * FROM [dbo].[Shift]");
 
