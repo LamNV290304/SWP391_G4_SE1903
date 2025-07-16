@@ -69,11 +69,11 @@
                             <div class="card mb-4">
                                 <h5 class="card-header">Chọn Cửa hàng & Tìm kiếm Báo cáo</h5>
                                 <div class="card-body">
-                                    <form id="reportForm" action="ReportItemServlet" method="get">
+                                    <form action="ReportItemServlet" method="get">
                                         <div class="row g-3 align-items-center">
                                             <div class="col-md-4">
                                                 <label for="shopSelect" class="form-label">Chọn Cửa hàng:</label>
-                                                <select id="shopSelect" name="shopId" class="form-select" onchange="document.getElementById('reportForm').submit();">
+                                                <select id="shopSelect" name="shopId" class="form-select" >
                                                     <option value="">Tất cả Cửa hàng</option>
                                                     <c:forEach var="shop" items="${allShops}">
                                                         <option value="${shop.shopID}" ${param.shopId == shop.shopID ? 'selected' : ''}>

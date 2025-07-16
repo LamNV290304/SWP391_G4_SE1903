@@ -8,7 +8,6 @@ package Dal;
  *
  * @author Thai Anh
  */
-
 import Models.Shop;
 import Context.DBContext;
 
@@ -18,12 +17,37 @@ import java.util.List;
 
 public class ShopDAO {
 
-    public List<Shop> getAllShops(String databaseName) {
+    public Shop getShopByName(String shopName, String databaseName) {
+        Shop shop = null;
+        // Truy vấn bảng Shop trong database CỤ THỂ của cửa hàng
+        String sql = "SELECT ShopID, ShopName, Address, Phone, Email, Status, CreatedDate, CreatedBy FROM Shop WHERE ShopName = ?";
+        try (Connection conn = DBContext.getConnection(databaseName); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, shopName);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    shop = new Shop();
+                    shop.setShopID(rs.getInt("ShopID"));
+                    shop.setShopName(rs.getString("ShopName"));
+                    shop.setAddress(rs.getString("Address"));
+                    shop.setPhone(rs.getString("Phone"));
+                    shop.setEmail(rs.getString("Email"));
+                    shop.setStatus(rs.getBoolean("Status"));
+                    shop.setCreatedDate(rs.getTimestamp("CreatedDate"));
+                    shop.setCreatedBy(rs.getString("CreatedBy"));
+                    
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+         
+        }
+        return shop;
+    }
+
+    public List<Shop> getAllShops(String databaseName) throws SQLException{
         List<Shop> shops = new ArrayList<>();
         String sql = "SELECT * FROM Shop";
-        try (Connection conn = DBContext.getConnection(databaseName);
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DBContext.getConnection(databaseName); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Shop shop = new Shop(
@@ -44,11 +68,10 @@ public class ShopDAO {
         }
         return shops;
     }
-    
+
     public Shop getShopByID(Integer shopID, String databaseName) {
         String sql = "SELECT * FROM Shop WHERE ShopID = ?";
-        try (Connection conn = DBContext.getConnection(databaseName);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBContext.getConnection(databaseName); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, shopID);
             try (ResultSet rs = ps.executeQuery()) {
@@ -74,8 +97,7 @@ public class ShopDAO {
 
     public boolean insertShop(Shop shop, String databaseName) {
         String sql = "INSERT INTO Shop (ShopName, Address, Phone, Email, Status, CreatedDate, CreatedBy) VALUES ( ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conn = DBContext.getConnection(databaseName);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBContext.getConnection(databaseName); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, shop.getShopName());
             ps.setString(2, shop.getAddress());
@@ -95,8 +117,7 @@ public class ShopDAO {
 
     public boolean updateShop(Shop shop, String databaseName) {
         String sql = "UPDATE Shop SET ShopName=?, Address=?, Phone=?, Email=?, Status=?, CreatedDate=?, CreatedBy=? WHERE ShopID=?";
-        try (Connection conn = DBContext.getConnection(databaseName);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBContext.getConnection(databaseName); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, shop.getShopName());
             ps.setString(2, shop.getAddress());
@@ -117,8 +138,7 @@ public class ShopDAO {
 
     public boolean deleteShop(String shopID, String databaseName) {
         String sql = "DELETE FROM Shop WHERE ShopID = ?";
-        try (Connection conn = DBContext.getConnection(databaseName);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBContext.getConnection(databaseName); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, shopID);
             return ps.executeUpdate() > 0;
@@ -128,26 +148,21 @@ public class ShopDAO {
         }
         return false;
     }
+
     public static void main(String[] args) {
-         String dbName = "SWP7"; // Thay đổi tùy theo CSDL của bạn
+        String dbName = "SWP7"; // Thay đổi tùy theo CSDL của bạn
         ShopDAO dao = new ShopDAO();
 
         // Insert test
-       // Shop shop = new Shop("S009", "HAHA", "Hanoi", "0262995295", "Haha@gmail.com", "Nô", new Date(), "haha");
-   //     boolean inserted = dao.insertShop(shop, dbName);
-   //     System.out.println("Insert: " + inserted);
-
+        // Shop shop = new Shop("S009", "HAHA", "Hanoi", "0262995295", "Haha@gmail.com", "Nô", new Date(), "haha");
+        //     boolean inserted = dao.insertShop(shop, dbName);
+        //     System.out.println("Insert: " + inserted);
         // Get all test
-        List<Shop> shops = dao.getAllShops(dbName);
-        for (Shop s : shops) {
-            System.out.println(s.getShopName() + " - " + s.getAddress());
-        }
+      
 
         // Get by ID test
-
         // Delete test
-      //  boolean deleted = dao.deleteShop("S001", dbName);
-       // System.out.println("Delete: " + deleted);
+        //  boolean deleted = dao.deleteShop("S001", dbName);
+        // System.out.println("Delete: " + deleted);
     }
 }
-

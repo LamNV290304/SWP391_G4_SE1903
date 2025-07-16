@@ -28,12 +28,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import static java.math.BigDecimal.valueOf;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -57,9 +60,17 @@ public class AddInventoryCheck extends HttpServlet {
         SupplierDAO supDAO = new SupplierDAO(conn);
         ProductDAO ProDAO = new ProductDAO(conn);
         InventoryDAO ivtDAO = new InventoryDAO(conn);
-        request.setAttribute("listEmp", empDao.getAllEmployee());
+        try {
+            request.setAttribute("listEmp", empDao.getAllEmployee());
+        } catch (SQLException ex) {
+            Logger.getLogger(AddInventoryCheck.class.getName()).log(Level.SEVERE, null, ex);
+        }
         request.setAttribute("listSup", supDAO.getAllSuppliers());
-        request.setAttribute("listShop", shopDao.getAllShops("SWP7"));
+        try {
+            request.setAttribute("listShop", shopDao.getAllShops("SWP7"));
+        } catch (SQLException ex) {
+            Logger.getLogger(AddInventoryCheck.class.getName()).log(Level.SEVERE, null, ex);
+        }
         request.setAttribute("listProduct", ProDAO.getAllProducts());
         request.setAttribute("listIvt", ivtDAO.getAllInventories());
         request.getRequestDispatcher("AddInventoryCheck.jsp").forward(request, response);

@@ -6,6 +6,7 @@ package Dal;
 
 import Context.DBContext;
 import Models.VATRate;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +46,25 @@ public class VATRateDAO {
         return vatRates;
     }
 
+    public VATRate getVATRateByRate(BigDecimal rate) {
+        VATRate vatRate = null;
+        String sql = "SELECT [VATRateID], [Rate] FROM [dbo].[VATRates] WHERE [Rate] = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setBigDecimal(1, rate);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    vatRate = new VATRate();
+                    vatRate.setVATRateID(rs.getInt("VATRateID"));
+                    vatRate.setRate(rs.getBigDecimal("Rate"));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting VATRate by rate: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return vatRate;
+    }
+
     public VATRate getVATRateById(int vatRateID) {
         String sql = "SELECT VATRateID, Rate FROM VATRates WHERE VATRateID = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -65,12 +85,12 @@ public class VATRateDAO {
 
     public static void main(String[] args) {
         Connection dbConnection = null;
-        DBContext dbContext = new DBContext("SWP1"); // Thay "SWP1" bằng tên DB của bạn
+        DBContext dbContext = new DBContext("SWP1");
         dbConnection = dbContext.getConnection();
         VATRateDAO vatRateDAO = new VATRateDAO(dbConnection);
         List<VATRate> l = vatRateDAO.getAllVATRates();
         for (VATRate vATRate : l) {
-            System.out.println(vATRate.getVATRateID());
+            System.out.println(vATRate.getRate());
         }
     }
 }

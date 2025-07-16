@@ -34,198 +34,383 @@ public class EmployeeDAO {
         this.connection = connection;
     }
 
-    public List<SalesEmployeeStatisticDto> getSalesStatisticsForSalesEmployees() throws SQLException {
+    public List<SalesEmployeeStatisticDto> getSalesStatisticsForEmployee(
+            Integer employeeId, Integer shopId, Date startDate, Date endDate, int currentPage, int recordsPerPage) throws SQLException {
+
         List<SalesEmployeeStatisticDto> statistics = new ArrayList<>();
-        String sql = "SELECT "
-                + "    E.EmployeeID, "
-                + "    E.FullName, "
-                + "    SUM(I.TotalAmount) AS TotalRevenue, "
-                + "    COUNT(I.InvoiceID) AS TotalOrders "
-                + "FROM "
-                + "    Employee AS E "
-                + "JOIN "
-                + "    Invoice AS I ON E.EmployeeID = I.EmployeeID "
-                + "WHERE "
-                + "    E.RoleID = 2 "
-                + "    AND I.Status = 1 "
-                + "GROUP BY "
-                + "    E.EmployeeID, E.FullName "
-                + "ORDER BY "
-                + "    TotalRevenue DESC";
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT e.EmployeeID, e.FullName, ");
+        sql.append("ISNULL(SUM(ID.Quantity * ID.UnitPrice), 0) AS TotalRevenue, ");
+        sql.append("ISNULL(COUNT(DISTINCT I.InvoiceID), 0) AS TotalOrders, ");
+        sql.append("CASE WHEN ISNULL(COUNT(DISTINCT I.InvoiceID), 0) > 0 THEN ISNULL(SUM(ID.Quantity * ID.UnitPrice), 0) / CAST(COUNT(DISTINCT I.InvoiceID) AS DECIMAL(18, 2)) ELSE 0 END AS AverageRevenuePerOrder ");
+        sql.append("FROM Employee e ");
+        sql.append("LEFT JOIN Invoice I ON e.EmployeeID = I.EmployeeID ");
+        sql.append("LEFT JOIN InvoiceDetail ID ON I.InvoiceID = ID.InvoiceID ");
+        sql.append("WHERE e.EmployeeID = ? "); // Lọc chính xác theo EmployeeID
 
-        try (PreparedStatement ptm = connection.prepareStatement(sql); ResultSet rs = ptm.executeQuery()) {
-            while (rs.next()) {
-                int employeeID = rs.getInt("EmployeeID");
-                String fullName = rs.getString("FullName");
-
-                BigDecimal totalRevenue = rs.getBigDecimal("TotalRevenue");
-                int totalOrders = rs.getInt("TotalOrders");
-
-                BigDecimal averageRevenuePerOrder;
-                if (totalOrders > 0) {
-
-                    averageRevenuePerOrder = totalRevenue.divide(new BigDecimal(totalOrders), 2, BigDecimal.ROUND_HALF_UP);
-                } else {
-                    averageRevenuePerOrder = BigDecimal.ZERO;
-                }
-
-                SalesEmployeeStatisticDto stat = new SalesEmployeeStatisticDto(
-                        employeeID,
-                        fullName,
-                        totalRevenue,
-                        totalOrders,
-                        averageRevenuePerOrder
-                );
-                statistics.add(stat);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, "Error getting sales statistics for sales employees (all time)", ex);
-            throw ex;
-        }
-        return statistics;
-    }
-
-    public List<SalesEmployeeStatisticDto> getSalesStatisticsForSalesEmployees(Integer shopId) throws SQLException {
-        List<SalesEmployeeStatisticDto> statistics = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("""
-            SELECT
-                e.EmployeeID,
-                e.Fullname,
-                SUM(od.Quantity * od.UnitPrice) AS TotalRevenue,
-                COUNT(DISTINCT o.InvoiceID) AS TotalOrders
-            FROM Employee e
-            JOIN Invoice o ON e.EmployeeID = o.EmployeeID
-            JOIN InvoiceDetail od ON o.InvoiceID = od.InvoiceID
-            WHERE e.RoleID = 2 -- Giả sử RoleID = 2 là nhân viên bán hàng
-        """);
+        List<Object> params = new ArrayList<>();
+        params.add(employeeId); // Thêm employeeId vào tham số đầu tiên
 
         if (shopId != null) {
             sql.append(" AND e.ShopID = ?");
+            params.add(shopId);
+        }
+        if (startDate != null && endDate != null) {
+            sql.append(" AND I.InvoiceDate BETWEEN ? AND ?");
+            params.add(startDate);
+            params.add(endDate);
         }
 
-        sql.append("""
-            GROUP BY
-                e.EmployeeID,
-                e.Fullname
-            ORDER BY
-                TotalRevenue DESC
-        """);
+        sql.append(" GROUP BY e.EmployeeID, e.FullName "); // Luôn group by để lấy tổng cho nhân viên đó
+        sql.append(" ORDER BY e.EmployeeID "); // Order by cũng chỉ có 1 nhân viên nên không quá quan trọng
+        sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
-            if (shopId != null) {
-                stmt.setInt(1, shopId);
+        int offset = (currentPage - 1) * recordsPerPage;
+        params.add(offset);
+        params.add(recordsPerPage);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
             }
-
-            try (ResultSet rs = stmt.executeQuery()) {
+            try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    int employeeID = rs.getInt("EmployeeID");
-                    String fullName = rs.getString("Fullname");
-                    BigDecimal totalRevenue = rs.getBigDecimal("TotalRevenue");
-                    int totalOrders = rs.getInt("TotalOrders");
-                    BigDecimal averageRevenuePerOrder = BigDecimal.ZERO;
-                    if (totalOrders > 0) {
-                        averageRevenuePerOrder = totalRevenue.divide(BigDecimal.valueOf(totalOrders), 2, BigDecimal.ROUND_HALF_UP);
-                    }
-                    statistics.add(new SalesEmployeeStatisticDto(employeeID, fullName, totalRevenue, totalOrders, averageRevenuePerOrder));
+                    statistics.add(new SalesEmployeeStatisticDto(
+                            rs.getInt("EmployeeID"),
+                            rs.getString("FullName"),
+                            rs.getBigDecimal("TotalRevenue"),
+                            rs.getInt("TotalOrders"),
+                            rs.getBigDecimal("AverageRevenuePerOrder")
+                    ));
                 }
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, "Error getSalesStatisticsForEmployee", ex);
             throw ex;
         }
         return statistics;
     }
 
-    public List<SalesEmployeeStatisticDto> getSalesStatisticsForSalesEmployeesByDateRange(Date startDate, Date endDate, Integer shopId) throws SQLException {
-        List<SalesEmployeeStatisticDto> statistics = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("""
-            SELECT
-                e.EmployeeID,
-                e.Fullname,
-                SUM(od.Quantity * od.UnitPrice) AS TotalRevenue,
-                COUNT(DISTINCT o.InvoiceID) AS TotalOrders
-            FROM Employee e
-            JOIN Invoice o ON e.EmployeeID = o.EmployeeID
-            JOIN InvoiceDetail od ON o.InvoiceID = od.InvoiceID
-            WHERE e.RoleID = 2 -- Giả sử RoleID = 2 là nhân viên bán hàng
-            AND o.InvoiceDate BETWEEN ? AND ?
-        """);
+    public int getTotalSalesStatisticsCount(Integer employeeIdFilter, Integer shopIdFilter, Date startDate, Date endDate, List<Integer> roleIdFilters) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT COUNT(DISTINCT E.EmployeeID) ");
+        query.append("FROM Employee E ");
+        query.append("LEFT JOIN Invoice I ON E.EmployeeID = I.EmployeeID ");
+        query.append("WHERE 1=1 ");
+
+        List<Object> params = new ArrayList<>();
+
+        // Điều chỉnh để xử lý List of RoleIDs
+        if (roleIdFilters != null && !roleIdFilters.isEmpty()) {
+            query.append("AND E.RoleID IN (");
+            for (int i = 0; i < roleIdFilters.size(); i++) {
+                query.append("?");
+                if (i < roleIdFilters.size() - 1) {
+                    query.append(",");
+                }
+                params.add(roleIdFilters.get(i));
+            }
+            query.append(") ");
+        }
+
+        if (shopIdFilter != null) {
+            query.append("AND E.ShopID = ? ");
+            params.add(shopIdFilter);
+        }
+
+        if (employeeIdFilter != null) {
+            query.append("AND E.EmployeeID = ? ");
+            params.add(employeeIdFilter);
+        }
+
+        if (startDate != null && endDate != null) {
+            query.append("AND I.InvoiceDate BETWEEN ? AND ? ");
+            params.add(startDate);
+            params.add(endDate);
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(query.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, "Error getting total sales statistics count", e);
+            throw e;
+        }
+        return 0;
+    }
+
+    public int getTotalSalesStatisticsCountForEmployee(Integer employeeId, Integer shopId, Date startDate, Date endDate) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT COUNT(E.EmployeeID) "); // Chỉ cần đếm xem có tồn tại nhân viên này không
+        query.append("FROM Employee E ");
+        query.append("LEFT JOIN Invoice I ON E.EmployeeID = I.EmployeeID "); // Dùng LEFT JOIN để có thể lọc theo InvoiceDate
+        query.append("WHERE E.EmployeeID = ? ");
+
+        List<Object> params = new ArrayList<>();
+        params.add(employeeId);
 
         if (shopId != null) {
-            sql.append(" AND e.ShopID = ?");
+            query.append("AND E.ShopID = ? ");
+            params.add(shopId);
         }
 
-        sql.append("""
-            GROUP BY
-                e.EmployeeID,
-                e.Fullname
-            ORDER BY
-                TotalRevenue DESC
-        """);
+        if (startDate != null && endDate != null) {
+            // Điều kiện này sẽ lọc các nhân viên có hóa đơn trong khoảng ngày
+            query.append("AND I.InvoiceDate BETWEEN ? AND ? ");
+            params.add(startDate);
+            params.add(endDate);
+        }
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
-            stmt.setDate(1, startDate);
-            stmt.setDate(2, endDate);
+        // Thêm GROUP BY để đảm bảo COUNT(E.EmployeeID) đếm đúng nếu có join
+        // Tuy nhiên, vì WHERE E.EmployeeID = ?, kết quả chỉ có 1 hoặc 0.
+        query.append("GROUP BY E.EmployeeID");
 
-            int paramIndex = 3;
-            if (shopId != null) {
-                stmt.setInt(paramIndex++, shopId);
+        try (PreparedStatement ps = connection.prepareStatement(query.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
             }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
 
-            try (ResultSet rs = stmt.executeQuery()) {
+                    return 1;
+                }
+            }
+        } catch (SQLException e) {
+            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, "Lỗi khi lấy tổng số lượng thống kê cho nhân viên: ", e);
+            throw e;
+        }
+        return 0;
+    }
+
+    public List<SalesEmployeeStatisticDto> getSalesStatistics(
+            Integer employeeIdFilter, Integer shopIdFilter, Date startDate, Date endDate,
+            int currentPage, int recordsPerPage, List<Integer> roleIdFilters) throws SQLException {
+
+        List<SalesEmployeeStatisticDto> statistics = new ArrayList<>();
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT e.EmployeeID, e.FullName, ");
+        sql.append("ISNULL(SUM(ID.Quantity * ID.UnitPrice), 0) AS TotalRevenue, ");
+        sql.append("ISNULL(COUNT(DISTINCT I.InvoiceID), 0) AS TotalOrders, ");
+        sql.append("CASE WHEN ISNULL(COUNT(DISTINCT I.InvoiceID), 0) > 0 THEN ISNULL(SUM(ID.Quantity * ID.UnitPrice), 0) / CAST(COUNT(DISTINCT I.InvoiceID) AS DECIMAL(18, 2)) ELSE 0 END AS AverageRevenuePerOrder ");
+        sql.append("FROM Employee e ");
+        sql.append("LEFT JOIN Invoice I ON e.EmployeeID = I.EmployeeID ");
+        sql.append("LEFT JOIN InvoiceDetail ID ON I.InvoiceID = ID.InvoiceID ");
+        sql.append("WHERE 1=1 ");
+
+        List<Object> params = new ArrayList<>();
+
+        // Điều chỉnh để xử lý List of RoleIDs
+        if (roleIdFilters != null && !roleIdFilters.isEmpty()) {
+            sql.append(" AND e.RoleID IN (");
+            for (int i = 0; i < roleIdFilters.size(); i++) {
+                sql.append("?");
+                if (i < roleIdFilters.size() - 1) {
+                    sql.append(",");
+                }
+                params.add(roleIdFilters.get(i));
+            }
+            sql.append(") ");
+        }
+
+        if (shopIdFilter != null) {
+            sql.append(" AND e.ShopID = ?");
+            params.add(shopIdFilter);
+        }
+
+        if (employeeIdFilter != null) {
+            sql.append(" AND e.EmployeeID = ?");
+            params.add(employeeIdFilter);
+        }
+
+        if (startDate != null && endDate != null) {
+            sql.append(" AND I.InvoiceDate BETWEEN ? AND ?");
+            params.add(startDate);
+            params.add(endDate);
+        }
+
+        sql.append(" GROUP BY e.EmployeeID, e.FullName ");
+        sql.append(" ORDER BY e.EmployeeID ");
+        sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+        int offset = (currentPage - 1) * recordsPerPage;
+        params.add(offset);
+        params.add(recordsPerPage);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    int employeeID = rs.getInt("EmployeeID");
-                    String fullName = rs.getString("Fullname");
-                    BigDecimal totalRevenue = rs.getBigDecimal("TotalRevenue");
-                    int totalOrders = rs.getInt("TotalOrders");
-                    BigDecimal averageRevenuePerOrder = BigDecimal.ZERO;
-                    if (totalOrders > 0) {
-                        averageRevenuePerOrder = totalRevenue.divide(BigDecimal.valueOf(totalOrders), 2, BigDecimal.ROUND_HALF_UP);
-                    }
-                    statistics.add(new SalesEmployeeStatisticDto(employeeID, fullName, totalRevenue, totalOrders, averageRevenuePerOrder));
+                    statistics.add(new SalesEmployeeStatisticDto(
+                            rs.getInt("EmployeeID"),
+                            rs.getString("FullName"),
+                            rs.getBigDecimal("TotalRevenue"),
+                            rs.getInt("TotalOrders"),
+                            rs.getBigDecimal("AverageRevenuePerOrder")
+                    ));
                 }
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, "Error getSalesStatistics", ex);
             throw ex;
         }
         return statistics;
     }
 
-    public List<Employee> getAllEmployee() {
-        List<Employee> l = new ArrayList<>();
-        String sql = "SELECT e.[EmployeeID], e.[Username], e.[Password], e.[FullName], e.[Email], e.[Phone], "
-                + "e.[RoleID], e.[ShopID], e.[Status], e.[CreatedDate], e.[CreatedBy], "
-                + "r.RoleID AS Role_Id, r.RoleName AS Role_Name, r.Description AS Role_Description " 
-                + "FROM [dbo].[Employee] AS e "
-                + "JOIN [dbo].[Role] AS r ON e.RoleID = r.RoleID";
+    public List<Employee> getAllStaffAndSelfEmployees(int loggedInEmployeeId, Integer loggedInEmployeeRoleId, Integer loggedInEmployeeShopId) throws SQLException {
+        List<Employee> employees = new ArrayList<>();
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT e.EmployeeID, e.FullName, e.RoleID, r.RoleName "); // Thay r.Name thành r.RoleName nếu cột là RoleName
+        sql.append("FROM Employee e JOIN Role r ON e.RoleID = r.RoleID ");
+        sql.append("WHERE e.EmployeeID = ? "); // Luôn bao gồm chính người dùng đang đăng nhập
 
-        try (PreparedStatement ptm = connection.prepareStatement(sql); ResultSet rs = ptm.executeQuery()) {
+        List<Object> params = new ArrayList<>();
+        params.add(loggedInEmployeeId);
+
+       
+        if (loggedInEmployeeRoleId != null && loggedInEmployeeRoleId == 1) { // Admin
+            sql.append("OR e.RoleID IN (?, ?) ");
+            params.add(2); 
+            params.add(4); 
+        } 
+        else if (loggedInEmployeeRoleId != null && loggedInEmployeeRoleId == 3 && loggedInEmployeeShopId != null) {
+            sql.append("OR (e.ShopID = ? AND e.RoleID IN (?, ?)) "); 
+            params.add(loggedInEmployeeShopId);
+            params.add(2); 
+            params.add(4);
+        }
+       
+
+        sql.append("ORDER BY e.FullName");
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Employee emp = new Employee();
+                    emp.setId(rs.getInt("EmployeeID"));
+                    emp.setFullname(rs.getString("FullName"));
+                    emp.setRoleId(rs.getInt("RoleID"));
+
+                    Role role = new Role();
+                    role.setId(rs.getInt("RoleID"));
+                    role.setName(rs.getString("RoleName")); 
+                    emp.setRole(role);
+
+                    employees.add(emp);
+                }
+            }
+        }
+        return employees;
+    }
+
+    public List<Employee> getEmployeesByShopIdAndRoleId(int shopId, int roleId) throws SQLException {
+        List<Employee> employees = new ArrayList<>();
+
+        String sql = "SELECT e.*, r.RoleName FROM Employee e JOIN Role r ON e.RoleID = r.RoleID WHERE e.ShopID = ? AND e.RoleID = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, shopId);
+            ps.setInt(2, roleId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Employee employee = new Employee();
+                    employee.setId(rs.getInt("EmployeeID"));
+                    employee.setUsername(rs.getString("Username"));
+                    employee.setPassword(rs.getString("Password"));
+                    employee.setFullname(rs.getString("FullName"));
+                    employee.setEmail(rs.getString("Email"));
+                    employee.setPhone(rs.getString("Phone"));
+                    employee.setStatus(rs.getBoolean("Status"));
+                    employee.setCreateDate(rs.getDate("CreatedDate"));
+                    employee.setRoleId(rs.getInt("RoleID"));
+                    employee.setShopId(rs.getInt("ShopID"));
+
+                    Role role = new Role();
+                    role.setId(rs.getInt("RoleID"));
+                    role.setName(rs.getString("RoleName"));
+                    employee.setRole(role);
+
+                    employees.add(employee);
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, "Error getting employees by ShopID and RoleID", ex);
+            throw ex;
+        }
+        return employees;
+    }
+
+    public int getTotalSalesStatisticsCount(Integer targetEmployeeId, Integer shopId, Date startDate, Date endDate) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT COUNT(DISTINCT E.EmployeeID) ");
+        query.append("FROM Employee E ");
+        query.append("LEFT JOIN Invoice I ON E.EmployeeID = I.EmployeeID "); // Dùng LEFT JOIN để đếm cả nhân viên chưa có hóa đơn
+        query.append("WHERE E.RoleID = 2 "); // Chỉ Staff
+
+        List<Object> params = new ArrayList<>();
+
+        if (shopId != null) {
+            query.append("AND E.ShopID = ? ");
+            params.add(shopId);
+        }
+
+        if (targetEmployeeId != null) {
+            query.append("AND E.EmployeeID = ? ");
+            params.add(targetEmployeeId);
+        }
+
+        if (startDate != null && endDate != null) {
+            query.append("AND I.InvoiceDate BETWEEN ? AND ? ");
+            params.add(startDate);
+            params.add(endDate);
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(query.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, "Error getting total sales statistics count", e);
+            throw e;
+        }
+        return 0;
+    }
+
+    public List<Employee> getAllEmployee() throws SQLException {
+        List<Employee> employees = new ArrayList<>();
+        String sql = "SELECT e.EmployeeID, e.FullName, e.RoleID, r.Name AS RoleName "
+                + "FROM Employee e JOIN Role r ON e.RoleID = r.RoleID ORDER BY e.FullName";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 Employee emp = new Employee();
                 emp.setId(rs.getInt("EmployeeID"));
-                emp.setUsername(rs.getString("Username"));
-                emp.setPassword(rs.getString("Password"));
                 emp.setFullname(rs.getString("FullName"));
-                emp.setEmail(rs.getString("Email"));
-                emp.setPhone(rs.getString("Phone"));
-                emp.setStatus(rs.getBoolean("Status"));
-                emp.setCreateDate(rs.getDate("CreatedDate"));
                 emp.setRoleId(rs.getInt("RoleID"));
+
                 Role role = new Role();
-                role.setId(rs.getInt("Role_Id"));
-                role.setName(rs.getString("Role_Name"));
-                role.setDescription(rs.getString("Role_Description"));
+                role.setId(rs.getInt("RoleID"));
+                role.setName(rs.getString("RoleName"));
                 emp.setRole(role);
 
-                emp.setShopId(rs.getInt("ShopID"));
-
-                l.add(emp);
+                employees.add(emp);
             }
-        } catch (SQLException ex) {
-            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return l;
+        return employees;
     }
 
     public boolean addEmployee(Employee employee) throws SQLException {
@@ -250,7 +435,12 @@ public class EmployeeDAO {
     }
 
     public Employee findEmployeeByUsernameAndPassword(String username, String plainPassword) throws SQLException {
-        String sql = "SELECT * FROM Employee WHERE Username = ? and Status = 1";
+        Employee employee = null;
+
+        String sql = "SELECT e.EmployeeID, e.Username, e.Password, e.FullName, e.Phone, e.Email, e.Status, e.CreatedDate, e.RoleID, e.ShopID, r.Name AS RoleName "
+                + "FROM Employee e JOIN Role r ON e.RoleID = r.RoleID "
+                + "WHERE e.Username = ? AND e.Status = 1";
+
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, username);
 
@@ -260,24 +450,31 @@ public class EmployeeDAO {
 
                     // So sánh mật khẩu thô nhập vào với mật khẩu đã mã hóa trong DB
                     if (checkPassword(plainPassword, hashedPasswordFromDB)) {
-                        Employee emp = new Employee();
-                        emp.setId(rs.getInt("EmployeeID"));
-                        emp.setUsername(rs.getString("Username"));
-                        emp.setFullname(rs.getString("Fullname"));
-                        emp.setPhone(rs.getString("Phone"));
-                        emp.setStatus(rs.getBoolean("Status"));
-                        emp.setCreateDate(rs.getDate("CreatedDate")); // ⚠ Kiểm tra chính xác tên cột trong DB
-                        emp.setRoleId(rs.getInt("RoleID"));
-                        emp.setShopId(rs.getInt("ShopID"));
-                        return emp;
+                        employee = new Employee();
+                        employee.setId(rs.getInt("EmployeeID"));
+                        employee.setUsername(rs.getString("Username"));
+
+                        employee.setFullname(rs.getString("FullName"));
+                        employee.setPhone(rs.getString("Phone"));
+                        employee.setEmail(rs.getString("Email"));
+                        employee.setStatus(rs.getBoolean("Status"));
+                        employee.setCreateDate(rs.getDate("CreatedDate"));
+                        employee.setRoleId(rs.getInt("RoleID"));
+                        employee.setShopId(rs.getInt("ShopID"));
+
+                        Role role = new Role();
+                        role.setId(rs.getInt("RoleID"));
+                        role.setName(rs.getString("RoleName"));
+                        employee.setRole(role);
                     }
                 }
             }
         } catch (SQLException ex) {
-            System.out.println("Error: " + ex.getMessage());
-            ex.printStackTrace();
+
+            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, "Error in findEmployeeByUsernameAndPassword", ex);
+            throw ex;
         }
-        return null; // Không tồn tại user hoặc sai mật khẩu
+        return employee;
     }
 
     public List<Employee> getAllEmployeesByShopID(int shopId) throws SQLException {
@@ -603,21 +800,6 @@ public class EmployeeDAO {
         EmployeeDAO dao = new EmployeeDAO(connection.getConnection());
 
         // Gọi phương thức getAllEmployee()
-        List<Employee> employees = dao.getAllEmployee();
-
-        // In kết quả ra màn hình
-        for (Employee emp : employees) {
-            System.out.println("ID: " + emp.getId());
-            System.out.println("Username: " + emp.getUsername());
-            System.out.println("Password: " + emp.getPassword());
-            System.out.println("Fullname: " + emp.getFullname());
-            System.out.println("Phone: " + emp.getPhone());
-            System.out.println("Status: " + emp.isStatus());
-            System.out.println("Created Date: " + emp.getCreateDate());
-            System.out.println("Role ID: " + emp.getRoleId());
-            System.out.println("Shop ID: " + emp.getShopId());
-            System.out.println("----------");
-        }
     }
 
 }
