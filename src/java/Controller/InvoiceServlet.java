@@ -436,19 +436,15 @@ public class InvoiceServlet extends HttpServlet {
 
         List<Customer> customers = cDAO.getAllCustomer();
         List<Employee> employees;
-        try {
+      
             employees = eDAO.getAllEmployee();
             request.setAttribute("employees", employees);
-        } catch (SQLException ex) {
-            Logger.getLogger(InvoiceServlet.class.getName()).log(Level.SEVERE, null, ex);
-        }
+      
         List<Shop> allShops;
-        try {
+       
             allShops = sDAO.getAllShops("SWP1");
             request.setAttribute("allShops", allShops);
-        } catch (SQLException ex) {
-            Logger.getLogger(InvoiceServlet.class.getName()).log(Level.SEVERE, null, ex);
-        }
+       
         List<Invoice> invoices = idao.getInvoicesByPage(pageIndex, pageSize);
 
         request.setAttribute("currentPage", pageIndex);

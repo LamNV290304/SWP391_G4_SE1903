@@ -447,7 +447,7 @@ public class EmployeeDAO {
         return 0;
     }
 
-    public List<Employee> getAllEmployee() throws SQLException {
+    public List<Employee> getAllEmployee(){
         List<Employee> employees = new ArrayList<>();
         String sql = "SELECT e.EmployeeID, e.FullName, e.RoleID, r.Name AS RoleName "
                 + "FROM Employee e JOIN Role r ON e.RoleID = r.RoleID ORDER BY e.FullName";
@@ -465,6 +465,7 @@ public class EmployeeDAO {
 
                 employees.add(emp);
             }
+        }catch(Exception e){
         }
         return employees;
     }

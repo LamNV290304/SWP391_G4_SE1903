@@ -262,34 +262,26 @@ public class AddImportReceipt extends HttpServlet {
         SupplierDAO supDAO = new SupplierDAO(conn);
         ProductDAO ProDAO = new ProductDAO(conn);
        
-        try {
+        
             request.setAttribute("listEmp", empDao.getAllEmployee());
-        } catch (SQLException ex) {
-            Logger.getLogger(AddImportReceipt.class.getName()).log(Level.SEVERE, null, ex);
-        }
+     
         request.setAttribute("listSup", supDAO.getAllSuppliers());
-        try {
+       
             request.setAttribute("listShop", shopDao.getAllShops("SWP7"));
-        } catch (SQLException ex) {
-            Logger.getLogger(AddImportReceipt.class.getName()).log(Level.SEVERE, null, ex);
-        }
+      
         
         request.setAttribute("listType", typeImp.getAllTypeImportReceipts());
          
         request.setAttribute("listProduct", ProDAO.getAllProducts());
         
 
-        try {
+     
             request.setAttribute("listEmp", empDao.getAllEmployee());
-        } catch (SQLException ex) {
-            Logger.getLogger(AddImportReceipt.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        
         request.setAttribute("listSup", supDAO.getAllSuppliers());
-        try {
+        
             request.setAttribute("listShop", shopDao.getAllShops("SWP7"));
-        } catch (SQLException ex) {
-            Logger.getLogger(AddImportReceipt.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    
         request.setAttribute("listType", typeImp.getAllTypeImportReceipts());
         request.setAttribute("listProduct", ProDAO.getAllProducts());
         request.getRequestDispatcher("AddImportReceipt.jsp").forward(request, response);

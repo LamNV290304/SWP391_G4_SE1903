@@ -270,9 +270,10 @@ public class StatisticServlet extends HttpServlet {
             response.sendRedirect("login.jsp");
             return;
         }
-
-        // Lấy ShopID từ ShopOwner qua ShopDAO
+        System.out.println("DEBUG: LoggedInShopOwner ShopName: " + loggedInShopOwner.getShopName());
+        System.out.println("DEBUG: LoggedInShopOwner DatabaseName: " + loggedInShopOwner.getDatabaseName());
         Shop shopOfOwner = sDAO.getShopByName(loggedInShopOwner.getShopName(), loggedInShopOwner.getDatabaseName());
+        System.out.println("DEBUG: ShopDAO.getShopByName trả về: " + (shopOfOwner != null ? shopOfOwner.getShopID() : "null"));
         Integer shopId = (shopOfOwner != null) ? shopOfOwner.getShopID() : null;
 
         if (shopId == null) {
@@ -812,5 +813,4 @@ public class StatisticServlet extends HttpServlet {
 //            response.getWriter().println("Lỗi khi xuất Excel: " + e.getMessage());
 //        }
 //    }
-
 }

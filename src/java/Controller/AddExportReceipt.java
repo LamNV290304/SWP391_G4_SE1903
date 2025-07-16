@@ -70,17 +70,13 @@ public class AddExportReceipt extends HttpServlet {
         SupplierDAO supDAO = new SupplierDAO(conn);
         ProductDAO ProDAO = new ProductDAO(conn);
         InventoryDAO ivtDAO = new InventoryDAO(conn);
-        try {
+        
             request.setAttribute("listEmp", empDao.getAllEmployee());
-        } catch (SQLException ex) {
-            Logger.getLogger(AddExportReceipt.class.getName()).log(Level.SEVERE, null, ex);
-        }
+       
         request.setAttribute("listSup", supDAO.getAllSuppliers());
-        try {
+       
             request.setAttribute("listShop", shopDao.getAllShops("SWP7"));
-        } catch (SQLException ex) {
-            Logger.getLogger(AddExportReceipt.class.getName()).log(Level.SEVERE, null, ex);
-        }
+       
         request.setAttribute("listType", typeImp.getAllTypeExportReceipts());
         request.setAttribute("listProduct", ProDAO.getAllProducts());
         request.setAttribute("listIvt", ivtDAO.getAllInventories());
