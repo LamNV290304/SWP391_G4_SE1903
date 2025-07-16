@@ -53,6 +53,7 @@ public class WorkScheduleController extends HttpServlet {
 
     Vector<WorkSchedule> list = workScheduleDAO.getAllWorkSchedule(sqlList);
     List<Shop> ListShop = shopDAO.getAllShops("Test");
+    
     List<Employee> employees = employeeDAO.getAllEmployee();
     Vector<Shift> listShift = shiftDAO.getAllShift("SELECT * FROM [dbo].[Shift]");
 

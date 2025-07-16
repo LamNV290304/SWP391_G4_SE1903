@@ -44,7 +44,7 @@ public class ShopDAO {
         return shop;
     }
 
-    public List<Shop> getAllShops(String databaseName) throws SQLException{
+    public List<Shop> getAllShops(String databaseName){
         List<Shop> shops = new ArrayList<>();
         String sql = "SELECT * FROM Shop";
         try (Connection conn = DBContext.getConnection(databaseName); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
