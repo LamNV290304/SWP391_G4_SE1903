@@ -25,6 +25,7 @@ public class ShopSubscriptionDto {
     private BigDecimal packagePrice;
     private String packageDescription;
     private int packageDurationInDays;
+    
 
     public ShopSubscriptionDto(int id, int shopOwnerId, int packageId, Date startDate, Date endDate, boolean isActive, String note, String shopName, String packageName, BigDecimal packagePrice, String packageDescription, int packageDurationInDays) {
         this.id = id;
