@@ -470,6 +470,30 @@ public class EmployeeDAO {
         return employees;
     }
 
+    public List<Employee> getEmployee() {
+        List<Employee> employees = new ArrayList<>();
+        String sql = "SELECT e.EmployeeID, e.FullName, e.RoleID, r.Name AS RoleName "
+                + "FROM Employee e JOIN Role r ON e.RoleID = r.RoleID ORDER BY e.FullName";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Employee emp = new Employee();
+                emp.setId(rs.getInt("EmployeeID"));
+                emp.setFullname(rs.getString("FullName"));
+                emp.setRoleId(rs.getInt("RoleID"));
+
+                Role role = new Role();
+                role.setId(rs.getInt("RoleID"));
+                role.setName(rs.getString("RoleName"));
+                emp.setRole(role);
+
+                employees.add(emp);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return employees;
+    }
+
     public boolean addEmployee(Employee employee) throws SQLException {
         String sql = "INSERT INTO Employee (Username, Password, Fullname, Phone, Email, Status, CreatedDate, RoleId, ShopId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {

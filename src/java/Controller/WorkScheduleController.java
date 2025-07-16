@@ -55,6 +55,7 @@ public class WorkScheduleController extends HttpServlet {
     List<Shop> ListShop = shopDAO.getAllShops("Test");
     
     List<Employee> employees = employeeDAO.getAllEmployee();
+
     Vector<Shift> listShift = shiftDAO.getAllShift("SELECT * FROM [dbo].[Shift]");
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)

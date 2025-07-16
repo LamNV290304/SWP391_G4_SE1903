@@ -65,7 +65,7 @@ public class SalaryController extends HttpServlet {
 
     Vector<SalarySetting> listSalarySetting = salarySettingDAO.getAllSalarySetting("SELECT * FROM SalarySetting");
 
-    List<Employee> employees = employeeDAO.getAllEmployee();
+    List<Employee> employees = employeeDAO.getEmployee();
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

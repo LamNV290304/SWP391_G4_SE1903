@@ -224,9 +224,9 @@
         <div class="layout-wrapper layout-content-navbar">
             <div class="layout-container">
                 <!--menu-->
-                <jsp:include page="menu.jsp" />
+                <jsp:include page="../sidebar.jsp" />
                 <div class="layout-page">
-                    <jsp:include page="navbar.jsp" />
+                    <jsp:include page="../navBar.jsp" />
                     <div class="content-wrapper">
                         <div class="container-xxl flex-grow-1 container-p-y">
                             <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">

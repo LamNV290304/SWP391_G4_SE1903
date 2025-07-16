@@ -34,17 +34,42 @@ public class ShopDAO {
                     shop.setStatus(rs.getBoolean("Status"));
                     shop.setCreatedDate(rs.getTimestamp("CreatedDate"));
                     shop.setCreatedBy(rs.getString("CreatedBy"));
-                    
+
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
-         
+
         }
         return shop;
     }
 
     public List<Shop> getAllShops(String databaseName){
+        List<Shop> shops = new ArrayList<>();
+        String sql = "SELECT * FROM Shop";
+        try (Connection conn = DBContext.getConnection(databaseName); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Shop shop = new Shop(
+                        rs.getInt("ShopID"),
+                        rs.getString("ShopName"),
+                        rs.getString("Address"),
+                        rs.getString("Phone"),
+                        rs.getString("Email"),
+                        rs.getBoolean("Status"),
+                        rs.getTimestamp("CreatedDate"),
+                        rs.getString("CreatedBy")
+                );
+                shops.add(shop);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return shops;
+    }
+
+    public List<Shop> getShops(String databaseName){
         List<Shop> shops = new ArrayList<>();
         String sql = "SELECT * FROM Shop";
         try (Connection conn = DBContext.getConnection(databaseName); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
@@ -158,8 +183,6 @@ public class ShopDAO {
         //     boolean inserted = dao.insertShop(shop, dbName);
         //     System.out.println("Insert: " + inserted);
         // Get all test
-      
-
         // Get by ID test
         // Delete test
         //  boolean deleted = dao.deleteShop("S001", dbName);

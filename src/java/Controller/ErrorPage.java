@@ -20,7 +20,6 @@ import java.util.logging.Logger;
 import DTO.ShopSubscriptionDto;
 import java.sql.Date;
 
-
 /**
  *
  * @author Admin
@@ -67,17 +66,17 @@ public class ErrorPage extends HttpServlet {
 
             ShopOwnerDAO shopOwnerDAO = new ShopOwnerDAO(DBContext.getCentralConnection());
             ShopOwner shopOwner = shopOwnerDAO.getShopOwnerByDatabaseName(databaseName);
-            
+
             ShopSubscriptionDAO shopSubscriptionDAO = new ShopSubscriptionDAO(DBContext.getCentralConnection());
             ShopSubscriptionDto subscript = shopSubscriptionDAO.getActiveSubscriptionByShopId(shopOwner.getId());
-            
+
             Date currentDate = new Date(System.currentTimeMillis());
-            if (subscript == null || subscript.getEndDate().before(currentDate) ){
+            if (subscript == null || subscript.getEndDate().before(currentDate)) {
                 request.setAttribute("error", "Vui lòng thanh toán gói đã đăng kí hoặc đăng kí gói mới");
                 request.getRequestDispatcher("login.jsp").forward(request, response);
                 return;
             }
-            
+
             if (databaseName == null) {
                 response.sendRedirect("error.jsp");
                 return;
@@ -87,9 +86,9 @@ public class ErrorPage extends HttpServlet {
             request.getSession().setAttribute("shopName", shopName);
             request.getRequestDispatcher("loginEmployee.jsp").forward(request, response);
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(ErrorPage.class.getName()).log(Level.SEVERE, null, ex);
+            response.sendRedirect("error.jsp");
         } catch (SQLException ex) {
-            Logger.getLogger(ErrorPage.class.getName()).log(Level.SEVERE, null, ex);
+            response.sendRedirect("error.jsp");
         }
 
     }

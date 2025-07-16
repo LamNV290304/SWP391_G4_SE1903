@@ -58,10 +58,10 @@ public class TransferReceiptController extends HttpServlet {
     //List
     Vector<Product> vectorProduct = productDAO.getProduct("SELECT *  FROM Product");
     List<Inventory> ListInventory = inventoryDAO.getAllInventories();
-    List<Shop> ListShop = shopDAO.getAllShops("SWP8");
+    List<Shop> ListShop = shopDAO.getShops("Test");
     Vector<TransferReceipt> list = dao.getAllTransferReceipt("SELECT * FROM TransferReceipt");
     Vector<TransferReceiptDetail> listDetail = transferReceiptDetailDAO.getAllTransferReceiptDetail("SELECT * FROM TransferReceiptDetail");
-    List<Employee> employees = employeeDAO.getAllEmployee();
+    List<Employee> employees = employeeDAO.getEmployee();
 
     Vector<Noti> vectorNoti = notiDAO.getAllNoti("SELECT [NotiID]* FROM [dbo].[Noti] "
             + "Where IsRead = 0"
