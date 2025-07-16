@@ -57,14 +57,22 @@ public class InventoryCheckServlet extends HttpServlet {
         EmployeeDAO daoEmp = new EmployeeDAO(connection.getConnection());
         ShopDAO daoShop = new ShopDAO();
     request.setAttribute("listIvt", dao.getAllInventoryChecks());
-    request.setAttribute("listShop", daoShop.getAllShops("SWP7"));
+        try {
+            request.setAttribute("listShop", daoShop.getAllShops("SWP7"));
+        } catch (SQLException ex) {
+            Logger.getLogger(InventoryCheckServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
         try {
             request.setAttribute("listEmp", daoEmp.listAllEmployeeDTO());
         } catch (SQLException ex) {
             Logger.getLogger(InventoryCheckServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
     
-    String emp = daoEmp.getAllEmployee().get(1).getFullname();
+        try {
+            String emp = daoEmp.getAllEmployee().get(1).getFullname();
+        } catch (SQLException ex) {
+            Logger.getLogger(InventoryCheckServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
     request.getRequestDispatcher("listInventoryCheck.jsp").forward(request, response);
         /*try (PrintWriter out = response.getWriter()) {
             out.println("<!DOCTYPE html>");
