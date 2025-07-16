@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 public class Product {
 
-    private Integer productID;
+    private int productID;
     private String productName;
     private String categoryID;
     private String unitID;

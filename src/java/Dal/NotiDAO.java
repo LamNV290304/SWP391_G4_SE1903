@@ -110,7 +110,7 @@ public class NotiDAO {
     }
 
     public static void main(String[] args) {
-        DBContext connection = new DBContext("SWP8");
+        DBContext connection = new DBContext("Test");
         // Tạo đối tượng DAO
         NotiDAO dao = new NotiDAO(connection.getConnection());
 

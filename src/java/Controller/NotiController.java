@@ -21,7 +21,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebServlet(name = "NotiController", urlPatterns = {"/NotiController"})
 public class NotiController extends HttpServlet {
 
-    DBContext connection = new DBContext("SWP8");
+    DBContext connection = new DBContext("Test");
 
     NotiDAO notiDAO = new NotiDAO(connection.getConnection());
 

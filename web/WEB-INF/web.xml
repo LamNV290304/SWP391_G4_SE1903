@@ -136,6 +136,46 @@
         <servlet-name>MySubscription</servlet-name>
         <servlet-class>Controller.MySubscription</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>UpdateImportReceipt</servlet-name>
+        <servlet-class>Controller.UpdateImportReceipt</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UpdateExceiptReceipt</servlet-name>
+        <servlet-class>Controller.UpdateExceiptReceipt</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ReceiptVoucherServlet</servlet-name>
+        <servlet-class>Controller.ReceiptVoucherServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>PaymentVoucherServlet</servlet-name>
+        <servlet-class>Controller.PaymentVoucherServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>TypeReceiptServlet</servlet-name>
+        <servlet-class>Controller.TypeReceiptServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>TypeVoucherServlet</servlet-name>
+        <servlet-class>Controller.TypeVoucherServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddReceiptPayment</servlet-name>
+        <servlet-class>Controller.AddReceiptPayment</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddPaymentVoucherServlet</servlet-name>
+        <servlet-class>Controller.AddPaymentVoucherServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ListProductServlet</servlet-name>
+        <servlet-class>Controller.ListProductServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ListCategoryUnitServlet</servlet-name>
+        <servlet-class>Controller.ListCategoryUnitServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>StartProject</servlet-name>
         <url-pattern>/StartProject</url-pattern>
@@ -268,6 +308,46 @@
     <servlet-mapping>
         <servlet-name>MySubscription</servlet-name>
         <url-pattern>/MySubscription</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateImportReceipt</servlet-name>
+        <url-pattern>/UpdateImportReceipt</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateExceiptReceipt</servlet-name>
+        <url-pattern>/UpdateExceiptReceipt</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ReceiptVoucherServlet</servlet-name>
+        <url-pattern>/ReceiptVoucherServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PaymentVoucherServlet</servlet-name>
+        <url-pattern>/PaymentVoucherServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>TypeReceiptServlet</servlet-name>
+        <url-pattern>/TypeReceiptServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>TypeVoucherServlet</servlet-name>
+        <url-pattern>/TypeVoucherServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddReceiptPayment</servlet-name>
+        <url-pattern>/AddReceiptPayment</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddPaymentVoucherServlet</servlet-name>
+        <url-pattern>/AddPaymentVoucherServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ListProductServlet</servlet-name>
+        <url-pattern>/ListProductServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ListCategoryUnitServlet</servlet-name>
+        <url-pattern>/ListCategoryUnitServlet</url-pattern>
     </servlet-mapping>
     <error-page>
         <error-code>404</error-code>

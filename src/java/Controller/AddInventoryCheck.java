@@ -2,7 +2,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-
 package Controller;
 
 import Context.DBContext;
@@ -40,26 +39,28 @@ import java.util.List;
  * @author Thai Anh
  */
 public class AddInventoryCheck extends HttpServlet {
-   
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        Connection conn = new DBContext("SWP7").getConnection();
+        Connection conn = new DBContext("Test").getConnection();
         EmployeeDAO empDao = new EmployeeDAO(conn);
-        ShopDAO shopDao = new ShopDAO();
+        ShopDAO shopDao = new ShopDAO(conn);
         SupplierDAO supDAO = new SupplierDAO(conn);
         ProductDAO ProDAO = new ProductDAO(conn);
         InventoryDAO ivtDAO = new InventoryDAO(conn);
         request.setAttribute("listEmp", empDao.getAllEmployee());
         request.setAttribute("listSup", supDAO.getAllSuppliers());
-        request.setAttribute("listShop", shopDao.getAllShops("SWP7"));
+        request.setAttribute("listShop", shopDao.getAllShops());
         request.setAttribute("listProduct", ProDAO.getAllProducts());
         request.setAttribute("listIvt", ivtDAO.getAllInventories());
         request.getRequestDispatcher("AddInventoryCheck.jsp").forward(request, response);
@@ -74,11 +75,12 @@ public class AddInventoryCheck extends HttpServlet {
             out.println("</body>");
             out.println("</html>");
         }*/
-    } 
+    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
+    /**
      * Handles the HTTP <code>GET</code> method.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -86,12 +88,13 @@ public class AddInventoryCheck extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         processRequest(request, response);
-    } 
+    }
 
-    /** 
+    /**
      * Handles the HTTP <code>POST</code> method.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -99,7 +102,7 @@ public class AddInventoryCheck extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         String employeeID = request.getParameter("EmployeeID");
         String shopID_raw = request.getParameter("shopID");
         Integer shopID = Integer.parseInt(shopID_raw);
@@ -108,7 +111,7 @@ public class AddInventoryCheck extends HttpServlet {
             request.setAttribute("erroll", "Type,Supplier,Employee,Shop,ImportDate must be not null");
             request.getRequestDispatcher("ErrolReceipt.jsp").forward(request, response);
         }
-        
+
         Date importDate = null;
         if (importDateStr != null && !importDateStr.isEmpty()) {
             try {
@@ -128,22 +131,22 @@ public class AddInventoryCheck extends HttpServlet {
 
         String note = request.getParameter("note");
 
-        try (Connection conn = new DBContext("SWP7").getConnection()) {
+        try (Connection conn = new DBContext("Test").getConnection()) {
             InventoryCheckDAO inventoryCheckDao = new InventoryCheckDAO(conn);
             InventoryDAO inventoryDAO = new InventoryDAO(conn);
 
             ProductDAO productDAO = new ProductDAO(conn);
-            ShopDAO shopDAO = new ShopDAO();
+            ShopDAO shopDAO = new ShopDAO(conn);
             // Tạo đối tượng phiếu nhập
             InventoryCheck ivtCheck = new InventoryCheck();
-             
+
             ivtCheck.setEmployeeID(Integer.parseInt(employeeID));
             ivtCheck.setShopID(shopID);
             ivtCheck.setCheckDate(importDate);
             ivtCheck.setNote(note);
 
             // Thêm phiếu xuất
-           inventoryCheckDao.insertInventoryCheck(ivtCheck);
+            inventoryCheckDao.insertInventoryCheck(ivtCheck);
             InventoryCheckDetailDAO ivtCheckDetailDao = new InventoryCheckDetailDAO(conn);
             List<InventoryCheckDetail> listIvtCheckDetail = new ArrayList<>();
 
@@ -154,16 +157,15 @@ public class AddInventoryCheck extends HttpServlet {
 
             int size = productIDs.length;
             for (int i = 0; i < size; i++) {
-                
 
                 InventoryCheckDetail ivtDetail = new InventoryCheckDetail(
-                        inventoryCheckDao.getLatestInventoryCheckID(), 
-                        Integer.parseInt(productIDs[i]), Integer.parseInt(systemQuantitys[i]), 
+                        inventoryCheckDao.getLatestInventoryCheckID(),
+                        Integer.parseInt(productIDs[i]), Integer.parseInt(systemQuantitys[i]),
                         Integer.parseInt(actualQuantity[i]), note);
-             
+
                 listIvtCheckDetail.add(ivtDetail);
 
-              ivtCheckDetailDao.insertDetail(ivtDetail);
+                ivtCheckDetailDao.insertDetail(ivtDetail);
             }
 
             for (InventoryCheckDetail checkDetail : listIvtCheckDetail) {
@@ -179,11 +181,11 @@ public class AddInventoryCheck extends HttpServlet {
 
                 } else {
 
-                   request.setAttribute("erroll", "Hàng Hóa Không tồn tại trong kho!!");
+                    request.setAttribute("erroll", "Hàng Hóa Không tồn tại trong kho!!");
                 }
             }
-            
-            response.sendRedirect("ExportReceipt.jsp");
+
+            response.sendRedirect("InventoryCheckServlet?message=add_success");
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi thêm phiếu nhập: " + e.getMessage());
@@ -191,8 +193,9 @@ public class AddInventoryCheck extends HttpServlet {
         }
     }
 
-    /** 
+    /**
      * Returns a short description of the servlet.
+     *
      * @return a String containing servlet description
      */
     @Override

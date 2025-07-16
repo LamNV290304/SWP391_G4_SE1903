@@ -47,6 +47,37 @@
                 <div class="layout-page">
                     <jsp:include page="navBar.jsp" />
                     <div class="content-wrapper">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFormModal">
+  Thêm Phiếu Mới
+</button>
+                        <div class="modal fade" id="addFormModal" tabindex="-1" aria-labelledby="addFormLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg"> <!-- modal-lg nếu bạn muốn rộng -->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addFormLabel">Thêm Phiếu Nhập</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body">
+        <form action="AddImportReceiptServlet" method="post">
+          <div class="mb-3">
+            <label class="form-label">Mã phiếu</label>
+            <input type="text" name="receiptCode" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Ngày nhập</label>
+            <input type="date" name="importDate" class="form-control" required />
+          </div>
+          <!-- Thêm các trường khác tại đây -->
+          <div class="text-end">
+            <button type="submit" class="btn btn-success">Lưu</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
                     </div>
                     <jsp:include page="footer.jsp" />
                 </div>

@@ -7,246 +7,246 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to c
 Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
 -->
 <html
-  lang="en"
-  class="light-style layout-menu-fixed"
-  dir="ltr"
-  data-theme="theme-default"
-  data-assets-path="./assets/"
-  data-template="vertical-menu-template-free"
->
+    lang="en"
+    class="light-style layout-menu-fixed"
+    dir="ltr"
+    data-theme="theme-default"
+    data-assets-path="./assets/"
+    data-template="vertical-menu-template-free"
+    >
     <head>
         <title>SaleShape</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="icon" type="image/x-icon" href="img/logoSale.png" />
         <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
-      rel="stylesheet"
-    />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+            rel="stylesheet"
+            />
 
-    <!-- Icons. Uncomment required icon fonts -->
-     <link rel="stylesheet" href="./assets/css/custom.css" />
+        <!-- Icons. Uncomment required icon fonts -->
+        <link rel="stylesheet" href="./assets/css/custom.css" />
 
-    <link rel="stylesheet" href="./assets/vendor/fonts/boxicons.css" />
+        <link rel="stylesheet" href="./assets/vendor/fonts/boxicons.css" />
 
-    <!-- Core CSS -->
-    <link rel="stylesheet" href="./assets/vendor/css/core.css" class="template-customizer-core-css" />
-    <link rel="stylesheet" href="./assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
-    <link rel="stylesheet" href="./assets/css/demo.css" />
+        <!-- Core CSS -->
+        <link rel="stylesheet" href="./assets/vendor/css/core.css" class="template-customizer-core-css" />
+        <link rel="stylesheet" href="./assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
+        <link rel="stylesheet" href="./assets/css/demo.css" />
 
-    <!-- Vendors CSS -->
-    <link rel="stylesheet" href="./assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+        <!-- Vendors CSS -->
+        <link rel="stylesheet" href="./assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
 
-    <link rel="stylesheet" href="./assets/vendor/libs/apex-charts/apex-charts.css" />
+        <link rel="stylesheet" href="./assets/vendor/libs/apex-charts/apex-charts.css" />
 
-    <!-- Page CSS -->
+        <!-- Page CSS -->
 
-    <!-- Helpers -->
-    <script src="./assets/vendor/js/helpers.js"></script>
+        <!-- Helpers -->
+        <script src="./assets/vendor/js/helpers.js"></script>
 
-    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
-    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
-    <script src="./assets/js/config.js"></script>
+        <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+        <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+        <script src="./assets/js/config.js"></script>
     </head>
     <body>
         <div  class="layout-wrapper layout-content-navbar">
             <div class="layout-container">
                 <!--menu-->
                 <jsp:include page="sidebar.jsp" />
-               
+
                 <div class="layout-page">
-                  <!--Nav-->
+                    <!--Nav-->
 
-                  <jsp:include page="navBar.jsp" />
-           <!-- / Navbar -->
+                    <jsp:include page="navBar.jsp" />
+                    <!-- / Navbar -->
 
-            <!-- Content wrapper -->  
-                <div class="container" style="padding-top: 20px;"> 
-                  <!-- Responsive Table -->
-             <div class="card col-sm-12" style="height: 90vh; overflow: hidden;">
-  <h5 class="card-header">Thêm mới phiếu Xuất Hàng</h5>
+                    <!-- Content wrapper -->  
+                    <div class="container" style="padding-top: 20px;"> 
+                        <!-- Responsive Table -->
+                        <div class="card col-sm-12" style="height: 90vh; overflow: hidden;">
+                            <h5 class="card-header">Thêm mới phiếu Xuất Hàng</h5>
 
- <form class="row" action="AddExportReceipt" method="POST"> 
-  <input type="hidden" name="receiptID" value="${receipt.exportReceiptID}" />
+                            <form class="row" action="UpdateExceiptReceipt" method="POST"> 
+                                <input type="hidden" name="receiptID" value="${receipt.exportReceiptID}" />
 
-  <!-- Cột trái: Thông tin -->
-  <div class="col-md-3" style="max-height: 80vh; overflow-y: auto;">
-    <div class="card mb-2">
-      <h5 class="card-header">Thông Tin</h5>
-      <div class="card-body">
+                                <!-- Cột trái: Thông tin -->
+                                <div class="col-md-3" style="max-height: 80vh; overflow-y: auto;">
+                                    <div class="card mb-2">
+                                        <h5 class="card-header">Thông Tin</h5>
+                                        <div class="card-body">
 
-        <div class="mb-3">
-            <label for="receiptId" class="form-label">Mã Nhân Viên</label>
-            <input type="text" name="EmployeeID" class="form-control" id="receiptId" value="${receipt.employeeID}" />
-        </div>
+                                            <div class="mb-3">
+                                                <label for="receiptId" class="form-label">Mã Nhân Viên</label>
+                                                <input type="text" name="EmployeeID" class="form-control" id="receiptId" value="${receipt.employeeID}" />
+                                            </div>
 
-        <div class="mb-3">
-          <label class="form-label">Kho Xuất</label>
-          <select class="form-select" name="shopID">
-            <c:forEach var="s" items="${listShop}">
-              <option value="${s.shopID}" ${s.shopID == receipt.shopID ? 'selected' : ''}>${s.shopName}</option>
-            </c:forEach>
-          </select>
-        </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Kho Xuất</label>
+                                                <select class="form-select" name="shopID">
+                                                    <c:forEach var="s" items="${listShop}">
+                                                        <option value="${s.shopID}" ${s.shopID == receipt.shopID ? 'selected' : ''}>${s.shopName}</option>
+                                                    </c:forEach>
+                                                </select>
+                                            </div>
 
-        <div class="mb-3">
-          <label class="form-label">Ngày Xuất</label>
-          <input type="date" id="importDate" name="Date" class="form-control" required />
-        </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Ngày Xuất</label>
+                                                <input type="date" id="importDate" name="Date" class="form-control" required />
+                                            </div>
 
-        <div class="mb-3">
-          <label class="form-label">Giá Trị</label>
-          <input type="hidden" name="Total" id="grandTotalInput" />
-          <span id="grandTotal" class="fw-bold text-primary">0</span> VNĐ
-        </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Giá Trị</label>
+                                                <input type="hidden" name="Total" id="grandTotalInput" />
+                                                <span id="grandTotal" class="fw-bold text-primary">0</span> VNĐ
+                                            </div>
 
-        <div class="mb-3">
-          <label for="warehouse" class="form-label">Loại Phiếu Nhập</label>
-<select class="form-select" name="code" required>
-   <option disabled selected>Chọn Phiếu</option>
-   <c:forEach var="ltype" items="${listType}">
-     <option value="${ltype.typeID}">
-       ${ltype.typeID} - ${ltype.typeName}
-     </option>
-   </c:forEach>
-</select>
-
-
-        </div>
-
-        <div>
-          <label class="form-label">Ghi chú</label>
-          <textarea name="note" class="form-control">${receipt.note}</textarea>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Cột phải: Chi tiết phiếu -->
-  <div class="col-md-9" id="horizontal-example">
-    <div class="card h-100 d-flex flex-column">
-      <h5 class="card-header">Chi Tiết Phiếu Xuất</h5>
-      <div class="card-body">
-        <div class="card-body py-2 px-3 overflow-auto" style="max-height: 60vh;">
-          <div class="table-responsive">
-            <table class="table table-bordered" id="productTable" style="min-width: 1000px;">
-              <thead>
-                <tr>
-                  <th>Sản phẩm</th>
-                  <th>Số lượng</th>
-                  <th>Đơn giá</th>
-                  <th>Thành tiền</th>
-                  <th>Ghi chú</th>
-                  <th>Hành động</th>
-                </tr>
-              </thead>
-              <tbody>
-                <c:forEach var="d" items="${details}">
-                  <tr>
-                    <td>
-                      <select class="form-select" name="productID[]">
-                        <c:forEach var="p" items="${listProduct}">
-                          <option value="${p.productID}" ${p.productID == d.productID ? 'selected' : ''}>${p.productName}</option>
-                        </c:forEach>
-                      </select>
-                    </td>
-                    <td><input type="number" name="quantity[]" class="form-control" value="${d.quantity}" required /></td>
-                    <td><input type="number" name="price[]" class="form-control" value="${d.price}" required /></td>
-                    <td><input type="number" name="total[]" class="form-control" readonly value="${d.quantity * d.price}" /></td>
-                    <td><input type="text" name="note[]" class="form-control" value="${d.note}" /></td>
-                    <td><button type="button" class="btn btn-danger btn-sm remove-row">Xóa</button></td>
-                  </tr>
-                </c:forEach>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <button type="button" class="btn btn-secondary mb-3" id="addRowBtn">+ Thêm dòng</button>
-        <button type="submit" class="btn btn-primary">Cập nhật phiếu xuất</button>
-      </div>
-    </div>
-  </div>
-</form>
-
-<!-- JavaScript tính tổng và thêm dòng giữ nguyên -->
-<script>
-    document.getElementById("addRowBtn").addEventListener("click", function () {
-  const tableBody = document.querySelector("#productTable tbody");
-  const newRow = document.createElement("tr");
-  newRow.innerHTML = `
- <td> 
-          <select class="form-select" name="productID[]">
-    <option selected disabled>Chọn Sản Phẩm</option>
-    <c:forEach var="prod" items="${listProduct}">
-      <option value="${prod.productID}">${prod.productName}</option>
-    </c:forEach>
-  </select></td>
-    <td><input type="number" name="quantity[]" class="form-control" required /></td>
-    <td><input type="number" name="price[]" class="form-control" required /></td>
-    <td><input type="number" name="total[]" class="form-control" readonly /></td>
-    <td><input type="text" name="note[]" class="form-control" required /></td>
-    <td><button type="button" class="btn btn-danger btn-sm remove-row">Xóa</button></td>
-  `;
-  tableBody.appendChild(newRow);
-});
-document.addEventListener("input", function (e) {
-  if (e.target.name === "quantity[]" || e.target.name === "price[]") {
-    const row = e.target.closest("tr");
-    const qty = parseFloat(row.querySelector('input[name="quantity[]"]').value) || 0;
-    const price = parseFloat(row.querySelector('input[name="price[]"]').value) || 0;
-    const total = qty * price;
-    row.querySelector('input[name="total[]"]').value = total.toFixed(2);
-    calculateGrandTotal();
-  }
-});
-
-document.addEventListener("click", function (e) {
-  if (e.target.classList.contains("remove-row")) {
-    e.target.closest("tr").remove();
-    calculateGrandTotal();
-  }
-});
-
-function calculateGrandTotal() {
-  const totals = document.querySelectorAll('input[name="total[]"]');
-  let sum = 0;
-  totals.forEach(input => sum += parseFloat(input.value) || 0);
-  document.getElementById("grandTotal").textContent = sum.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
-  document.getElementById("grandTotalInput").value = sum.toFixed(2);
-}
-
-window.onload = calculateGrandTotal;
-</script>
+                                            <div class="mb-3">
+                                                <label for="warehouse" class="form-label">Loại Phiếu Nhập</label>
+                                                <select class="form-select" name="code" required>
+                                                    <option disabled selected>Chọn Phiếu</option>
+                                                    <c:forEach var="ltype" items="${listType}">
+                                                        <option value="${ltype.typeID}">
+                                                            ${ltype.typeID} - ${ltype.typeName}
+                                                        </option>
+                                                    </c:forEach>
+                                                </select>
 
 
+                                            </div>
 
-   
+                                            <div>
+                                                <label class="form-label">Ghi chú</label>
+                                                <textarea name="note" class="form-control">${receipt.note}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Cột phải: Chi tiết phiếu -->
+                                <div class="col-md-9" id="horizontal-example">
+                                    <div class="card h-100 d-flex flex-column">
+                                        <h5 class="card-header">Chi Tiết Phiếu Xuất</h5>
+                                        <div class="card-body">
+                                            <div class="card-body py-2 px-3 overflow-auto" style="max-height: 60vh;">
+                                                <div class="table-responsive">
+                                                    <table class="table table-bordered" id="productTable" style="min-width: 1000px;">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Sản phẩm</th>
+                                                                <th>Số lượng</th>
+                                                                <th>Đơn giá</th>
+                                                                <th>Thành tiền</th>
+                                                                <th>Ghi chú</th>
+                                                                <th>Hành động</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <c:forEach var="d" items="${details}">
+                                                                <tr>
+                                                                    <td>
+                                                                        <select class="form-select" name="productID[]">
+                                                                            <c:forEach var="p" items="${listProduct}">
+                                                                                <option value="${p.productID}" ${p.productID == d.productID ? 'selected' : ''}>${p.productName}</option>
+                                                                            </c:forEach>
+                                                                        </select>
+                                                                    </td>
+                                                                    <td><input type="number" name="quantity[]" class="form-control" value="${d.quantity}" required /></td>
+                                                                    <td><input type="number" name="price[]" class="form-control" value="${d.price}" required /></td>
+                                                                    <td><input type="number" name="total[]" class="form-control" readonly value="${d.quantity * d.price}" /></td>
+                                                                    <td><input type="text" name="note[]" class="form-control" value="${d.note}" /></td>
+                                                                    <td><button type="button" class="btn btn-danger btn-sm remove-row">Xóa</button></td>
+                                                                </tr>
+                                                            </c:forEach>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+
+                                            <button type="button" class="btn btn-secondary mb-3" id="addRowBtn">+ Thêm dòng</button>
+                                            <button type="submit" class="btn btn-primary">Cập nhật phiếu xuất</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <!-- JavaScript tính tổng và thêm dòng giữ nguyên -->
+                            <script>
+                                document.getElementById("addRowBtn").addEventListener("click", function () {
+                                    const tableBody = document.querySelector("#productTable tbody");
+                                    const newRow = document.createElement("tr");
+                                    newRow.innerHTML = `
+                             <td> 
+                                      <select class="form-select" name="productID[]">
+                                <option selected disabled>Chọn Sản Phẩm</option>
+                                <c:forEach var="prod" items="${listProduct}">
+                                  <option value="${prod.productID}">${prod.productName}</option>
+                                </c:forEach>
+                              </select></td>
+                                <td><input type="number" name="quantity[]" class="form-control" required /></td>
+                                <td><input type="number" name="price[]" class="form-control" required /></td>
+                                <td><input type="number" name="total[]" class="form-control" readonly /></td>
+                                <td><input type="text" name="note[]" class="form-control" required /></td>
+                                <td><button type="button" class="btn btn-danger btn-sm remove-row">Xóa</button></td>
+                              `;
+                                    tableBody.appendChild(newRow);
+                                });
+                                document.addEventListener("input", function (e) {
+                                    if (e.target.name === "quantity[]" || e.target.name === "price[]") {
+                                        const row = e.target.closest("tr");
+                                        const qty = parseFloat(row.querySelector('input[name="quantity[]"]').value) || 0;
+                                        const price = parseFloat(row.querySelector('input[name="price[]"]').value) || 0;
+                                        const total = qty * price;
+                                        row.querySelector('input[name="total[]"]').value = total.toFixed(2);
+                                        calculateGrandTotal();
+                                    }
+                                });
+
+                                document.addEventListener("click", function (e) {
+                                    if (e.target.classList.contains("remove-row")) {
+                                        e.target.closest("tr").remove();
+                                        calculateGrandTotal();
+                                    }
+                                });
+
+                                function calculateGrandTotal() {
+                                    const totals = document.querySelectorAll('input[name="total[]"]');
+                                    let sum = 0;
+                                    totals.forEach(input => sum += parseFloat(input.value) || 0);
+                                    document.getElementById("grandTotal").textContent = sum.toLocaleString("vi-VN", {style: "currency", currency: "VND"});
+                                    document.getElementById("grandTotalInput").value = sum.toFixed(2);
+                                }
+
+                                window.onload = calculateGrandTotal;
+                            </script>
 
 
 
 
 
-    
-                </div>
-              </div>
-              <!--/ Responsive Table -->
+
+
+
+
+
+                        </div>
+                    </div>
+                    <!--/ Responsive Table -->
                 </div>
             </div>
-        
+
 
         </div>
 
 
         <script src="assets/vendor/libs/jquery/jquery.js"></script>
-<script src="assets/vendor/libs/popper/popper.js"></script>
-<script src="assets/vendor/js/bootstrap.js"></script>
-<script src="assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
-<script src="assets/vendor/js/menu.js"></script> <!-- Xử lý toggle -->
-<script src="assets/js/main.js"></script> <!-- Main logic -->
+        <script src="assets/vendor/libs/popper/popper.js"></script>
+        <script src="assets/vendor/js/bootstrap.js"></script>
+        <script src="assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+        <script src="assets/vendor/js/menu.js"></script> <!-- Xử lý toggle -->
+        <script src="assets/js/main.js"></script> <!-- Main logic -->
 
     </body>
 </html>

@@ -15,68 +15,54 @@ import Context.DBContext;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ShopDAO {
 
-    public List<Shop> getAllShops(String databaseName) {
+    private Connection connection;
+
+    public ShopDAO(Connection connection) {
+        this.connection = connection;
+    }
+
+    public List<Shop> getAllShops() {
         List<Shop> shops = new ArrayList<>();
         String sql = "SELECT * FROM Shop";
-        try (Connection conn = DBContext.getConnection(databaseName);
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
 
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                Shop shop = new Shop(
-                        rs.getInt("ShopID"),
-                        rs.getString("ShopName"),
-                        rs.getString("Address"),
-                        rs.getString("Phone"),
-                        rs.getString("Email"),
-                        rs.getBoolean("Status"),
-                        rs.getTimestamp("CreatedDate"),
-                        rs.getString("CreatedBy")
-                );
-                shops.add(shop);
+                shops.add(extractShop(rs));
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException ex) {
+            Logger.getLogger(ShopDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
+
         return shops;
     }
-    
-    public Shop getShopByID(Integer shopID, String databaseName) {
-        String sql = "SELECT * FROM Shop WHERE ShopID = ?";
-        try (Connection conn = DBContext.getConnection(databaseName);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, shopID);
+    public Shop getShopById(int shopId) {
+        String sql = "SELECT * FROM Shop WHERE ShopID = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, shopId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new Shop(
-                            rs.getInt("ShopID"),
-                            rs.getString("ShopName"),
-                            rs.getString("Address"),
-                            rs.getString("Phone"),
-                            rs.getString("Email"),
-                            rs.getBoolean("Status"),
-                            rs.getTimestamp("CreatedDate"),
-                            rs.getString("CreatedBy")
-                    );
+                    return extractShop(rs);
                 }
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException ex) {
+            Logger.getLogger(ShopDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
+
         return null;
     }
 
-    public boolean insertShop(Shop shop, String databaseName) {
-        String sql = "INSERT INTO Shop (ShopName, Address, Phone, Email, Status, CreatedDate, CreatedBy) VALUES ( ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conn = DBContext.getConnection(databaseName);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+    public boolean createShop(Shop shop) {
+        String sql = "INSERT INTO Shop (ShopName, Address, Phone, Email, Status, CreatedDate, CreatedBy) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, shop.getShopName());
             ps.setString(2, shop.getAddress());
             ps.setString(3, shop.getPhone());
@@ -86,18 +72,18 @@ public class ShopDAO {
             ps.setString(7, shop.getCreatedBy());
 
             return ps.executeUpdate() > 0;
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException ex) {
+            Logger.getLogger(ShopDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
+
         return false;
     }
 
-    public boolean updateShop(Shop shop, String databaseName) {
-        String sql = "UPDATE Shop SET ShopName=?, Address=?, Phone=?, Email=?, Status=?, CreatedDate=?, CreatedBy=? WHERE ShopID=?";
-        try (Connection conn = DBContext.getConnection(databaseName);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+    public boolean updateShop(Shop shop) {
+        String sql = "UPDATE Shop SET ShopName = ?, Address = ?, Phone = ?, Email = ?, Status = ?, CreatedDate = ?, CreatedBy = ? " +
+                     "WHERE ShopID = ?";
 
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, shop.getShopName());
             ps.setString(2, shop.getAddress());
             ps.setString(3, shop.getPhone());
@@ -108,46 +94,37 @@ public class ShopDAO {
             ps.setInt(8, shop.getShopID());
 
             return ps.executeUpdate() > 0;
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException ex) {
+            Logger.getLogger(ShopDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
+
         return false;
     }
 
-    public boolean deleteShop(String shopID, String databaseName) {
-        String sql = "DELETE FROM Shop WHERE ShopID = ?";
-        try (Connection conn = DBContext.getConnection(databaseName);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+    public boolean deleteShop(int shopId) {
+        String sql = "UPDATE Shop SET Status = 0 WHERE ShopID = ?"; // soft delete
 
-            ps.setString(1, shopID);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, shopId);
             return ps.executeUpdate() > 0;
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException ex) {
+            Logger.getLogger(ShopDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
+
         return false;
     }
-    public static void main(String[] args) {
-         String dbName = "SWP7"; // Thay đổi tùy theo CSDL của bạn
-        ShopDAO dao = new ShopDAO();
 
-        // Insert test
-       // Shop shop = new Shop("S009", "HAHA", "Hanoi", "0262995295", "Haha@gmail.com", "Nô", new Date(), "haha");
-   //     boolean inserted = dao.insertShop(shop, dbName);
-   //     System.out.println("Insert: " + inserted);
-
-        // Get all test
-        List<Shop> shops = dao.getAllShops(dbName);
-        for (Shop s : shops) {
-            System.out.println(s.getShopName() + " - " + s.getAddress());
-        }
-
-        // Get by ID test
-
-        // Delete test
-      //  boolean deleted = dao.deleteShop("S001", dbName);
-       // System.out.println("Delete: " + deleted);
+    private Shop extractShop(ResultSet rs) throws SQLException {
+        Shop shop = new Shop();
+        shop.setShopID(rs.getInt("ShopID"));
+        shop.setShopName(rs.getString("ShopName"));
+        shop.setAddress(rs.getString("Address"));
+        shop.setPhone(rs.getString("Phone"));
+        shop.setEmail(rs.getString("Email"));
+        shop.setStatus(rs.getBoolean("Status"));
+        shop.setCreatedDate(rs.getTimestamp("CreatedDate"));
+        shop.setCreatedBy(rs.getString("CreatedBy"));
+        return shop;
     }
 }
 

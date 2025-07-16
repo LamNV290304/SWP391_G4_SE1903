@@ -121,7 +121,7 @@ public class SupplierDAO {
         return false;
     }
     public static void main(String[] args) {
-        Context.DBContext db = new Context.DBContext("SWP7"); // hoặc dùng constructor mặc định nếu bạn đã sửa
+        Context.DBContext db = new Context.DBContext("Test"); // hoặc dùng constructor mặc định nếu bạn đã sửa
         Connection connection = db.getConnection();
         SupplierDAO dao = new SupplierDAO(connection);
 
@@ -135,9 +135,9 @@ public class SupplierDAO {
                 new Timestamp(System.currentTimeMillis()),
                 "admin"
         );
-        //dao.insertSupplier(newSupplier);
+        dao.insertSupplier(newSupplier);
         System.out.println("✔ Đã thêm nhà cung cấp mới.");
- dao.deleteSupplier(5);
+ //dao.deleteSupplier(5);
         // 2. Get all suppliers
         List<Supplier> allSuppliers = dao.getAllSuppliers();
         System.out.println("📋 Danh sách nhà cung cấp:");

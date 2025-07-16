@@ -45,7 +45,7 @@ public class InvoiceServlet extends HttpServlet {
     InvoiceDAO idao = new InvoiceDAO(connection.getConnection());
     InvoiceDetailDAO idetail = new InvoiceDetailDAO(connection.getConnection());
     InventoryDAO inventoryDAO = new InventoryDAO(connection.getConnection());
-    ShopDAO sDAO = new ShopDAO();
+    ShopDAO sDAO = new ShopDAO(connection.getConnection());
     EmployeeDAO eDAO = new EmployeeDAO(connection.getConnection());
     ProductDAO pDAO = new ProductDAO(connection.getConnection());
     CustomerDAO cDAO = new CustomerDAO(connection.getConnection());
@@ -264,7 +264,7 @@ public class InvoiceServlet extends HttpServlet {
             throws ServletException, IOException {
         try {
             request.setAttribute("customers", cDAO.getAllCustomer());
-            request.setAttribute("allShops", sDAO.getAllShops("SWP1"));
+            request.setAttribute("allShops", sDAO.getAllShops());
             request.getRequestDispatcher("addInvoice.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -290,7 +290,7 @@ public class InvoiceServlet extends HttpServlet {
 
         List<Customer> customers = cDAO.getAllCustomer();
         List<Employee> employees = eDAO.getAllEmployee();
-        List<Shop> allShops = sDAO.getAllShops("SWP1");
+        List<Shop> allShops = sDAO.getAllShops();
         List<Invoice> invoices = idao.getInvoicesByPage(pageIndex, pageSize);
 
         request.setAttribute("currentPage", pageIndex);
@@ -494,21 +494,21 @@ public class InvoiceServlet extends HttpServlet {
             } else {
                 request.setAttribute("errorMessage", "Không thể thêm hóa đơn. Vui lòng thử lại.");
                 request.setAttribute("customers", cDAO.getAllCustomer());
-                request.setAttribute("allShops", sDAO.getAllShops("SWP1"));
+                request.setAttribute("allShops", sDAO.getAllShops());
                 request.getRequestDispatcher("addInvoice.jsp").forward(request, response);
                 return;
             }
         } catch (NumberFormatException e) {
             request.setAttribute("errorMessage", "Lỗi định dạng dữ liệu: Mã khách hàng, cửa hàng hoặc tổng tiền phải là số.");
             request.setAttribute("customers", cDAO.getAllCustomer());
-            request.setAttribute("allShops", sDAO.getAllShops("SWP1"));
+            request.setAttribute("allShops", sDAO.getAllShops());
 
             request.getRequestDispatcher("addInvoice.jsp").forward(request, response);
         } catch (Exception e) {
             request.setAttribute("errorMessage", "Đã xảy ra lỗi không mong muốn khi thêm hóa đơn: " + e.getMessage());
             try {
                 request.setAttribute("customers", cDAO.getAllCustomer());
-                request.setAttribute("allShops", sDAO.getAllShops("SWP1"));
+                request.setAttribute("allShops", sDAO.getAllShops());
             } catch (Exception daoEx) {
                 System.err.println("Error fetching dropdown data on error in general catch: " + daoEx.getMessage());
             }
@@ -667,7 +667,7 @@ public class InvoiceServlet extends HttpServlet {
             List<Inventory> inventoriesInShop = inventoryDAO.getAllInventoriesInStore(shopID);
             Shop selectedShop = null;
             try {
-                selectedShop = sDAO.getShopByID(shopID, "SWP1");
+                selectedShop = sDAO.getShopById(shopID);
             } catch (Exception e) {
                 request.setAttribute("errorMessage", "Không thể lấy thông tin cửa hàng.");
             }
@@ -739,7 +739,7 @@ public class InvoiceServlet extends HttpServlet {
                 return;
             }
             Customer selectedCustomer = cDAO.getCustomerById(selectedInvoice.getCustomerID());
-            Shop selectedShop = sDAO.getShopByID(selectedInvoice.getShopID(), "SWP1");
+            Shop selectedShop = sDAO.getShopById(selectedInvoice.getShopID());
             List<InvoiceDetail> invoiceDetails = idetail.getDetailByInvoiceID(invoiceID);
             List<Product> products = pDAO.getAllProducts();
             List<Inventory> inventoriesInShop = inventoryDAO.getAllInventoriesInStore(selectedInvoice.getShopID());

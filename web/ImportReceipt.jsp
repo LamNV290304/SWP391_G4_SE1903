@@ -57,150 +57,209 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
             <div class="layout-container">
                 <!--menu-->
                 <jsp:include page="sidebar.jsp" />
-               
+
                 <div class="layout-page">
                     <jsp:include page="navBar.jsp" />
-                  
-           <!-- / Navbar -->
 
-            <!-- Content wrapper -->
-          
-                <div class="container" style="padding-top: 20px;"> 
-                  <!-- Responsive Table -->
-             <div class="card col-sm-12" style="height: 90vh; overflow: hidden;">
-                 <div>
-                     <h5 class="card-header">Phiếu Nhập Mua Hàng
-                         <a href="AddImportReceipt" >
-                             <button type="button" class="btn btn-outline-info">Thêm mới phiếu nhập mua hàng</button>
-                         </a>
-                         
-                     </h5>
-                     
-                 </div>
-  
-  
-  <div class="table-responsive text-nowrap" style="height: calc(80vh - 80px); overflow-y: auto;">
-    <table class="table">
-                    <thead style="position: sticky ; top: 0; background-color: white; z-index: 20;">
-                      <tr class="text-nowrap">
-                        <th>#</th>
-                        <th>Mã Phiếu</th>
-                        <th>Ngày Muốn Nhận</th>
-                        <th>Kho Hàng</th>
-                        <th>Giá Trị Mặt hàng</th>
-                        <th>Nhà cung cấp</th>
-                        <th>Nhân Viên Nhận</th>
-                        <th>Ghi chú</th>
-                        <th>Hành động</th>
-                      </tr>
-                    </thead>
-                    <tbody id="vertical-example">
-                           <c:forEach var="ir" items="${listIR}" varStatus="loop">
-                               <c:set var="receiptId" value="${ir.importReceiptID}" />
-                      <tr>
-                        <th scope="row">${loop.index + 1}</th>
-                        <td>${ir.importReceiptID}</td>
-                        <td><fmt:formatDate value="${ir.receiptDate}" pattern="dd/MM/yyyy" /></td>
-                        <td>${ir.shopID}</td>
-                        <td>${ir.totalAmount}</td>
-                        <td>${ir.supplierID}</td>
-                        <td>${ir.employeeID}</td>
-                        <td>${ir.note}</td>
-                        <td>
-                          <div class="dropdown">
-                            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                              <i class="bx bx-dots-vertical-rounded"></i>
-                            </button>
-                            <div class="dropdown-menu">
-                                    <button type="button" class=" dropdown-item btn btn-sm btn-outline-secondary toggle-detail" data-receipt-id="${receiptId}">
-                                                        <i class="bx bx-chevron-down"></i> Chi tiết
-                                    </button>
+                    <!-- / Navbar -->
 
-                                <form class="dropdown-item" action="ImportReceiptServlet" method="POST">
-                                    <input type="hidden" name="action" value="edit" />
-                                    <input type="hidden" name="receiptId" value="${ir.importReceiptID}" />
-                                    <button class="btn btn-secondary" type="submit"><i>Edit</i></button>
-                                </form>
-                                <form class="dropdown-item" action="ImportReceiptServlet" method="POST">
-                                    <input type="hidden" name="action" value="delete" />
-                                    <input type="hidden" name="receiptId" value="${ir.importReceiptID}" />
-                                    <button class="btn btn-secondary" type="submit"><i>Delete</i></button>
-                                </form>
+                    <!-- Content wrapper -->
+
+                    <div class="container" style="padding-top: 20px;"> 
+                        <c:if test="${not empty successMessage}">
+                            <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                                ${successMessage}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
-                          </div>
-                        </td>
-                      </tr>
-                      
+                        </c:if>
+                        <!-- Responsive Table -->
+                        <div class="card col-sm-12" style="height: 100%; overflow: hidden;">
+                            <div>
+                                <h5 class="card-header">Phiếu Nhập Mua Hàng
+                                    <a href="AddImportReceipt" >
+                                        <button type="button" class="btn btn-outline-info">Thêm mới phiếu nhập mua hàng</button>
+                                    </a>
 
-<tr class="detail-row" style="display: none;" data-receipt-id="${receiptId}">
-  <td colspan="9">
-    <div class="card">
-      <div class="card-body">
-        <strong>Chi tiết sản phẩm:</strong>
-        <table class="table table-sm">
-          <thead>
-            <tr>
-              <th>Mã sản phẩm</th>
-              <th>Số lượng</th>
-              <th>Đơn giá</th>
-              <th>Thành tiền</th>
-            </tr>
-          </thead>
-          <tbody>
-            <c:forEach var="detail" items="${listDetail}">
-              <c:if test="${detail.importReceiptID == receiptId}">
-                <tr>
-                  <td>${detail.productID}</td>
-                  <td>${detail.quantity}</td>
-                  <td><fmt:formatNumber value="${detail.unitPrice}" type="currency"/></td>
-                  <td><fmt:formatNumber value="${detail.quantity * detail.unitPrice}" type="currency"/></td>
-                </tr>
-              </c:if>
-            </c:forEach>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </td>
-</tr>
+                                </h5>
 
-                      </c:forEach>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+                            </div>
 
-                </div>
-            </div>
-            </div>
+
+                            <div class="table-responsive text-nowrap" style="height: calc(80vh - 80px); overflow-y: auto;">
+                                <form action="ImportReceiptServlet" method="GET" class="row p-3">
+                                    <div class="col-md-2">
+                                        <select class="form-select form-select-sm" name="shopId">
+                                            <option value="">Kho xuất</option>
+                                            <c:forEach var="shop" items="${shops}">
+                                                <option value="${shop.shopID}" ${param.shopId == shop.shopID ? 'selected' : ''}>
+                                                    ${shop.shopName}
+                                                </option>
+                                            </c:forEach>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <select name="employeeID" class="form-select form-select-sm">
+                                            <option value="">-- Nhân viên nhận --</option>
+                                            <c:forEach var="emp" items="${employees}">
+                                                <option value="${emp.id}" ${param.employeeID == emp.id ? 'selected' : ''}>${emp.fullname}</option>
+                                            </c:forEach>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <select name="supplierID" class="form-select form-select-sm">
+                                            <option value="">-- Nhà cung cấp --</option>
+                                            <c:forEach var="sup" items="${suppliers}">
+                                                <option value="${sup.supplierID}" ${param.supplierID == sup.supplierID ? 'selected' : ''}>${sup.supplierName}</option>
+                                            </c:forEach>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Từ ngày</label>
+                                        <input type="date" name="fromdate" class="form-select form-select-sm" value="${param.date}">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Đến ngày</label>
+                                        <input type="date" name="todate" class="form-select form-select-sm" value="${param.date}">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="submit" class="btn btn-primary">Lọc</button>
+                                        <a href="ImportReceiptServlet" class="btn btn-secondary">Reset</a>
+                                    </div>
+                                </form>
+                                <table class="table">
+                                    <thead style="position: sticky ; top: 0; background-color: white; z-index: 20;">
+                                        <tr class="text-nowrap">
+                                            <th>#</th>
+                                            <th>Mã Phiếu</th>
+                                            <th>Ngày Muốn Nhận</th>
+                                            <th>Kho Hàng</th>
+                                            <th>Giá Trị Mặt hàng</th>
+                                            <th>Nhà cung cấp</th>
+                                            <th>Nhân Viên Nhận</th>
+                                            <th>Ghi chú</th>
+                                            <th>Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="vertical-example">
+                                        <c:forEach var="ir" items="${listIR}" varStatus="loop">
+                                            <c:set var="receiptId" value="${ir.importReceiptID}" />
+                                            <tr>
+                                                <th scope="row">${loop.index + 1}</th>
+                                                <td>${ir.importReceiptID}</td>
+                                                <td><fmt:formatDate value="${ir.receiptDate}" pattern="dd/MM/yyyy" /></td>
+                                                <td><c:forEach var="shop" items="${shops}">
+                                                        <c:if test="${shop.shopID == ir.shopID}">
+                                                            ${shop.shopName}
+                                                        </c:if>
+                                                    </c:forEach></td>
+                                                <td>${ir.totalAmount}</td>
+                                                <td><c:forEach var="emp" items="${suppliers}">
+                                                        <c:if test="${emp.supplierID == ir.supplierID}">
+                                                            ${emp.supplierName}
+                                                        </c:if>
+                                                    </c:forEach>${ir.supplierID}</td>
+                                                <td><c:forEach var="emp" items="${employees}">
+                                                        <c:if test="${emp.id == ir.employeeID}">
+                                                            ${emp.fullname}
+                                                        </c:if>
+                                                    </c:forEach></td>
+                                                <td>${ir.note}</td>
+                                                <td>
+                                                    <div class="dropdown">
+                                                        <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                                            <i class="bx bx-dots-vertical-rounded"></i>
+                                                        </button>
+                                                        <div class="dropdown-menu">
+                                                            <button type="button" class=" dropdown-item btn btn-sm btn-outline-secondary toggle-detail" data-receipt-id="${receiptId}">
+                                                                <i class="bx bx-chevron-down"></i> Chi tiết
+                                                            </button>
+
+                                                            <form class="dropdown-item" action="ImportReceiptServlet" method="POST">
+                                                                <input type="hidden" name="action" value="edit" />
+                                                                <input type="hidden" name="receiptId" value="${ir.importReceiptID}" />
+                                                                <button class="btn btn-secondary" type="submit"><i>Edit</i></button>
+                                                            </form>
+                                                            <form class="dropdown-item" action="ImportReceiptServlet" method="POST">
+                                                                <input type="hidden" name="action" value="delete" />
+                                                                <input type="hidden" name="receiptId" value="${ir.importReceiptID}" />
+                                                                <button class="btn btn-secondary" type="submit"><i>Delete</i></button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+
+                                            <tr class="detail-row" style="display: none;" data-receipt-id="${receiptId}">
+                                                <td colspan="9">
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <strong>Chi tiết sản phẩm:</strong>
+                                                            <table class="table table-sm">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Mã sản phẩm</th>
+                                                                        <th>Số lượng</th>
+                                                                        <th>Đơn giá</th>
+                                                                        <th>Thành tiền</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <c:forEach var="detail" items="${listDetail}">
+                                                                        <c:if test="${detail.importReceiptID == receiptId}">
+                                                                            <tr>
+                                                                                <td>${detail.productID}</td>
+                                                                                <td>${detail.quantity}</td>
+                                                                                <td><fmt:formatNumber value="${detail.price}" type="currency"/></td>
+                                                                                <td><fmt:formatNumber value="${detail.quantity * detail.price}" type="currency"/></td>
+                                                                            </tr>
+                                                                        </c:if>
+                                                                    </c:forEach>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                        </c:forEach>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <jsp:include page="footer.jsp" />
+                        </div>
+                        
                     </div>
-                    
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const toggleButtons = document.querySelectorAll(".toggle-detail");
+                </div>
+            </div>
+        </div>
 
-    toggleButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const receiptId = btn.getAttribute("data-receipt-id");
-        const detailRow = document.querySelector(`.detail-row[data-receipt-id="${receiptId}"]`);
-        if (detailRow) {
-          const isVisible = detailRow.style.display !== "none";
-          detailRow.style.display = isVisible ? "none" : "table-row";
-          btn.innerHTML = isVisible ? '<i class="bx bx-chevron-down"></i> Chi tiết' :
-                                      '<i class="bx bx-chevron-up"></i> Thu gọn';
-        }
-      });
-    });
-  });
-</script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const toggleButtons = document.querySelectorAll(".toggle-detail");
+
+                toggleButtons.forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        const receiptId = btn.getAttribute("data-receipt-id");
+                        const detailRow = document.querySelector(`.detail-row[data-receipt-id="${receiptId}"]`);
+                        if (detailRow) {
+                            const isVisible = detailRow.style.display !== "none";
+                            detailRow.style.display = isVisible ? "none" : "table-row";
+                            btn.innerHTML = isVisible ? '<i class="bx bx-chevron-down"></i> Chi tiết' :
+                                    '<i class="bx bx-chevron-up"></i> Thu gọn';
+                        }
+                    });
+                });
+            });
+        </script>
 
 
-            <script src="assets/vendor/libs/jquery/jquery.js"></script>
-            <script src="assets/vendor/libs/popper/popper.js"></script>
-            <script src="assets/vendor/js/bootstrap.js"></script>
-            <script src="assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
-            <script src="assets/vendor/js/menu.js"></script> <!-- Xử lý toggle -->
-            <script src="assets/js/main.js"></script> <!-- Main logic -->
+        <script src="assets/vendor/libs/jquery/jquery.js"></script>
+        <script src="assets/vendor/libs/popper/popper.js"></script>
+        <script src="assets/vendor/js/bootstrap.js"></script>
+        <script src="assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+        <script src="assets/vendor/js/menu.js"></script> <!-- Xử lý toggle -->
+        <script src="assets/js/main.js"></script> <!-- Main logic -->
 
     </body>
 </html>
