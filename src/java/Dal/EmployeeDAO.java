@@ -518,9 +518,9 @@ public class EmployeeDAO {
     public Employee findEmployeeByUsernameAndPassword(String username, String plainPassword) throws SQLException {
         Employee employee = null;
 
-        String sql = "SELECT e.EmployeeID, e.Username, e.Password, e.FullName, e.Phone, e.Email, e.Status, e.CreatedDate, e.RoleID, e.ShopID, r.Name AS RoleName "
+        String sql = "SELECT e.EmployeeID, e.Username, e.Password, e.FullName, e.Phone, e.Email, e.Status, e.CreatedDate, e.RoleID, e.ShopID, r.RoleName "
                 + "FROM Employee e JOIN Role r ON e.RoleID = r.RoleID "
-                + "WHERE e.Username = ? AND e.Status = 1";
+                + "WHERE (e.Username = ? OR e.Email = ?)AND e.Status = 1";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, username);
