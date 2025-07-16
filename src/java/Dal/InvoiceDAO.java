@@ -5,8 +5,10 @@
 package Dal;
 
 import Context.DBContext;
+import DTO.ShopOwnerRevenuaDto;
 import Models.Invoice;
 import Models.InvoiceDetail;
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Connection;
 import java.sql.Statement;
@@ -161,7 +163,7 @@ public class InvoiceDAO {
     public List<Invoice> getInvoicesByCustomerID(int customerID) {
         List<Invoice> list = new ArrayList<>();
         String sql = "SELECT i.InvoiceID, i.CustomerID, c.CustomerName, i.EmployeeID, e.FullName AS EmployeeName, "
-                + "i.ShopID, s.ShopName, i.InvoiceDate, i.TotalAmount, i.VatAmount, i.VATRateID, i.Note, i.Status \n" 
+                + "i.ShopID, s.ShopName, i.InvoiceDate, i.TotalAmount, i.VatAmount, i.VATRateID, i.Note, i.Status \n"
                 + "FROM [dbo].[Invoice] i \n"
                 + "JOIN [dbo].[Customer] c ON i.CustomerID = c.CustomerID\n"
                 + "JOIN [dbo].[Shop] s ON i.ShopID = s.ShopID\n"
@@ -285,7 +287,7 @@ public class InvoiceDAO {
 
     public List<Invoice> searchInvoiceByKey(String key) {
         String sql = "SELECT i.InvoiceID, i.CustomerID, c.CustomerName, i.EmployeeID, "
-                + "e.FullName AS EmployeeName, " 
+                + "e.FullName AS EmployeeName, "
                 + "i.ShopID, s.ShopName, "
                 + "i.InvoiceDate, i.TotalAmount, i.VatAmount, i.VATRateID, i.Note, i.Status \n"
                 + "FROM Invoice i\n"
@@ -384,7 +386,7 @@ public class InvoiceDAO {
                         rs.getInt("ShopID"),
                         rs.getTimestamp("InvoiceDate"),
                         rs.getBigDecimal("TotalAmount"),
-                        rs.getBigDecimal("VatAmount"), 
+                        rs.getBigDecimal("VatAmount"),
                         rs.getInt("VATRateID"),
                         rs.getString("Note"),
                         rs.getBoolean("Status"),
@@ -434,12 +436,113 @@ public class InvoiceDAO {
         }
     }
 
+    public List<ShopOwnerRevenuaDto> getShopRevenue(Date fromDate, Date toDate, int page, int pageSize, String searchName) throws SQLException {
+        List<ShopOwnerRevenuaDto> list = new ArrayList<>();
+
+        StringBuilder sql = new StringBuilder("""
+        SELECT s.ShopID, s.ShopName,
+               SUM(i.TotalAmount) AS TotalRevenue
+        FROM Shop s
+        LEFT JOIN Invoice i ON s.ShopID = i.ShopID AND i.Status = 1
+        WHERE 1=1
+    """);
+
+        if (searchName != null && !searchName.trim().isEmpty()) {
+            sql.append(" AND s.ShopName LIKE ? ");
+        }
+        if (fromDate != null) {
+            sql.append(" AND i.InvoiceDate >= ? ");
+        }
+        if (toDate != null) {
+            sql.append(" AND i.InvoiceDate <= ? ");
+        }
+
+        sql.append(" GROUP BY s.ShopID, s.ShopName ")
+                .append(" ORDER BY s.ShopID ")
+                .append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int index = 1;
+
+            if (searchName != null && !searchName.trim().isEmpty()) {
+                ps.setString(index++, "%" + searchName.trim() + "%");
+            }
+            if (fromDate != null) {
+                ps.setTimestamp(index++, new java.sql.Timestamp(fromDate.getTime()));
+            }
+            if (toDate != null) {
+                ps.setTimestamp(index++, new java.sql.Timestamp(toDate.getTime()));
+            }
+
+            ps.setInt(index++, (page - 1) * pageSize);
+            ps.setInt(index, pageSize);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int shopId = rs.getInt("ShopID");
+                    String shopName = rs.getString("ShopName");
+                    BigDecimal total = rs.getBigDecimal("TotalRevenue");
+                    if (total == null) {
+                        total = BigDecimal.ZERO;
+                    }
+                    list.add(new ShopOwnerRevenuaDto(shopId, shopName, total));
+                }
+            }
+        }
+
+        return list;
+    }
+
+    public int countShopsWithRevenue(Date fromDate, Date toDate, String searchName) throws SQLException {
+        StringBuilder sql = new StringBuilder("""
+        SELECT COUNT(*) FROM (
+            SELECT s.ShopID
+            FROM Shop s
+            LEFT JOIN Invoice i ON s.ShopID = i.ShopID AND i.Status = 1
+            WHERE 1=1
+    """);
+
+        if (searchName != null && !searchName.trim().isEmpty()) {
+            sql.append(" AND s.ShopName LIKE ? ");
+        }
+        if (fromDate != null) {
+            sql.append(" AND i.InvoiceDate >= ? ");
+        }
+        if (toDate != null) {
+            sql.append(" AND i.InvoiceDate <= ? ");
+        }
+
+        sql.append(" GROUP BY s.ShopID ) AS temp");
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int index = 1;
+
+            if (searchName != null && !searchName.trim().isEmpty()) {
+                ps.setString(index++, "%" + searchName.trim() + "%");
+            }
+            if (fromDate != null) {
+                ps.setTimestamp(index++, new java.sql.Timestamp(fromDate.getTime()));
+            }
+            if (toDate != null) {
+                ps.setTimestamp(index++, new java.sql.Timestamp(toDate.getTime()));
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+
+        return 0;
+    }
+
     public static void main(String[] args) {
 
         Connection dbConnection = null;
         try {
-     
-            DBContext dbContext = new DBContext("SWP1"); 
+
+            DBContext dbContext = new DBContext("SWP1");
             dbConnection = dbContext.getConnection();
 
             if (dbConnection != null) {
@@ -448,7 +551,7 @@ public class InvoiceDAO {
                 InvoiceDAO invoiceDAO = new InvoiceDAO(dbConnection);
 
                 System.out.println("\n--- Test searchInvoiceByKey ---");
-                String searchKey = "c"; 
+                String searchKey = "c";
                 List<Invoice> searchResults = invoiceDAO.searchInvoiceByKey(searchKey);
 
                 if (searchResults.isEmpty()) {

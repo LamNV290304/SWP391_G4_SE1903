@@ -5,27 +5,26 @@
 package Controller;
 
 import Context.DBContext;
-import Context.DatabaseHelper;
+import Dal.ShopDAO;
 import Dal.ShopOwnerDAO;
-import Dal.ShopSubscriptionDAO;
+import Models.Shop;
 import Models.ShopOwner;
 import java.io.IOException;
+import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import DTO.ShopSubscriptionDto;
-import java.sql.Date;
-
 
 /**
  *
  * @author Admin
  */
-public class ErrorPage extends HttpServlet {
+public class ShowShopDetail extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -38,7 +37,19 @@ public class ErrorPage extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.sendRedirect("error.jsp");
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            /* TODO output your page here. You may use following sample code. */
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet ShowShopDetail</title>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet ShowShopDetail at " + request.getContextPath() + "</h1>");
+            out.println("</body>");
+            out.println("</html>");
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -54,42 +65,22 @@ public class ErrorPage extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            String requestUri = (String) request.getAttribute("jakarta.servlet.error.request_uri");
-            if (requestUri == null) {
-                response.sendRedirect("error.jsp");
-                return;
-            }
-
-            String shopCode = requestUri.substring(requestUri.lastIndexOf("/") + 1);
-
-            String databaseName = DatabaseHelper.getDatabaseNameByShopCode(shopCode);
-            String shopName = DatabaseHelper.getShopNameByShopCode(shopCode);
-
+            int shopOwnerId = Integer.parseInt(request.getParameter("Id"));
+            int shopId = Integer.parseInt(request.getParameter("shopId"));
+            
             ShopOwnerDAO shopOwnerDAO = new ShopOwnerDAO(DBContext.getCentralConnection());
-            ShopOwner shopOwner = shopOwnerDAO.getShopOwnerByDatabaseName(databaseName);
+            ShopOwner shopOwner = shopOwnerDAO.getShopOwnerById(shopOwnerId);
             
-            ShopSubscriptionDAO shopSubscriptionDAO = new ShopSubscriptionDAO(DBContext.getCentralConnection());
-            ShopSubscriptionDto subscript = shopSubscriptionDAO.getActiveSubscriptionByShopId(shopOwner.getId());
+            ShopDAO shopDAO = new ShopDAO();
+            Shop shop = shopDAO.getShopByID(shopId, shopOwner.getDatabaseName());
             
-            Date currentDate = new Date(System.currentTimeMillis());
-            if (subscript.getEndDate().before(currentDate)){
-                request.setAttribute("error", "Vui lòng thanh toán gói đã đăng kí");
-                request.getRequestDispatcher("login.jsp").forward(request, response);
-                return;
-            }
-            
-            if (databaseName == null) {
-                response.sendRedirect("error.jsp");
-                return;
-            }
-
-            request.getSession().setAttribute("databaseName", databaseName);
-            request.getSession().setAttribute("shopName", shopName);
-            request.getRequestDispatcher("loginEmployee.jsp").forward(request, response);
+            request.setAttribute("shop", shop);
+            request.setAttribute("id", shopOwnerId);
+            request.getRequestDispatcher("ShopOwner/showShopDetails.jsp").forward(request, response);
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(ErrorPage.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ShowShopDetail.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
-            Logger.getLogger(ErrorPage.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ShowShopDetail.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
@@ -105,7 +96,7 @@ public class ErrorPage extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        doGet(request, response);
+        processRequest(request, response);
     }
 
     /**
