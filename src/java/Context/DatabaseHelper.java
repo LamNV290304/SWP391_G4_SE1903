@@ -75,7 +75,7 @@ public final class DatabaseHelper {
             ps.setString(1, shopCode);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return rs.getString("DatabaseName");
+                return rs.getString("ShopCode");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -133,207 +133,314 @@ public final class DatabaseHelper {
 
         String createTablesSQL = """
         CREATE TABLE Category (
-                                             CategoryID INT IDENTITY(1,1) PRIMARY KEY,
-                                             CategoryName NVARCHAR(100) NOT NULL,
-                                             [Description] NVARCHAR(255),
-                                             Status BIT DEFAULT 1
-                                         );
-                                         CREATE TABLE Unit (
-                                             UnitID INT IDENTITY(1,1) PRIMARY KEY,
-                                             [Description] NVARCHAR(255)
-                                         );
-                                         CREATE TABLE Role (
-                                             RoleID INT PRIMARY KEY,
-                                             RoleName NVARCHAR(100) NOT NULL,
-                                             [Description] NVARCHAR(255)
-                                         );
-                                         CREATE TABLE Shop (
-                                             ShopID INT IDENTITY(1,1) PRIMARY KEY,
-                                             ShopName NVARCHAR(100) NOT NULL,
-                                             [Address] NVARCHAR(255),
-                                             Phone NVARCHAR(20),
-                                             Email NVARCHAR(100),
-                                             Status BIT DEFAULT 1,
-                                             CreatedDate DATETIME DEFAULT GETDATE(),
-                                             CreatedBy NVARCHAR(100)
-                                         );
-                                         CREATE TABLE Customer (
-                                             CustomerID INT IDENTITY(1,1) PRIMARY KEY,
-                                             CustomerName NVARCHAR(100) NOT NULL,
-                                             Phone NVARCHAR(20),
-                                             Email NVARCHAR(100),
-                                             [Address] NVARCHAR(255),
-                                             Status BIT DEFAULT 1,
-                                             CreatedDate DATETIME DEFAULT GETDATE(),
-                                             CreatedBy NVARCHAR(100)
-                                         );
-                                         CREATE TABLE Supplier (
-                                             SupplierID INT IDENTITY(1,1) PRIMARY KEY,
-                                             SupplierName NVARCHAR(100) NOT NULL,
-                                             Phone NVARCHAR(20),
-                                             Email NVARCHAR(100),
-                                             [Address] NVARCHAR(255),
-                                             Status BIT DEFAULT 1,
-                                             CreatedDate DATETIME DEFAULT GETDATE(),
-                                             CreatedBy NVARCHAR(100)
-                                         );
-                                         CREATE TABLE Employee (
-                                             EmployeeID INT IDENTITY(1,1) PRIMARY KEY,
-                                             Username NVARCHAR(100) NOT NULL UNIQUE,
-                                             [Password] NVARCHAR(255) NOT NULL,
-                                             FullName NVARCHAR(100),
-                                             Email NVARCHAR(100),
-                                             Phone NVARCHAR(20),
-                                             RoleID INT NOT NULL,
-                                             ShopID INT,
-                                             Status BIT DEFAULT 1,
-                                             CreatedDate DATETIME DEFAULT GETDATE(),
-                                             CreatedBy NVARCHAR(100),
-                                             FOREIGN KEY (RoleID) REFERENCES Role(RoleID),
-                                             FOREIGN KEY (ShopID) REFERENCES Shop(ShopID)
-                                         );
-                                         CREATE TABLE Product (
-                                             ProductID INT IDENTITY(1,1) PRIMARY KEY,
-                                             ProductName NVARCHAR(255) NOT NULL,
-                                             CategoryID INT NOT NULL,
-                                             UnitID INT NOT NULL,
-                                             ImportPrice DECIMAL(18, 2) NOT NULL,
-                                             SellingPrice DECIMAL(18, 2) NOT NULL,
-                                             Description NVARCHAR(MAX),
-                                             Status BIT NOT NULL,
-                                             ImageUrl NVARCHAR(500),
-                                             CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
-                                             CreatedBy NVARCHAR(50) NOT NULL,
-                                             FOREIGN KEY (CategoryID) REFERENCES Category(CategoryID),
-                                             FOREIGN KEY (UnitID) REFERENCES Unit(UnitID)
-                                         );
-                                         CREATE TABLE Invoice (
-                                             InvoiceID INT IDENTITY(1,1) PRIMARY KEY,
-                                             CustomerID INT NOT NULL,
-                                             EmployeeID INT NOT NULL,
-                                             ShopID INT,
-                                             InvoiceDate DATETIME NOT NULL DEFAULT GETDATE(),
-                                             TotalAmount DECIMAL(18,2) NOT NULL,
-                                             Note NVARCHAR(255),
-                                             Status BIT DEFAULT 1,
-                                             FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
-                                             FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
-                                             FOREIGN KEY (ShopID) REFERENCES Shop(ShopID)
-                                         );
-                                         CREATE TABLE InvoiceDetail (
-                                             InvoiceDetailID INT IDENTITY(1,1) PRIMARY KEY,
-                                             InvoiceID INT NOT NULL,
-                                             ProductID INT NOT NULL,
-                                             UnitPrice DECIMAL(18,2) NOT NULL,
-                                             Quantity INT NOT NULL,
-                                             Discount DECIMAL(5,2) DEFAULT 0,
-                                             TotalPrice DECIMAL(18,2) NOT NULL,
-                                             FOREIGN KEY (InvoiceID) REFERENCES Invoice(InvoiceID),
-                                             FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
-                                         );
-                                         CREATE TABLE ImportReceipt (
-                                             ImportReceiptID INT IDENTITY(1,1) PRIMARY KEY,
-                                             Code NVARCHAR(20) NOT NULL,
-                                             SupplierID INT NOT NULL,
-                                             EmployeeID INT NOT NULL,
-                                             ShopID INT,
-                                             ReceiptDate DATETIME DEFAULT GETDATE(),
-                                             TotalAmount DECIMAL(18,2) NOT NULL,
-                                             Note NVARCHAR(255),
-                                             Status BIT DEFAULT 1,
-                                             FOREIGN KEY (SupplierID) REFERENCES Supplier(SupplierID),
-                                             FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
-                                             FOREIGN KEY (ShopID) REFERENCES Shop(ShopID)
-                                         );
-                                         CREATE TABLE ImportReceiptDetail (
-                                             ImportReceiptDetailID INT IDENTITY(1,1) PRIMARY KEY,
-                                             ImportReceiptID INT NOT NULL,
-                                             ProductID INT NOT NULL,
-                                             Quantity INT NOT NULL,
-                                             Price DECIMAL(18,2) NOT NULL,
-                                             Note NVARCHAR(255),
-                                             FOREIGN KEY (ImportReceiptID) REFERENCES ImportReceipt(ImportReceiptID),
-                                             FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
-                                         );
-                                         CREATE TABLE Inventory (
-                                             InventoryID INT IDENTITY(1,1) PRIMARY KEY,
-                                             ProductID INT NOT NULL,
-                                             ShopID INT,
-                                             Quantity INT NOT NULL DEFAULT 0,
-                                             LastUpdated DATETIME DEFAULT GETDATE(),
-                                             FOREIGN KEY (ProductID) REFERENCES Product(ProductID),
-                                             FOREIGN KEY (ShopID) REFERENCES Shop(ShopID)
-                                         );
-                                         CREATE TABLE TransferReceipt (
-                                             TransferReceiptID INT IDENTITY(1,1) PRIMARY KEY,
-                                             FromShopID INT NOT NULL,
-                                             ToShopID INT NOT NULL,
-                                             TransferDate DATETIME DEFAULT GETDATE(),
-                                             Note NVARCHAR(255),
-                                         	Status INT NOT NULL DEFAULT 0,
-                                             FOREIGN KEY (FromShopID) REFERENCES Shop(ShopID),
-                                             FOREIGN KEY (ToShopID) REFERENCES Shop(ShopID)
-                                         );
-                                         CREATE TABLE TransferReceiptDetail (
-                                             TransferReceiptDetailID INT IDENTITY PRIMARY KEY,
-                                             TransferReceiptID INT NOT NULL,
-                                             ProductID INT NOT NULL,
-                                             Quantity INT NOT NULL,
-                                             FOREIGN KEY (TransferReceiptID) REFERENCES TransferReceipt(TransferReceiptID),
-                                             FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
-                                         );
-                                         CREATE TABLE TypeImportReceipt (
-                                             TypeID INT IDENTITY(1,1) PRIMARY KEY,
-                                             TypeName NVARCHAR(100) NOT NULL
-                                         );
-                                         
-                                         CREATE TABLE TypeExportReceipt (
-                                             TypeID INT IDENTITY(1,1) PRIMARY KEY,
-                                             TypeName NVARCHAR(100) NOT NULL
-                                         );
-                                         CREATE TABLE ExportReceipt (
-                                             ExportReceiptID INT IDENTITY(1,1) PRIMARY KEY,
-                                             EmployeeID INT NOT NULL,
-                                             ShopID INT,
-                                             ReceiptDate DATETIME DEFAULT GETDATE(),
-                                             TotalAmount DECIMAL(18, 2) NOT NULL,
-                                             Note NVARCHAR(255),
-                                             Status BIT DEFAULT 1,
-                                             TypeID INT NOT NULL,
-                                             FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
-                                             FOREIGN KEY (ShopID) REFERENCES Shop(ShopID),
-                                             FOREIGN KEY (TypeID) REFERENCES TypeExportReceipt(TypeID)
-                                         );
-                                         CREATE TABLE ExportReceiptDetail (
-                                             ExportReceiptDetailID INT IDENTITY(1,1) PRIMARY KEY,
-                                             ExportReceiptID INT NOT NULL,
-                                             ProductID INT NOT NULL,
-                                             Quantity INT NOT NULL,
-                                             Price DECIMAL(18, 2) NOT NULL,
-                                             Note NVARCHAR(255),
-                                             FOREIGN KEY (ExportReceiptID) REFERENCES ExportReceipt(ExportReceiptID),
-                                             FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
-                                         );
-                                         CREATE TABLE InventoryCheck (
-                                             InventoryCheckID INT IDENTITY(1,1) PRIMARY KEY,
-                                             EmployeeID INT NOT NULL,
-                                             ShopID INT NOT NULL,
-                                             CheckDate DATETIME DEFAULT GETDATE(),
-                                             Note NVARCHAR(255),
-                                             FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
-                                             FOREIGN KEY (ShopID) REFERENCES Shop(ShopID)
-                                         );
-                                         CREATE TABLE InventoryCheckDetail (
-                                             InventoryCheckDetailID INT IDENTITY(1,1) PRIMARY KEY,
-                                             InventoryCheckID INT NOT NULL,
-                                             ProductID INT NOT NULL,
-                                             QuantitySystem INT NOT NULL,     
-                                             QuantityActual INT NOT NULL,     
-                                             Difference AS (QuantityActual - QuantitySystem) PERSISTED, 
-                                             Note NVARCHAR(255),
-                                             FOREIGN KEY (InventoryCheckID) REFERENCES InventoryCheck(InventoryCheckID),
-                                             FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
-                                         );
+            CategoryID INT IDENTITY(1,1) PRIMARY KEY,
+            CategoryName NVARCHAR(100) NOT NULL,
+            [Description] NVARCHAR(255),
+            Status BIT DEFAULT 1
+        );
+        CREATE TABLE Unit (
+            UnitID INT IDENTITY(1,1) PRIMARY KEY,
+            [Description] NVARCHAR(255)
+        );
+        CREATE TABLE Role (
+            RoleID INT PRIMARY KEY,
+            RoleName NVARCHAR(100) NOT NULL,
+            [Description] NVARCHAR(255)
+        );
+        CREATE TABLE Shop (
+            ShopID INT IDENTITY(1,1) PRIMARY KEY,
+            ShopName NVARCHAR(100) NOT NULL,
+            [Address] NVARCHAR(255),
+            Phone NVARCHAR(20),
+            Email NVARCHAR(100),
+            Status BIT DEFAULT 1,
+            CreatedDate DATETIME DEFAULT GETDATE(),
+            CreatedBy NVARCHAR(100)
+        );
+        CREATE TABLE Customer (
+            CustomerID INT IDENTITY(1,1) PRIMARY KEY,
+            CustomerName NVARCHAR(100) NOT NULL,
+            Phone NVARCHAR(20),
+            Email NVARCHAR(100),
+            [Address] NVARCHAR(255),
+            Status BIT DEFAULT 1,
+            CreatedDate DATETIME DEFAULT GETDATE(),
+            CreatedBy NVARCHAR(100)
+        );
+        CREATE TABLE Supplier (
+            SupplierID INT IDENTITY(1,1) PRIMARY KEY,
+            SupplierName NVARCHAR(100) NOT NULL,
+            Phone NVARCHAR(20),
+            Email NVARCHAR(100),
+            [Address] NVARCHAR(255),
+            Status BIT DEFAULT 1,
+            CreatedDate DATETIME DEFAULT GETDATE(),
+            CreatedBy NVARCHAR(100)
+        );
+        CREATE TABLE Employee (
+            EmployeeID INT IDENTITY(1,1) PRIMARY KEY,
+            Username NVARCHAR(100) NOT NULL UNIQUE,
+            [Password] NVARCHAR(255) NOT NULL,
+            FullName NVARCHAR(100),
+            Email NVARCHAR(100),
+            Phone NVARCHAR(20),
+            RoleID INT NOT NULL,
+            ShopID INT,
+            Status BIT DEFAULT 1,
+            CreatedDate DATETIME DEFAULT GETDATE(),
+            CreatedBy NVARCHAR(100),
+            FOREIGN KEY (RoleID) REFERENCES Role(RoleID),
+            FOREIGN KEY (ShopID) REFERENCES Shop(ShopID)
+        );
+        CREATE TABLE Product (
+            ProductID INT IDENTITY(1,1) PRIMARY KEY,
+            ProductName NVARCHAR(255) NOT NULL,
+            CategoryID INT NOT NULL,
+            UnitID INT NOT NULL,
+            ImportPrice DECIMAL(18, 2) NOT NULL,
+            SellingPrice DECIMAL(18, 2) NOT NULL,
+            Description NVARCHAR(MAX),
+            Status BIT NOT NULL,
+            ImageUrl NVARCHAR(500),
+            CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+            CreatedBy NVARCHAR(50) NOT NULL,
+            FOREIGN KEY (CategoryID) REFERENCES Category(CategoryID),
+            FOREIGN KEY (UnitID) REFERENCES Unit(UnitID)
+        );
+        CREATE TABLE Invoice (
+            InvoiceID INT IDENTITY(1,1) PRIMARY KEY,
+            CustomerID INT NOT NULL,
+            EmployeeID INT NOT NULL,
+            ShopID INT,
+            InvoiceDate DATETIME NOT NULL DEFAULT GETDATE(),
+            TotalAmount DECIMAL(18,2) NOT NULL,
+            Note NVARCHAR(255),
+            Status BIT DEFAULT 1,
+        	VATRateID int NULL,
+        	VatAmount decimal (18, 2) NULL,
+            FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
+            FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
+            FOREIGN KEY (ShopID) REFERENCES Shop(ShopID),
+        
+        );
+        CREATE TABLE InvoiceDetail (
+            InvoiceDetailID INT IDENTITY(1,1) PRIMARY KEY,
+            InvoiceID INT NOT NULL,
+            ProductID INT NOT NULL,
+            UnitPrice DECIMAL(18,2) NOT NULL,
+            Quantity INT NOT NULL,
+            Discount DECIMAL(5,2) DEFAULT 0,
+            TotalPrice DECIMAL(18,2) NOT NULL,
+            FOREIGN KEY (InvoiceID) REFERENCES Invoice(InvoiceID),
+            FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
+        );
+        CREATE TABLE ImportReceipt (
+            ImportReceiptID INT IDENTITY(1,1) PRIMARY KEY,
+            Code NVARCHAR(20) NOT NULL,
+            SupplierID INT NOT NULL,
+            EmployeeID INT NOT NULL,
+            ShopID INT,
+            ReceiptDate DATETIME DEFAULT GETDATE(),
+            TotalAmount DECIMAL(18,2) NOT NULL,
+            Note NVARCHAR(255),
+            Status BIT DEFAULT 1,
+            FOREIGN KEY (SupplierID) REFERENCES Supplier(SupplierID),
+            FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
+            FOREIGN KEY (ShopID) REFERENCES Shop(ShopID)
+        );
+        CREATE TABLE ImportReceiptDetail (
+            ImportReceiptDetailID INT IDENTITY(1,1) PRIMARY KEY,
+            ImportReceiptID INT NOT NULL,
+            ProductID INT NOT NULL,
+            Quantity INT NOT NULL,
+            Price DECIMAL(18,2) NOT NULL,
+            Note NVARCHAR(255),
+            FOREIGN KEY (ImportReceiptID) REFERENCES ImportReceipt(ImportReceiptID),
+            FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
+        );
+        CREATE TABLE Inventory (
+            InventoryID INT IDENTITY(1,1) PRIMARY KEY,
+            ProductID INT NOT NULL,
+            ShopID INT,
+            Quantity INT NOT NULL DEFAULT 0,
+            LastUpdated DATETIME DEFAULT GETDATE(),
+            FOREIGN KEY (ProductID) REFERENCES Product(ProductID),
+            FOREIGN KEY (ShopID) REFERENCES Shop(ShopID)
+        );
+        CREATE TABLE TransferReceipt (
+            TransferReceiptID INT IDENTITY(1,1) PRIMARY KEY,
+            ProductID INT NOT NULL,
+            FromInventoryID INT NOT NULL,
+            ToInventoryID INT NOT NULL,
+            Quantity INT NOT NULL,
+            TransferDate DATETIME DEFAULT GETDATE(),
+            Note NVARCHAR(255),
+            FOREIGN KEY (ProductID) REFERENCES Product(ProductID),
+            FOREIGN KEY (FromInventoryID) REFERENCES Inventory(InventoryID),
+            FOREIGN KEY (ToInventoryID) REFERENCES Inventory(InventoryID)
+        );
+        CREATE TABLE TypeImportReceipt (
+            TypeID INT IDENTITY(1,1) PRIMARY KEY,
+            TypeName NVARCHAR(100) NOT NULL
+        );
+        
+        CREATE TABLE TypeExportReceipt (
+            TypeID INT IDENTITY(1,1) PRIMARY KEY,
+            TypeName NVARCHAR(100) NOT NULL
+        );
+        CREATE TABLE ExportReceipt (
+            ExportReceiptID INT IDENTITY(1,1) PRIMARY KEY,
+            EmployeeID INT NOT NULL,
+            ShopID INT,
+            ReceiptDate DATETIME DEFAULT GETDATE(),
+            TotalAmount DECIMAL(18, 2) NOT NULL,
+            Note NVARCHAR(255),
+            Status BIT DEFAULT 1,
+            TypeID INT NOT NULL,
+            FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
+            FOREIGN KEY (ShopID) REFERENCES Shop(ShopID),
+            FOREIGN KEY (TypeID) REFERENCES TypeExportReceipt(TypeID)
+        );
+        CREATE TABLE ExportReceiptDetail (
+            ExportReceiptDetailID INT IDENTITY(1,1) PRIMARY KEY,
+            ExportReceiptID INT NOT NULL,
+            ProductID INT NOT NULL,
+            Quantity INT NOT NULL,
+            Price DECIMAL(18, 2) NOT NULL,
+            Note NVARCHAR(255),
+            FOREIGN KEY (ExportReceiptID) REFERENCES ExportReceipt(ExportReceiptID),
+            FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
+        );
+        -- Bảng InventoryCheck
+        CREATE TABLE InventoryCheck (
+            InventoryCheckID INT IDENTITY(1,1) PRIMARY KEY,
+            EmployeeID INT NOT NULL,
+            ShopID INT NOT NULL,
+            CheckDate DATETIME DEFAULT GETDATE(),
+            Note NVARCHAR(255),
+            FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
+            FOREIGN KEY (ShopID) REFERENCES Shop(ShopID)
+        );
+        
+        -- Bảng InventoryCheckDetail
+        CREATE TABLE InventoryCheckDetail (
+            InventoryCheckDetailID INT IDENTITY(1,1) PRIMARY KEY,
+            InventoryCheckID INT NOT NULL,
+            ProductID INT NOT NULL,
+            QuantitySystem INT NOT NULL,     -- Số lượng trên hệ thống
+            QuantityActual INT NOT NULL,     -- Số lượng thực tế kiểm kê
+            Difference AS (QuantityActual - QuantitySystem) PERSISTED,  -- Chênh lệch
+            Note NVARCHAR(255),
+            FOREIGN KEY (InventoryCheckID) REFERENCES InventoryCheck(InventoryCheckID),
+            FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
+        );
+        CREATE TABLE TypeReceiptVoucher (
+            TypeID INT IDENTITY(1,1) PRIMARY KEY,
+            TypeName NVARCHAR(100) NOT NULL
+        );
+        
+        CREATE TABLE TypePaymentVoucher (
+            TypeID INT IDENTITY(1,1) PRIMARY KEY,
+            TypeName NVARCHAR(100) NOT NULL
+        );
+        CREATE TABLE ReceiptVoucher (
+            ReceiptVoucherID INT IDENTITY(1,1) PRIMARY KEY,
+            ShopID INT NOT NULL,
+            EmployeeID INT NOT NULL,
+            CustomerID INT NULL, -- optional
+            ReceiptDate DATETIME DEFAULT GETDATE(),
+            Amount DECIMAL(18,2) NOT NULL,
+            Note NVARCHAR(255),
+            Status BIT DEFAULT 1,
+            CreatedDate DATETIME DEFAULT GETDATE(),
+            TypeID INT NOT NULL,
+        
+            FOREIGN KEY (ShopID) REFERENCES Shop(ShopID),
+            FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
+            FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
+            FOREIGN KEY (TypeID) REFERENCES TypeReceiptVoucher(TypeID)
+        );
+        CREATE TABLE PaymentVoucher (
+            PaymentVoucherID INT IDENTITY(1,1) PRIMARY KEY,
+            ShopID INT NOT NULL,
+            EmployeeID INT NOT NULL,
+            SupplierID INT NULL, -- optional
+            PaymentDate DATETIME DEFAULT GETDATE(),
+            Amount DECIMAL(18,2) NOT NULL,
+            Note NVARCHAR(255),
+            Status BIT DEFAULT 1,
+            CreatedDate DATETIME DEFAULT GETDATE(),
+            TypeID INT NOT NULL,
+        
+            FOREIGN KEY (ShopID) REFERENCES Shop(ShopID),
+            FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
+            FOREIGN KEY (SupplierID) REFERENCES Supplier(SupplierID),
+            FOREIGN KEY (TypeID) REFERENCES TypePaymentVoucher(TypeID)
+        );
+        CREATE TABLE Noti (
+            NotiID INT IDENTITY(1,1) PRIMARY KEY,
+            Title NVARCHAR(255) NOT NULL,
+            Message NVARCHAR(MAX),
+            Link NVARCHAR(500), 
+            ReceiverEmployeeID INT NOT NULL,
+            CreatedDate DATETIME DEFAULT GETDATE(),
+            IsRead INT DEFAULT 0,
+            FOREIGN KEY (ReceiverEmployeeID) REFERENCES Employee(EmployeeID)
+        );
+        CREATE TABLE VATRates(
+        	VATRateID int IDENTITY(1,1) NOT NULL,
+        	Rate decimal(5, 2) NOT NULL
+        	);
+        CREATE TABLE Shift (
+            ShiftID INT IDENTITY(1,1) PRIMARY KEY,
+            ShiftName NVARCHAR(100) NOT NULL,      -- Tên ca: Ca sáng, Ca chiều, Ca tối
+            StartTime TIME NOT NULL,               -- Giờ bắt đầu
+            EndTime TIME NOT NULL,                 -- Giờ kết thúc
+            [Description] NVARCHAR(255)
+        );
+        CREATE TABLE ItemCategories (
+            CategoryID INT PRIMARY KEY IDENTITY(1,1),
+            CategoryName NVARCHAR(100) NOT NULL UNIQUE,
+            Description NVARCHAR(MAX) 
+        );
+        
+        CREATE TABLE ShopItems (
+            ItemID INT PRIMARY KEY IDENTITY(1,1),
+            ItemName NVARCHAR(255) NOT NULL,
+            CategoryID INT NOT NULL,
+            Quantity INT NOT NULL DEFAULT 1,
+            UnitID INT,
+        	Price DECIMAL(18, 2), 
+            ItemDate DATE,
+            ShopID INT,
+            Notes NVARCHAR(MAX),
+            FOREIGN KEY (CategoryID) REFERENCES ItemCategories(CategoryID),
+            FOREIGN KEY (ShopID) REFERENCES Shop(ShopID),
+            FOREIGN KEY (UnitID) REFERENCES Unit(UnitID)
+        );
+        
+        CREATE TABLE WorkSchedule (
+            WorkScheduleID INT IDENTITY(1,1) PRIMARY KEY,
+            EmployeeID INT NOT NULL,               -- Nhân viên được phân ca
+            ShopID INT NOT NULL,                   -- Chi nhánh làm việc (nếu nhân viên làm ở nhiều chi nhánh)
+            ShiftID INT NOT NULL,                  -- Ca làm
+            WorkDate DATE NOT NULL,                -- Ngày làm việc
+            Status NVARCHAR(50) DEFAULT N'Đang chờ',  -- Có thể là: Đang chờ, Đã xác nhận, Vắng, Đã làm
+            Note NVARCHAR(255),
+            CreatedDate DATETIME DEFAULT GETDATE(),
+            CreatedBy NVARCHAR(100),
+            FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
+            FOREIGN KEY (ShopID) REFERENCES Shop(ShopID),
+            FOREIGN KEY (ShiftID) REFERENCES Shift(ShiftID)
+        );
+        
+        CREATE TABLE OTPs (
+            Id INT IDENTITY(1,1) PRIMARY KEY,
+            Email NVARCHAR(100) NOT NULL,
+            OTP CHAR(6) NOT NULL,
+            ExpiredAt DATETIME NOT NULL,
+            Status INT DEFAULT 0
+        );
                                         """;
 
         String insertRolesSQL = """
@@ -342,6 +449,9 @@ public final class DatabaseHelper {
         (2, 'Manager', 'Manages operations and staff'),
         (3, 'Cashier', 'Handles sales transactions'),
         (4, 'Sale', 'Responsible for sales and customer relations');
+                                
+                                INSERT INTO VATRates (Rate)
+                                VALUES (0.10);
         """;
 
         try (Connection masterConn = DBContext.getMasterConnection(); Statement stmt = masterConn.createStatement()) {

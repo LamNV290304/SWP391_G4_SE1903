@@ -4,12 +4,21 @@
  */
 package Controller;
 
+import Context.DBContext;
+import Dal.EmployeeDAO;
+import Dal.ShopOwnerDAO;
+import Utils.MailUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.sql.SQLException;
+import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.sql.*;
 
 /**
  *
@@ -34,7 +43,7 @@ public class ForgotPassword extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ForgotPassword</title>");            
+            out.println("<title>Servlet ForgotPassword</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet ForgotPassword at " + request.getContextPath() + "</h1>");
@@ -69,7 +78,56 @@ public class ForgotPassword extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
+
+            String email = request.getParameter("email");
+            if (databaseName.equals("CentralDB")) {
+                ShopOwnerDAO shopOwnerDAO = new ShopOwnerDAO(DBContext.getCentralConnection());
+                boolean isExists = shopOwnerDAO.isEmailExist(email);
+                
+                if (!isExists) {
+                    request.setAttribute("error", "Email không tồn tại.");
+                    request.getRequestDispatcher("forgotPassword.jsp").forward(request, response);
+                    return;
+                }
+                
+                String otp = String.format("%06d", new Random().nextInt(999999));
+
+                Timestamp expiredAt = new Timestamp(System.currentTimeMillis() + 5 * 60 * 1000);
+
+                shopOwnerDAO.upsertOTP(email, otp, expiredAt);
+                
+                MailUtil.sendResetPasswordLink(email, otp, databaseName);
+
+                response.sendRedirect("emailSent.jsp");
+            } else {
+                EmployeeDAO dao = new EmployeeDAO(DBContext.getConnection(databaseName));
+
+                boolean emailExists = dao.isEmailExists(email);
+                
+                if (!emailExists) {
+                    request.setAttribute("error", "Email không tồn tại.");
+                    request.getRequestDispatcher("forgotPassword.jsp").forward(request, response);
+                    return;
+                }
+
+                String otp = String.format("%06d", new Random().nextInt(999999));
+
+                Timestamp expiredAt = new Timestamp(System.currentTimeMillis() + 5 * 60 * 1000);
+
+                dao.upsertOTP(email, otp, expiredAt);
+
+                MailUtil.sendResetPasswordLink(email, otp, databaseName);
+
+                response.sendRedirect("emailSent.jsp");
+            }
+
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(ForgotPassword.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(ForgotPassword.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**

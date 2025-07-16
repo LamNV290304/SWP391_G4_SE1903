@@ -3,17 +3,23 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Utils;
+
 import org.mindrot.jbcrypt.BCrypt;
+
 /**
  *
  * @author Admin
  */
 public class PasswordUtils {
+
     public static String hashPassword(String plainPassword) {
         return BCrypt.hashpw(plainPassword, BCrypt.gensalt(12));
     }
 
     public static boolean checkPassword(String plainPassword, String hashedPassword) {
+        if (plainPassword == null || hashedPassword == null) {
+            return false;
+        }
         return BCrypt.checkpw(plainPassword, hashedPassword);
     }
 }

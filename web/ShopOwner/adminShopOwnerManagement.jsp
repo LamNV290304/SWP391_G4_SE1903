@@ -54,6 +54,7 @@
                                                 <th>Họ tên</th>
                                                 <th>Database</th>
                                                 <th>Ngày tạo</th>
+                                                <th>Mã số thuế</th>
                                                 <th>Tên shop</th>
                                                 <th>SĐT</th>
                                                 <th>Trạng thái</th>
@@ -79,6 +80,7 @@
                                                             <td>
                                                                 <fmt:formatDate value="${owner.createDate}" pattern="dd/MM/yyyy" />
                                                             </td>
+                                                            <td>${owner.taxNumber}</td>
                                                             <td>${owner.shopName}</td>
                                                             <td>${owner.phone}</td>
                                                             <td>
@@ -87,7 +89,15 @@
                                                                 </span>
                                                             </td>
                                                             <td>
-                                                                <a href="ShowPaymentHistoryAdmin?shopOwnerId=${owner.id}" class="btn btn-sm btn-outline-primary">Xem</a>
+                                                                <div class="dropdown">
+                                                                    <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                                                        <i class="bx bx-dots-vertical-rounded"></i>
+                                                                    </button>
+                                                                    <div class="dropdown-menu">
+                                                                        <a href="ShowPaymentHistoryAdmin?shopOwnerId=${owner.id}" class="dropdown-item btn btn-sm btn-outline-primary">Xem Lịch sử giao dịch</a><br>
+                                                                        <a href="ShowRevenueShop?shopOwnerId=${owner.id}" class="dropdown-item btn btn-sm btn-outline-primary">Xem doanh thu của khách hàng</a>
+                                                                    </div>
+                                                                </div>
                                                             </td>
                                                         </tr>
                                                     </c:forEach>

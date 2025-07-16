@@ -5,7 +5,7 @@
 package Dal;
 
 import Context.DBContext;
-
+import java.time.LocalDate;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -13,12 +13,10 @@ import DTO.EmployeeDto;
 import DTO.SalesEmployeeStatisticDto;
 import java.sql.*;
 import Models.*;
-import Utils.PasswordUtils;
 import static Utils.PasswordUtils.checkPassword;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,8 +32,69 @@ public class EmployeeDAO {
         this.connection = connection;
     }
 
-    public List<SalesEmployeeStatisticDto> getSalesStatisticsForEmployee(
-            Integer employeeId, Integer shopId, Date startDate, Date endDate, int currentPage, int recordsPerPage) throws SQLException {
+    public List<Employee> searchEmployeesByName(String name) {
+        List<Employee> employees = new ArrayList<>();
+        String sql = "SELECT * FROM Employee WHERE FullName LIKE ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, "%" + name + "%");  // Tìm kiếm có chứa tên
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Employee emp = new Employee();
+                    emp.setId(rs.getInt("EmployeeID"));
+                    emp.setUsername(rs.getString("Username"));
+                    emp.setPassword(rs.getString("Password"));
+                    emp.setFullname(rs.getString("FullName"));
+                    emp.setEmail(rs.getString("Email"));
+                    emp.setPhone(rs.getString("Phone"));
+                    emp.setStatus(rs.getBoolean("Status"));
+                    emp.setCreateDate(rs.getDate("CreatedDate"));
+                    emp.setRoleId(rs.getInt("RoleID"));
+                    emp.setShopId(rs.getInt("ShopID"));
+                    employees.add(emp);
+                }
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error searching employees by name: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+
+        return employees;
+    }
+
+    public Employee getEmployeeByID(int id) {
+        String sql = "SELECT * FROM Employee WHERE EmployeeID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Employee emp = new Employee();
+                    emp.setId(rs.getInt("EmployeeID"));
+                    emp.setUsername(rs.getString("Username"));
+                    emp.setPassword(rs.getString("Password"));
+                    emp.setFullname(rs.getString("FullName"));
+                    emp.setEmail(rs.getString("Email"));
+                    emp.setPhone(rs.getString("Phone"));
+                    emp.setStatus(rs.getBoolean("Status"));
+                    emp.setCreateDate(rs.getDate("CreatedDate"));
+                    emp.setRoleId(rs.getInt("RoleID"));
+                    emp.setShopId(rs.getInt("ShopID"));
+                    return emp;
+                }
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error in getEmployeeByID: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<SalesEmployeeStatisticDto> getSalesStatisticsForSalesEmployees(int employeeId,
+            Integer shopId,
+            Date startDate,
+            Date endDate,
+            int currentPage,
+            int recordsPerPage) throws SQLException {
 
         List<SalesEmployeeStatisticDto> statistics = new ArrayList<>();
         StringBuilder sql = new StringBuilder();
@@ -274,19 +333,16 @@ public class EmployeeDAO {
         List<Object> params = new ArrayList<>();
         params.add(loggedInEmployeeId);
 
-       
         if (loggedInEmployeeRoleId != null && loggedInEmployeeRoleId == 1) { // Admin
             sql.append("OR e.RoleID IN (?, ?) ");
-            params.add(2); 
-            params.add(4); 
-        } 
-        else if (loggedInEmployeeRoleId != null && loggedInEmployeeRoleId == 3 && loggedInEmployeeShopId != null) {
-            sql.append("OR (e.ShopID = ? AND e.RoleID IN (?, ?)) "); 
+            params.add(2);
+            params.add(4);
+        } else if (loggedInEmployeeRoleId != null && loggedInEmployeeRoleId == 3 && loggedInEmployeeShopId != null) {
+            sql.append("OR (e.ShopID = ? AND e.RoleID IN (?, ?)) ");
             params.add(loggedInEmployeeShopId);
-            params.add(2); 
+            params.add(2);
             params.add(4);
         }
-       
 
         sql.append("ORDER BY e.FullName");
 
@@ -303,7 +359,7 @@ public class EmployeeDAO {
 
                     Role role = new Role();
                     role.setId(rs.getInt("RoleID"));
-                    role.setName(rs.getString("RoleName")); 
+                    role.setName(rs.getString("RoleName"));
                     emp.setRole(role);
 
                     employees.add(emp);
@@ -414,7 +470,7 @@ public class EmployeeDAO {
     }
 
     public boolean addEmployee(Employee employee) throws SQLException {
-        String sql = "INSERT INTO Employee (Username, Password, Fullname, Phone, Email, Status, CreateDate, RoleId, ShopId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Employee (Username, Password, Fullname, Phone, Email, Status, CreatedDate, RoleId, ShopId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, employee.getUsername());
             stmt.setString(2, employee.getPassword());
@@ -422,9 +478,9 @@ public class EmployeeDAO {
             stmt.setString(4, employee.getPhone());
             stmt.setString(5, employee.getEmail());
             stmt.setBoolean(6, employee.isStatus());
-            stmt.setDate(7, new java.sql.Date(employee.getCreateDate().getTime()));
-            stmt.setInt(8, employee.getRole().getId());
-            stmt.setInt(9, employee.getShop().getShopID());
+            stmt.setDate(7, java.sql.Date.valueOf(LocalDate.now()));
+            stmt.setInt(8, employee.getRoleId());
+            stmt.setInt(9, employee.getShopId());
             stmt.executeUpdate();
             return true;
         } catch (Exception ex) {
@@ -443,6 +499,7 @@ public class EmployeeDAO {
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, username);
+            stmt.setString(2, username);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -475,6 +532,45 @@ public class EmployeeDAO {
             throw ex;
         }
         return employee;
+    }
+
+    public Employee findEmployeeByEmail(String email) throws SQLException {
+        String sql = "SELECT * FROM Employee WHERE Email = ? and Status = 1";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, email);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Employee emp = new Employee();
+                    emp.setId(rs.getInt("EmployeeID"));
+                    emp.setUsername(rs.getString("Username"));
+                    emp.setFullname(rs.getString("Fullname"));
+                    emp.setPhone(rs.getString("Phone"));
+                    emp.setStatus(rs.getBoolean("Status"));
+                    emp.setCreateDate(rs.getDate("CreatedDate")); // ⚠ Kiểm tra chính xác tên cột trong DB
+                    emp.setRoleId(rs.getInt("RoleID"));
+                    emp.setShopId(rs.getInt("ShopID"));
+                    return emp;
+                }
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+        return null; // Không tồn tại user hoặc sai mật khẩu
+    }
+
+    public void updatePasswordByEmail(String email, String hashedPassword) {
+        String sql = "UPDATE Employee SET Password = ? WHERE Email = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, hashedPassword);
+            stmt.setString(2, email);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi khi cập nhật mật khẩu người dùng", e);
+        }
     }
 
     public List<Employee> getAllEmployeesByShopID(int shopId) throws SQLException {
@@ -572,7 +668,7 @@ public class EmployeeDAO {
     }
 
     public int getTotalEmployeeCount(Integer shopId, Integer roleId, Boolean status, String keyword) throws SQLException {
-        StringBuilder query = new StringBuilder("SELECT COUNT(*) FROM Employee e WHERE 1=1 ");
+        StringBuilder query = new StringBuilder("SELECT COUNT(*) FROM Employee e WHERE 1=1 AND e.RoleID <> 1");
         List<Object> params = new ArrayList<>();
 
         if (shopId != null) {
@@ -791,6 +887,50 @@ public class EmployeeDAO {
             ps.setString(1, newHashedPassword);
             ps.setInt(2, employeeId);
             ps.executeUpdate();
+        }
+    }
+
+    public void upsertOTP(String email, String otp, Timestamp expiredAt) {
+        String sql = """
+        MERGE OTPs AS target
+        USING (SELECT ? AS Email) AS source
+        ON target.Email = source.Email
+        WHEN MATCHED THEN
+            UPDATE SET 
+                OTP = ?, 
+                ExpiredAt = ?, 
+                Status = 0
+        WHEN NOT MATCHED THEN
+            INSERT (Email, OTP, ExpiredAt, Status)
+            VALUES (?, ?, ?, 0);
+    """;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            // For source.Email
+            stmt.setString(1, email);
+            // For UPDATE
+            stmt.setString(2, otp);
+            stmt.setTimestamp(3, expiredAt);
+            // For INSERT
+            stmt.setString(4, email);
+            stmt.setString(5, otp);
+            stmt.setTimestamp(6, expiredAt);
+
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi khi thực hiện upsert OTP", e);
+        }
+    }
+
+    public void markOTPUsed(String email, String otp) {
+        String sql = "UPDATE OTPs SET Status = 1 WHERE Email = ? AND OTP = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            stmt.setString(2, otp);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 

@@ -24,11 +24,12 @@ public class ShopOwnerDAO {
     }
 
     public ShopOwner findShopOwnerByUsername(String username) throws SQLException {
-        String sql = "SELECT * FROM ShopOwners WHERE Username = ? and Status = 1";
+        String sql = "SELECT * FROM ShopOwners WHERE (Username = ? OR Email = ?) and Status = 1";
         ShopOwner owner = new ShopOwner();
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, username);
+            stmt.setString(2, username);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -41,6 +42,7 @@ public class ShopOwnerDAO {
                     owner.setDatabaseName(rs.getString("DatabaseName"));
                     owner.setShopCode(rs.getString("ShopCode"));
                     owner.setShopName(rs.getString("ShopName"));
+                    owner.setTaxNumber(rs.getString("TaxNumber"));
                     return owner;
                 }
             }
@@ -49,11 +51,12 @@ public class ShopOwnerDAO {
     }
 
     public ShopOwner findShopOwnerByUsernameForLogin(String username, String plainPassword) throws SQLException {
-        String sql = "SELECT * FROM ShopOwners WHERE Username = ?";
+        String sql = "SELECT * FROM ShopOwners WHERE (Username = ? OR Email = ?)";
         ShopOwner owner = null;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, username);
+            stmt.setString(2, username);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -69,6 +72,7 @@ public class ShopOwnerDAO {
                         owner.setDatabaseName(rs.getString("DatabaseName"));
                         owner.setShopCode(rs.getString("ShopCode"));
                         owner.setShopName(rs.getString("ShopName"));
+                        owner.setTaxNumber(rs.getString("TaxNumber"));
                         owner.setStatus(rs.getBoolean("Status"));
                     }
                 }
@@ -78,8 +82,8 @@ public class ShopOwnerDAO {
     }
 
     public boolean addShopOwner(ShopOwner owner) throws SQLException {
-        String sql = "INSERT INTO ShopOwners (Username, Password, Fullname, Phone, Email, Status, DatabaseName, ShopCode, ShopName) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO ShopOwners (Username, Password, Fullname, Phone, Email, Status, DatabaseName, ShopCode, ShopName, TaxNumber) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, owner.getUsername());
@@ -91,6 +95,7 @@ public class ShopOwnerDAO {
             stmt.setString(7, owner.getDatabaseName());
             stmt.setString(8, owner.getShopCode());
             stmt.setString(9, owner.getShopName());
+            stmt.setString(10, owner.getTaxNumber());
 
             stmt.executeUpdate();
             return true;
@@ -187,6 +192,30 @@ public class ShopOwnerDAO {
             return rowsAffected > 0;
         }
     }
+    
+    public ShopOwner getShopOwnerById(int id) throws SQLException {
+        String sql = "SELECT * FROM ShopOwners WHERE Id = ? AND Status = 1";
+        ShopOwner owner = null;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    owner = new ShopOwner();
+                    owner.setId(rs.getInt("Id"));
+                    owner.setUsername(rs.getString("Username"));
+                    owner.setPassword(rs.getString("Password"));
+                    owner.setFullname(rs.getString("Fullname"));
+                    owner.setPhone(rs.getString("Phone"));
+                    owner.setEmail(rs.getString("Email"));
+                    owner.setDatabaseName(rs.getString("DatabaseName"));
+                    owner.setShopCode(rs.getString("ShopCode"));
+                    owner.setShopName(rs.getString("ShopName"));
+                }
+            }
+        }
+        return owner;
+    }
 
     public ShopOwner getShopOwnerByDatabaseName(String databaseName) throws SQLException {
         String sql = "SELECT * FROM ShopOwners WHERE DatabaseName = ? AND Status = 1";
@@ -217,6 +246,15 @@ public class ShopOwnerDAO {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, hashedPassword);
             ps.setString(2, username);
+            ps.executeUpdate();
+        }
+    }
+    
+    public void updatePasswordByEmail(String email, String hashedPassword) throws SQLException {
+        String sql = "UPDATE ShopOwners SET Password = ? WHERE Email = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, hashedPassword);
+            ps.setString(2, email);
             ps.executeUpdate();
         }
     }
@@ -267,6 +305,7 @@ public class ShopOwnerDAO {
                     owner.setCreateDate(rs.getDate("CreateAt"));
                     owner.setShopName(rs.getString("ShopName"));
                     owner.setPhone(rs.getString("Phone"));
+                    owner.setTaxNumber(rs.getString("TaxNumber"));
                     owner.setStatus(rs.getBoolean("Status"));
                     list.add(owner);
                 }
@@ -298,6 +337,51 @@ public class ShopOwnerDAO {
         }
         return 0;
     }
+    
+    public void upsertOTP(String email, String otp, Timestamp expiredAt) {
+        String sql = """
+        MERGE OTPs AS target
+        USING (SELECT ? AS Email) AS source
+        ON target.Email = source.Email
+        WHEN MATCHED THEN
+            UPDATE SET 
+                OTP = ?, 
+                ExpiredAt = ?, 
+                Status = 0
+        WHEN NOT MATCHED THEN
+            INSERT (Email, OTP, ExpiredAt, Status)
+            VALUES (?, ?, ?, 0);
+    """;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            // For source.Email
+            stmt.setString(1, email);
+            // For UPDATE
+            stmt.setString(2, otp);
+            stmt.setTimestamp(3, expiredAt);
+            // For INSERT
+            stmt.setString(4, email);
+            stmt.setString(5, otp);
+            stmt.setTimestamp(6, expiredAt);
+
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi khi thực hiện upsert OTP", e);
+        }
+    }
+
+    public void markOTPUsed(String email, String otp) {
+        String sql = "UPDATE OTPs SET Status = 1 WHERE Email = ? AND OTP = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            stmt.setString(2, otp);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public static void main(String[] args) {
         try (Connection conn = DBContext.getCentralConnection()) {

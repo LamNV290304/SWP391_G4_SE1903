@@ -4,18 +4,27 @@
  */
 package Controller;
 
+import Context.DBContext;
+import Dal.ShopDAO;
+import Dal.ShopOwnerDAO;
+import Models.Shop;
+import Models.ShopOwner;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author Admin
  */
-public class ForgotPassVerify extends HttpServlet {
+public class ShowShopDetail extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -34,10 +43,10 @@ public class ForgotPassVerify extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ForgotPassVerify</title>");            
+            out.println("<title>Servlet ShowShopDetail</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ForgotPassVerify at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet ShowShopDetail at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -55,7 +64,25 @@ public class ForgotPassVerify extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            int shopOwnerId = Integer.parseInt(request.getParameter("Id"));
+            int shopId = Integer.parseInt(request.getParameter("shopId"));
+            
+            ShopOwnerDAO shopOwnerDAO = new ShopOwnerDAO(DBContext.getCentralConnection());
+            ShopOwner shopOwner = shopOwnerDAO.getShopOwnerById(shopOwnerId);
+            
+            ShopDAO shopDAO = new ShopDAO();
+            Shop shop = shopDAO.getShopByID(shopId, shopOwner.getDatabaseName());
+            
+            request.setAttribute("shop", shop);
+            request.setAttribute("id", shopOwnerId);
+            request.getRequestDispatcher("ShopOwner/showShopDetails.jsp").forward(request, response);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(ShowShopDetail.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(ShowShopDetail.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 
     /**

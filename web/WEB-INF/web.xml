@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
     <servlet>
+        <servlet-name>ShowShopDetail</servlet-name>
+        <servlet-class>Controller.ShowShopDetail</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ShowRevenueShop</servlet-name>
+        <url-pattern>/ShowRevenueShop</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ShowShopDetail</servlet-name>
+        <url-pattern>/ShowShopDetail</url-pattern>
+    </servlet-mapping>
+    <session-config>
+        <session-timeout>50</session-timeout>
+        <!-- đơn vị: phút -->
+    </session-config>
+    <servlet>
         <servlet-name>StartProject</servlet-name>
         <servlet-class>Controller.StartProject</servlet-class>
     </servlet>
@@ -27,10 +43,6 @@
     <servlet>
         <servlet-name>ForgotPassword</servlet-name>
         <servlet-class>Controller.ForgotPassword</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>ForgotPassVerify</servlet-name>
-        <servlet-class>Controller.ForgotPassVerify</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>Verify</servlet-name>
@@ -188,6 +200,14 @@
         <servlet-name>ReportItemServlet</servlet-name>
         <servlet-class>Controller.ReportItemServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ResetPassword</servlet-name>
+        <servlet-class>Controller.ResetPassword</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ShowRevenueShop</servlet-name>
+        <servlet-class>Controller.ShowRevenueShop</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>StartProject</servlet-name>
         <url-pattern>/StartProject</url-pattern>
@@ -216,10 +236,6 @@
     <servlet-mapping>
         <servlet-name>ForgotPassword</servlet-name>
         <url-pattern>/ForgotPassword</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>ForgotPassVerify</servlet-name>
-        <url-pattern>/ForgotPassVerify</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>Verify</servlet-name>
@@ -376,6 +392,10 @@
     <servlet-mapping>
         <servlet-name>ReportItemServlet</servlet-name>
         <url-pattern>/ReportItemServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ResetPassword</servlet-name>
+        <url-pattern>/ResetPassword</url-pattern>
     </servlet-mapping>
     <error-page>
         <error-code>404</error-code>

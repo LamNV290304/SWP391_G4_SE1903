@@ -5,6 +5,7 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html
     lang="en"
@@ -23,7 +24,7 @@
 
         <title>Forgot Password Basic - Pages | Sneat - Bootstrap 5 HTML Admin Template - Pro</title>
 
-        <meta name="description" content="" />
+        <meta name="description" content=""/>
 
         <!-- Favicon -->
         <link rel="icon" type="image/x-icon" href="./assets/img/favicon/favicon.ico" />
@@ -69,6 +70,11 @@
                         <div class="card-body">
                             <h4 class="mb-2">Quên mật khẩu? 🔒</h4>
                             <p class="mb-4">Nhập Email của bạn</p>
+                            <c:if test="${not empty error}">
+                                <div class="alert alert-danger" role="alert">
+                                    <c:out value="${error}" />
+                                </div>
+                            </c:if>
                             <form id="formAuthentication" class="mb-3" action="ForgotPassword" method="POST">
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email</label>

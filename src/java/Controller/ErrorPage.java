@@ -4,13 +4,22 @@
  */
 package Controller;
 
+import Context.DBContext;
 import Context.DatabaseHelper;
+import Dal.ShopOwnerDAO;
+import Dal.ShopSubscriptionDAO;
+import Models.ShopOwner;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import DTO.ShopSubscriptionDto;
+import java.sql.Date;
+
 
 /**
  *
@@ -44,26 +53,44 @@ public class ErrorPage extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String requestUri = (String) request.getAttribute("jakarta.servlet.error.request_uri");
-        if (requestUri == null) {
-            response.sendRedirect("error.jsp");
-            return;
+        try {
+            String requestUri = (String) request.getAttribute("jakarta.servlet.error.request_uri");
+            if (requestUri == null) {
+                response.sendRedirect("error.jsp");
+                return;
+            }
+
+            String shopCode = requestUri.substring(requestUri.lastIndexOf("/") + 1);
+
+            String databaseName = DatabaseHelper.getDatabaseNameByShopCode(shopCode);
+            String shopName = DatabaseHelper.getShopNameByShopCode(shopCode);
+
+            ShopOwnerDAO shopOwnerDAO = new ShopOwnerDAO(DBContext.getCentralConnection());
+            ShopOwner shopOwner = shopOwnerDAO.getShopOwnerByDatabaseName(databaseName);
+            
+            ShopSubscriptionDAO shopSubscriptionDAO = new ShopSubscriptionDAO(DBContext.getCentralConnection());
+            ShopSubscriptionDto subscript = shopSubscriptionDAO.getActiveSubscriptionByShopId(shopOwner.getId());
+            
+            Date currentDate = new Date(System.currentTimeMillis());
+            if (subscript == null || subscript.getEndDate().before(currentDate) ){
+                request.setAttribute("error", "Vui lòng thanh toán gói đã đăng kí hoặc đăng kí gói mới");
+                request.getRequestDispatcher("login.jsp").forward(request, response);
+                return;
+            }
+            
+            if (databaseName == null) {
+                response.sendRedirect("error.jsp");
+                return;
+            }
+
+            request.getSession().setAttribute("databaseName", databaseName);
+            request.getSession().setAttribute("shopName", shopName);
+            request.getRequestDispatcher("loginEmployee.jsp").forward(request, response);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(ErrorPage.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(ErrorPage.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        String shopCode  = requestUri.substring(requestUri.lastIndexOf("/") + 1);
-        
-        
-        String databaseName = DatabaseHelper.getDatabaseNameByShopCode(shopCode);
-        String shopName = DatabaseHelper.getShopNameByShopCode(shopCode);
-
-        if (databaseName == null) {
-            response.sendRedirect("error.jsp");
-            return;
-        }
-
-        request.getSession().setAttribute("databaseName", databaseName);
-        request.getSession().setAttribute("shopName", shopName);
-        request.getRequestDispatcher("loginEmployee.jsp").forward(request, response);
 
     }
 
