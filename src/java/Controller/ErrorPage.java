@@ -87,9 +87,10 @@ public class ErrorPage extends HttpServlet {
             request.getSession().setAttribute("shopName", shopName);
             request.getRequestDispatcher("loginEmployee.jsp").forward(request, response);
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(ErrorPage.class.getName()).log(Level.SEVERE, null, ex);
+            response.sendRedirect("error.jsp");
+            
         } catch (SQLException ex) {
-            Logger.getLogger(ErrorPage.class.getName()).log(Level.SEVERE, null, ex);
+            response.sendRedirect("error.jsp");
         }
 
     }
