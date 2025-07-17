@@ -44,17 +44,36 @@
                                 <div class="card-body">
                                     <form id="reportForm" action="StatisticServlet" method="GET">
                                         <div class="row align-items-end">
-                                            <div class="col-md-3 mb-3">
-                                                <label for="shopSelect" class="form-label">Chọn cửa hàng:</label>
-                                                <select class="form-select" id="shopSelect" name="shopId">
-                                                    <option value="" ${selectedShopId == null ? 'selected' : ''}>Tất cả cửa hàng</option>
-                                                    <c:forEach var="shop" items="${shops}">
-                                                        <option value="${shop.shopID}" ${selectedShopId != null && selectedShopId == shop.shopID ? 'selected' : ''}>
-                                                            ${shop.shopName}
-                                                        </option>
-                                                    </c:forEach>
-                                                </select>
-                                            </div>
+                                            <%-- Shop Filter (Admin only) --%>
+                                            <c:if test="${userRole eq 'Admin'}">
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="shopSelect" class="form-label">Chọn cửa hàng:</label>
+                                                    <select class="form-select" id="shopSelect" name="shopId">
+                                                        <option value="all" ${selectedShopId == 'all' || selectedShopId == null ? 'selected' : ''}>Tất cả cửa hàng</option>
+                                                        <c:forEach var="shop" items="${allShops}">
+                                                            <option value="${shop.shopID}" ${selectedShopId != null && selectedShopId eq shop.shopID ? 'selected' : ''}>
+                                                                ${shop.shopName}
+                                                            </option>
+                                                        </c:forEach>
+                                                    </select>
+                                                </div>
+                                            </c:if>
+
+                                            <%-- Employee Filter (Admin, ShopOwner, Cashier) --%>
+                                            <c:if test="${userRole eq 'Admin' || userRole eq 'ShopOwner' || userRole eq 'Cashier'}">
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="employeeSelect" class="form-label">Chọn nhân viên:</label>
+                                                    <select class="form-select" id="employeeSelect" name="employeeId">
+                                                        <option value="all" ${selectedEmployeeId == 'all' || selectedEmployeeId == null ? 'selected' : ''}>Tất cả nhân viên</option>
+                                                        <c:forEach var="employee" items="${filterableEmployees}">
+                                                            <option value="${employee.id}" ${selectedEmployeeId != null && selectedEmployeeId eq employee.id ? 'selected' : ''}>
+                                                                ${employee.fullname}
+                                                            </option>
+                                                        </c:forEach>
+                                                    </select>
+                                                </div>
+                                            </c:if>
+
                                             <div class="col-md-3 mb-3">
                                                 <label for="startDate" class="form-label">Từ ngày:</label>
                                                 <input type="date" class="form-control" id="startDate" name="startDate"
@@ -67,7 +86,7 @@
                                                        value="${not empty endDate ? endDate : ''}"
                                                        max="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>">
                                             </div>
-                                            <div class="col-md-3 mb-3">
+                                            <div class="col-md-auto mb-3"> <%-- Use col-md-auto for buttons --%>
                                                 <button type="submit" class="btn btn-primary me-2">Lọc</button>
                                                 <a href="StatisticServlet" class="btn btn-outline-secondary">Xem tổng cộng</a>
                                             </div>
@@ -152,6 +171,9 @@
                                                     <c:if test="${not empty param.shopId}">
                                                         <c:param name="shopId" value="${param.shopId}" />
                                                     </c:if>
+                                                    <c:if test="${not empty param.employeeId}"> <%-- Add employeeId to pagination links --%>
+                                                        <c:param name="employeeId" value="${param.employeeId}" />
+                                                    </c:if>
                                                     <c:if test="${not empty recordsPerPage}">
                                                         <c:param name="recordsPerPage" value="${recordsPerPage}" />
                                                     </c:if>
@@ -159,9 +181,9 @@
 
                                                 <li class="page-item <c:if test="${currentPage == 1}">disabled</c:if>">
                                                     <a class="page-link" href="<c:url value="${baseLink}"><c:param name="page" value="${currentPage - 1}"/></c:url>">
-                                                            <i class="tf-icon bx bx-chevrons-left"></i>
-                                                        </a>
-                                                    </li>
+                                                        <i class="tf-icon bx bx-chevrons-left"></i>
+                                                    </a>
+                                                </li>
                                                 <c:set var="numPagesToShow" value="5" />
                                                 <c:set var="halfPagesToShow" value="${numPagesToShow / 2}" />
 
@@ -192,13 +214,13 @@
 
                                                 <li class="page-item <c:if test="${currentPage == totalPages}">disabled</c:if>">
                                                     <a class="page-link" href="<c:url value="${baseLink}"><c:param name="page" value="${currentPage + 1}"/></c:url>">
-                                                            <i class="tf-icon bx bx-chevrons-right"></i>
-                                                        </a>
-                                                    </li>
-                                                </ul>
+                                                        <i class="tf-icon bx bx-chevrons-right"></i>
+                                                    </a>
+                                                </li>
+                                            </ul>
                                         </c:if>
                                     </nav>
-                             
+
                                 </div>
                             </div>
                         </div>
