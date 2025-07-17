@@ -46,7 +46,7 @@ import java.util.logging.Logger;
 @WebServlet(name = "TransferReceipt", urlPatterns = {"/TransferReceipt"})
 public class TransferReceiptController extends HttpServlet {
 
-    DBContext connection = new DBContext("SWP8");
+    DBContext connection = new DBContext("Test");
 
     TransferReceiptDAO dao = new TransferReceiptDAO(connection.getConnection());
     ProductDAO productDAO = new ProductDAO(connection.getConnection());
@@ -260,12 +260,7 @@ public class TransferReceiptController extends HttpServlet {
             String Title = "Transfer Receipt";
             String Message = "Status của TransferReceiptID: " + t.getTransferReceiptID() + " đã " + setStatus;
             String Link = "TransferReceipt?service=listCompleteTransferReceipt";
-            int ReceiverEmployeeID = 0;
-            for (Employee e : employees) {
-                if (e.getRoleId() == 2 && e.getShopId() == ToShopID) {
-                    ReceiverEmployeeID = e.getId();
-                }
-            }
+            int ReceiverEmployeeID = 1;
             int IsRead = 0;
             Noti n = new Noti(Title, Message, Link, ReceiverEmployeeID, IsRead);
             notiDAO.insertNoti(n);
@@ -498,14 +493,8 @@ public class TransferReceiptController extends HttpServlet {
             String Title = "Transfer Receipt";
             String Message = "From: " + FromShopName + " To: " + ToShopName;
             String Link = "TransferReceipt?service=listProcessTransferReceipt";
-            int ReceiverEmployeeID = 0;
-            for (Employee e : employees) {
-                if (e.getRoleId() == 2 && e.getShopId() == ToShopID) {
-                    ReceiverEmployeeID = e.getId();
-                    log("Test: " + ReceiverEmployeeID);
-
-                }
-            }
+            int ReceiverEmployeeID = 1;
+            
             int IsRead = 0;
             Noti n = new Noti(Title, Message, Link, ReceiverEmployeeID, IsRead);
             notiDAO.insertNoti(n);

@@ -235,8 +235,18 @@ public class WorkScheduleDAO {
         DBContext connection = new DBContext("Test");
         WorkScheduleDAO workScheduleDAO = new WorkScheduleDAO(connection.getConnection());
         try {
-            
+            // Tạo đối tượng WorkSchedule
+            WorkSchedule schedule = new WorkSchedule();
+            schedule.setEmployeeID(1); // thay bằng ID hợp lệ trong DB
+            schedule.setShopID(1);     // thay bằng ID hợp lệ trong DB
+            schedule.setShiftID(1);    // thay bằng ID hợp lệ trong DB
+            schedule.setWorkDate(new java.util.Date()); // ngày hiện tại
+            schedule.setStatus(1);     // ví dụ: 1 = Active
+            schedule.setNote("Test insert");
+            schedule.setCreatedBy("admin"); // hoặc username bất kỳ
 
+            int result = workScheduleDAO.insertWorkSchedule(schedule);
+            
             String sql = "SELECT * FROM WorkSchedule";
             Vector<WorkSchedule> list = workScheduleDAO.getAllWorkSchedule(sql);
 
@@ -250,7 +260,6 @@ public class WorkScheduleDAO {
                         + ", Status: " + w.getStatus()
                         + ", Note: " + w.getNote());
             }
-
 
         } catch (Exception e) {
             e.printStackTrace();

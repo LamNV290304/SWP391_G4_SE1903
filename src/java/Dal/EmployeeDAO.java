@@ -471,8 +471,12 @@ public class EmployeeDAO {
 
     public List<Employee> getEmployee() {
     List<Employee> employees = new ArrayList<>();
-    String sql = "SELECT e.EmployeeID, e.FullName, e.RoleID, r.RoleName AS RoleName "
-               + "FROM Employee e JOIN Role r ON e.RoleID = r.RoleID ORDER BY e.FullName";
+    String sql = "SELECT e.EmployeeID, e.FullName, e.RoleID, e.ShopID, r.RoleName AS RoleName, s.ShopName " +
+             "FROM Employee e " +
+             "JOIN Role r ON e.RoleID = r.RoleID " +
+             "JOIN Shop s ON s.ShopID = e.ShopID " +
+             "ORDER BY e.FullName";
+
     try (PreparedStatement ps = connection.prepareStatement(sql);
          ResultSet rs = ps.executeQuery()) {
         while (rs.next()) {
@@ -485,6 +489,9 @@ public class EmployeeDAO {
             role.setId(rs.getInt("RoleID"));
             role.setName(rs.getString("RoleName")); // đảm bảo RoleName đúng với cột DB
             emp.setRole(role);
+            
+            
+            emp.setShopId(rs.getInt("ShopID"));
 
             employees.add(emp);
         }
