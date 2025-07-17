@@ -31,7 +31,7 @@ public class StatisticServlet extends HttpServlet {
 
     DBContext connection = new DBContext("SWP1");
     EmployeeDAO eDAO = new EmployeeDAO(connection.getConnection());
-    ShopDAO sDAO = new ShopDAO();
+    ShopDAO sDAO = new ShopDAO(connection.getConnection());
     private static final int DEFAULT_RECORDS_PER_PAGE = 5;
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
@@ -165,7 +165,7 @@ public class StatisticServlet extends HttpServlet {
         }
 
         // Admin có thể xem tất cả các cửa hàng
-        List<Shop> allShops = sDAO.getAllShops("SWP1");
+        List<Shop> allShops = sDAO.getAllShops();
         request.setAttribute("allShops", allShops);
 
         // Admin được phép xem thống kê của Staff (RoleID = 2), Cashier (RoleID = 4) và Shop Owner (RoleID = 3)

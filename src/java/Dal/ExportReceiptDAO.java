@@ -32,13 +32,13 @@ public class ExportReceiptDAO {
             while (rs.next()) {
                 ExportReceipt er = new ExportReceipt();
                 er.setExportReceiptID(rs.getInt("ExportReceiptID"));
-                er.setEmployeeID(rs.getString("EmployeeID"));
-                er.setShopID(rs.getString("ShopID"));
+                er.setEmployeeID(rs.getInt("EmployeeID"));
+                er.setShopID(rs.getInt("ShopID"));
                 er.setReceiptDate(rs.getTimestamp("ReceiptDate"));
                 er.setTotalAmount(rs.getBigDecimal("TotalAmount"));
                 er.setNote(rs.getString("Note"));
                 er.setStatus(rs.getBoolean("Status"));
-                er.setTypeID(rs.getString("TypeID"));
+                er.setTypeID(rs.getInt("TypeID"));
                 list.add(er);
             }
         } catch (SQLException ex) {
@@ -56,13 +56,13 @@ public class ExportReceiptDAO {
                 if (rs.next()) {
                     ExportReceipt er = new ExportReceipt();
                     er.setExportReceiptID(rs.getInt("ExportReceiptID"));
-                    er.setEmployeeID(rs.getString("EmployeeID"));
-                    er.setShopID(rs.getString("ShopID"));
+                    er.setEmployeeID(rs.getInt("EmployeeID"));
+                    er.setShopID(rs.getInt("ShopID"));
                     er.setReceiptDate(rs.getTimestamp("ReceiptDate"));
                     er.setTotalAmount(rs.getBigDecimal("TotalAmount"));
                     er.setNote(rs.getString("Note"));
                     er.setStatus(rs.getBoolean("Status"));
-                    er.setTypeID(rs.getString("TypeID"));
+                    er.setTypeID(rs.getInt("TypeID"));
                     return er;
                 }
             }
@@ -76,13 +76,13 @@ public class ExportReceiptDAO {
     public boolean insert(ExportReceipt er) {
         String sql = "INSERT INTO ExportReceipt (EmployeeID, ShopID, ReceiptDate, TotalAmount, Note, Status, TypeID) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, er.getEmployeeID());
-            ps.setString(2, er.getShopID());
+            ps.setInt(1, er.getEmployeeID());
+            ps.setInt(2, er.getShopID());
             ps.setTimestamp(3, er.getReceiptDate() != null ? new Timestamp(er.getReceiptDate().getTime()) : null);
             ps.setBigDecimal(4, er.getTotalAmount());
             ps.setString(5, er.getNote());
             ps.setBoolean(6, er.getStatus() != null ? er.getStatus() : true);
-            ps.setString(7, er.getTypeID());
+            ps.setInt(7, er.getTypeID());
             
                 return ps.executeUpdate() > 0;
             } catch (SQLException ex) {
@@ -96,13 +96,13 @@ public class ExportReceiptDAO {
                 + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, er.getEmployeeID());
-            ps.setString(2, er.getShopID());
+            ps.setInt(1, er.getEmployeeID());
+            ps.setInt(2, er.getShopID());
             ps.setTimestamp(3, er.getReceiptDate() != null ? new Timestamp(er.getReceiptDate().getTime()) : null);
             ps.setBigDecimal(4, er.getTotalAmount());
             ps.setString(5, er.getNote());
             ps.setBoolean(6, er.getStatus() != null ? er.getStatus() : true);
-            ps.setString(7, er.getTypeID());
+            ps.setInt(7, er.getTypeID());
 
             int affectedRows = ps.executeUpdate();
             if (affectedRows > 0) {
@@ -124,13 +124,13 @@ public class ExportReceiptDAO {
             if (rs.next()) {
                 ExportReceipt er = new ExportReceipt();
                 er.setExportReceiptID(rs.getInt("ExportReceiptID"));
-                er.setEmployeeID(rs.getString("EmployeeID"));
-                er.setShopID(rs.getString("ShopID"));
+                er.setEmployeeID(rs.getInt("EmployeeID"));
+                er.setShopID(rs.getInt("ShopID"));
                 er.setReceiptDate(rs.getTimestamp("ReceiptDate"));
                 er.setTotalAmount(rs.getBigDecimal("TotalAmount"));
                 er.setNote(rs.getString("Note"));
                 er.setStatus(rs.getBoolean("Status"));
-                er.setTypeID(rs.getString("TypeID"));
+                er.setTypeID(rs.getInt("TypeID"));
                 return er;
             }
         } catch (SQLException ex) {
@@ -143,13 +143,13 @@ public class ExportReceiptDAO {
     public boolean update(ExportReceipt er) {
         String sql = "UPDATE ExportReceipt SET EmployeeID = ?, ShopID = ?, ReceiptDate = ?, TotalAmount = ?, Note = ?, Status = ?, TypeID = ? WHERE ExportReceiptID = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, er.getEmployeeID());
-            ps.setString(2, er.getShopID());
+            ps.setInt(1, er.getEmployeeID());
+            ps.setInt(2, er.getShopID());
             ps.setTimestamp(3, er.getReceiptDate() != null ? new Timestamp(er.getReceiptDate().getTime()) : null);
             ps.setBigDecimal(4, er.getTotalAmount());
             ps.setString(5, er.getNote());
             ps.setBoolean(6, er.getStatus() != null ? er.getStatus() : true);
-            ps.setString(7, er.getTypeID());
+            ps.setInt(7, er.getTypeID());
             ps.setInt(8, er.getExportReceiptID());
             return ps.executeUpdate() > 0;
         } catch (SQLException ex) {
@@ -165,6 +165,7 @@ public class ExportReceiptDAO {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.setInt(2, id);
+            ps.executeUpdate(); 
         }catch (SQLException ex) {
                 Logger.getLogger(ExportReceiptDAO.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -178,9 +179,9 @@ public class ExportReceiptDAO {
                 + "AND ReceiptDate = ? AND TotalAmount = ? AND Note = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, er.getEmployeeID());
-            ps.setString(2, er.getShopID());
-            ps.setString(3, er.getTypeID());
+            ps.setInt(1, er.getEmployeeID());
+            ps.setInt(2, er.getShopID());
+            ps.setInt(3, er.getTypeID());
 
             // Chuyển Date sang Timestamp để phù hợp kiểu DATETIME trong SQL Server
             ps.setTimestamp(4, new Timestamp(er.getReceiptDate().getTime()));
@@ -199,7 +200,50 @@ public class ExportReceiptDAO {
 
         return null; // Không tìm thấy
     }
+ public List<ExportReceipt> filter(Integer employeeId, Integer shopId, Integer typeId, java.util.Date fromDate, java.util.Date toDate) {
+    List<ExportReceipt> list = new ArrayList<>();
+    StringBuilder sql = new StringBuilder("SELECT * FROM ExportReceipt WHERE 1=1");
 
+    if (employeeId != null) sql.append(" AND EmployeeID = ?");
+    if (shopId != null) sql.append(" AND ShopID = ?");
+    if (typeId != null) sql.append(" AND TypeID = ?");
+    if (fromDate != null) sql.append(" AND ReceiptDate >= ?");
+    if (toDate != null) sql.append(" AND ReceiptDate <= ?");
+
+    try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+        int index = 1;
+        if (employeeId != null) ps.setInt(index++, employeeId);
+        if (shopId != null) ps.setInt(index++, shopId);
+        if (typeId != null) ps.setInt(index++, typeId);
+
+        // Sử dụng java.sql.Timestamp để tương thích với DATETIME trong SQL Server
+        if (fromDate != null) ps.setTimestamp(index++, new java.sql.Timestamp(fromDate.getTime()));
+        if (toDate != null) ps.setTimestamp(index++, new java.sql.Timestamp(toDate.getTime()));
+
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                ExportReceipt er = extractExportReceipt(rs);
+                list.add(er);
+            }
+        }
+    } catch (SQLException ex) {
+        Logger.getLogger(ExportReceiptDAO.class.getName()).log(Level.SEVERE, "Lỗi filter ExportReceipt", ex);
+    }
+    return list;
+}
+
+private ExportReceipt extractExportReceipt(ResultSet rs) throws SQLException {
+    ExportReceipt er = new ExportReceipt();
+    er.setExportReceiptID(rs.getInt("ExportReceiptID"));
+    er.setEmployeeID(rs.getInt("EmployeeID"));
+    er.setShopID(rs.getInt("ShopID"));
+    er.setReceiptDate(rs.getTimestamp("ReceiptDate"));
+    er.setTotalAmount(rs.getBigDecimal("TotalAmount"));
+    er.setNote(rs.getString("Note"));
+    er.setStatus(rs.getBoolean("Status"));
+    er.setTypeID(rs.getInt("TypeID"));
+    return er;
+}
 
 
     public static void main(String[] args) {
@@ -221,7 +265,7 @@ System
                     System.out.println("------------------------");
                 }
             }
-            dao.delete(6);
+            dao.delete(7);
            
         } catch (SQLException e) {
             Logger.getLogger(ExportReceiptDAO.class.getName()).log(Level.SEVERE, null, e);

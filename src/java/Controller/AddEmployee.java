@@ -76,10 +76,10 @@ public class AddEmployee extends HttpServlet {
         String databaseName = (String) request.getSession().getAttribute("databaseName");
 
         try (Connection conn = DBContext.getConnection(databaseName)) {
-            ShopDAO shopDAO = new ShopDAO();
+            ShopDAO shopDAO = new ShopDAO(conn);
             RoleDAO roleDAO = new RoleDAO(conn);
 
-            List<Shop> shopList = shopDAO.getAllShops(databaseName);
+            List<Shop> shopList = shopDAO.getAllShops();
             List<Role> roleList = roleDAO.getAllRoles();
             request.setAttribute("shopList", shopList);
             request.setAttribute("roleList", roleList);

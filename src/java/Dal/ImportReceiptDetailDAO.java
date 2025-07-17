@@ -97,36 +97,36 @@ public class ImportReceiptDetailDAO {
         );
     }
 // Lấy ImportReceiptID dựa trên các thông tin còn lại
-public Integer getImportReceiptIDByInfo(ImportReceipt ir) {
-    String sql = "SELECT ImportReceiptID FROM ImportReceipt " +
-                 "WHERE Code = ? AND SupplierID = ? AND EmployeeID = ? AND ShopID = ? " +
-                 "AND ReceiptDate = ? AND TotalAmount = ? AND Note = ? AND Status = ?";
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
-        ps.setString(1, ir.getCode());
-        ps.setString(2, ir.getSupplierID());
-        ps.setString(3, ir.getEmployeeID());
-        ps.setString(4, ir.getShopID());
-
-        // Dùng Timestamp để đảm bảo đúng kiểu dữ liệu DATETIME
-        ps.setTimestamp(5, new Timestamp(ir.getReceiptDate().getTime()));
-        ps.setFloat(6, (float) ir.getTotalAmount());
-        ps.setString(7, ir.getNote());
-        ps.setBoolean(8, ir.isStatus());
-
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt("ImportReceiptID");
-            }
-        }
-    } catch (SQLException e) {
-        Logger.getLogger(ImportReceiptDAO.class.getName()).log(Level.SEVERE, null, e);
-    }
-    return null; // Nếu không tìm thấy
-}
+//public Integer getImportReceiptIDByInfo(ImportReceipt ir) {
+//    String sql = "SELECT ImportReceiptID FROM ImportReceipt " +
+//                 "WHERE Code = ? AND SupplierID = ? AND EmployeeID = ? AND ShopID = ? " +
+//                 "AND ReceiptDate = ? AND TotalAmount = ? AND Note = ? AND Status = ?";
+//    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+//        ps.setString(1, ir.getCode());
+//        ps.setInt(2, ir.getSupplierID());
+//        ps.setInt(3, ir.getEmployeeID());
+//        ps.setInt(4, ir.getShopID());
+//
+//        // Dùng Timestamp để đảm bảo đúng kiểu dữ liệu DATETIME
+//        ps.setTimestamp(5, new Timestamp(ir.getReceiptDate().getTime()));
+//        ps.setFloat(6, (float) ir.getTotalAmount());
+//        ps.setString(7, ir.getNote());
+//        ps.setBoolean(8, ir.isStatus());
+//
+//        try (ResultSet rs = ps.executeQuery()) {
+//            if (rs.next()) {
+//                return rs.getInt("ImportReceiptID");
+//            }
+//        }
+//    } catch (SQLException e) {
+//        Logger.getLogger(ImportReceiptDAO.class.getName()).log(Level.SEVERE, null, e);
+//    }
+//    return null; // Nếu không tìm thấy
+//}
 
     // Test main method
     public static void main(String[] args) {
-        try (Connection conn = new DBContext("SWP4").getConnection()) {
+        try (Connection conn = new DBContext("Test").getConnection()) {
             ImportReceiptDetailDAO dao = new ImportReceiptDetailDAO(conn);
 
             // Test insert

@@ -30,7 +30,7 @@ public class ReportItemServlet extends HttpServlet {
     DBContext connection = new DBContext("SWP1");
     ShopItemDAO shopItemDAO = new ShopItemDAO(connection.getConnection());
     ItemCategoryDAO itemDao = new ItemCategoryDAO(connection.getConnection());
-    ShopDAO sDAO = new ShopDAO();
+    ShopDAO sDAO = new ShopDAO(connection.getConnection());
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -81,7 +81,7 @@ public class ReportItemServlet extends HttpServlet {
             
                 calculatedTotalValue = shopItemDAO.getTotalValueByShopId(shopIdFilter);
            
-                Shop selectedShop = sDAO.getShopByID(shopIdFilter, "SWP1"); 
+                Shop selectedShop = sDAO.getShopById(shopIdFilter); 
                 if (selectedShop != null) {
                     shopNameFilter = selectedShop.getShopName();
                 }
@@ -108,7 +108,7 @@ public class ReportItemServlet extends HttpServlet {
             List<CategoryItemCountDto> categoryCounts = itemDao.getCategoryItemCounts(categoryNameFilter, shopNameFilter);
             request.setAttribute("categoryCounts", categoryCounts);
 
-            List<Shop> allShops = sDAO.getAllShops("SWP1");
+            List<Shop> allShops = sDAO.getAllShops();
             request.setAttribute("allShops", allShops);
 
             List<Models.ItemCategory> allCategories = itemDao.getAllCategories();

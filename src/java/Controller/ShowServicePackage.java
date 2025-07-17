@@ -5,7 +5,7 @@
 package Controller;
 
 import Context.DBContext;
-import DTO.ShopSubscriptionDto;
+import DTO.ShopSubscriptionDTO;
 import Dal.ServicePackageDAO;
 import Dal.ShopSubscriptionDAO;
 import Models.ServicePackage;
@@ -88,7 +88,7 @@ public class ShowServicePackage extends HttpServlet {
             request.setAttribute("packages", packages);
 
             ShopSubscriptionDAO subDAO = new ShopSubscriptionDAO(DBContext.getCentralConnection());
-            ShopSubscriptionDto currentSub = subDAO.getActiveSubscriptionByShopId(shopOwner.getId());
+            ShopSubscriptionDTO currentSub = subDAO.getActiveSubscriptionByShopId(shopOwner.getId());
             if (currentSub != null) {
                 request.setAttribute("hasActivePackage", true);
             }
