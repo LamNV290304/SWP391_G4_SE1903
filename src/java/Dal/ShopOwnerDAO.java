@@ -192,7 +192,7 @@ public class ShopOwnerDAO {
             return rowsAffected > 0;
         }
     }
-    
+
     public ShopOwner getShopOwnerById(int id) throws SQLException {
         String sql = "SELECT * FROM ShopOwners WHERE Id = ? AND Status = 1";
         ShopOwner owner = null;
@@ -211,6 +211,8 @@ public class ShopOwnerDAO {
                     owner.setDatabaseName(rs.getString("DatabaseName"));
                     owner.setShopCode(rs.getString("ShopCode"));
                     owner.setShopName(rs.getString("ShopName"));
+                    owner.setTaxNumber(rs.getString("TaxNumber"));
+                    owner.setStatus(rs.getBoolean("Status"));
                 }
             }
         }
@@ -249,7 +251,7 @@ public class ShopOwnerDAO {
             ps.executeUpdate();
         }
     }
-    
+
     public void updatePasswordByEmail(String email, String hashedPassword) throws SQLException {
         String sql = "UPDATE ShopOwners SET Password = ? WHERE Email = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -337,7 +339,7 @@ public class ShopOwnerDAO {
         }
         return 0;
     }
-    
+
     public void upsertOTP(String email, String otp, Timestamp expiredAt) {
         String sql = """
         MERGE OTPs AS target
@@ -381,7 +383,6 @@ public class ShopOwnerDAO {
             e.printStackTrace();
         }
     }
-
 
     public static void main(String[] args) {
         try (Connection conn = DBContext.getCentralConnection()) {

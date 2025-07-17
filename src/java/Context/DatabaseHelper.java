@@ -140,7 +140,8 @@ public final class DatabaseHelper {
         );
         CREATE TABLE Unit (
             UnitID INT IDENTITY(1,1) PRIMARY KEY,
-            [Description] NVARCHAR(255)
+            [Description] NVARCHAR(255),
+        	Status BIT DEFAULT 1
         );
         CREATE TABLE Role (
             RoleID INT PRIMARY KEY,
@@ -200,13 +201,17 @@ public final class DatabaseHelper {
             ImportPrice DECIMAL(18, 2) NOT NULL,
             SellingPrice DECIMAL(18, 2) NOT NULL,
             Description NVARCHAR(MAX),
-            Status BIT NOT NULL,
+            Status BIT DEFAULT 1,
             ImageUrl NVARCHAR(500),
             CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
             CreatedBy NVARCHAR(50) NOT NULL,
             FOREIGN KEY (CategoryID) REFERENCES Category(CategoryID),
             FOREIGN KEY (UnitID) REFERENCES Unit(UnitID)
         );
+        CREATE TABLE VATRates(
+        	VATRateID int IDENTITY(1,1) PRIMARY KEY,
+        	Rate decimal(5, 2) NOT NULL
+        	);
         CREATE TABLE Invoice (
             InvoiceID INT IDENTITY(1,1) PRIMARY KEY,
             CustomerID INT NOT NULL,
@@ -216,11 +221,11 @@ public final class DatabaseHelper {
             TotalAmount DECIMAL(18,2) NOT NULL,
             Note NVARCHAR(255),
             Status BIT DEFAULT 1,
-        	VATRateID int NULL,
-        	VatAmount decimal (18, 2) NULL,
+        		VATRateID int NULL,
             FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
             FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
             FOREIGN KEY (ShopID) REFERENCES Shop(ShopID),
+        	FOREIGN KEY (VATRateID) REFERENCES VATRates(VATRateID)
         
         );
         CREATE TABLE InvoiceDetail (
@@ -234,9 +239,13 @@ public final class DatabaseHelper {
             FOREIGN KEY (InvoiceID) REFERENCES Invoice(InvoiceID),
             FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
         );
+        CREATE TABLE TypeImportReceipt (
+            TypeID INT IDENTITY(1,1) PRIMARY KEY,
+            TypeName NVARCHAR(100) NOT NULL,
+        	Status BIT DEFAULT 1
+        );
         CREATE TABLE ImportReceipt (
             ImportReceiptID INT IDENTITY(1,1) PRIMARY KEY,
-            Code NVARCHAR(20) NOT NULL,
             SupplierID INT NOT NULL,
             EmployeeID INT NOT NULL,
             ShopID INT,
@@ -244,9 +253,11 @@ public final class DatabaseHelper {
             TotalAmount DECIMAL(18,2) NOT NULL,
             Note NVARCHAR(255),
             Status BIT DEFAULT 1,
+        	TypeID INT NOT NULL,
             FOREIGN KEY (SupplierID) REFERENCES Supplier(SupplierID),
             FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
-            FOREIGN KEY (ShopID) REFERENCES Shop(ShopID)
+            FOREIGN KEY (ShopID) REFERENCES Shop(ShopID),
+        	FOREIGN KEY (TypeID) REFERENCES TypeImportReceipt(TypeID)
         );
         CREATE TABLE ImportReceiptDetail (
             ImportReceiptDetailID INT IDENTITY(1,1) PRIMARY KEY,
@@ -267,26 +278,33 @@ public final class DatabaseHelper {
             FOREIGN KEY (ProductID) REFERENCES Product(ProductID),
             FOREIGN KEY (ShopID) REFERENCES Shop(ShopID)
         );
+        
         CREATE TABLE TransferReceipt (
             TransferReceiptID INT IDENTITY(1,1) PRIMARY KEY,
-            ProductID INT NOT NULL,
-            FromInventoryID INT NOT NULL,
-            ToInventoryID INT NOT NULL,
-            Quantity INT NOT NULL,
+            FromShopID INT NOT NULL,
+            ToShopID INT NOT NULL,
             TransferDate DATETIME DEFAULT GETDATE(),
             Note NVARCHAR(255),
-            FOREIGN KEY (ProductID) REFERENCES Product(ProductID),
-            FOREIGN KEY (FromInventoryID) REFERENCES Inventory(InventoryID),
-            FOREIGN KEY (ToInventoryID) REFERENCES Inventory(InventoryID)
+        	Status INT NOT NULL DEFAULT 0,
+            FOREIGN KEY (FromShopID) REFERENCES Shop(ShopID),
+            FOREIGN KEY (ToShopID) REFERENCES Shop(ShopID)
         );
-        CREATE TABLE TypeImportReceipt (
-            TypeID INT IDENTITY(1,1) PRIMARY KEY,
-            TypeName NVARCHAR(100) NOT NULL
+        
+        CREATE TABLE TransferReceiptDetail (
+            TransferReceiptDetailID INT IDENTITY PRIMARY KEY,
+            TransferReceiptID INT NOT NULL,
+            ProductID INT NOT NULL,
+            Quantity INT NOT NULL,
+            FOREIGN KEY (TransferReceiptID) REFERENCES TransferReceipt(TransferReceiptID),
+            FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
         );
+        
+        
         
         CREATE TABLE TypeExportReceipt (
             TypeID INT IDENTITY(1,1) PRIMARY KEY,
-            TypeName NVARCHAR(100) NOT NULL
+            TypeName NVARCHAR(100) NOT NULL,
+        	Status BIT DEFAULT 1
         );
         CREATE TABLE ExportReceipt (
             ExportReceiptID INT IDENTITY(1,1) PRIMARY KEY,
@@ -336,12 +354,14 @@ public final class DatabaseHelper {
         );
         CREATE TABLE TypeReceiptVoucher (
             TypeID INT IDENTITY(1,1) PRIMARY KEY,
-            TypeName NVARCHAR(100) NOT NULL
+            TypeName NVARCHAR(100) NOT NULL,
+        	Status BIT DEFAULT 1
         );
         
         CREATE TABLE TypePaymentVoucher (
             TypeID INT IDENTITY(1,1) PRIMARY KEY,
-            TypeName NVARCHAR(100) NOT NULL
+            TypeName NVARCHAR(100) NOT NULL,
+        	Status BIT DEFAULT 1
         );
         CREATE TABLE ReceiptVoucher (
             ReceiptVoucherID INT IDENTITY(1,1) PRIMARY KEY,
@@ -387,16 +407,13 @@ public final class DatabaseHelper {
             IsRead INT DEFAULT 0,
             FOREIGN KEY (ReceiverEmployeeID) REFERENCES Employee(EmployeeID)
         );
-        CREATE TABLE VATRates(
-        	VATRateID int IDENTITY(1,1) NOT NULL,
-        	Rate decimal(5, 2) NOT NULL
-        	);
         CREATE TABLE Shift (
             ShiftID INT IDENTITY(1,1) PRIMARY KEY,
             ShiftName NVARCHAR(100) NOT NULL,      -- Tên ca: Ca sáng, Ca chiều, Ca tối
             StartTime TIME NOT NULL,               -- Giờ bắt đầu
             EndTime TIME NOT NULL,                 -- Giờ kết thúc
-            [Description] NVARCHAR(255)
+            [Description] NVARCHAR(255),
+        	NumberOfEmployees INT NOT NULL
         );
         CREATE TABLE ItemCategories (
             CategoryID INT PRIMARY KEY IDENTITY(1,1),
@@ -418,7 +435,6 @@ public final class DatabaseHelper {
             FOREIGN KEY (ShopID) REFERENCES Shop(ShopID),
             FOREIGN KEY (UnitID) REFERENCES Unit(UnitID)
         );
-        
         CREATE TABLE WorkSchedule (
             WorkScheduleID INT IDENTITY(1,1) PRIMARY KEY,
             EmployeeID INT NOT NULL,               -- Nhân viên được phân ca
@@ -432,6 +448,39 @@ public final class DatabaseHelper {
             FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
             FOREIGN KEY (ShopID) REFERENCES Shop(ShopID),
             FOREIGN KEY (ShiftID) REFERENCES Shift(ShiftID)
+        );
+        -- Tạo bảng SalarySetting
+        CREATE TABLE SalarySetting (
+            SalarySettingID INT IDENTITY(1,1) PRIMARY KEY,
+            EmployeeID INT NOT NULL,
+            SalaryType NVARCHAR(50) NOT NULL, -- 'PerShift', 'PerHour', 'FixedMonthly'
+            Amount DECIMAL(18, 2) NOT NULL,   -- Mức lương ứng với loại
+            FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID)
+        );
+        
+        -- Tạo bảng Salary (Bảng lương chính)
+        CREATE TABLE Salary (
+            SalaryID INT IDENTITY(1,1) PRIMARY KEY,
+            SalaryName NVARCHAR(255) NOT NULL,       -- Tên bảng lương (VD: Bảng lương tháng 7/2025)
+            SalaryPeriod NVARCHAR(50) NOT NULL,      -- Kỳ hạn trả (VD: Hàng tháng)
+            WorkPeriodStart DATE NOT NULL,           -- Kỳ làm việc từ ngày
+            WorkPeriodEnd DATE NOT NULL,             -- Kỳ làm việc đến ngày
+            TotalSalary DECIMAL(18, 2) NOT NULL DEFAULT 0,        -- Tổng lương
+            Status NVARCHAR(50) DEFAULT N'Tạm tính',              -- Trạng thái: Tạm tính, Đã duyệt, Đã thanh toán
+        	CreatedDate DATETIME DEFAULT GETDATE(),
+            CreatedBy NVARCHAR(100)
+        
+        );
+        
+        -- Tạo bảng SalaryDetail (Chi tiết lương từng nhân viên)
+        CREATE TABLE SalaryDetail (
+            SalaryDetailID INT IDENTITY(1,1) PRIMARY KEY,
+            SalaryID INT NOT NULL,
+            EmployeeID INT NOT NULL,                  -- Nhân viên
+            BasicSalary DECIMAL(18, 2) DEFAULT 0,    -- Lương chính
+        
+            FOREIGN KEY (SalaryID) REFERENCES Salary(SalaryID),
+            FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID)
         );
         
         CREATE TABLE OTPs (

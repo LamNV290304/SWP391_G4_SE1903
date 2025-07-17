@@ -7,6 +7,7 @@ package Controller;
 import Context.DBContext;
 import Dal.PaymentDAO;
 import Dal.ServicePackageDAO;
+import Dal.ShopOwnerDAO;
 import Models.Payment;
 import Models.ServicePackage;
 import Models.ShopOwner;
@@ -17,6 +18,7 @@ import java.sql.Connection;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 /**
  *
  * @author Admin
@@ -71,7 +73,8 @@ public class ShowPaymentHistoryAdmin extends HttpServlet {
             if (packageIdParam != null && !packageIdParam.isEmpty()) {
                 try {
                     selectedPackageId = Integer.parseInt(packageIdParam);
-                } catch (NumberFormatException ignored) {}
+                } catch (NumberFormatException ignored) {
+                }
             }
 
             String fromDateStr = request.getParameter("fromDate");
@@ -81,13 +84,16 @@ public class ShowPaymentHistoryAdmin extends HttpServlet {
             int limit = 5;
             try {
                 page = Integer.parseInt(request.getParameter("page"));
-            } catch (NumberFormatException ignored) {}
+            } catch (NumberFormatException ignored) {
+            }
             int offset = (page - 1) * limit;
 
             Connection conn = DBContext.getCentralConnection();
             PaymentDAO paymentDAO = new PaymentDAO(conn);
+            ShopOwnerDAO shopOwnerDAO = new ShopOwnerDAO(conn);
             ServicePackageDAO packageDAO = new ServicePackageDAO(conn);
 
+            ShopOwner shopOwner = shopOwnerDAO.getShopOwnerById(shopOwnerId);
             List<Payment> payments = paymentDAO.getPaymentsByShopOwner(shopOwnerId, offset, limit, sort, selectedPackageId, fromDateStr, toDateStr);
             int totalRecords = paymentDAO.countPaymentsByShopOwner(shopOwnerId, selectedPackageId, fromDateStr, toDateStr);
             int totalPages = (int) Math.ceil((double) totalRecords / limit);
@@ -95,6 +101,7 @@ public class ShowPaymentHistoryAdmin extends HttpServlet {
             double totalAmount = paymentDAO.sumSuccessfulPayments(shopOwnerId);
 
             request.setAttribute("payments", payments);
+            request.setAttribute("shop", shopOwner);
             request.setAttribute("sort", sort);
             request.setAttribute("sortMap", sortMap);
             request.setAttribute("currentPage", page);

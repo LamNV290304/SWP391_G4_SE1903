@@ -32,7 +32,7 @@
 
                             <!-- Bộ lọc -->
                             <form method="get" class="mb-3 d-flex align-items-center justify-content-end gap-2">
-                                <input type="hidden" name="sort" value="${sort}" />
+                                <input type="hidden" name="shopOwnerId" value="${shopOwner.id}" />
                                 <input type="hidden" name="page" value="1" />
 
                                 <label class="form-label mb-0 fw-semibold">Từ ngày:</label>
@@ -60,12 +60,10 @@
                                             <tr>
                                                 <th>Gói dịch vụ</th>
                                                 <th>
-                                                    <a href="?page=${currentPage}&sort=paymentDate:${nextSort['paymentDate']}&packageId=${selectedPackageId}" class="text-dark text-decoration-none">
-                                                        Ngày thanh toán
-                                                        <c:if test="${sortField == 'paymentDate'}">
-                                                            <i class="bx bx-chevron-${sortDir == 'asc' ? 'up' : 'down'}"></i>
-                                                        </c:if>
-                                                    </a>
+                                                    Ngày thanh toán
+                                                </th>
+                                                <th>
+                                                    Ngày hết hạn
                                                 </th>
                                                 <th>Số tiền</th>
                                                 <th>Trạng thái</th>
@@ -85,6 +83,8 @@
                                                         <tr>
                                                             <td>${payment.packageName}</td>
                                                             <td><fmt:formatDate value="${payment.paymentDate}" pattern="dd/MM/yyyy" /></td>
+                                                            <td><fmt:formatDate value="${payment.expireAt}" pattern="dd/MM/yyyy" /></td>
+
                                                             <td><fmt:formatNumber value="${payment.amount}" type="currency" currencySymbol="₫" /></td>
                                                             <td>
                                                                 <span class="badge bg-label-${payment.status == 'Thành công' ? 'success' : 'danger'}">
@@ -109,42 +109,88 @@
                                         </span>
                                     </div>
                                 </div>
-                                </c:if>
+                            </c:if>
 
-                                    <!-- Phân trang -->
-                                    <nav class="mt-3" aria-label="Page navigation">
-                                        <ul class="pagination justify-content-center">
-                                            <c:if test="${currentPage > 1}">
-                                                <li class="page-item">
-                                                    <a class="page-link" href="?page=${currentPage - 1}&packageId=${selectedPackageId}">«</a>
-                                                </li>
-                                            </c:if>
-                                            <c:forEach var="i" begin="1" end="${totalPages}">
-                                                <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                                    <a class="page-link" href="?page=${i}&packageId=${selectedPackageId}">${i}</a>
-                                                </li>
-                                            </c:forEach>
-                                            <c:if test="${currentPage < totalPages}">
-                                                <li class="page-item">
-                                                    <a class="page-link" href="?page=${currentPage + 1}&packageId=${selectedPackageId}">»</a>
-                                                </li>
-                                            </c:if>
-                                        </ul>
-                                    </nav>
+                            <!-- Phân trang -->
+                            <nav class="mt-3" aria-label="Page navigation">
+                                <ul class="pagination justify-content-center">
+                                    <c:if test="${currentPage > 1}">
+                                        <li class="page-item">
+                                            <a class="page-link" href="?shopOwnerId=${id}&page=${currentPage - 1}&packageId=${selectedPackageId}">«</a>
+                                        </li>
+                                    </c:if>
+                                    <c:forEach var="i" begin="1" end="${totalPages}">
+                                        <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                            <a class="page-link" href="?shopOwnerId=${id}&page=${i}&packageId=${selectedPackageId}">${i}</a>
+                                        </li>
+                                    </c:forEach>
+                                    <c:if test="${currentPage < totalPages}">
+                                        <li class="page-item">
+                                            <a class="page-link" href="?shopOwnerId=${id}&page=${currentPage + 1}&packageId=${selectedPackageId}">»</a>
+                                        </li>
+                                    </c:if>
+                                </ul>
+                            </nav>
+
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Thông tin Shop</h5>
+                                    <div class="row mb-3">
+                                        <label class="col-sm-2 col-form-label">Tên Shop:</label>
+                                        <div class="col-sm-10">
+                                            <p class="form-control-plaintext fw-semibold">${shop.shopName}</p>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="col-sm-2 col-form-label">Tên khách hàng:</label>
+                                        <div class="col-sm-10">
+                                            <p class="form-control-plaintext">${shop.fullname}</p>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="col-sm-2 col-form-label">Số điện thoại:</label>
+                                        <div class="col-sm-10">
+                                            <p class="form-control-plaintext">${shop.phone}</p>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="col-sm-2 col-form-label">Email:</label>
+                                        <div class="col-sm-10">
+                                            <p class="form-control-plaintext">${shop.email}</p>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="col-sm-2 col-form-label">Mã số thuế:</label>
+                                        <div class="col-sm-10">
+                                            <p class="form-control-plaintext">${shop.taxNumber}</p>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="col-sm-2 col-form-label">Trạng thái:</label>
+                                        <div class="col-sm-10">
+                                            <span class="badge bg-label-${shop.status == true ? 'success' : 'danger'}">
+                                                ${shop.status == true ? 'Hoạt động' : 'Ngừng hoạt động'}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <a href="ShowRevenueShop?shopOwnerId=${id}" class="btn btn-secondary">← Quay lại</a>
                                 </div>
-                                <jsp:include page="footer.jsp" />
                             </div>
                         </div>
+                        <jsp:include page="footer.jsp" />
                     </div>
                 </div>
-                     
+            </div>
+        </div>
 
-                <!-- Scripts -->
-                <script src="./assets/vendor/libs/jquery/jquery.js"></script>
-                <script src="./assets/vendor/libs/popper/popper.js"></script>
-                <script src="./assets/vendor/js/bootstrap.js"></script>
-                <script src="./assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
-                <script src="./assets/vendor/js/menu.js"></script>
-                <script src="./assets/js/main.js"></script>
-            </body>
-        </html>
+
+        <!-- Scripts -->
+        <script src="./assets/vendor/libs/jquery/jquery.js"></script>
+        <script src="./assets/vendor/libs/popper/popper.js"></script>
+        <script src="./assets/vendor/js/bootstrap.js"></script>
+        <script src="./assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+        <script src="./assets/vendor/js/menu.js"></script>
+        <script src="./assets/js/main.js"></script>
+    </body>
+</html>
