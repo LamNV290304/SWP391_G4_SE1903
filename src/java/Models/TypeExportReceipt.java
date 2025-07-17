@@ -12,12 +12,20 @@ package Models;
 public class TypeExportReceipt {
      private int typeID;
     private String typeName;
-
+    private int status;
     public TypeExportReceipt() {
     }
 
     public TypeExportReceipt(String typeName) {
         this.typeName = typeName;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     public int getTypeID() {
@@ -41,8 +49,4 @@ public class TypeExportReceipt {
         return "TypeExportReceipt{" + "typeID=" + typeID + ", typeName=" + typeName + '}';
     }
     
-    public static void main(String[] args) {
-        TypeExportReceipt type = new TypeExportReceipt("haha");
-        System.out.println(type.toString());
-    }
 }

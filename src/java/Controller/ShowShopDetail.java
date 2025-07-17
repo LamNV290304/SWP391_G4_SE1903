@@ -71,8 +71,8 @@ public class ShowShopDetail extends HttpServlet {
             ShopOwnerDAO shopOwnerDAO = new ShopOwnerDAO(DBContext.getCentralConnection());
             ShopOwner shopOwner = shopOwnerDAO.getShopOwnerById(shopOwnerId);
             
-            ShopDAO shopDAO = new ShopDAO();
-            Shop shop = shopDAO.getShopByID(shopId, shopOwner.getDatabaseName());
+            ShopDAO shopDAO = new ShopDAO(DBContext.getCentralConnection());
+            Shop shop = shopDAO.getShopById(shopId);
             
             request.setAttribute("shop", shop);
             request.setAttribute("id", shopOwnerId);

@@ -12,20 +12,18 @@ import java.util.Date;
  */
 public class ImportReceipt {
     private int importReceiptID;
-    private String code;
-    private String supplierID;
-    private String employeeID;
-    private String shopID;
+    private int supplierID;
+    private int employeeID;
+    private int shopID;
     private Date receiptDate;
     private double totalAmount;
     private String note;
     private boolean status;
-
+private int typeID;
     public ImportReceipt() {
     }
 
-    public ImportReceipt(String code, String supplierID, String employeeID, String shopID, Date receiptDate, double totalAmount, String note, boolean status) {
-        this.code = code;
+    public ImportReceipt(int supplierID, int employeeID, int shopID, Date receiptDate, double totalAmount, String note, boolean status, int typeID) {
         this.supplierID = supplierID;
         this.employeeID = employeeID;
         this.shopID = shopID;
@@ -33,7 +31,18 @@ public class ImportReceipt {
         this.totalAmount = totalAmount;
         this.note = note;
         this.status = status;
+        this.typeID = typeID;
     }
+
+    public int getTypeID() {
+        return typeID;
+    }
+
+    public void setTypeID(int typeID) {
+        this.typeID = typeID;
+    }
+
+    
 
     public int getImportReceiptID() {
         return importReceiptID;
@@ -43,35 +52,27 @@ public class ImportReceipt {
         this.importReceiptID = importReceiptID;
     }
 
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getSupplierID() {
+    public int getSupplierID() {
         return supplierID;
     }
 
-    public void setSupplierID(String supplierID) {
+    public void setSupplierID(int supplierID) {
         this.supplierID = supplierID;
     }
 
-    public String getEmployeeID() {
+    public int getEmployeeID() {
         return employeeID;
     }
 
-    public void setEmployeeID(String employeeID) {
+    public void setEmployeeID(int employeeID) {
         this.employeeID = employeeID;
     }
 
-    public String getShopID() {
+    public int getShopID() {
         return shopID;
     }
 
-    public void setShopID(String shopID) {
+    public void setShopID(int shopID) {
         this.shopID = shopID;
     }
 
@@ -107,9 +108,10 @@ public class ImportReceipt {
         this.status = status;
     }
 
+
     @Override
     public String toString() {
-        return "ImportReceipt{" + "importReceiptID=" + importReceiptID + ", code=" + code + ", supplierID=" + supplierID + ", employeeID=" + employeeID + ", shopID=" + shopID + ", receiptDate=" + receiptDate + ", totalAmount=" + totalAmount + ", note=" + note + ", status=" + status + '}';
+        return "ImportReceipt{" + "importReceiptID=" + importReceiptID + ", supplierID=" + supplierID + ", employeeID=" + employeeID + ", shopID=" + shopID + ", receiptDate=" + receiptDate + ", totalAmount=" + totalAmount + ", note=" + note + ", status=" + status + '}';
     }
     
 }

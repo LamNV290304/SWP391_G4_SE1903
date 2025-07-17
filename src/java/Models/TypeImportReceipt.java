@@ -11,14 +11,23 @@ package Models;
 public class TypeImportReceipt {
      private int typeID;
     private String typeName;
+    private int status;
 
     public TypeImportReceipt() {
     }
-
+    
     public TypeImportReceipt(String typeName) {
         this.typeName = typeName;
     }
 
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+    
     public int getTypeID() {
         return typeID;
     }

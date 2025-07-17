@@ -22,14 +22,22 @@ public class TypeImportReceiptDAO {
     }
 
     // Lấy toàn bộ loại phiếu nhập
-    public List<TypeImportReceipt> getAllTypeImportReceipts() {
+    public List<TypeImportReceipt> getAllTypeImportReceipts(int status) {
         List<TypeImportReceipt> list = new ArrayList<>();
-        String sql = "SELECT TypeID, TypeName FROM TypeImportReceipt";
+         String sql;
+        if(status==1){
+         sql = "SELECT * FROM TypeImportReceipt where Status =1";}
+        else if(status==1){
+        sql = "SELECT * FROM TypeImportReceipt where Status =0";}
+        else{
+            sql = "SELECT * FROM TypeImportReceipt";
+        }
         try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 TypeImportReceipt type = new TypeImportReceipt();
                 type.setTypeID(rs.getInt("TypeID"));
                 type.setTypeName(rs.getString("TypeName"));
+                type.setStatus(rs.getInt("Status"));
                 list.add(type);
             }
         } catch (SQLException e) {
@@ -40,7 +48,7 @@ public class TypeImportReceiptDAO {
 
     // Lấy loại phiếu nhập theo ID
     public TypeImportReceipt getByID(String id) {
-        String sql = "SELECT TypeID, TypeName FROM TypeImportReceipt WHERE TypeID = ?";
+        String sql = "SELECT * FROM TypeImportReceipt WHERE TypeID = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, id);
             try (ResultSet rs = ps.executeQuery()) {
@@ -48,6 +56,7 @@ public class TypeImportReceiptDAO {
                     TypeImportReceipt type = new TypeImportReceipt();
                     type.setTypeID(rs.getInt("TypeID"));
                     type.setTypeName(rs.getString("TypeName"));
+                    type.setStatus(rs.getInt("Status"));
                     return type;
                 }
             }
@@ -84,7 +93,7 @@ public class TypeImportReceiptDAO {
 
     // Xóa loại phiếu nhập
     public boolean delete(int id) {
-        String sql = "DELETE FROM TypeImportReceipt WHERE TypeID = ?";
+        String sql = "UPDATE TypeImportReceipt SET Status = 0 WHERE TypeID = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             return ps.executeUpdate() > 0;
@@ -94,13 +103,13 @@ public class TypeImportReceiptDAO {
         return false;
     }
     public static void main(String[] args) {
-          try (Connection conn = new DBContext("SWP7").getConnection()) {
+          try (Connection conn = new DBContext("Test").getConnection()) {
         TypeImportReceiptDAO dao = new TypeImportReceiptDAO(conn);
         
 TypeImportReceipt type1 = new TypeImportReceipt("Nhap cho Tanh");
 //if(dao.insert(type1)){System.out.println("insert thanh cong");}
 dao.delete(5);
-List<TypeImportReceipt> types = dao.getAllTypeImportReceipts();
+List<TypeImportReceipt> types = dao.getAllTypeImportReceipts(1);
         if (types.isEmpty()) {
             System.out.println("❌ Không có loại phiếu nhập nào.");
         } else {
