@@ -50,7 +50,7 @@ public class InvoiceServlet extends HttpServlet {
     InvoiceDAO idao = new InvoiceDAO(connection.getConnection());
     InvoiceDetailDAO idetail = new InvoiceDetailDAO(connection.getConnection());
     InventoryDAO inventoryDAO = new InventoryDAO(connection.getConnection());
-    ShopDAO sDAO = new ShopDAO();
+    ShopDAO sDAO = new ShopDAO(connection.getConnection());
     EmployeeDAO eDAO = new EmployeeDAO(connection.getConnection());
     ProductDAO pDAO = new ProductDAO(connection.getConnection());
     CustomerDAO cDAO = new CustomerDAO(connection.getConnection());
@@ -396,7 +396,7 @@ public class InvoiceServlet extends HttpServlet {
         request.setAttribute("param_shopID", selectedShopIDParam);
 
         try {
-            allShops = sDAO.getAllShops("SWP1");
+            allShops = sDAO.getAllShops();
             vatRatesList = vatRateDAO.getAllVATRates();
 
             if (selectedShopID != -1) {
@@ -436,15 +436,15 @@ public class InvoiceServlet extends HttpServlet {
 
         List<Customer> customers = cDAO.getAllCustomer();
         List<Employee> employees;
-      
+        try {
             employees = eDAO.getAllEmployee();
             request.setAttribute("employees", employees);
-      
+        } catch (SQLException ex) {
+            Logger.getLogger(InvoiceServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
         List<Shop> allShops;
-       
-            allShops = sDAO.getAllShops("SWP1");
-            request.setAttribute("allShops", allShops);
-       
+        allShops = sDAO.getAllShops();
+        request.setAttribute("allShops", allShops);
         List<Invoice> invoices = idao.getInvoicesByPage(pageIndex, pageSize);
 
         request.setAttribute("currentPage", pageIndex);
@@ -1081,7 +1081,7 @@ public class InvoiceServlet extends HttpServlet {
 
             Shop selectedShop = null;
             try {
-                selectedShop = sDAO.getShopByID(shopID, "SWP1");
+                selectedShop = sDAO.getShopById(shopID);
             } catch (Exception e) {
                 System.err.println("Lỗi khi lấy thông tin cửa hàng: " + e.getMessage());
                 request.setAttribute("warningMessage", "Không thể lấy thông tin cửa hàng liên quan đến hóa đơn.");
@@ -1138,7 +1138,7 @@ public class InvoiceServlet extends HttpServlet {
                 return;
             }
             Customer selectedCustomer = cDAO.getCustomerById(selectedInvoice.getCustomerID());
-            Shop selectedShop = sDAO.getShopByID(selectedInvoice.getShopID(), "SWP1");
+            Shop selectedShop = sDAO.getShopById(selectedInvoice.getShopID());
             List<InvoiceDetail> invoiceDetails = idetail.getDetailByInvoiceID(invoiceID);
             List<Product> products = pDAO.getAllProducts();
             List<Inventory> inventoriesInShop = inventoryDAO.getAllInventoriesInStore(selectedInvoice.getShopID());

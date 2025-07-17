@@ -12,7 +12,8 @@ import java.util.Date;
  * @author Thai Anh
  */
 public class ReceiptVoucher {
-   private int receiptVoucherID;
+
+    private int receiptVoucherID;
     private int shopID;
     private int employeeID;
     private Integer customerID; // optional
@@ -22,11 +23,12 @@ public class ReceiptVoucher {
     private boolean status;
     private Date createdDate;
     private int typeID;
+    private int paymentMethodID;
 
     public ReceiptVoucher() {
     }
 
-    public ReceiptVoucher(int receiptVoucherID, int shopID, int employeeID, Integer customerID, Date receiptDate, BigDecimal amount, String note, boolean status, Date createdDate, int typeID) {
+    public ReceiptVoucher(int receiptVoucherID, int shopID, int employeeID, Integer customerID, Date receiptDate, BigDecimal amount, String note, boolean status, Date createdDate, int typeID, int paymentMethodID) {
         this.receiptVoucherID = receiptVoucherID;
         this.shopID = shopID;
         this.employeeID = employeeID;
@@ -37,9 +39,10 @@ public class ReceiptVoucher {
         this.status = status;
         this.createdDate = createdDate;
         this.typeID = typeID;
+        this.paymentMethodID = paymentMethodID;
     }
 
-    public ReceiptVoucher(int receiptVoucherID, int shopID, int employeeID, Date receiptDate, BigDecimal amount, String note, boolean status, Date createdDate, int typeID) {
+    public ReceiptVoucher(int receiptVoucherID, int shopID, int employeeID, Date receiptDate, BigDecimal amount, String note, boolean status, Date createdDate, int typeID, int paymentMethodID) {
         this.receiptVoucherID = receiptVoucherID;
         this.shopID = shopID;
         this.employeeID = employeeID;
@@ -49,6 +52,15 @@ public class ReceiptVoucher {
         this.status = status;
         this.createdDate = createdDate;
         this.typeID = typeID;
+        this.paymentMethodID = paymentMethodID;
+    }
+
+    public int getPaymentMethodID() {
+        return paymentMethodID;
+    }
+
+    public void setPaymentMethodID(int paymentMethodID) {
+        this.paymentMethodID = paymentMethodID;
     }
 
     public int getReceiptVoucherID() {
@@ -135,5 +147,5 @@ public class ReceiptVoucher {
     public String toString() {
         return "ReceiptVoucher{" + "receiptVoucherID=" + receiptVoucherID + ", shopID=" + shopID + ", employeeID=" + employeeID + ", customerID=" + customerID + ", receiptDate=" + receiptDate + ", amount=" + amount + ", note=" + note + ", status=" + status + ", createdDate=" + createdDate + ", typeID=" + typeID + '}';
     }
-    
+
 }

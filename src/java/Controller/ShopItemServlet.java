@@ -38,7 +38,7 @@ public class ShopItemServlet extends HttpServlet {
     DBContext connection = new DBContext("SWP1");
     ItemCategoryDAO itemDAO = new ItemCategoryDAO(connection.getConnection());
     ShopItemDAO shopItemDAO = new ShopItemDAO(connection.getConnection());
-    ShopDAO sDAO = new ShopDAO();
+    ShopDAO sDAO = new ShopDAO(connection.getConnection());
     UnitDAO uDAO = new UnitDAO(connection.getConnection());
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
@@ -218,9 +218,9 @@ public class ShopItemServlet extends HttpServlet {
 
             List<ItemCategory> categories = itemDAO.getAllCategories();
             request.setAttribute("categories", categories);
-            List<Shop> shops = sDAO.getAllShops("SWP1");
+            List<Shop> shops = sDAO.getAllShops();
             request.setAttribute("shops", shops);
-            List<Unit> units = uDAO.getAllUnits();
+            List<Unit> units = uDAO.getAllActiveUnits();
             request.setAttribute("units", units);
             request.getRequestDispatcher("shopItemAdd.jsp").forward(request, response);
         } catch (SQLException e) {
@@ -239,9 +239,9 @@ public class ShopItemServlet extends HttpServlet {
 
             List<ItemCategory> categories = itemDAO.getAllCategories();
             request.setAttribute("categories", categories);
-            List<Shop> shops = sDAO.getAllShops("SWP1");
+            List<Shop> shops = sDAO.getAllShops();
             request.setAttribute("shops", shops);
-            List<Unit> units = uDAO.getAllUnits();
+            List<Unit> units = uDAO.getAllActiveUnits();
             request.setAttribute("units", units);
 
             request.getRequestDispatcher("shopItemEdit.jsp").forward(request, response);
@@ -276,7 +276,7 @@ public class ShopItemServlet extends HttpServlet {
         int categoryId = Integer.parseInt(request.getParameter("categoryId"));
         int quantity = Integer.parseInt(request.getParameter("quantity"));
         int unitId = Integer.parseInt(request.getParameter("unitId"));
-        request.setAttribute("units", uDAO.getAllUnits());
+        request.setAttribute("units", uDAO.getAllActiveUnits());
         BigDecimal price = new BigDecimal(request.getParameter("price"));
 
         Integer shopId = null;
@@ -364,7 +364,7 @@ public class ShopItemServlet extends HttpServlet {
         itemToUpdate.setShopId(shopId);
         itemToUpdate.setNotes(notes);
 
-        request.setAttribute("units", uDAO.getAllUnits());
+        request.setAttribute("units", uDAO.getAllActiveUnits());
 
         boolean success = shopItemDAO.updateItem(itemToUpdate);
         if (success) {

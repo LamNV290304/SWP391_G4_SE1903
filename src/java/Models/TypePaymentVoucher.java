@@ -11,13 +11,21 @@ package Models;
 public class TypePaymentVoucher {
     private int typeID;
     private String typeName;
-
+    private int status;
     public TypePaymentVoucher() {
     }
 
     public TypePaymentVoucher(int typeID, String typeName) {
         this.typeID = typeID;
         this.typeName = typeName;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     public int getTypeID() {

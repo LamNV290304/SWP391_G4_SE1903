@@ -45,17 +45,14 @@ public class WorkScheduleController extends HttpServlet {
 
     DBContext connection = new DBContext("Test");
     WorkScheduleDAO workScheduleDAO = new WorkScheduleDAO(connection.getConnection());
-    ShopDAO shopDAO = new ShopDAO();
     EmployeeDAO employeeDAO = new EmployeeDAO(connection.getConnection());
     ShiftDAO shiftDAO = new ShiftDAO(connection.getConnection());
 
     private static final String sqlList = "SELECT * FROM [dbo].[WorkSchedule]";
 
+    List<Employee> employees = employeeDAO.getEmployee();
     Vector<WorkSchedule> list = workScheduleDAO.getAllWorkSchedule(sqlList);
-    List<Shop> ListShop = shopDAO.getAllShops("Test");
     
-    List<Employee> employees = employeeDAO.getAllEmployee();
-
     Vector<Shift> listShift = shiftDAO.getAllShift("SELECT * FROM [dbo].[Shift]");
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
@@ -456,13 +453,14 @@ public class WorkScheduleController extends HttpServlet {
         try {
 
             int employeeID = Integer.parseInt(request.getParameter("employeeId"));
+            log(" "+employeeID);
             String WorkDate = request.getParameter("dayOfWeek");
             int ShiftID = Integer.parseInt(request.getParameter("ShiftID"));
 
             // Kiểm tra xem có bật repeat weekly không
             String[] selectedDays = request.getParameterValues("selectedDays");
             boolean isRepeatWeekly = selectedDays != null && selectedDays.length > 0;
-
+            log(" check " + employees.get(1).getShopId());
             // Tìm shopID từ employee
             int shopID = 0;
             for (Employee e : employees) {
@@ -528,11 +526,15 @@ public class WorkScheduleController extends HttpServlet {
                 // Thêm lịch cho 1 ngày
                 if (!workScheduleDAO.isScheduleExist(employeeID, WorkDate, ShiftID)) {
                     Date utilDate = sdf.parse(WorkDate);
-                    WorkSchedule w = new WorkSchedule(employeeID, shopID, ShiftID, utilDate, 1, "Single day", "ADMIN");
+                    log("id "+ShiftID);
+                    
+                    WorkSchedule w = new WorkSchedule(employeeID, shopID, ShiftID, utilDate, 0, "none", "admin");
                     int result = 0;
                     if (checkNumberOfEmployeeInShift(w)) {
+                        log("id"+w.getEmployeeID());
                         result = workScheduleDAO.insertWorkSchedule(w);
                     }
+                    log("result" + result);
                     if (result > 0) {
                         request.getSession().setAttribute("message", "Thêm lịch làm việc thành công!");
                         request.getSession().setAttribute("messageType", "success");

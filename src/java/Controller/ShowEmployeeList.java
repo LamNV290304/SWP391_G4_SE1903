@@ -86,14 +86,14 @@ public class ShowEmployeeList extends HttpServlet {
 
         try (Connection conn = DBContext.getConnection(databaseName)) {
             EmployeeDAO dao = new EmployeeDAO(conn);
-            ShopDAO shopDAO = new ShopDAO();
+            ShopDAO shopDAO = new ShopDAO(conn);
             RoleDAO roleDAO = new RoleDAO(conn);
 
             List<EmployeeDto> employeeList = dao.getEmployeesByPage(page, recordsPerPage, shopId, roleId, status, sort, keyword);
             int totalRecords = dao.getTotalEmployeeCount(shopId, roleId, status, keyword);
             int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
 
-            List<Shop> shopList = shopDAO.getAllShops(databaseName);
+            List<Shop> shopList = shopDAO.getAllShops();
             List<Role> roleList = roleDAO.getAllRoles();
             request.setAttribute("employeeList", employeeList);
             request.setAttribute("currentPage", page);

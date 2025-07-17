@@ -76,7 +76,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
              <div class="card col-sm-12" style="height: 90vh; overflow: hidden;">
   <h5 class="card-header">Thêm mới phiếu nhập Hàng</h5>
 
- <form class="row" action="AddImportReceipt" method="POST"> 
+ <form class="row" action="UpdateImportReceipt" method="POST"> 
   <!-- Cột trái: Card thông tin -->
   <div class="col-md-3" style="max-height: 80vh; overflow-y: auto;">
     <div class="card mb-2">

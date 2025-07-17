@@ -2,7 +2,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-
 package Controller;
 
 import Context.DBContext;
@@ -42,35 +41,51 @@ import java.util.logging.Logger;
  * @author Thai Anh
  */
 public class InventoryCheckServlet extends HttpServlet {
-   
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
+     * @throws java.sql.SQLException
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException { 
-        DBContext connection = new DBContext("SWP7");
-    InventoryCheckDAO dao = new InventoryCheckDAO(connection.getConnection());
+            throws ServletException, IOException, SQLException {
+        DBContext connection = new DBContext("Test");
+        InventoryCheckDAO dao = new InventoryCheckDAO(connection.getConnection());
         EmployeeDAO daoEmp = new EmployeeDAO(connection.getConnection());
-        ShopDAO daoShop = new ShopDAO();
-    request.setAttribute("listIvt", dao.getAllInventoryChecks());
-       
-            request.setAttribute("listShop", daoShop.getAllShops("SWP7"));
-  
-        
-        try {
-            request.setAttribute("listEmp", daoEmp.listAllEmployeeDTO());
-        } catch (SQLException ex) {
-            Logger.getLogger(InventoryCheckServlet.class.getName()).log(Level.SEVERE, null, ex);
+        ShopDAO daoShop = new ShopDAO(connection.getConnection());
+
+        // 🔍 Lấy tham số lọc
+        String shopId = request.getParameter("shopID");
+        String empId = request.getParameter("employeeID");
+        String fromDate = request.getParameter("fromdate");
+        String toDate = request.getParameter("todate");
+
+        // 🔍 Gọi DAO để lọc danh sách
+        List<InventoryCheck> listFiltered = dao.filterInventoryChecks(shopId, empId, fromDate, toDate);
+
+        // Gán vào request
+        request.setAttribute("listIvt", listFiltered);
+        request.setAttribute("listShop", daoShop.getAllShops());
+        request.setAttribute("listEmp", daoEmp.listAllEmployeeDTO());
+
+        // Giữ lại giá trị cũ để hiển thị lại trên giao diện
+        request.setAttribute("shopID", shopId);
+        request.setAttribute("employeeID", empId);
+        request.setAttribute("fromdate", fromDate);
+        request.setAttribute("todate", toDate);
+
+        // Thông báo nếu có
+        String message = request.getParameter("message");
+        if ("add_success".equals(message)) {
+            request.setAttribute("successMessage", "Thêm phiếu kiểm kê thành công!");
         }
-       
-   
-            String emp = daoEmp.getAllEmployee().get(1).getFullname();
-       
-    request.getRequestDispatcher("listInventoryCheck.jsp").forward(request, response);
+
+        request.getRequestDispatcher("listInventoryCheck.jsp").forward(request, response);
         /*try (PrintWriter out = response.getWriter()) {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
@@ -82,12 +97,13 @@ public class InventoryCheckServlet extends HttpServlet {
             out.println("</body>");
             out.println("</html>");
         }
-        */
-    } 
+         */
+    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
+    /**
      * Handles the HTTP <code>GET</code> method.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -95,12 +111,17 @@ public class InventoryCheckServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        processRequest(request, response);
-    } 
+            throws ServletException, IOException {
+        try {
+            processRequest(request, response);
+        } catch (SQLException ex) {
+            Logger.getLogger(InventoryCheckServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
-    /** 
+    /**
      * Handles the HTTP <code>POST</code> method.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -108,63 +129,67 @@ public class InventoryCheckServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-         String action = request.getParameter("action");
-    String receiptIdRaw = request.getParameter("receiptId");
+            throws ServletException, IOException {
+        String action = request.getParameter("action");
+        String receiptIdRaw = request.getParameter("receiptId");
 
-    if (action != null && receiptIdRaw != null) {
-        try (Connection conn = new DBContext("SWP7").getConnection()) {
-            InventoryCheckDAO inventoryCheckDAO = new InventoryCheckDAO(conn);
-            InventoryCheckDetailDAO detailDAO = new InventoryCheckDetailDAO(conn);
-            InventoryDAO inventoryDAO = new InventoryDAO(conn);
-            ProductDAO productDAO = new ProductDAO(conn);
-            ShopDAO shopDAO = new ShopDAO();
+        if (action != null && receiptIdRaw != null) {
+            try (Connection conn = new DBContext("Test").getConnection()) {
+                InventoryCheckDAO inventoryCheckDAO = new InventoryCheckDAO(conn);
+                InventoryCheckDetailDAO detailDAO = new InventoryCheckDetailDAO(conn);
+                InventoryDAO inventoryDAO = new InventoryDAO(conn);
+                ProductDAO productDAO = new ProductDAO(conn);
+                ShopDAO shopDAO = new ShopDAO(conn);
 
-            int receiptId = Integer.parseInt(receiptIdRaw);
+                int receiptId = Integer.parseInt(receiptIdRaw);
 
-            if (action.equals("delete")) {
-                inventoryCheckDAO.deleteInventoryCheck(receiptId);
-                for(InventoryCheckDetail detail : detailDAO.getDetailsByInventoryCheckID(receiptId)){
-   
-     // Kiểm tra và cập nhật tồn kho
-            Inventory inv = inventoryDAO.getInventoryByShopAndProduct( detail.getProductID(),
-                    inventoryCheckDAO.getInventoryCheckByID(receiptId).getShopID());
-            
-          
-            if (inv != null) {
-                int quantity =0;
-                 if(detail.getQuantitySystem()>detail.getQuantityActual()){
-                     quantity=detail.getQuantitySystem()-detail.getQuantityActual();
-                 }else if(detail.getQuantitySystem()<detail.getQuantityActual()){
-                     quantity=detail.getQuantitySystem()-detail.getQuantityActual();
-                 }
-                      int newQty = inv.getQuantity() + quantity;
-                 
-                inventoryDAO.updateInventoryQuantity(inv.getInventoryID(), newQty);
-            }
-}
-                request.getRequestDispatcher("Home.jsp").forward(request, response);
+                if (action.equals("delete")) {
+                    inventoryCheckDAO.deleteInventoryCheck(receiptId);
+                    for (InventoryCheckDetail detail : detailDAO.getDetailsByInventoryCheckID(receiptId)) {
+
+                        // Kiểm tra và cập nhật tồn kho
+                        Inventory inv = inventoryDAO.getInventoryByShopAndProduct(detail.getProductID(),
+                                inventoryCheckDAO.getInventoryCheckByID(receiptId).getShopID());
+
+                        if (inv != null) {
+                            int quantity = 0;
+                            if (detail.getQuantitySystem() > detail.getQuantityActual()) {
+                                quantity = detail.getQuantitySystem() - detail.getQuantityActual();
+                            } else if (detail.getQuantitySystem() < detail.getQuantityActual()) {
+                                quantity = detail.getQuantitySystem() - detail.getQuantityActual();
+                            }
+                            int newQty = inv.getQuantity() + quantity;
+
+                            inventoryDAO.updateInventoryQuantity(inv.getInventoryID(), newQty);
+                        }
+                    }
+                    request.getRequestDispatcher("Home.jsp").forward(request, response);
+                    return; // ✅ Ngăn servlet chạy tiếp
+                }
+            } catch (Exception e) {
+                // Log lỗi ra console
+                System.err.println("Lỗi xử lý: " + e.getMessage());
+                e.printStackTrace();
+
+                // Set lỗi và forward sang trang báo lỗi
+                request.setAttribute("error", "Lỗi xử lý yêu cầu: " + e.getMessage());
+                request.getRequestDispatcher("ImportReceipt.jsp").forward(request, response);
                 return; // ✅ Ngăn servlet chạy tiếp
-            } 
-        } catch (Exception e) {
-            // Log lỗi ra console
-            System.err.println("Lỗi xử lý: " + e.getMessage());
-            e.printStackTrace();
-
-            // Set lỗi và forward sang trang báo lỗi
-            request.setAttribute("error", "Lỗi xử lý yêu cầu: " + e.getMessage());
-            request.getRequestDispatcher("ImportReceipt.jsp").forward(request, response);
-            return; // ✅ Ngăn servlet chạy tiếp
+            }
+        } else {
+            // Nếu thiếu tham số thì chuyển hướng hoặc báo lỗi
+            response.sendRedirect("ImportReceiptServlet"); // hoặc forward nếu cần
         }
-    } else {
-        // Nếu thiếu tham số thì chuyển hướng hoặc báo lỗi
-        response.sendRedirect("ImportReceiptServlet"); // hoặc forward nếu cần
-    }
-        processRequest(request, response);
+        try {
+            processRequest(request, response);
+        } catch (SQLException ex) {
+            Logger.getLogger(InventoryCheckServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
-    /** 
+    /**
      * Returns a short description of the servlet.
+     *
      * @return a String containing servlet description
      */
     @Override

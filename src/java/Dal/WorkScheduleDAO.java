@@ -1,5 +1,6 @@
 package Dal;
 
+import Context.DBContext;
 import Models.WorkSchedule;
 import java.sql.Connection;
 import java.util.Vector;
@@ -228,5 +229,40 @@ public class WorkScheduleDAO {
             ex.printStackTrace();
         }
         return list;
+    }
+
+    public static void main(String[] args) {
+        DBContext connection = new DBContext("Test");
+        WorkScheduleDAO workScheduleDAO = new WorkScheduleDAO(connection.getConnection());
+        try {
+            // Tạo đối tượng WorkSchedule
+            WorkSchedule schedule = new WorkSchedule();
+            schedule.setEmployeeID(1); // thay bằng ID hợp lệ trong DB
+            schedule.setShopID(1);     // thay bằng ID hợp lệ trong DB
+            schedule.setShiftID(1);    // thay bằng ID hợp lệ trong DB
+            schedule.setWorkDate(new java.util.Date()); // ngày hiện tại
+            schedule.setStatus(1);     // ví dụ: 1 = Active
+            schedule.setNote("Test insert");
+            schedule.setCreatedBy("admin"); // hoặc username bất kỳ
+
+            int result = workScheduleDAO.insertWorkSchedule(schedule);
+            
+            String sql = "SELECT * FROM WorkSchedule";
+            Vector<WorkSchedule> list = workScheduleDAO.getAllWorkSchedule(sql);
+
+            // In kết quả
+            for (WorkSchedule w : list) {
+                System.out.println("ID: " + w.getWorkScheduleID()
+                        + ", Employee: " + w.getEmployeeID()
+                        + ", Shop: " + w.getShopID()
+                        + ", Shift: " + w.getShiftID()
+                        + ", Date: " + w.getWorkDate()
+                        + ", Status: " + w.getStatus()
+                        + ", Note: " + w.getNote());
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

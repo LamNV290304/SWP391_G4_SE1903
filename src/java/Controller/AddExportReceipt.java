@@ -50,11 +50,12 @@ public class AddExportReceipt extends HttpServlet {
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
      *
-=======
-   
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
->>>>>>> Stashed changes
+     * =======
+     *
+     * /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods. >>>>>>> Stashed changes
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -62,39 +63,42 @@ public class AddExportReceipt extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        Connection conn = new DBContext("SWP7").getConnection();
-        EmployeeDAO empDao = new EmployeeDAO(conn);
-        TypeExportReceiptDAO typeImp = new TypeExportReceiptDAO(conn);
-        ShopDAO shopDao = new ShopDAO();
-        SupplierDAO supDAO = new SupplierDAO(conn);
-        ProductDAO ProDAO = new ProductDAO(conn);
-        InventoryDAO ivtDAO = new InventoryDAO(conn);
-        
+        try {
+            response.setContentType("text/html;charset=UTF-8");
+            Connection conn = new DBContext("Test").getConnection();
+            EmployeeDAO empDao = new EmployeeDAO(conn);
+            TypeExportReceiptDAO typeImp = new TypeExportReceiptDAO(conn);
+            ShopDAO shopDao = new ShopDAO(conn);
+            SupplierDAO supDAO = new SupplierDAO(conn);
+            ProductDAO ProDAO = new ProductDAO(conn);
+            InventoryDAO ivtDAO = new InventoryDAO(conn);
             request.setAttribute("listEmp", empDao.getAllEmployee());
-       
-        request.setAttribute("listSup", supDAO.getAllSuppliers());
-       
-            request.setAttribute("listShop", shopDao.getAllShops("SWP7"));
-       
-        request.setAttribute("listType", typeImp.getAllTypeExportReceipts());
-        request.setAttribute("listProduct", ProDAO.getAllProducts());
-        request.setAttribute("listIvt", ivtDAO.getAllInventories());
-        request.getRequestDispatcher("AddExportReceipt.jsp").forward(request, response);
+            request.setAttribute("listSup", supDAO.getAllSuppliers());
+            request.setAttribute("listShop", shopDao.getAllShops());
+            request.setAttribute("listType", typeImp.getAllTypeExportReceipts(1));
+            request.setAttribute("listProduct", ProDAO.getAllProducts());
+            request.setAttribute("listIvt", ivtDAO.getAllInventories());
+            String message = request.getParameter("message");
+            if (message != null && message.equals("add_success")) {
+                request.setAttribute("successMessage", "Thêm phiếu xuất hàng thành công!");
+            }
+            request.getRequestDispatcher("AddExportReceipt.jsp").forward(request, response);
+        } catch (SQLException ex) {
+            Logger.getLogger(AddExportReceipt.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *
-=======
-        request.getRequestDispatcher("AddExportReceipt.jsp").forward(request, response);
-    } 
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
-     * Handles the HTTP <code>GET</code> method.
->>>>>>> Stashed changes
+     * =======
+     * request.getRequestDispatcher("AddExportReceipt.jsp").forward(request,
+     * response); } * //
+     * <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+     * /**
+     * Handles the HTTP <code>GET</code> method. >>>>>>> Stashed changes
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -103,21 +107,17 @@ public class AddExportReceipt extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-    processRequest(request, response);
+
+        processRequest(request, response);
     }
 
     /**
      * Handles the HTTP <code>POST</code> method.
      *
-=======
-    throws ServletException, IOException {
-        processRequest(request, response);
-    } 
-
-    /** 
-     * Handles the HTTP <code>POST</code> method.
->>>>>>> Stashed changes
+     * ======= throws ServletException, IOException { processRequest(request,
+     * response); } * /** Handles the HTTP <code>POST</code> method. >>>>>>>
+     * Stashed changes
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -156,17 +156,17 @@ public class AddExportReceipt extends HttpServlet {
 
         double value = Double.parseDouble(request.getParameter("Total"));
 
-        try (Connection conn = new DBContext("SWP7").getConnection()) {
+        try (Connection conn = new DBContext("Test").getConnection()) {
             ExportReceiptDAO ExreceiptDAO = new ExportReceiptDAO(conn);
             InventoryDAO inventoryDAO = new InventoryDAO(conn);
 
             ProductDAO productDAO = new ProductDAO(conn);
-            ShopDAO shopDAO = new ShopDAO();
+            ShopDAO shopDAO = new ShopDAO(conn);
             // Tạo đối tượng phiếu nhập
             ExportReceipt receipt = new ExportReceipt();
-            receipt.setTypeID(code);
-            receipt.setEmployeeID(employeeID);
-            receipt.setShopID(shopID_raw);
+            receipt.setTypeID(Integer.parseInt(code));
+            receipt.setEmployeeID(Integer.parseInt(employeeID));
+            receipt.setShopID(shopID);
             receipt.setReceiptDate(importDate);
             receipt.setNote(note);
             receipt.setTotalAmount(valueOf(value));
@@ -209,19 +209,19 @@ public class AddExportReceipt extends HttpServlet {
 
                     // Tạo mới hàng tồn kho nếu chưa có
                     Inventory newInv = new Inventory();
-
-                    //newInv.setInventoryID("INV" + System.currentTimeMillis()); // ID tạm thời
                     newInv.setProduct(productDAO.getProductById(Integer.parseInt(exportDetail.getProductID())));
 
-                    newInv.setShop(shopDAO.getShopByID(shopID, "SWP7"));
+                    newInv.setShop(shopDAO.getShopById(shopID));
 
                     newInv.setQuantity(exportDetail.getQuantity());
                     newInv.setLastUpdated(Timestamp.from(Instant.now()));
                     inventoryDAO.insertInventory(newInv);
                 }
             }
+            //Tạo thông báo
+            
 
-            response.sendRedirect("ExportReceipt.jsp");
+            response.sendRedirect("ExportReceiptServlet?message=add_success");
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi thêm phiếu nhập: " + e.getMessage());
@@ -232,14 +232,12 @@ public class AddExportReceipt extends HttpServlet {
     /**
      * Returns a short description of the servlet.
      *
-=======
-    throws ServletException, IOException {
-        processRequest(request, response);
-    }
-
-    /** 
-     * Returns a short description of the servlet.
->>>>>>> Stashed changes
+     * ======= throws ServletException, IOException { processRequest(request,
+     * response); }
+     *
+     * /**
+     * Returns a short description of the servlet. >>>>>>> Stashed changes
+     *
      * @return a String containing servlet description
      */
     @Override
@@ -248,4 +246,3 @@ public class AddExportReceipt extends HttpServlet {
     }// </editor-fold>
 
 }
-    

@@ -68,11 +68,11 @@ public class ShowDetailEmployee extends HttpServlet {
             Connection conn = DBContext.getConnection(databaseName);
             EmployeeDAO employeeDAO = new EmployeeDAO(conn);
             RoleDAO roleDAO = new RoleDAO(conn);
-            ShopDAO shopDAO = new ShopDAO();
+            ShopDAO shopDAO = new ShopDAO(conn);
 
             EmployeeDto employee = employeeDAO.getEmployeeById(id);
             List<Role> roleList = roleDAO.getAllRoles();
-            List<Shop> shopList = shopDAO.getAllShops(databaseName);
+            List<Shop> shopList = shopDAO.getAllShops();
 
             request.setAttribute("employee", employee);
             request.setAttribute("roleList", roleList);

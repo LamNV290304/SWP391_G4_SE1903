@@ -217,7 +217,7 @@ public class EmployeeDAO {
         return 0; // Trả về 0 nếu không tìm thấy bản ghi nào hoặc có lỗi (sau khi log và throw)
     }
 
-public int getTotalSalesStatisticsCountForEmployee(Integer employeeId, Integer shopId, Date startDate, Date endDate) throws SQLException {
+    public int getTotalSalesStatisticsCountForEmployee(Integer employeeId, Integer shopId, Date startDate, Date endDate) throws SQLException {
         StringBuilder query = new StringBuilder();
         query.append("SELECT COUNT(E.EmployeeID) "); // Chỉ cần đếm xem có tồn tại nhân viên này không
         query.append("FROM Employee E ");
@@ -252,12 +252,11 @@ public int getTotalSalesStatisticsCountForEmployee(Integer employeeId, Integer s
 
                     return 1;
 
-}
+                }
             }
         } catch (SQLException e) {
-            Logger.getLogger(EmployeeDAO.class  
-
-.getName()).log(Level.SEVERE, "Lỗi khi lấy tổng số lượng thống kê cho nhân viên: ", e);
+            Logger.getLogger(EmployeeDAO.class
+                    .getName()).log(Level.SEVERE, "Lỗi khi lấy tổng số lượng thống kê cho nhân viên: ", e);
             throw e;
         }
         return 0;
@@ -344,12 +343,11 @@ public int getTotalSalesStatisticsCountForEmployee(Integer employeeId, Integer s
                             rs.getBigDecimal("AverageRevenuePerOrder")
                     ));
 
-}
+                }
             }
         } catch (SQLException ex) {
-            Logger.getLogger(EmployeeDAO.class  
-
-.getName()).log(Level.SEVERE, "Lỗi khi lấy thống kê doanh số: " + ex.getMessage(), ex);
+            Logger.getLogger(EmployeeDAO.class
+                    .getName()).log(Level.SEVERE, "Lỗi khi lấy thống kê doanh số: " + ex.getMessage(), ex);
             throw ex;
         }
         return statistics;
@@ -453,12 +451,11 @@ public int getTotalSalesStatisticsCountForEmployee(Integer employeeId, Integer s
 
                     employees.add(employee);
 
-}
+                }
             }
         } catch (SQLException ex) {
-            Logger.getLogger(EmployeeDAO.class  
-
-.getName()).log(Level.SEVERE, "Error getting employees by ShopID and RoleID", ex);
+            Logger.getLogger(EmployeeDAO.class
+                    .getName()).log(Level.SEVERE, "Error getting employees by ShopID and RoleID", ex);
             throw ex;
         }
         return employees;
@@ -503,7 +500,8 @@ public int getTotalSalesStatisticsCountForEmployee(Integer employeeId, Integer s
         return 0;
     }
 
-    public List<Employee> getAllEmployee() {
+    public List<Employee> getAllEmployee() throws SQLException {
+
         List<Employee> employees = new ArrayList<>();
         String sql = "SELECT e.EmployeeID, e.FullName, e.RoleID, r.Name AS RoleName "
                 + "FROM Employee e JOIN Role r ON e.RoleID = r.RoleID ORDER BY e.FullName";
@@ -521,15 +519,18 @@ public int getTotalSalesStatisticsCountForEmployee(Integer employeeId, Integer s
 
                 employees.add(emp);
             }
-        } catch (Exception e) {
+            return employees;
         }
-        return employees;
     }
 
     public List<Employee> getEmployee() {
         List<Employee> employees = new ArrayList<>();
-        String sql = "SELECT e.EmployeeID, e.FullName, e.RoleID, r.Name AS RoleName "
-                + "FROM Employee e JOIN Role r ON e.RoleID = r.RoleID ORDER BY e.FullName";
+        String sql = "SELECT e.EmployeeID, e.FullName, e.RoleID, e.ShopID, r.RoleName AS RoleName, s.ShopName "
+                + "FROM Employee e "
+                + "JOIN Role r ON e.RoleID = r.RoleID "
+                + "JOIN Shop s ON s.ShopID = e.ShopID "
+                + "ORDER BY e.FullName";
+
         try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 Employee emp = new Employee();
@@ -539,12 +540,15 @@ public int getTotalSalesStatisticsCountForEmployee(Integer employeeId, Integer s
 
                 Role role = new Role();
                 role.setId(rs.getInt("RoleID"));
-                role.setName(rs.getString("RoleName"));
+                role.setName(rs.getString("RoleName")); // đảm bảo RoleName đúng với cột DB
                 emp.setRole(role);
+
+                emp.setShopId(rs.getInt("ShopID"));
 
                 employees.add(emp);
             }
         } catch (SQLException ex) {
+            System.out.println("Lỗi khi lấy danh sách nhân viên: " + ex.getMessage());
             ex.printStackTrace();
         }
         return employees;
@@ -576,7 +580,7 @@ public int getTotalSalesStatisticsCountForEmployee(Integer employeeId, Integer s
 
         String sql = "SELECT e.EmployeeID, e.Username, e.Password, e.FullName, e.Phone, e.Email, e.Status, e.CreatedDate, e.RoleID, e.ShopID, r.RoleName "
                 + "FROM Employee e JOIN Role r ON e.RoleID = r.RoleID "
-                + "WHERE (e.Username = ? OR e.Email = ?)AND e.Status = 1";
+                + "WHERE (e.Username = ? OR e.Email = ?) AND e.Status = 1";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, username);
@@ -605,14 +609,13 @@ public int getTotalSalesStatisticsCountForEmployee(Integer employeeId, Integer s
                         role.setName(rs.getString("RoleName"));
                         employee.setRole(role);
 
-}
+                    }
                 }
             }
         } catch (SQLException ex) {
 
-            Logger.getLogger(EmployeeDAO.class  
-
-.getName()).log(Level.SEVERE, "Error in findEmployeeByUsernameAndPassword", ex);
+            Logger.getLogger(EmployeeDAO.class
+                    .getName()).log(Level.SEVERE, "Error in findEmployeeByUsernameAndPassword", ex);
             throw ex;
         }
         return employee;
@@ -903,11 +906,10 @@ public int getTotalSalesStatisticsCountForEmployee(Integer employeeId, Integer s
                 emp.setRole(rs.getString("RoleName"));
                 list.add(emp);
 
-}
+            }
         } catch (SQLException ex) {
-            Logger.getLogger(EmployeeDAO.class  
-
-.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(EmployeeDAO.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
 
         return list;
@@ -1022,11 +1024,25 @@ public int getTotalSalesStatisticsCountForEmployee(Integer employeeId, Integer s
     }
 
     public static void main(String[] args) {
-        // Tạo đối tượng DAO
-        DBContext connection = new DBContext("SWP8");
-        EmployeeDAO dao = new EmployeeDAO(connection.getConnection());
+        try {
+            // Kết nối CSDL (tên DB là SWP8)
+            DBContext db = new DBContext("ShopDB_Test");
+            Connection conn = db.getConnection();
 
-        // Gọi phương thức getAllEmployee()
+            // Tạo DAO
+            EmployeeDAO dao = new EmployeeDAO(conn);
+
+            // Gọi hàm tìm kiếm nhân viên theo tên
+            String keyword = "Nguyen"; // bạn có thể thay đổi để test
+            Employee list = dao.findEmployeeByUsernameAndPassword("nguyenvietlam290304@gmail.com", "12345678");
+
+            System.out.println(list);
+            // In ra kết quả
+
+            conn.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
 }

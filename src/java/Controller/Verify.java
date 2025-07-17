@@ -108,8 +108,7 @@ public class Verify extends HttpServlet {
 
             MailUtil.sendLink(email, link);
 
-            request.setAttribute("link", link);
-            request.getRequestDispatcher("successRegister.jsp").forward(request, response);
+            response.sendRedirect("successRegister.jsp");
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Verify.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {

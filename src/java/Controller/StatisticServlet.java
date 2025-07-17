@@ -42,7 +42,7 @@ public class StatisticServlet extends HttpServlet {
 
         dbContext = new DBContext("SWP1");
         eDAO = new EmployeeDAO(dbContext.getConnection());
-        sDAO = new ShopDAO();
+        sDAO = new ShopDAO(dbContext.getConnection());
 
     }
 
@@ -177,8 +177,11 @@ public class StatisticServlet extends HttpServlet {
             }
         }
 
+
         // Fetch all shops for the filter dropdown
-        List<Shop> allShops = sDAO.getAllShops("SWP1"); // "SWP1" should ideally be dynamic or from config
+        List<Shop> allShops = sDAO.getAllShops(); // "SWP1" should ideally be dynamic or from config
+
+
         request.setAttribute("allShops", allShops);
 
         // Define allowed roles for sales statistics (Admin can see all relevant roles)
@@ -264,7 +267,6 @@ public class StatisticServlet extends HttpServlet {
             return;
         }
 
-        // Get the shop ID associated with the ShopOwner
         Shop shopOfOwner = sDAO.getShopByName(loggedInShopOwner.getShopName(), loggedInShopOwner.getDatabaseName());
         Integer shopId = (shopOfOwner != null) ? shopOfOwner.getShopID() : null;
 
@@ -605,4 +607,165 @@ public class StatisticServlet extends HttpServlet {
     public String getServletInfo() {
         return "Servlet xử lý thống kê doanh số";
     }
+
+//    private void exportSalesStatisticsToExcel(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+//        HttpSession session = request.getSession();
+//
+//        String userRoleName = null;
+//        Integer loggedInEmployeeId = null;
+//        Integer loggedInShopId = null;
+//        String shopOwnerDatabaseName = null;
+//        Object loggedInUserObject = session.getAttribute("loggedInUser"); // Get the unified logged-in user object
+//
+//        ShopOwner loggedInShopOwner = (ShopOwner) session.getAttribute("shopOwner"); // Still get for specific attributes
+//        if (loggedInShopOwner != null) {
+//            userRoleName = "ShopOwner";
+//            shopOwnerDatabaseName = loggedInShopOwner.getDatabaseName();
+//        } else if (loggedInUserObject instanceof Employee) { // Check if it's an Employee
+//            Employee loggedInEmployee = (Employee) loggedInUserObject; // Cast to Employee
+//            loggedInEmployeeId = loggedInEmployee.getId();
+//            loggedInShopId = loggedInEmployee.getShopId();
+//            if (loggedInEmployee.getRole() != null) {
+//                userRoleName = loggedInEmployee.getRole().getName();
+//            } else {
+//                userRoleName = "Unknown";
+//            }
+//        }
+//
+//        if (userRoleName == null || "Unknown".equalsIgnoreCase(userRoleName)) {
+//            response.getWriter().println("Bạn chưa đăng nhập hoặc không có quyền.");
+//            return;
+//        }
+//
+//        try {
+//            String startDateStr = request.getParameter("startDate");
+//            String endDateStr = request.getParameter("endDate");
+//            String shopIdParam = request.getParameter("shopId");
+//            String selectedEmployeeIdParam = request.getParameter("employeeId");
+//
+//            Date startDate = null;
+//            Date endDate = null;
+//            Integer filterShopId = null;
+//            Integer targetEmployeeId = null;
+//
+//            try {
+//                if (startDateStr != null && !startDateStr.isEmpty()) {
+//                    startDate = Date.valueOf(startDateStr);
+//                }
+//                if (endDateStr != null && !endDateStr.isEmpty()) {
+//                    endDate = Date.valueOf(endDateStr);
+//                }
+//                // Only parse if not "all"
+//                if (shopIdParam != null && !shopIdParam.isEmpty() && !"all".equals(shopIdParam)) {
+//                    filterShopId = Integer.parseInt(shopIdParam);
+//                }
+//                if (selectedEmployeeIdParam != null && !selectedEmployeeIdParam.isEmpty() && !"all".equals(selectedEmployeeIdParam)) {
+//                    targetEmployeeId = Integer.parseInt(selectedEmployeeIdParam);
+//                }
+//            } catch (IllegalArgumentException e) {
+//                e.printStackTrace();
+//                // Not setting error message to request because we are writing directly to response
+//            }
+//
+//            // Define allowed roles for export based on user's role
+//            List<Integer> rolesForExport = new ArrayList<>();
+//
+//            if ("Admin".equalsIgnoreCase(userRoleName)) {
+//                rolesForExport.add(1); // Admin
+//                rolesForExport.add(2); // Staff
+//                rolesForExport.add(3); // Shop Owner
+//                rolesForExport.add(4); // Cashier
+//                // Admin can export for any shop or employee, so filterShopId and targetEmployeeId
+//                // come directly from parameters.
+//            } else if ("ShopOwner".equalsIgnoreCase(userRoleName) && loggedInShopOwner != null) {
+//                Shop shopOfOwner = sDAO.getShopByName(loggedInShopOwner.getShopName(), shopOwnerDatabaseName);
+//                if (shopOfOwner != null) {
+//                    loggedInShopId = shopOfOwner.getShopID();
+//                    // Shop Owner can only export for their shop
+//                    filterShopId = loggedInShopId; // Override filterShopId to owner's shop
+//                    if (shopIdParam != null && !shopIdParam.isEmpty() && !shopIdParam.equals("all") && !Integer.parseInt(shopIdParam).equals(loggedInShopId)) {
+//                        // User tried to export for a different shop, log or error
+//                        response.getWriter().println("Bạn không có quyền xuất thống kê của cửa hàng khác.");
+//                        return;
+//                    }
+//                    rolesForExport.add(2); // Staff
+//                    rolesForExport.add(4); // Cashier
+//                    // rolesForExport.add(3); // ShopOwner (if they track their own sales)
+//
+//                    // If a specific employee is selected, ensure they are within allowed roles for this shop
+//                    if (targetEmployeeId != null) {
+//                        List<SalesEmployeeStatisticDto> validEmployees = eDAO.getSalesStatistics(null, filterShopId, null, null, 1, Integer.MAX_VALUE, rolesForExport);
+//                        boolean isValidEmployee = false;
+//                        for (SalesEmployeeStatisticDto dto : validEmployees) {
+//                            if (dto.getEmployeeID().equals(targetEmployeeId)) {
+//                                isValidEmployee = true;
+//                                break;
+//                            }
+//                        }
+//                        if (!isValidEmployee) {
+//                            response.getWriter().println("Nhân viên được chọn không hợp lệ cho quyền của bạn.");
+//                            return;
+//                        }
+//                    }
+//                } else {
+//                    response.getWriter().println("Không tìm thấy thông tin cửa hàng cho ShopOwner này.");
+//                    return;
+//                }
+//            } else if ("Cashier".equalsIgnoreCase(userRoleName) && loggedInEmployeeId != null && loggedInShopId != null) {
+//                // Cashier can only export for their shop
+//                filterShopId = loggedInShopId;
+//                if (shopIdParam != null && !shopIdParam.isEmpty() && !shopIdParam.equals("all") && !Integer.parseInt(shopIdParam).equals(loggedInShopId)) {
+//                    response.getWriter().println("Bạn không có quyền xuất thống kê của cửa hàng khác.");
+//                    return;
+//                }
+//                rolesForExport.add(2); // Staff
+//                rolesForExport.add(4); // Cashier (themselves)
+//
+//                // If a specific employee is selected, ensure they are Staff or the Cashier themselves
+//                if (targetEmployeeId != null && !(targetEmployeeId.equals(loggedInEmployeeId) || eDAO.isEmployeeInRole(targetEmployeeId, 2))) {
+//                    response.getWriter().println("Nhân viên được chọn không hợp lệ cho quyền của bạn.");
+//                    return;
+//                }
+//            } else if ("Staff".equalsIgnoreCase(userRoleName) && loggedInEmployeeId != null && loggedInShopId != null) {
+//                // Staff can only export for themselves
+//                targetEmployeeId = loggedInEmployeeId; // Force employeeId to be self
+//                filterShopId = loggedInShopId; // Force shopId to be self's shop
+//                rolesForExport.add(2); // Only Staff role
+//                if (selectedEmployeeIdParam != null && !selectedEmployeeIdParam.isEmpty() && !selectedEmployeeIdParam.equals("all") && !Integer.parseInt(selectedEmployeeIdParam).equals(loggedInEmployeeId)) {
+//                    response.getWriter().println("Bạn chỉ có thể xuất thống kê của chính mình.");
+//                    return;
+//                }
+//                if (shopIdParam != null && !shopIdParam.isEmpty() && !shopIdParam.equals("all") && !Integer.parseInt(shopIdParam).equals(loggedInShopId)) {
+//                    response.getWriter().println("Bạn chỉ có thể xuất thống kê của cửa hàng mình.");
+//                    return;
+//                }
+//            } else {
+//                response.getWriter().println("Bạn không có quyền xuất thống kê.");
+//                return;
+//            }
+//
+//            List<SalesEmployeeStatisticDto> statisticsToExport = eDAO.getSalesStatistics(
+//                    targetEmployeeId,
+//                    filterShopId,
+//                    startDate,
+//                    endDate,
+//                    1, 
+//                    Integer.MAX_VALUE, 
+//                    rolesForExport
+//            );
+//
+//           
+//            response.setContentType("application/vnd.ms-excel");
+//            response.setHeader("Content-Disposition", "attachment; filename=SalesStatistics.xlsx");
+//
+//            response.getWriter().println("Chức năng xuất Excel với dữ liệu đã lọc đang được triển khai. Dữ liệu sẽ xuất: " + statisticsToExport.size() + " bản ghi.");
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            
+//            response.getWriter().println("Lỗi khi xuất Excel: " + e.getMessage());
+//        }
+//    }
+
+
 }
