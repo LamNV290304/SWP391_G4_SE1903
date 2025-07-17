@@ -46,19 +46,19 @@ import java.util.logging.Logger;
 @WebServlet(name = "TransferReceipt", urlPatterns = {"/TransferReceipt"})
 public class TransferReceiptController extends HttpServlet {
 
-    DBContext connection = new DBContext("SWP8");
+    DBContext connection = new DBContext("Test");
 
     TransferReceiptDAO dao = new TransferReceiptDAO(connection.getConnection());
     ProductDAO productDAO = new ProductDAO(connection.getConnection());
     InventoryDAO inventoryDAO = new InventoryDAO(connection.getConnection());
     TransferReceiptDetailDAO transferReceiptDetailDAO = new TransferReceiptDetailDAO(connection.getConnection());
-    ShopDAO shopDAO = new ShopDAO();
+    ShopDAO shopDAO = new ShopDAO(connection.getConnection());
     EmployeeDAO employeeDAO = new EmployeeDAO(connection.getConnection());
     NotiDAO notiDAO = new NotiDAO(connection.getConnection());
     //List
     Vector<Product> vectorProduct = productDAO.getProduct("SELECT *  FROM Product");
     List<Inventory> ListInventory = inventoryDAO.getAllInventories();
-    List<Shop> ListShop = shopDAO.getShops("Test");
+    List<Shop> ListShop = shopDAO.getAllShops();
     Vector<TransferReceipt> list = dao.getAllTransferReceipt("SELECT * FROM TransferReceipt");
     Vector<TransferReceiptDetail> listDetail = transferReceiptDetailDAO.getAllTransferReceiptDetail("SELECT * FROM TransferReceiptDetail");
     List<Employee> employees = employeeDAO.getEmployee();
@@ -260,12 +260,7 @@ public class TransferReceiptController extends HttpServlet {
             String Title = "Transfer Receipt";
             String Message = "Status của TransferReceiptID: " + t.getTransferReceiptID() + " đã " + setStatus;
             String Link = "TransferReceipt?service=listCompleteTransferReceipt";
-            int ReceiverEmployeeID = 0;
-            for (Employee e : employees) {
-                if (e.getRoleId() == 2 && e.getShopId() == ToShopID) {
-                    ReceiverEmployeeID = e.getId();
-                }
-            }
+            int ReceiverEmployeeID = 1;
             int IsRead = 0;
             Noti n = new Noti(Title, Message, Link, ReceiverEmployeeID, IsRead);
             notiDAO.insertNoti(n);
@@ -498,14 +493,8 @@ public class TransferReceiptController extends HttpServlet {
             String Title = "Transfer Receipt";
             String Message = "From: " + FromShopName + " To: " + ToShopName;
             String Link = "TransferReceipt?service=listProcessTransferReceipt";
-            int ReceiverEmployeeID = 0;
-            for (Employee e : employees) {
-                if (e.getRoleId() == 2 && e.getShopId() == ToShopID) {
-                    ReceiverEmployeeID = e.getId();
-                    log("Test: " + ReceiverEmployeeID);
-
-                }
-            }
+            int ReceiverEmployeeID = 1;
+            
             int IsRead = 0;
             Noti n = new Noti(Title, Message, Link, ReceiverEmployeeID, IsRead);
             notiDAO.insertNoti(n);

@@ -65,7 +65,7 @@ public class NotiDAO {
             PreparedStatement ptm = connection.prepareStatement(sql);
             ptm.setString(1, p.getTitle());
             ptm.setString(2, p.getMessage());
-            ptm.setString(3, p.getLink());
+            ptm.setString(3, p.getLink()    );
             ptm.setInt(4, p.getReceiverEmployeeID());
             ptm.setInt(5, p.getIsRead());
 
@@ -110,10 +110,12 @@ public class NotiDAO {
     }
 
     public static void main(String[] args) {
-        DBContext connection = new DBContext("SWP8");
+        DBContext connection = new DBContext("Test");
         // Tạo đối tượng DAO
         NotiDAO dao = new NotiDAO(connection.getConnection());
-
+        Noti noti = new Noti("Test", "Test", "Test", 1, 0);
+        dao.insertNoti(noti);
+        
         String sql = "SELECT [NotiID]\n"
                 + "      ,[Title]\n"
                 + "      ,[Message]\n"
