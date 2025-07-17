@@ -5,8 +5,7 @@
 package Dal;
 
 import Context.DBContext;
-import Context.DatabaseHelper;
-import DTO.ShopSubscriptionDto;
+import DTO.ShopSubscriptionDTO;
 import Models.ServicePackage;
 import Models.ShopSubscription;
 import java.sql.*;
@@ -24,7 +23,7 @@ public class ShopSubscriptionDAO {
         this.connection = connection;
     }
 
-    public ShopSubscriptionDto getActiveSubscriptionByShopId(int shopOwnerId) throws SQLException {
+    public ShopSubscriptionDTO getActiveSubscriptionByShopId(int shopOwnerId) throws SQLException {
         String sql = "SELECT ss.*, so.ShopName, sp.Name AS PackageName, sp.Price, sp.Description, sp.DurationInDays "
                 + "FROM ShopSubscriptions ss "
                 + "JOIN ShopOwners so ON ss.ShopOwnerId = so.Id "
@@ -37,7 +36,7 @@ public class ShopSubscriptionDAO {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                ShopSubscriptionDto sub = new ShopSubscriptionDto(
+                ShopSubscriptionDTO sub = new ShopSubscriptionDTO(
                         rs.getInt("Id"),
                         rs.getInt("ShopOwnerId"),
                         rs.getInt("PackageId"),

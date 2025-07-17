@@ -60,7 +60,7 @@ public class ProductDAO {
         }
         return l;
     }
-  
+
     public Vector<Product> getProduct(String sql) {
         Vector<Product> vector = new Vector<>();
         try (PreparedStatement pre = connection.prepareStatement(sql); ResultSet rs = pre.executeQuery()) {
@@ -273,11 +273,12 @@ public class ProductDAO {
     }
 
     public boolean deleteProduct(int productId) {
-        String sql = "DELETE FROM Product WHERE ProductID = ?";
+        String sql = "UPDATE Product SET Status = ?  WHERE ProductID = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 
-            stmt.setInt(1, productId);
+            stmt.setInt(1, 0);
+            stmt.setInt(2, productId);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -324,6 +325,89 @@ public class ProductDAO {
         }
 
         return units;
+    }
+
+    public List<Product> getAllProductsFiltered(
+            String search, String categoryID, Boolean status,
+            BigDecimal minImportPrice, BigDecimal maxImportPrice,
+            BigDecimal minSellingPrice, BigDecimal maxSellingPrice) {
+
+        List<Product> products = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+                "SELECT p.*, c.CategoryName, u.Description as UnitDescription "
+                + "FROM Product p "
+                + "LEFT JOIN Category c ON p.CategoryID = c.CategoryID "
+                + "LEFT JOIN Unit u ON p.UnitID = u.UnitID "
+                + "WHERE 1=1 ");
+
+        List<Object> params = new ArrayList<>();
+
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND p.ProductName LIKE ? ");
+            params.add("%" + search.trim() + "%");
+        }
+
+        if (categoryID != null && !categoryID.trim().isEmpty()) {
+            sql.append("AND p.CategoryID = ? ");
+            params.add(categoryID);
+        }
+
+        if (status != null) {
+            sql.append("AND p.Status = ? ");
+            params.add(status);
+        }
+
+        if (minImportPrice != null) {
+            sql.append("AND p.ImportPrice >= ? ");
+            params.add(minImportPrice);
+        }
+
+        if (maxImportPrice != null) {
+            sql.append("AND p.ImportPrice <= ? ");
+            params.add(maxImportPrice);
+        }
+
+        if (minSellingPrice != null) {
+            sql.append("AND p.SellingPrice >= ? ");
+            params.add(minSellingPrice);
+        }
+
+        if (maxSellingPrice != null) {
+            sql.append("AND p.SellingPrice <= ? ");
+            params.add(maxSellingPrice);
+        }
+
+        sql.append("ORDER BY p.CreatedDate DESC");
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                stmt.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Product product = new Product();
+                product.setProductID(rs.getInt("ProductID"));
+                product.setProductName(rs.getString("ProductName"));
+                product.setCategoryID(rs.getString("CategoryID"));
+                product.setUnitID(rs.getString("UnitID"));
+                product.setImportPrice(rs.getBigDecimal("ImportPrice"));
+                product.setSellingPrice(rs.getBigDecimal("SellingPrice"));
+                product.setDescription(rs.getString("Description"));
+                product.setStatus(rs.getBoolean("Status"));
+                product.setImageUrl(rs.getString("ImageUrl"));
+                product.setCreatedDate(rs.getTimestamp("CreatedDate").toLocalDateTime());
+                product.setCreatedBy(rs.getString("CreatedBy"));
+                product.setCategoryName(rs.getString("CategoryName"));
+                product.setUnitDescription(rs.getString("UnitDescription"));
+
+                products.add(product);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return products;
     }
 
     public static void main(String[] args) {

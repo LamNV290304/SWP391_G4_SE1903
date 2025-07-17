@@ -2,9 +2,9 @@ package Models;
 
 public class Unit {
 
-    private Integer unitID;
+    private int unitID;
     private String description;
-
+    private int status;
     
     public Unit() {
     }
@@ -14,6 +14,10 @@ public class Unit {
         this.description = description;
     }
 
+    public Unit(String description) {
+        this.description = description;
+    }
+    
     
     public Integer getUnitID() {
         return unitID;
@@ -30,4 +34,14 @@ public class Unit {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+    
 }
+

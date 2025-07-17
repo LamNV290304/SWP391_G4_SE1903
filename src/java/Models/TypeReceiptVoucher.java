@@ -11,7 +11,7 @@ package Models;
 public class TypeReceiptVoucher {
     private int typeID;
     private String typeName;
-
+    private int status;
     public TypeReceiptVoucher() {
     }
 
@@ -20,6 +20,14 @@ public class TypeReceiptVoucher {
         this.typeName = typeName;
     }
 
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+    
     public int getTypeID() {
         return typeID;
     }

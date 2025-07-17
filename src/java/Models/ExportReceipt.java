@@ -10,16 +10,38 @@ import java.util.Date;
  * @author Thai Anh
  */
 public class ExportReceipt {
-   private int exportReceiptID;
-    private String employeeID;
-    private String shopID;
+    private int exportReceiptID;
+    private int employeeID;
+    private int shopID;
     private Date receiptDate;
     private BigDecimal totalAmount;
     private String note;
     private Boolean status;
-    private String typeID;
+    private int typeID;
 
-    // Getters and Setters
+    public ExportReceipt() {
+    }
+
+    public ExportReceipt(int exportReceiptID, int employeeID, int shopID, Date receiptDate, BigDecimal totalAmount, String note, Boolean status, int typeID) {
+        this.exportReceiptID = exportReceiptID;
+        this.employeeID = employeeID;
+        this.shopID = shopID;
+        this.receiptDate = receiptDate;
+        this.totalAmount = totalAmount;
+        this.note = note;
+        this.status = status;
+        this.typeID = typeID;
+    }
+
+    public ExportReceipt(int employeeID, int shopID, Date receiptDate, BigDecimal totalAmount, String note, Boolean status, int typeID) {
+        this.employeeID = employeeID;
+        this.shopID = shopID;
+        this.receiptDate = receiptDate;
+        this.totalAmount = totalAmount;
+        this.note = note;
+        this.status = status;
+        this.typeID = typeID;
+    }
 
     public int getExportReceiptID() {
         return exportReceiptID;
@@ -29,19 +51,19 @@ public class ExportReceipt {
         this.exportReceiptID = exportReceiptID;
     }
 
-    public String getEmployeeID() {
+    public int getEmployeeID() {
         return employeeID;
     }
 
-    public void setEmployeeID(String employeeID) {
+    public void setEmployeeID(int employeeID) {
         this.employeeID = employeeID;
     }
 
-    public String getShopID() {
+    public int getShopID() {
         return shopID;
     }
 
-    public void setShopID(String shopID) {
+    public void setShopID(int shopID) {
         this.shopID = shopID;
     }
 
@@ -77,11 +99,13 @@ public class ExportReceipt {
         this.status = status;
     }
 
-    public String getTypeID() {
+    public int getTypeID() {
         return typeID;
     }
 
-    public void setTypeID(String typeID) {
+    public void setTypeID(int typeID) {
         this.typeID = typeID;
     }
+
+    
 }

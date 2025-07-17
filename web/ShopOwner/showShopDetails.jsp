@@ -75,14 +75,6 @@
                                             </span>
                                         </div>
                                     </div>
-                                    <div class="row mb-3">
-                                        <label class="col-sm-2 col-form-label">Ngày tạo:</label>
-                                        <div class="col-sm-10">
-                                            <p class="form-control-plaintext">
-                                            <fmt:formatDate value="${shop.createdDate}" pattern="dd/MM/yyyy HH:mm" />
-                                            </p>
-                                        </div>
-                                    </div>
 
                                     <a href="ShowRevenueShop?shopOwnerId=${id}" class="btn btn-secondary">← Quay lại</a>
                                 </div>
