@@ -58,7 +58,8 @@ public class ListCategoryUnitServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-         DBContext db = new DBContext("Test");
+        String databaseName = (String) request.getSession().getAttribute("databaseName");
+         DBContext db = new DBContext(databaseName);
         CategoryDAO categoryDAO = new CategoryDAO(db.getConnection());
         UnitDAO unitDAO = new UnitDAO(db.getConnection());
 
@@ -82,8 +83,8 @@ public class ListCategoryUnitServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
          String action = request.getParameter("action");
-
-    DBContext db = new DBContext("Test");
+String databaseName = (String) request.getSession().getAttribute("databaseName");
+    DBContext db = new DBContext(databaseName);
     CategoryDAO categoryDAO = new CategoryDAO(db.getConnection());
     UnitDAO unitDAO = new UnitDAO(db.getConnection());
 

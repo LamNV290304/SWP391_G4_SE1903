@@ -117,8 +117,8 @@ public class UpdateExceiptReceipt extends HttpServlet {
         String note = request.getParameter("note");
 
         double value = Double.parseDouble(request.getParameter("Total"));
-
-        try (Connection conn = new DBContext("Test").getConnection()) {
+String databaseName = (String) request.getSession().getAttribute("databaseName");
+        try (Connection conn = new DBContext(databaseName).getConnection()) {
             ExportReceiptDAO ExreceiptDAO = new ExportReceiptDAO(conn);
             InventoryDAO inventoryDAO = new InventoryDAO(conn);
             ExportReceiptDetailDAO ExportReceipt = new ExportReceiptDetailDAO(conn);

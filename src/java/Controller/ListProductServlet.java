@@ -82,7 +82,9 @@ public class ListProductServlet extends HttpServlet {
         BigDecimal maxSellingPrice = parseBigDecimal(maxSellingPriceStr);
 
         // Kết nối DB và gọi DAO
-        DBContext db = new DBContext("Test");
+        String databaseName = (String) request.getSession().getAttribute("databaseName");
+        
+        DBContext db = new DBContext(databaseName);
         ProductDAO productDAO = new ProductDAO(db.getConnection());
         UnitDAO unitDAO = new UnitDAO(db.getConnection());
         List<Product> productList = productDAO.getAllProductsFiltered(
@@ -142,13 +144,15 @@ public class ListProductServlet extends HttpServlet {
             product.setDescription(description);
             product.setStatus(status);
             product.setUnitID(unitID);
-            DBContext dBContext = new DBContext("Test");
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
+            DBContext dBContext = new DBContext(databaseName);
             ProductDAO productDAO = new ProductDAO(dBContext.getConnection());
             productDAO.updateProduct(product);
             response.sendRedirect("ListProductServlet");
         } else if ("delete".equals(action)) {
               int productID = Integer.parseInt(request.getParameter("productID"));
-              DBContext dBContext = new DBContext("Test");
+              String databaseName = (String) request.getSession().getAttribute("databaseName");
+              DBContext dBContext = new DBContext(databaseName);
             ProductDAO productDAO = new ProductDAO(dBContext.getConnection());
             productDAO.deleteProduct(productID);
 

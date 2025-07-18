@@ -34,8 +34,8 @@ public class listInventoryHome extends HttpServlet {
 
          request.setCharacterEncoding("UTF-8");
 response.setContentType("text/html; charset=UTF-8");
-
-           Context.DBContext db = new Context.DBContext("SWP7"); // hoặc dùng constructor mặc định nếu bạn đã sửa
+String databaseName = (String) request.getSession().getAttribute("databaseName");
+           Context.DBContext db = new Context.DBContext(databaseName); // hoặc dùng constructor mặc định nếu bạn đã sửa
         Connection connection = db.getConnection();
         InventoryDAO dao = new InventoryDAO(connection);
          

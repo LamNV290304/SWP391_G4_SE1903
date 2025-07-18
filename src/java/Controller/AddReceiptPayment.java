@@ -47,7 +47,8 @@ public class AddReceiptPayment extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         try {
-            Connection conn = new DBContext("Test").getConnection();
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
+            Connection conn = new DBContext(databaseName).getConnection();
             EmployeeDAO empDao = new EmployeeDAO(conn);
             TypeReceiptVoucherDAO typeDao = new TypeReceiptVoucherDAO(conn);
             ShopDAO shopDao = new ShopDAO(conn);
@@ -95,7 +96,8 @@ public class AddReceiptPayment extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-         try (Connection conn = new DBContext("Test").getConnection()) {
+        String databaseName = (String) request.getSession().getAttribute("databaseName");
+         try (Connection conn = new DBContext(databaseName).getConnection()) {
             String shopID_raw = request.getParameter("shopID");
             String employeeID_raw = request.getParameter("employeeID");
             String customerID_raw = request.getParameter("customerID");

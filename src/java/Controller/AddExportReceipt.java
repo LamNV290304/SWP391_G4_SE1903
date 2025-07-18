@@ -64,8 +64,9 @@ public class AddExportReceipt extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
             response.setContentType("text/html;charset=UTF-8");
-            Connection conn = new DBContext("Test").getConnection();
+            Connection conn = new DBContext(databaseName).getConnection();
             EmployeeDAO empDao = new EmployeeDAO(conn);
             TypeExportReceiptDAO typeImp = new TypeExportReceiptDAO(conn);
             ShopDAO shopDao = new ShopDAO(conn);
@@ -126,6 +127,7 @@ public class AddExportReceipt extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String databaseName = (String) request.getSession().getAttribute("databaseName");
         String code = request.getParameter("code");
         String employeeID = request.getParameter("EmployeeID");
         String shopID_raw = request.getParameter("shopID");
@@ -156,7 +158,7 @@ public class AddExportReceipt extends HttpServlet {
 
         double value = Double.parseDouble(request.getParameter("Total"));
 
-        try (Connection conn = new DBContext("Test").getConnection()) {
+        try (Connection conn = new DBContext(databaseName).getConnection()) {
             ExportReceiptDAO ExreceiptDAO = new ExportReceiptDAO(conn);
             InventoryDAO inventoryDAO = new InventoryDAO(conn);
 

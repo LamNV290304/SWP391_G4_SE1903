@@ -54,7 +54,8 @@ public class InventoryCheckServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
-        DBContext connection = new DBContext("Test");
+        String databaseName = (String) request.getSession().getAttribute("databaseName");
+        DBContext connection = new DBContext(databaseName);
         InventoryCheckDAO dao = new InventoryCheckDAO(connection.getConnection());
         EmployeeDAO daoEmp = new EmployeeDAO(connection.getConnection());
         ShopDAO daoShop = new ShopDAO(connection.getConnection());
@@ -134,7 +135,8 @@ public class InventoryCheckServlet extends HttpServlet {
         String receiptIdRaw = request.getParameter("receiptId");
 
         if (action != null && receiptIdRaw != null) {
-            try (Connection conn = new DBContext("Test").getConnection()) {
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
+            try (Connection conn = new DBContext(databaseName).getConnection()) {
                 InventoryCheckDAO inventoryCheckDAO = new InventoryCheckDAO(conn);
                 InventoryCheckDetailDAO detailDAO = new InventoryCheckDetailDAO(conn);
                 InventoryDAO inventoryDAO = new InventoryDAO(conn);

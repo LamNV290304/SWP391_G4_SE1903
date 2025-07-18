@@ -44,8 +44,9 @@ public class PaymentVoucherServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
             response.setContentType("text/html;charset=UTF-8");
-            Connection conn = new DBContext("Test").getConnection();
+            Connection conn = new DBContext(databaseName).getConnection();
             TypeReceiptVoucherDAO thuDAO = new TypeReceiptVoucherDAO(conn);   // DAO cho phiếu thu
             TypePaymentVoucherDAO chiDAO = new TypePaymentVoucherDAO(conn);   // DAO cho phiếu chi
             
@@ -70,7 +71,8 @@ public class PaymentVoucherServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try (Connection conn = new DBContext("Test").getConnection()) {
+        String databaseName = (String) request.getSession().getAttribute("databaseName");
+        try (Connection conn = new DBContext(databaseName).getConnection()) {
             PaymentVoucherDAO dao = new PaymentVoucherDAO(conn);
             ShopDAO shopDAO = new ShopDAO(conn);
             EmployeeDAO employeeDAO = new EmployeeDAO(conn);
@@ -155,8 +157,8 @@ public class PaymentVoucherServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
          String action = request.getParameter("action");
-
-    try (Connection conn = new DBContext("Test").getConnection()) {
+String databaseName = (String) request.getSession().getAttribute("databaseName");
+    try (Connection conn = new DBContext(databaseName).getConnection()) {
         PaymentVoucherDAO dao = new PaymentVoucherDAO(conn);
 
         if ("update".equals(action)) {

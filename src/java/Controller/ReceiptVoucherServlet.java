@@ -42,7 +42,8 @@ public class ReceiptVoucherServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
 
         try {
-            Connection conn = new DBContext("Test").getConnection();
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
+            Connection conn = new DBContext(databaseName).getConnection();
             ReceiptVoucherDAO dao = new ReceiptVoucherDAO(conn);
             ShopDAO shopDAO = new ShopDAO(conn);
             EmployeeDAO employeeDAO = new EmployeeDAO(conn);
@@ -76,8 +77,8 @@ public class ReceiptVoucherServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-
-        try (Connection conn = new DBContext("Test").getConnection()) {
+String databaseName = (String) request.getSession().getAttribute("databaseName");
+        try (Connection conn = new DBContext(databaseName).getConnection()) {
 
             // Lấy các giá trị lọc từ request
             Integer shopID = parseInteger(request.getParameter("shopID"));
@@ -140,8 +141,8 @@ public class ReceiptVoucherServlet extends HttpServlet {
             throws ServletException, IOException {
        
         String action = request.getParameter("action");
-
-        try (Connection conn = new DBContext("Test").getConnection()) {
+String databaseName = (String) request.getSession().getAttribute("databaseName");
+        try (Connection conn = new DBContext(databaseName).getConnection()) {
             ReceiptVoucherDAO dao = new ReceiptVoucherDAO(conn);
 
             if ("update".equals(action)) {
