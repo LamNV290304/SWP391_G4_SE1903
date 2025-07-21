@@ -32,7 +32,7 @@
 
                             <!-- Bộ lọc -->
                             <form method="get" class="mb-3 d-flex align-items-center justify-content-end gap-2">
-                                <input type="hidden" name="shopOwnerId" value="${shopOwner.id}" />
+                                <input type="hidden" name="shopOwnerId" value="${shop.id}" />
                                 <input type="hidden" name="page" value="1" />
 
                                 <label class="form-label mb-0 fw-semibold">Từ ngày:</label>
@@ -132,51 +132,7 @@
                                 </ul>
                             </nav>
 
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Thông tin Shop</h5>
-                                    <div class="row mb-3">
-                                        <label class="col-sm-2 col-form-label">Tên Shop:</label>
-                                        <div class="col-sm-10">
-                                            <p class="form-control-plaintext fw-semibold">${shop.shopName}</p>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <label class="col-sm-2 col-form-label">Tên khách hàng:</label>
-                                        <div class="col-sm-10">
-                                            <p class="form-control-plaintext">${shop.fullname}</p>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <label class="col-sm-2 col-form-label">Số điện thoại:</label>
-                                        <div class="col-sm-10">
-                                            <p class="form-control-plaintext">${shop.phone}</p>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <label class="col-sm-2 col-form-label">Email:</label>
-                                        <div class="col-sm-10">
-                                            <p class="form-control-plaintext">${shop.email}</p>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <label class="col-sm-2 col-form-label">Mã số thuế:</label>
-                                        <div class="col-sm-10">
-                                            <p class="form-control-plaintext">${shop.taxNumber}</p>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <label class="col-sm-2 col-form-label">Trạng thái:</label>
-                                        <div class="col-sm-10">
-                                            <span class="badge bg-label-${shop.status == true ? 'success' : 'danger'}">
-                                                ${shop.status == true ? 'Hoạt động' : 'Ngừng hoạt động'}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <a href="ShowRevenueShop?shopOwnerId=${id}" class="btn btn-secondary">← Quay lại</a>
-                                </div>
-                            </div>
+                            
                         </div>
                         <jsp:include page="footer.jsp" />
                     </div>

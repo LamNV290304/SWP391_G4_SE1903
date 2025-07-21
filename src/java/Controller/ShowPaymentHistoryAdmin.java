@@ -67,7 +67,6 @@ public class ShowPaymentHistoryAdmin extends HttpServlet {
                     sortMap.put(parts[0], parts[1]);
                 }
             }
-
             String packageIdParam = request.getParameter("packageId");
             Integer selectedPackageId = null;
             if (packageIdParam != null && !packageIdParam.isEmpty()) {

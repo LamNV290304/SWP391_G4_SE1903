@@ -95,7 +95,7 @@
                                                                     </button>
                                                                     <div class="dropdown-menu">
                                                                         <a href="ShowPaymentHistoryAdmin?shopOwnerId=${owner.id}" class="dropdown-item btn btn-sm btn-outline-primary">Xem Lịch sử giao dịch</a><br>
-                                                                        <a href="ShowRevenueShop?shopOwnerId=${owner.id}" class="dropdown-item btn btn-sm btn-outline-primary">Xem doanh thu của khách hàng</a>
+                                                                        <a href="ShowShopDetail?Id=${owner.id}" class="dropdown-item btn btn-sm btn-outline-primary">Xem thông tin của chủ sở hữu</a>
                                                                     </div>
                                                                 </div>
                                                             </td>

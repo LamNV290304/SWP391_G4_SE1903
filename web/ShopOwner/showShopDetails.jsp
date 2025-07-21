@@ -38,21 +38,15 @@
                                 <div class="card-body">
                                     <h5 class="card-title">Thông tin Shop</h5>
                                     <div class="row mb-3">
-                                        <label class="col-sm-2 col-form-label">Shop ID:</label>
-                                        <div class="col-sm-10">
-                                            <p class="form-control-plaintext fw-semibold">${shop.shopID}</p>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-3">
                                         <label class="col-sm-2 col-form-label">Tên Shop:</label>
                                         <div class="col-sm-10">
                                             <p class="form-control-plaintext fw-semibold">${shop.shopName}</p>
                                         </div>
                                     </div>
                                     <div class="row mb-3">
-                                        <label class="col-sm-2 col-form-label">Địa chỉ:</label>
+                                        <label class="col-sm-2 col-form-label">Tên khách hàng:</label>
                                         <div class="col-sm-10">
-                                            <p class="form-control-plaintext">${shop.address}</p>
+                                            <p class="form-control-plaintext">${shop.fullname}</p>
                                         </div>
                                     </div>
                                     <div class="row mb-3">
@@ -68,6 +62,12 @@
                                         </div>
                                     </div>
                                     <div class="row mb-3">
+                                        <label class="col-sm-2 col-form-label">Mã số thuế:</label>
+                                        <div class="col-sm-10">
+                                            <p class="form-control-plaintext">${shop.taxNumber}</p>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
                                         <label class="col-sm-2 col-form-label">Trạng thái:</label>
                                         <div class="col-sm-10">
                                             <span class="badge bg-label-${shop.status == true ? 'success' : 'danger'}">
@@ -75,8 +75,6 @@
                                             </span>
                                         </div>
                                     </div>
-
-                                    <a href="ShowRevenueShop?shopOwnerId=${id}" class="btn btn-secondary">← Quay lại</a>
                                 </div>
                             </div>
                         </div>
