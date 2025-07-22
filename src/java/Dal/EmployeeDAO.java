@@ -11,11 +11,17 @@ import java.sql.SQLException;
 
 import DTO.EmployeeDto;
 import DTO.SalesEmployeeStatisticDto;
+import DTO.SoldProductDetailDto;
 import java.sql.*;
+import java.util.Date;
+
 import Models.*;
 import static Utils.PasswordUtils.checkPassword;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,12 +38,272 @@ public class EmployeeDAO {
         this.connection = connection;
     }
 
+    public List<Employee> getEmployeesByRoleAndShop(int shopId, List<Integer> roleIds) throws SQLException {
+        List<Employee> employees = new ArrayList<>();
+
+        if (roleIds == null || roleIds.isEmpty()) {
+            return employees;
+        }
+        StringBuilder sql = new StringBuilder("SELECT * FROM Employee WHERE ShopID = ? AND RoleID IN (");
+        for (int i = 0; i < roleIds.size(); i++) {
+            sql.append("?");
+            if (i < roleIds.size() - 1) {
+                sql.append(",");
+            }
+        }
+        sql.append(")");
+        try (PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
+            stmt.setInt(1, shopId);
+            for (int i = 0; i < roleIds.size(); i++) {
+                stmt.setInt(i + 2, roleIds.get(i));
+            }
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Employee emp = new Employee();
+                    emp.setId(rs.getInt("EmployeeID"));
+                    emp.setUsername(rs.getString("Username"));
+                    emp.setPassword(rs.getString("Password"));
+                    emp.setFullname(rs.getString("FullName"));
+                    emp.setEmail(rs.getString("Email"));
+                    emp.setPhone(rs.getString("Phone"));
+                    emp.setStatus(rs.getBoolean("Status"));
+                    emp.setCreateDate(rs.getDate("CreatedDate"));
+                    emp.setRoleId(rs.getInt("RoleID"));
+                    emp.setShopId(rs.getInt("ShopID"));
+                    employees.add(emp);
+                }
+            }
+        }
+
+        return employees;
+    }
+
+    public List<SalesEmployeeStatisticDto> getSalesStatisticsByEmployeeIds(
+            List<Integer> employeeIds, Integer shopId, Date startDate, Date endDate,
+            int currentPage, int recordsPerPage) throws SQLException {
+
+        List<SalesEmployeeStatisticDto> statistics = new ArrayList<>();
+        if (employeeIds == null || employeeIds.isEmpty()) {
+            return statistics;
+        }
+
+        StringBuilder sql = new StringBuilder("SELECT E.EmployeeID, E.FullName, ");
+        sql.append("ISNULL(SUM(ID.UnitPrice * ID.Quantity * (1 - ISNULL(ID.Discount, 0))), 0) AS TotalRevenue, ");
+        sql.append("ISNULL(COUNT(DISTINCT I.InvoiceID), 0) AS TotalOrders, ");
+        sql.append("ISNULL(SUM(ID.Quantity), 0) AS TotalProductsSold, ");
+        sql.append("CASE WHEN ISNULL(COUNT(DISTINCT I.InvoiceID), 0) > 0 THEN ");
+        sql.append("ISNULL(SUM(ID.UnitPrice * ID.Quantity * (1 - ISNULL(ID.Discount, 0))), 0) / CAST(COUNT(DISTINCT I.InvoiceID) AS DECIMAL(18, 2)) ");
+        sql.append("ELSE 0 END AS AverageRevenuePerOrder ");
+        sql.append("FROM Employee E ");
+        sql.append("LEFT JOIN Invoice I ON (E.EmployeeID = I.EmployeeID OR E.EmployeeID = I.SaleEmployeeID)");
+        sql.append("LEFT JOIN InvoiceDetail ID ON I.InvoiceID = ID.InvoiceID ");
+        sql.append("WHERE 1=1 ");
+        sql.append("AND I.Status = 1 ");
+
+        if (shopId != null) {
+            sql.append("AND E.ShopID = ? ");
+        }
+        sql.append("AND E.EmployeeID IN (");
+        for (int i = 0; i < employeeIds.size(); i++) {
+            sql.append("?");
+            if (i < employeeIds.size() - 1) {
+                sql.append(",");
+            }
+        }
+        sql.append(") ");
+
+        if (startDate != null) {
+            sql.append("AND I.InvoiceDate >= ? ");
+        }
+        if (endDate != null) {
+            sql.append("AND I.InvoiceDate < DATEADD(day, 1, ?) ");
+        }
+        sql.append("GROUP BY E.EmployeeID, E.FullName ");
+        sql.append("ORDER BY E.EmployeeID ");
+        sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+        System.out.println("SQL getSalesStatisticsByEmployeeIds: " + sql.toString());
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            if (shopId != null) {
+                ps.setInt(paramIndex++, shopId);
+            }
+            for (Integer empId : employeeIds) {
+                ps.setInt(paramIndex++, empId);
+            }
+            if (startDate != null) {
+                ps.setTimestamp(paramIndex++, new java.sql.Timestamp(startDate.getTime()));
+            }
+            if (endDate != null) {
+                ps.setTimestamp(paramIndex++, new java.sql.Timestamp(endDate.getTime()));
+            }
+
+            ps.setInt(paramIndex++, (currentPage - 1) * recordsPerPage);
+            ps.setInt(paramIndex++, recordsPerPage);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    SalesEmployeeStatisticDto dto = new SalesEmployeeStatisticDto();
+                    dto.setEmployeeID(rs.getInt("EmployeeID"));
+                    dto.setFullName(rs.getString("FullName"));
+                    dto.setTotalRevenue(rs.getBigDecimal("TotalRevenue"));
+                    dto.setTotalOrders(rs.getInt("TotalOrders"));
+                    dto.setTotalProductsSold(rs.getInt("TotalProductsSold"));
+                    dto.setAverageRevenuePerOrder(rs.getBigDecimal("AverageRevenuePerOrder"));
+                    statistics.add(dto);
+                }
+            }
+        }
+        return statistics;
+    }
+
+    public List<SalesEmployeeStatisticDto> getAllSalesStatisticsByEmployeeIdsForExcel(
+            List<Integer> employeeIds, Integer shopId, Date startDate, Date endDate) throws SQLException {
+
+        List<SalesEmployeeStatisticDto> statistics = new ArrayList<>();
+        if (employeeIds == null || employeeIds.isEmpty()) {
+            return statistics;
+        }
+
+        StringBuilder sql = new StringBuilder("SELECT E.EmployeeID, E.FullName, ");
+        sql.append("ISNULL(SUM(ID.UnitPrice * ID.Quantity * (1 - ISNULL(ID.Discount, 0))), 0) AS TotalRevenue, ");
+        sql.append("ISNULL(COUNT(DISTINCT I.InvoiceID), 0) AS TotalOrders, ");
+        sql.append("ISNULL(SUM(ID.Quantity), 0) AS TotalProductsSold, ");
+        sql.append("CASE WHEN ISNULL(COUNT(DISTINCT I.InvoiceID), 0) > 0 THEN ");
+        sql.append("ISNULL(SUM(ID.UnitPrice * ID.Quantity * (1 - ISNULL(ID.Discount, 0))), 0) / CAST(COUNT(DISTINCT I.InvoiceID) AS DECIMAL(18, 2)) ");
+        sql.append("ELSE 0 END AS AverageRevenuePerOrder ");
+        sql.append("FROM Employee E ");
+        sql.append("LEFT JOIN Invoice I ON E.EmployeeID = I.EmployeeID OR E.EmployeeID = I.SaleEmployeeID ");
+        sql.append("LEFT JOIN InvoiceDetail ID ON I.InvoiceID = ID.InvoiceID ");
+        sql.append("WHERE I.Status = 1 ");
+
+        if (shopId != null) {
+            sql.append("AND E.ShopID = ? ");
+        }
+
+        sql.append("AND E.EmployeeID IN (");
+        for (int i = 0; i < employeeIds.size(); i++) {
+            sql.append("?");
+            if (i < employeeIds.size() - 1) {
+                sql.append(",");
+            }
+        }
+        sql.append(") ");
+
+        if (startDate != null) {
+            sql.append("AND I.InvoiceDate >= ? ");
+        }
+        if (endDate != null) {
+            sql.append("AND I.InvoiceDate < DATEADD(day, 1, ?) ");
+        }
+
+        sql.append("GROUP BY E.EmployeeID, E.FullName ");
+        sql.append("ORDER BY E.EmployeeID");
+
+        System.out.println("SQL getAllSalesStatisticsByEmployeeIds: " + sql.toString());
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            if (shopId != null) {
+                ps.setInt(paramIndex++, shopId);
+            }
+            for (Integer empId : employeeIds) {
+                ps.setInt(paramIndex++, empId);
+            }
+            if (startDate != null) {
+                ps.setTimestamp(paramIndex++, new java.sql.Timestamp(startDate.getTime()));
+            }
+            if (endDate != null) {
+                ps.setTimestamp(paramIndex++, new java.sql.Timestamp(endDate.getTime()));
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    SalesEmployeeStatisticDto dto = new SalesEmployeeStatisticDto();
+                    dto.setEmployeeID(rs.getInt("EmployeeID"));
+                    dto.setFullName(rs.getString("FullName"));
+                    dto.setTotalRevenue(rs.getBigDecimal("TotalRevenue"));
+                    dto.setTotalOrders(rs.getInt("TotalOrders"));
+                    dto.setTotalProductsSold(rs.getInt("TotalProductsSold"));
+                    dto.setAverageRevenuePerOrder(rs.getBigDecimal("AverageRevenuePerOrder"));
+                    statistics.add(dto);
+                }
+            }
+        }
+        return statistics;
+    }
+
+    public int getTotalSalesStatisticsCountByEmployeeIds(
+            List<Integer> employeeIds, Integer shopId, Date startDate, Date endDate) throws SQLException {
+
+        if (employeeIds == null || employeeIds.isEmpty()) {
+            return 0;
+        }
+
+        StringBuilder query = new StringBuilder();
+        List<Object> params = new ArrayList<>();
+
+        query.append("SELECT COUNT(DISTINCT E.EmployeeID) ");
+        query.append("FROM Employee E ");
+        query.append("LEFT JOIN Invoice I ON E.EmployeeID = I.EmployeeID OR E.EmployeeID = I.SaleEmployeeID ");
+        query.append("LEFT JOIN InvoiceDetail ID ON I.InvoiceID = ID.InvoiceID ");
+        query.append("WHERE 1=1 ");
+        query.append(" AND I.Status = 1 ");
+
+        if (shopId != null) {
+            query.append(" AND E.ShopID = ? ");
+            params.add(shopId);
+        }
+
+        query.append(" AND E.EmployeeID IN (");
+        for (int i = 0; i < employeeIds.size(); i++) {
+            query.append("?");
+            if (i < employeeIds.size() - 1) {
+                query.append(",");
+            }
+        }
+        query.append(") ");
+        params.addAll(employeeIds);
+
+        if (startDate != null) {
+            query.append(" AND I.InvoiceDate >= ? ");
+            params.add(new java.sql.Timestamp(startDate.getTime()));
+        }
+        if (endDate != null) {
+            query.append(" AND I.InvoiceDate <= ? ");
+            params.add(new java.sql.Timestamp(endDate.getTime()));
+        }
+
+        System.out.println("SQL getTotalSalesStatisticsCountByEmployeeIds: " + query.toString());
+        System.out.println("Parameters: " + params.toString());
+
+        try (PreparedStatement ps = connection.prepareStatement(query.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                if (params.get(i) instanceof java.util.Date) {
+                    ps.setDate(i + 1, new java.sql.Date(((java.util.Date) params.get(i)).getTime()));
+                } else {
+                    ps.setObject(i + 1, params.get(i));
+                }
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, "Lỗi khi lấy tổng số lượng thống kê doanh số: " + e.getMessage(), e);
+            throw e;
+        }
+        return 0;
+    }
+
     public List<Employee> searchEmployeesByName(String name) {
         List<Employee> employees = new ArrayList<>();
         String sql = "SELECT * FROM Employee WHERE FullName LIKE ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, "%" + name + "%");  // Tìm kiếm có chứa tên
+            stmt.setString(1, "%" + name + "%");
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     Employee emp = new Employee();
@@ -89,65 +355,69 @@ public class EmployeeDAO {
         return null;
     }
 
-    public List<SalesEmployeeStatisticDto> getSalesStatisticsForSalesEmployees(int employeeId,
-            Integer shopId,
-            Date startDate,
-            Date endDate,
-            int currentPage,
-            int recordsPerPage) throws SQLException {
+    public List<SoldProductDetailDto> getSoldProductDetailsByEmployee(
+            Integer employeeId, Integer shopId, Date startDate, Date endDate,
+            int currentPage, int recordsPerPage) throws SQLException {
 
-        List<SalesEmployeeStatisticDto> statistics = new ArrayList<>();
+        List<SoldProductDetailDto> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT e.EmployeeID, e.FullName, ");
-        sql.append("ISNULL(SUM(ID.Quantity * ID.UnitPrice), 0) AS TotalRevenue, ");
-        sql.append("ISNULL(COUNT(DISTINCT I.InvoiceID), 0) AS TotalOrders, ");
-        sql.append("CASE WHEN ISNULL(COUNT(DISTINCT I.InvoiceID), 0) > 0 THEN ISNULL(SUM(ID.Quantity * ID.UnitPrice), 0) / CAST(COUNT(DISTINCT I.InvoiceID) AS DECIMAL(18, 2)) ELSE 0 END AS AverageRevenuePerOrder ");
-        sql.append("FROM Employee e ");
-        sql.append("LEFT JOIN Invoice I ON e.EmployeeID = I.EmployeeID ");
-        sql.append("LEFT JOIN InvoiceDetail ID ON I.InvoiceID = ID.InvoiceID ");
-        sql.append("WHERE e.EmployeeID = ? "); // Lọc chính xác theo EmployeeID
-
         List<Object> params = new ArrayList<>();
-        params.add(employeeId); // Thêm employeeId vào tham số đầu tiên
+
+        sql.append("SELECT P.ProductID, P.ProductName, SUM(ID.Quantity) AS QuantitySold, ");
+
+        sql.append("AVG(ID.UnitPrice * (1 - ISNULL(ID.Discount, 0))) AS UnitPrice, ");
+        sql.append("SUM(ID.Quantity * ID.UnitPrice * (1 - ISNULL(ID.Discount, 0))) AS Amount ");
+        sql.append("FROM Product P ");
+        sql.append("JOIN InvoiceDetail ID ON P.ProductID = ID.ProductID ");
+        sql.append("JOIN Invoice I ON ID.InvoiceID = I.InvoiceID ");
+        sql.append("WHERE I.SaleEmployeeID = ? ");
+        params.add(employeeId);
+
+        sql.append(" AND I.Status = 1 ");
 
         if (shopId != null) {
-            sql.append(" AND e.ShopID = ?");
+            sql.append(" AND I.ShopID = ? ");
             params.add(shopId);
         }
+
         if (startDate != null && endDate != null) {
-            sql.append(" AND I.InvoiceDate BETWEEN ? AND ?");
-            params.add(startDate);
-            params.add(endDate);
+            sql.append(" AND I.InvoiceDate BETWEEN ? AND ? ");
+            params.add(new java.sql.Date(startDate.getTime()));
+            params.add(new java.sql.Date(endDate.getTime()));
         }
 
-        sql.append(" GROUP BY e.EmployeeID, e.FullName "); // Luôn group by để lấy tổng cho nhân viên đó
-        sql.append(" ORDER BY e.EmployeeID "); // Order by cũng chỉ có 1 nhân viên nên không quá quan trọng
-        sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        sql.append(" GROUP BY P.ProductID, P.ProductName ");
+
+        sql.append(" ORDER BY P.ProductName ");
 
         int offset = (currentPage - 1) * recordsPerPage;
+        sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
         params.add(offset);
         params.add(recordsPerPage);
 
-        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+        System.out.println("SQL Product Detail Query (getSoldProductDetailsByEmployee): " + sql.toString());
+        System.out.println("Product Detail Parameters: " + params.toString());
+
+        try (PreparedStatement ps = this.connection.prepareStatement(sql.toString())) {
             for (int i = 0; i < params.size(); i++) {
                 ps.setObject(i + 1, params.get(i));
             }
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    statistics.add(new SalesEmployeeStatisticDto(
-                            rs.getInt("EmployeeID"),
-                            rs.getString("FullName"),
-                            rs.getBigDecimal("TotalRevenue"),
-                            rs.getInt("TotalOrders"),
-                            rs.getBigDecimal("AverageRevenuePerOrder")
+                    list.add(new SoldProductDetailDto(
+                            rs.getInt("ProductID"),
+                            rs.getString("ProductName"),
+                            rs.getInt("QuantitySold"),
+                            rs.getBigDecimal("UnitPrice"),
+                            rs.getBigDecimal("Amount")
                     ));
                 }
             }
         } catch (SQLException ex) {
-            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, "Error getSalesStatisticsForEmployee", ex);
+            Logger.getLogger(InvoiceDetailDAO.class.getName()).log(Level.SEVERE, "Lỗi khi lấy chi tiết sản phẩm đã bán: " + ex.getMessage(), ex);
             throw ex;
         }
-        return statistics;
+        return list;
     }
 
     public int getTotalSalesStatisticsCount(
@@ -157,52 +427,54 @@ public class EmployeeDAO {
         StringBuilder query = new StringBuilder();
         List<Object> params = new ArrayList<>();
 
-        // Xây dựng câu truy vấn SELECT COUNT
         query.append("SELECT COUNT(DISTINCT E.EmployeeID) ");
         query.append("FROM Employee E ");
-        query.append("LEFT JOIN Invoice I ON E.EmployeeID = I.EmployeeID ");
-        query.append("WHERE 1=1 "); // Mệnh đề WHERE khởi tạo
 
-        // --- Bắt đầu thêm các điều kiện lọc động trực tiếp vào đây ---
-        // Lọc theo RoleIDs
-        if (roleIdFilters != null && !roleIdFilters.isEmpty()) {
+        query.append("INNER JOIN Invoice I ON (E.EmployeeID = I.EmployeeID OR E.EmployeeID = I.SaleEmployeeID) ");
+        query.append("INNER JOIN InvoiceDetail ID ON I.InvoiceID = ID.InvoiceID ");
+
+        query.append("WHERE 1=1 ");
+        query.append(" AND I.Status = 1 ");
+
+        if (shopIdFilter != null) {
+            query.append(" AND E.ShopID = ? ");
+            params.add(shopIdFilter);
+        }
+
+        if (employeeIdFilter != null) {
+            query.append(" AND E.EmployeeID = ? ");
+            params.add(employeeIdFilter);
+        } else if (roleIdFilters != null && !roleIdFilters.isEmpty()) {
             query.append(" AND E.RoleID IN (");
             for (int i = 0; i < roleIdFilters.size(); i++) {
                 query.append("?");
                 if (i < roleIdFilters.size() - 1) {
                     query.append(",");
                 }
-                params.add(roleIdFilters.get(i));
             }
             query.append(") ");
+            params.addAll(roleIdFilters);
         }
 
-        // Lọc theo ShopID
-        if (shopIdFilter != null) {
-            query.append(" AND E.ShopID = ? ");
-            params.add(shopIdFilter);
+        if (startDate != null) {
+
+            query.append(" AND I.InvoiceDate >= ? ");
+            params.add(new java.sql.Timestamp(startDate.getTime()));
+        }
+        if (endDate != null) {
+            query.append(" AND I.InvoiceDate < DATEADD(day, 1, ?) ");
+            params.add(new java.sql.Timestamp(endDate.getTime()));
         }
 
-        // Lọc theo EmployeeID
-        if (employeeIdFilter != null) {
-            query.append(" AND E.EmployeeID = ? ");
-            params.add(employeeIdFilter);
-        }
-
-        // Lọc theo khoảng ngày của hóa đơn
-        if (startDate != null && endDate != null) {
-            query.append(" AND I.InvoiceDate BETWEEN ? AND ? ");
-            // Quan trọng: Sử dụng java.sql.Date để đảm bảo tương thích tốt nhất với JDBC
-            params.add(new java.sql.Date(startDate.getTime()));
-            params.add(new java.sql.Date(endDate.getTime()));
-        }
-
-        // --- Kết thúc các điều kiện lọc động ---
-        // Thực thi truy vấn
+        System.out.println("SQL getTotalSalesStatisticsCount (for specific employee/role): " + query.toString());
+        System.out.println("Parameters: " + params.toString());
         try (PreparedStatement ps = connection.prepareStatement(query.toString())) {
-            // Thiết lập tất cả các tham số vào PreparedStatement
             for (int i = 0; i < params.size(); i++) {
-                ps.setObject(i + 1, params.get(i));
+                if (params.get(i) instanceof java.util.Date) {
+                    ps.setDate(i + 1, new java.sql.Date(((java.util.Date) params.get(i)).getTime()));
+                } else {
+                    ps.setObject(i + 1, params.get(i));
+                }
             }
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -214,52 +486,107 @@ public class EmployeeDAO {
             Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, "Lỗi khi lấy tổng số lượng thống kê doanh số: " + e.getMessage(), e);
             throw e;
         }
-        return 0; // Trả về 0 nếu không tìm thấy bản ghi nào hoặc có lỗi (sau khi log và throw)
+        return 0;
     }
 
-    public int getTotalSalesStatisticsCountForEmployee(Integer employeeId, Integer shopId, Date startDate, Date endDate) throws SQLException {
-        StringBuilder query = new StringBuilder();
-        query.append("SELECT COUNT(E.EmployeeID) "); // Chỉ cần đếm xem có tồn tại nhân viên này không
-        query.append("FROM Employee E ");
-        query.append("LEFT JOIN Invoice I ON E.EmployeeID = I.EmployeeID "); // Dùng LEFT JOIN để có thể lọc theo InvoiceDate
-        query.append("WHERE E.EmployeeID = ? ");
+    public List<SalesEmployeeStatisticDto> getSalesStatisticsBySpecificEmployeeIdsForExcel(
+            Integer shopIdFilter, java.util.Date startDate, java.util.Date endDate,
+            List<Integer> employeeIdsToFilter) throws SQLException {
 
-        List<Object> params = new ArrayList<>();
-        params.add(employeeId);
+        List<SalesEmployeeStatisticDto> statistics = new ArrayList<>();
+        StringBuilder sqlSummary = new StringBuilder();
+        List<Object> paramsSummary = new ArrayList<>(); // Sử dụng để lưu trữ tham số theo thứ tự
 
-        if (shopId != null) {
-            query.append("AND E.ShopID = ? ");
-            params.add(shopId);
+        sqlSummary.append("SELECT e.EmployeeID, e.FullName, ");
+        sqlSummary.append("ISNULL(SUM(ID.UnitPrice * ID.Quantity * (1 - ISNULL(ID.Discount, 0))), 0) AS TotalRevenue, ");
+        sqlSummary.append("ISNULL(COUNT(DISTINCT I.InvoiceID), 0) AS TotalOrders, ");
+        sqlSummary.append("ISNULL(SUM(ID.Quantity), 0) AS TotalProductsSold, ");
+        sqlSummary.append("CASE WHEN ISNULL(COUNT(DISTINCT I.InvoiceID), 0) > 0 THEN ");
+        sqlSummary.append("ISNULL(SUM(ID.UnitPrice * ID.Quantity * (1 - ISNULL(ID.Discount, 0))), 0) / CAST(COUNT(DISTINCT I.InvoiceID) AS DECIMAL(18, 2)) ");
+        sqlSummary.append("ELSE 0 END AS AverageRevenuePerOrder ");
+        sqlSummary.append("FROM Employee e ");
+
+        // Cập nhật JOIN để đảm bảo lọc chính xác hóa đơn có trạng thái = 1
+        sqlSummary.append("LEFT JOIN Invoice I ON (e.EmployeeID = I.EmployeeID OR e.EmployeeID = I.SaleEmployeeID) AND I.Status = 1 ");
+        sqlSummary.append("LEFT JOIN InvoiceDetail ID ON I.InvoiceID = ID.InvoiceID ");
+
+        sqlSummary.append("WHERE 1=1 ");
+
+        // Lọc theo Shop ID
+        if (shopIdFilter != null) {
+            sqlSummary.append(" AND e.ShopID = ?");
+            paramsSummary.add(shopIdFilter);
         }
 
-        if (startDate != null && endDate != null) {
-            // Điều kiện này sẽ lọc các nhân viên có hóa đơn trong khoảng ngày
-            query.append("AND I.InvoiceDate BETWEEN ? AND ? ");
-            params.add(startDate);
-            params.add(endDate);
-        }
-
-        // Thêm GROUP BY để đảm bảo COUNT(E.EmployeeID) đếm đúng nếu có join
-        // Tuy nhiên, vì WHERE E.EmployeeID = ?, kết quả chỉ có 1 hoặc 0.
-        query.append("GROUP BY E.EmployeeID");
-
-        try (PreparedStatement ps = connection.prepareStatement(query.toString())) {
-            for (int i = 0; i < params.size(); i++) {
-                ps.setObject(i + 1, params.get(i));
-            }
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-
-                    return 1;
-
+        // Lọc theo danh sách Employee ID
+        if (employeeIdsToFilter != null && !employeeIdsToFilter.isEmpty()) {
+            sqlSummary.append(" AND e.EmployeeID IN ("); // <-- DÙNG e.EmployeeID
+            for (int i = 0; i < employeeIdsToFilter.size(); i++) {
+                sqlSummary.append("?");
+                // Thêm tham số ID vào danh sách paramsSummary
+                paramsSummary.add(employeeIdsToFilter.get(i));
+                if (i < employeeIdsToFilter.size() - 1) {
+                    sqlSummary.append(",");
                 }
             }
-        } catch (SQLException e) {
-            Logger.getLogger(EmployeeDAO.class
-                    .getName()).log(Level.SEVERE, "Lỗi khi lấy tổng số lượng thống kê cho nhân viên: ", e);
-            throw e;
+            sqlSummary.append(") ");
+        } else {
+            // Xử lý trường hợp danh sách employeeIdsToFilter rỗng hoặc null, 
+            // có thể return rỗng hoặc throw exception tùy ý đồ thiết kế.
+            // Nếu không có EmployeeID nào để lọc, truy vấn sẽ không trả về gì.
+            return new ArrayList<>();
         }
-        return 0;
+
+        // Lọc theo ngày bắt đầu (InvoiceDate >= startDate)
+        if (startDate != null) {
+            sqlSummary.append(" AND I.InvoiceDate >= ?");
+            paramsSummary.add(new java.sql.Timestamp(startDate.getTime()));
+        }
+        // Lọc theo ngày kết thúc (InvoiceDate < endDate + 1 ngày)
+        if (endDate != null) {
+            sqlSummary.append(" AND I.InvoiceDate < DATEADD(day, 1, ?)");
+            paramsSummary.add(new java.sql.Timestamp(endDate.getTime()));
+        }
+
+        sqlSummary.append(" GROUP BY e.EmployeeID, e.FullName ");
+        sqlSummary.append(" ORDER BY e.EmployeeID "); // Giữ thứ tự nhất quán
+
+        System.out.println("SQL getSalesStatisticsBySpecificEmployeeIdsForExcel: " + sqlSummary.toString());
+        System.out.println("Parameters: " + paramsSummary.toString());
+
+        try (PreparedStatement psSummary = this.connection.prepareStatement(sqlSummary.toString())) {
+            int paramIndex = 1;
+            for (Object param : paramsSummary) {
+                if (param instanceof Integer) {
+                    psSummary.setInt(paramIndex++, (Integer) param);
+                } else if (param instanceof Timestamp) {
+                    psSummary.setTimestamp(paramIndex++, (Timestamp) param);
+                } else if (param instanceof java.sql.Date) { // Trường hợp bạn truyền java.sql.Date
+                    psSummary.setDate(paramIndex++, (java.sql.Date) param);
+                } else {
+                    // Xử lý các kiểu dữ liệu khác nếu có, hoặc throw exception nếu không mong đợi
+                    psSummary.setObject(paramIndex++, param);
+                }
+            }
+
+            try (ResultSet rsSummary = psSummary.executeQuery()) {
+                while (rsSummary.next()) {
+                    SalesEmployeeStatisticDto dto = new SalesEmployeeStatisticDto(
+                            rsSummary.getInt("EmployeeID"),
+                            rsSummary.getString("FullName"),
+                            rsSummary.getBigDecimal("TotalRevenue"),
+                            rsSummary.getInt("TotalOrders"),
+                            rsSummary.getInt("TotalProductsSold"),
+                            rsSummary.getBigDecimal("AverageRevenuePerOrder")
+                    );
+                    statistics.add(dto);
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, "Lỗi khi lấy thống kê tổng hợp doanh số cho Excel theo Employee IDs: " + ex.getMessage(), ex);
+            throw ex;
+        }
+        return statistics;
     }
 
     public List<SalesEmployeeStatisticDto> getSalesStatistics(
@@ -267,159 +594,129 @@ public class EmployeeDAO {
             int currentPage, int recordsPerPage, List<Integer> roleIdFilters) throws SQLException {
 
         List<SalesEmployeeStatisticDto> statistics = new ArrayList<>();
-        StringBuilder sql = new StringBuilder();
-        List<Object> params = new ArrayList<>();
+        StringBuilder sqlSummary = new StringBuilder();
+        List<Object> paramsSummary = new ArrayList<>();
 
-        // Xây dựng câu truy vấn SELECT và JOIN
-        sql.append("SELECT e.EmployeeID, e.FullName, ");
-        sql.append("ISNULL(SUM(ID.Quantity * ID.UnitPrice), 0) AS TotalRevenue, ");
-        sql.append("ISNULL(COUNT(DISTINCT I.InvoiceID), 0) AS TotalOrders, ");
-        sql.append("CASE WHEN ISNULL(COUNT(DISTINCT I.InvoiceID), 0) > 0 THEN ISNULL(SUM(ID.Quantity * ID.UnitPrice), 0) / CAST(COUNT(DISTINCT I.InvoiceID) AS DECIMAL(18, 2)) ELSE 0 END AS AverageRevenuePerOrder ");
-        sql.append("FROM Employee e ");
-        sql.append("LEFT JOIN Invoice I ON e.EmployeeID = I.EmployeeID ");
-        sql.append("LEFT JOIN InvoiceDetail ID ON I.InvoiceID = ID.InvoiceID ");
-        sql.append("WHERE 1=1 "); // Mệnh đề WHERE khởi tạo, luôn đúng để dễ dàng nối thêm các điều kiện AND
+        sqlSummary.append("SELECT e.EmployeeID, e.FullName, ");
+        sqlSummary.append("ISNULL(SUM(ID.UnitPrice * ID.Quantity * (1 - ISNULL(ID.Discount, 0))), 0) AS TotalRevenue, ");
+        sqlSummary.append("ISNULL(COUNT(DISTINCT I.InvoiceID), 0) AS TotalOrders, ");
+        sqlSummary.append("ISNULL(SUM(ID.Quantity), 0) AS TotalProductsSold, ");
+        sqlSummary.append("CASE WHEN ISNULL(COUNT(DISTINCT I.InvoiceID), 0) > 0 THEN ");
+        sqlSummary.append("ISNULL(SUM(ID.UnitPrice * ID.Quantity * (1 - ISNULL(ID.Discount, 0))), 0) / CAST(COUNT(DISTINCT I.InvoiceID) AS DECIMAL(18, 2)) ");
+        sqlSummary.append("ELSE 0 END AS AverageRevenuePerOrder ");
+        sqlSummary.append("FROM Employee e ");
 
-        // --- Bắt đầu thêm các điều kiện lọc động trực tiếp vào đây ---
-        // Lọc theo RoleIDs
-        if (roleIdFilters != null && !roleIdFilters.isEmpty()) {
-            sql.append(" AND e.RoleID IN (");
-            for (int i = 0; i < roleIdFilters.size(); i++) {
-                sql.append("?");
-                if (i < roleIdFilters.size() - 1) {
-                    sql.append(",");
-                }
-                params.add(roleIdFilters.get(i));
-            }
-            sql.append(") ");
-        }
+        sqlSummary.append("LEFT JOIN Invoice I ON (e.EmployeeID = I.EmployeeID OR e.EmployeeID = I.SaleEmployeeID) ");
+        sqlSummary.append("LEFT JOIN InvoiceDetail ID ON I.InvoiceID = ID.InvoiceID ");
 
-        // Lọc theo ShopID
+        sqlSummary.append("WHERE 1=1 ");
+        sqlSummary.append(" AND I.Status = 1 ");
+
         if (shopIdFilter != null) {
-            sql.append(" AND e.ShopID = ?");
-            params.add(shopIdFilter);
+            sqlSummary.append(" AND e.ShopID = ?");
+            paramsSummary.add(shopIdFilter);
         }
 
-        // Lọc theo EmployeeID
         if (employeeIdFilter != null) {
-            sql.append(" AND e.EmployeeID = ?");
-            params.add(employeeIdFilter);
-        }
-
-        // Lọc theo khoảng ngày của hóa đơn
-        if (startDate != null && endDate != null) {
-            sql.append(" AND I.InvoiceDate BETWEEN ? AND ?");
-            // Quan trọng: Sử dụng java.sql.Date để đảm bảo tương thích tốt nhất với JDBC
-            params.add(new java.sql.Date(startDate.getTime()));
-            params.add(new java.sql.Date(endDate.getTime()));
-        }
-
-        // --- Kết thúc các điều kiện lọc động ---
-        // GROUP BY và ORDER BY
-        sql.append(" GROUP BY e.EmployeeID, e.FullName ");
-        sql.append(" ORDER BY e.EmployeeID ");
-
-        // Thêm phân trang (OFFSET/FETCH NEXT)
-        int offset = (currentPage - 1) * recordsPerPage;
-        sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
-        params.add(offset);
-        params.add(recordsPerPage);
-
-        // Thực thi truy vấn
-        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
-            // Thiết lập tất cả các tham số vào PreparedStatement
-            for (int i = 0; i < params.size(); i++) {
-                ps.setObject(i + 1, params.get(i));
+            sqlSummary.append(" AND e.EmployeeID = ?");
+            paramsSummary.add(employeeIdFilter);
+        } else if (roleIdFilters != null && !roleIdFilters.isEmpty()) {
+            sqlSummary.append(" AND e.RoleID IN (");
+            for (int i = 0; i < roleIdFilters.size(); i++) {
+                sqlSummary.append("?");
+                if (i < roleIdFilters.size() - 1) {
+                    sqlSummary.append(",");
+                }
             }
+            sqlSummary.append(") ");
+            paramsSummary.addAll(roleIdFilters);
+        }
 
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    statistics.add(new SalesEmployeeStatisticDto(
-                            rs.getInt("EmployeeID"),
-                            rs.getString("FullName"),
-                            // Lấy BigDecimal từ ResultSet
-                            rs.getBigDecimal("TotalRevenue"),
-                            rs.getInt("TotalOrders"),
-                            rs.getBigDecimal("AverageRevenuePerOrder")
-                    ));
+        if (startDate != null) {
+            sqlSummary.append(" AND I.InvoiceDate >= ?");
+            paramsSummary.add(new java.sql.Timestamp(startDate.getTime()));
+        }
+        if (endDate != null) {
+            sqlSummary.append(" AND I.InvoiceDate < DATEADD(day, 1, ?)");
+            paramsSummary.add(new java.sql.Timestamp(endDate.getTime()));
+        }
 
+        sqlSummary.append(" GROUP BY e.EmployeeID, e.FullName ");
+        sqlSummary.append(" ORDER BY e.EmployeeID ");
+
+        int offset = (currentPage - 1) * recordsPerPage;
+        sqlSummary.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        paramsSummary.add(offset);
+        paramsSummary.add(recordsPerPage);
+
+        System.out.println("SQL getSalesStatistics: " + sqlSummary.toString());
+        System.out.println("Parameters: " + paramsSummary.toString());
+
+        try (PreparedStatement psSummary = this.connection.prepareStatement(sqlSummary.toString())) {
+            for (int i = 0; i < paramsSummary.size(); i++) {
+                if (paramsSummary.get(i) instanceof java.util.Date) {
+                    psSummary.setDate(i + 1, new java.sql.Date(((java.util.Date) paramsSummary.get(i)).getTime()));
+                } else {
+                    psSummary.setObject(i + 1, paramsSummary.get(i));
+                }
+            }
+            try (ResultSet rsSummary = psSummary.executeQuery()) {
+                while (rsSummary.next()) {
+                    SalesEmployeeStatisticDto dto = new SalesEmployeeStatisticDto(
+                            rsSummary.getInt("EmployeeID"),
+                            rsSummary.getString("FullName"),
+                            rsSummary.getBigDecimal("TotalRevenue"),
+                            rsSummary.getInt("TotalOrders"),
+                            rsSummary.getInt("TotalProductsSold"),
+                            rsSummary.getBigDecimal("AverageRevenuePerOrder")
+                    );
+                    statistics.add(dto);
                 }
             }
         } catch (SQLException ex) {
-            Logger.getLogger(EmployeeDAO.class
-                    .getName()).log(Level.SEVERE, "Lỗi khi lấy thống kê doanh số: " + ex.getMessage(), ex);
+            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, "Lỗi khi lấy thống kê tổng hợp doanh số: " + ex.getMessage(), ex);
             throw ex;
         }
         return statistics;
     }
 
-    public List<Employee> getAllStaffAndSelfEmployees(int loggedInEmployeeId, Integer loggedInEmployeeRoleId, Integer loggedInEmployeeShopId) throws SQLException {
-        List<Employee> employees = new ArrayList<>();
-        StringBuilder sql = new StringBuilder();
-        sql.append("SELECT e.EmployeeID, e.FullName, e.ShopID, e.RoleID, r.RoleName ");
-        sql.append("FROM Employee e JOIN Role r ON e.RoleID = r.RoleID ");
-        sql.append("WHERE e.EmployeeID = ? "); // Luôn bao gồm chính người dùng đang đăng nhập
+    public int getTotalPaidInvoicesByCashier(int cashierId, Date startDate, Date endDate) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM Invoice "
+                + "WHERE Status = 1 AND EmployeeID = ?";
 
         List<Object> params = new ArrayList<>();
-        params.add(loggedInEmployeeId);
+        params.add(cashierId);
 
-        if (loggedInEmployeeRoleId != null) {
-            switch (loggedInEmployeeRoleId) {
-                case 1: // Admin: Xem tất cả nhân viên (Staff và Cashier) và chính họ
-                    // Thêm các vai trò Staff (4), Cashier (3), ShopOwner (2)
-                    sql.append("OR e.RoleID IN (?, ?, ?) "); // Hoặc e.RoleID <> 1 (tất cả trừ admin) nếu bạn muốn Admin xem mọi người
-                    params.add(4); // Staff
-                    params.add(3); // Cashier
-                    params.add(2); // ShopOwner
-                    break;
-                case 2: // ShopOwner: (RoleID 2) Xem Staff (RoleID 4) và Cashier (RoleID 3) trong cửa hàng của mình, và chính họ nếu muốn
-                    // Nếu ShopOwner cũng là một "Employee" trong bảng Employee, và có thể tự quản lý doanh số của mình
-                    // thì có thể thêm e.RoleID = 2 và e.EmployeeID = ? vào đây.
-                    // Hiện tại ShopOwner thường là tài khoản riêng, không nằm trong Employee, nếu có thì cần logic riêng.
-                    // Nếu ShopOwner muốn xem nhân viên của mình:
-                    sql.append("OR (e.ShopID = ? AND e.RoleID IN (?, ?)) ");
-                    params.add(loggedInEmployeeShopId);
-                    params.add(4); // Staff
-                    params.add(3); // Cashier
-                    break;
-                case 3: // Cashier: (RoleID 3) Xem Staff (RoleID 4) trong cửa hàng của mình, và chính họ
-                    sql.append("OR (e.ShopID = ? AND e.RoleID = ?) ");
-                    params.add(loggedInEmployeeShopId);
-                    params.add(4); // Staff
-                    break;
-                case 4: // Staff: (RoleID 4) Chỉ xem chính họ (đã được thêm bởi "e.EmployeeID = ?")
-                    // Không cần thêm điều kiện OR nào nữa vì chỉ muốn xem chính họ
-                    break;
-                default:
-                    // Vai trò không được xử lý hoặc không có quyền xem người khác
-                    break;
-            }
+        if (startDate != null) {
+            sql += " AND InvoiceDate >= ?";
+            params.add(new java.sql.Timestamp(startDate.getTime()));
         }
 
-        sql.append("ORDER BY e.FullName");
+        if (endDate != null) {
+            sql += " AND InvoiceDate < DATEADD(day, 1, ?)";
+            params.add(new java.sql.Timestamp(endDate.getTime()));
+        }
 
-        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             for (int i = 0; i < params.size(); i++) {
-                ps.setObject(i + 1, params.get(i));
-            }
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Employee emp = new Employee();
-                    emp.setId(rs.getInt("EmployeeID"));
-                    emp.setFullname(rs.getString("FullName"));
-                    emp.setRoleId(rs.getInt("RoleID"));
-                    emp.setShopId(rs.getInt("ShopID")); // Lấy ShopID để sử dụng
-
-                    Role role = new Role();
-                    role.setId(rs.getInt("RoleID"));
-                    role.setName(rs.getString("RoleName"));
-                    emp.setRole(role);
-
-                    employees.add(emp);
+                if (params.get(i) instanceof java.util.Date) {
+                    ps.setTimestamp(i + 1, new java.sql.Timestamp(((Date) params.get(i)).getTime()));
+                } else {
+                    ps.setObject(i + 1, params.get(i));
                 }
             }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            Logger.getLogger(EmployeeDAO.class.getName()).log(Level.SEVERE, "Lỗi khi đếm hóa đơn đã thanh toán của Cashier: " + e.getMessage(), e);
+            throw e;
         }
-        return employees;
+
+        return 0;
     }
 
     public List<Employee> getEmployeesByShopIdAndRoleId(int shopId, int roleId) throws SQLException {
@@ -461,49 +758,10 @@ public class EmployeeDAO {
         return employees;
     }
 
-    public int getSelfSalesStatisticsCount(int loggedInEmployeeId, Integer loggedInEmployeeShopId, Date startDate, Date endDate) throws SQLException {
-        StringBuilder query = new StringBuilder();
-        query.append("SELECT COUNT(DISTINCT E.EmployeeID) ");
-        query.append("FROM Employee E ");
-        query.append("LEFT JOIN Invoice I ON E.EmployeeID = I.EmployeeID ");
-        query.append("WHERE E.EmployeeID = ? "); // Chỉ đếm chính nhân viên này
-
-        List<Object> params = new ArrayList<>();
-        params.add(loggedInEmployeeId);
-
-        // Có thể thêm điều kiện ShopID nếu muốn chắc chắn rằng nhân viên thuộc một cửa hàng cụ thể
-        // Mặc dù nếu EmployeeID đã có thì ShopID thường không cần thiết để đếm duy nhất
-        if (loggedInEmployeeShopId != null) {
-            query.append("AND E.ShopID = ? ");
-            params.add(loggedInEmployeeShopId);
-        }
-
-        if (startDate != null && endDate != null) {
-            query.append("AND I.InvoiceDate BETWEEN ? AND ? ");
-            params.add(startDate);
-            params.add(endDate);
-        }
-
-        try (PreparedStatement ps = connection.prepareStatement(query.toString())) {
-            for (int i = 0; i < params.size(); i++) {
-                ps.setObject(i + 1, params.get(i));
-            }
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-            }
-        } catch (SQLException e) {
-            // Log lỗi
-            throw e;
-        }
-        return 0;
-    }
-
     public List<Employee> getAllEmployee() throws SQLException {
 
         List<Employee> employees = new ArrayList<>();
-        String sql = "SELECT e.EmployeeID, e.FullName, e.RoleID, r.Name AS RoleName "
+        String sql = "SELECT e.EmployeeID, e.FullName, e.RoleID, r.RoleName AS RoleName "
                 + "FROM Employee e JOIN Role r ON e.RoleID = r.RoleID ORDER BY e.FullName";
         try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
@@ -1023,26 +1281,20 @@ public class EmployeeDAO {
         }
     }
 
-    public static void main(String[] args) {
-        try {
-            // Kết nối CSDL (tên DB là SWP8)
-            DBContext db = new DBContext("ShopDB_Test");
-            Connection conn = db.getConnection();
-
-            // Tạo DAO
-            EmployeeDAO dao = new EmployeeDAO(conn);
-
-            // Gọi hàm tìm kiếm nhân viên theo tên
-            String keyword = "Nguyen"; // bạn có thể thay đổi để test
-            Employee list = dao.findEmployeeByUsernameAndPassword("nguyenvietlam290304@gmail.com", "12345678");
-
-            System.out.println(list);
-            // In ra kết quả
-
-            conn.close();
-        } catch (Exception ex) {
-            ex.printStackTrace();
+    public String getRoleOfEmployee(int employeeId) throws SQLException {
+        String roleName = null;
+        String sql = "SELECT r.RoleName FROM Employee e JOIN Role r ON e.RoleID = r.RoleID WHERE e.EmployeeID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, employeeId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    roleName = rs.getString("RoleName");
+                }
+            }
         }
+        return roleName;
     }
+
+  
 
 }

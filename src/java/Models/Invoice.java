@@ -27,6 +27,7 @@ public class Invoice {
     private boolean status;
 
     private String shopName;
+    private Integer saleEmployeeID;
 
     public Invoice() {
     }
@@ -43,7 +44,6 @@ public class Invoice {
         this.note = note;
         this.status = status;
     }
-    
 
     public Invoice(int invoiceID, int customerID, String customerName, int employeeID, String employeeName, int shopID, Timestamp invoiceDate, BigDecimal totalAmount, String note, boolean status, String shopName) {
         this.invoiceID = invoiceID;
@@ -114,24 +114,32 @@ public class Invoice {
         this.shopID = shopID;
         this.invoiceDate = invoiceDate;
         this.totalAmount = totalAmount;
-       
+
         this.vatRateID = vatRateID;
         this.note = note;
         this.status = status;
         this.shopName = shopName;
     }
 
-    public Invoice(int customerID, int employeeID, int shopID, Timestamp invoiceDate, BigDecimal totalAmount, int vatRateID, String note, boolean status) {
+    public Invoice(int customerID, int employeeID, int shopID, Timestamp invoiceDate, BigDecimal totalAmount, int vatRateID, String note, boolean status, Integer saleEmployeeID) {
         this.customerID = customerID;
         this.employeeID = employeeID;
         this.shopID = shopID;
         this.invoiceDate = invoiceDate;
         this.totalAmount = totalAmount;
-   
+
         this.vatRateID = vatRateID;
         this.note = note;
         this.status = status;
+        this.saleEmployeeID = saleEmployeeID; 
+    }
 
+    public Integer getSaleEmployeeID() {
+        return saleEmployeeID;
+    }
+
+    public void setSaleEmployeeID(Integer saleEmployeeID) {
+        this.saleEmployeeID = saleEmployeeID;
     }
 
     public int getVatRateID() {
@@ -141,8 +149,6 @@ public class Invoice {
     public void setVatRateID(int vatRateID) {
         this.vatRateID = vatRateID;
     }
-
-
 
     public String getEmployeeName() {
         return employeeName;

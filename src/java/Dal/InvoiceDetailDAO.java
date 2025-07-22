@@ -1,6 +1,7 @@
 package Dal;
 
 import Context.DBContext;
+import DTO.SoldProductDetailDto;
 import Models.Inventory;
 import Models.InvoiceDetail;
 import Models.Product;
@@ -11,6 +12,9 @@ import java.util.List;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
+import java.time.LocalDateTime;
+import java.sql.Timestamp;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -71,7 +75,7 @@ public class InvoiceDetailDAO {
         if (existingDetail != null) {
 
             detail.setInvoiceDetailID(existingDetail.getInvoiceDetailID());
-            detail.setShopID(shopID); 
+            detail.setShopID(shopID);
 
             detail.setQuantity(existingDetail.getQuantity() + detail.getQuantity());
             detail.calculateTotalPrice();
@@ -89,6 +93,7 @@ public class InvoiceDetailDAO {
             ptm.setInt(4, detail.getQuantity());
             ptm.setDouble(5, detail.getDiscount());
             ptm.setDouble(6, detail.getTotalPrice());
+
             ptm.executeUpdate();
 
             int updatedInventory = currentQuantity - detail.getQuantity();
@@ -130,7 +135,7 @@ public class InvoiceDetailDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null; 
+        return null;
     }
 
     public InvoiceDetail getInvoiceDetailByInvoiceDetailID(int invoiceDetailID) {
@@ -153,7 +158,7 @@ public class InvoiceDetailDAO {
                         rs.getInt("InvoiceDetailID"),
                         rs.getInt("InvoiceID"),
                         rs.getInt("ProductID"),
-                       rs.getBigDecimal("UnitPrice"),
+                        rs.getBigDecimal("UnitPrice"),
                         rs.getInt("Quantity"),
                         rs.getDouble("Discount")
                 );
@@ -204,7 +209,7 @@ public class InvoiceDetailDAO {
             }
             boolean productChanged = oldDetail.getProductID() != (newDetail.getProductID());
             if (productChanged) {
-           
+
                 Inventory oldInventory = inventoryDAO.getInventoryByShopAndProduct(oldDetail.getProductID(), oldDetail.getShopID());
 
                 if (oldInventory == null) {
@@ -215,7 +220,6 @@ public class InvoiceDetailDAO {
                     throw new Exception("Cập nhật tồn kho cũ thất bại");
                 }
 
-            
                 Inventory newInventory = inventoryDAO.getInventoryByShopAndProduct(newDetail.getProductID(), newDetail.getShopID());
                 if (newInventory == null) {
                     throw new Exception("Không tìm thấy tồn kho mới");
@@ -230,7 +234,7 @@ public class InvoiceDetailDAO {
                 }
 
             } else {
-       
+
                 Inventory inventory = inventoryDAO.getInventoryByShopAndProduct(newDetail.getProductID(), newDetail.getShopID());
                 if (inventory == null) {
                     throw new Exception("Không tìm thấy tồn kho");
@@ -260,7 +264,7 @@ public class InvoiceDetailDAO {
             }
         } catch (Exception e) {
             System.out.println("Lỗi khi cập nhật chi tiết hóa đơn:");
-            e.printStackTrace(); 
+            e.printStackTrace();
             return false;
         }
     }
@@ -303,12 +307,318 @@ public class InvoiceDetailDAO {
         return false;
     }
 
+    public BigDecimal getTotalSaleRevenueByShop(int shopId, Date startDate, Date endDate) throws SQLException {
+        BigDecimal total = BigDecimal.ZERO;
+        String sql = "SELECT SUM(id.Quantity * id.UnitPrice) AS TotalSaleRevenue "
+                + "FROM InvoiceDetail id "
+                + "JOIN Invoice i ON id.InvoiceID = i.ID "
+                + "JOIN Employee e ON i.EmployeeID = e.ID "
+                + "WHERE e.Role = 'Sale' AND e.ShopID = ? "
+                + "AND i.InvoiceDate BETWEEN ? AND ?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, shopId);
+            ps.setDate(2, new java.sql.Date(startDate.getTime()));
+            ps.setDate(3, new java.sql.Date(endDate.getTime()));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    total = rs.getBigDecimal("TotalSaleRevenue");
+                    if (total == null) {
+                        total = BigDecimal.ZERO;
+                    }
+                }
+            }
+        }
+        return total;
+    }
+
+    public int getTotalSoldProductsByShop(int shopID) {
+        String sql = "SELECT SUM(id.Quantity) "
+                + "FROM InvoiceDetail id "
+                + "JOIN Invoice i ON id.InvoiceID = i.InvoiceID "
+                + "WHERE i.ShopID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, shopID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public BigDecimal getTotalRevenueByEmployee(int employeeId) throws SQLException {
+        String sql = "SELECT SUM(ID.UnitPrice * ID.Quantity) AS TotalRevenue "
+                + "FROM InvoiceDetail ID "
+                + "JOIN Invoice I ON ID.InvoiceID = I.InvoiceID "
+                + "WHERE I.EmployeeID = ? AND I.Status = 1";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, employeeId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getBigDecimal("TotalRevenue") != null ? rs.getBigDecimal("TotalRevenue") : BigDecimal.ZERO;
+            }
+        }
+        return BigDecimal.ZERO;
+    }
+
+    public BigDecimal getTotalAmountSoldForAllProductsByEmployee(
+            Integer employeeId, Integer shopId, Date startDate, Date endDate) throws SQLException {
+
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        StringBuilder sql = new StringBuilder();
+        List<Object> params = new ArrayList<>();
+
+        sql.append("SELECT SUM(ID.Quantity * ID.UnitPrice * (1 - ISNULL(ID.Discount, 0))) AS TotalAmount ");
+        sql.append("FROM InvoiceDetail ID ");
+        sql.append("JOIN Invoice I ON ID.InvoiceID = I.InvoiceID ");
+        sql.append("WHERE I.SaleEmployeeID = ? ");
+        params.add(employeeId);
+
+        sql.append(" AND I.Status = 1 "); // Chỉ lấy hóa đơn đã hoàn thành
+
+        if (shopId != null) {
+            sql.append(" AND I.ShopID = ? ");
+            params.add(shopId);
+        }
+
+        if (startDate != null && endDate != null) {
+            sql.append(" AND I.InvoiceDate BETWEEN ? AND ? ");
+            params.add(new java.sql.Date(startDate.getTime()));
+            params.add(new java.sql.Date(endDate.getTime()));
+        }
+
+        System.out.println("SQL Total Amount Query (getTotalAmountSoldForAllProductsByEmployee): " + sql.toString());
+        System.out.println("Total Amount Parameters: " + params.toString());
+
+        try (PreparedStatement ps = this.connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    // Lấy giá trị, nếu null thì gán là BigDecimal.ZERO
+                    BigDecimal result = rs.getBigDecimal("TotalAmount");
+                    totalAmount = (result != null) ? result : BigDecimal.ZERO;
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(InvoiceDetailDAO.class.getName()).log(Level.SEVERE, "Lỗi khi lấy tổng doanh thu sản phẩm đã bán: " + ex.getMessage(), ex);
+            throw ex;
+        }
+        return totalAmount;
+    }
+
+    public int getTotalQuantitySoldForAllProductsByEmployee(
+            Integer employeeId, Integer shopId, Date startDate, Date endDate) throws SQLException {
+
+        int totalQuantity = 0;
+        StringBuilder sql = new StringBuilder();
+        List<Object> params = new ArrayList<>();
+
+        sql.append("SELECT SUM(ID.Quantity) AS TotalQuantitySold ");
+        sql.append("FROM InvoiceDetail ID ");
+        sql.append("JOIN Invoice I ON ID.InvoiceID = I.InvoiceID ");
+        sql.append("WHERE I.SaleEmployeeID = ? ");
+        params.add(employeeId);
+
+        sql.append(" AND I.Status = 1 "); // Chỉ lấy hóa đơn đã hoàn thành
+
+        if (shopId != null) {
+            sql.append(" AND I.ShopID = ? ");
+            params.add(shopId);
+        }
+
+        if (startDate != null && endDate != null) {
+            sql.append(" AND I.InvoiceDate BETWEEN ? AND ? ");
+            params.add(new java.sql.Date(startDate.getTime()));
+            params.add(new java.sql.Date(endDate.getTime()));
+        }
+
+        System.out.println("SQL Total Quantity Query (getTotalQuantitySoldForAllProductsByEmployee): " + sql.toString());
+        System.out.println("Total Quantity Parameters: " + params.toString());
+
+        try (PreparedStatement ps = this.connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    totalQuantity = rs.getInt("TotalQuantitySold");
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(InvoiceDetailDAO.class.getName()).log(Level.SEVERE, "Lỗi khi lấy tổng số lượng sản phẩm đã bán: " + ex.getMessage(), ex);
+            throw ex;
+        }
+        return totalQuantity;
+    }
+
+    public List<SoldProductDetailDto> getSoldProductDetailsByEmployee(
+            Integer employeeId, Integer shopId, Date startDate, Date endDate,
+            int currentPage, int recordsPerPage) throws SQLException {
+
+        List<SoldProductDetailDto> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder();
+        List<Object> params = new ArrayList<>();
+
+        sql.append("SELECT P.ProductID, P.ProductName, SUM(ID.Quantity) AS QuantitySold, ");
+        // Nên lấy giá trung bình có trọng số hoặc giá theo đơn hàng cụ thể nếu cùng sản phẩm có nhiều giá
+        // Hiện tại AVG(ID.UnitPrice * (1 - ISNULL(ID.Discount, 0))) là giá trị trung bình đã chiết khấu của đơn giá
+        // Nếu bạn muốn hiển thị 'giá của 1 sản phẩm đó' như giá cố định từ master data, bạn sẽ cần JOIN bảng Products
+        // và chọn Product.Price. Nhưng nếu bạn muốn giá theo giao dịch thực tế, AVG này hợp lý hơn.
+        sql.append("AVG(ID.UnitPrice * (1 - ISNULL(ID.Discount, 0))) AS UnitPrice, ");
+        sql.append("SUM(ID.Quantity * ID.UnitPrice * (1 - ISNULL(ID.Discount, 0))) AS Amount "); // Tính Amount tại đây
+        sql.append("FROM Product P ");
+        sql.append("JOIN InvoiceDetail ID ON P.ProductID = ID.ProductID ");
+        sql.append("JOIN Invoice I ON ID.InvoiceID = I.InvoiceID ");
+        sql.append("WHERE I.SaleEmployeeID = ? ");
+        params.add(employeeId); // employeeId filter
+
+        sql.append(" AND I.Status = 1 "); // Chỉ lấy hóa đơn đã hoàn thành
+
+        if (shopId != null) { // Thêm lọc theo ShopID nếu cần (đảm bảo Sale chỉ xem trong shop của họ)
+            sql.append(" AND I.ShopID = ? ");
+            params.add(shopId);
+        }
+
+        if (startDate != null && endDate != null) {
+            sql.append(" AND I.InvoiceDate BETWEEN ? AND ? ");
+            params.add(new java.sql.Date(startDate.getTime()));
+            params.add(new java.sql.Date(endDate.getTime()));
+        }
+
+        sql.append(" GROUP BY P.ProductID, P.ProductName ");
+        // Nếu bạn muốn giá đơn vị chính xác cho mỗi sản phẩm nếu nó thay đổi theo thời gian, bạn có thể GROUP BY thêm ID.UnitPrice
+        // Nhưng AVG(UnitPrice) có lẽ là đủ cho mục đích thống kê
+        sql.append(" ORDER BY P.ProductName ");
+
+        int offset = (currentPage - 1) * recordsPerPage;
+        sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        params.add(offset);
+        params.add(recordsPerPage);
+
+        System.out.println("SQL Product Detail Query (getSoldProductDetailsByEmployee): " + sql.toString());
+        System.out.println("Product Detail Parameters: " + params.toString());
+
+        try (PreparedStatement ps = this.connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    // Tạo SoldProductDetailDto với Amount
+                    list.add(new SoldProductDetailDto(
+                            rs.getInt("ProductID"),
+                            rs.getString("ProductName"),
+                            rs.getInt("QuantitySold"),
+                            rs.getBigDecimal("UnitPrice"),
+                            rs.getBigDecimal("Amount") // Lấy cột Amount đã tính
+                    ));
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(InvoiceDetailDAO.class.getName()).log(Level.SEVERE, "Lỗi khi lấy chi tiết sản phẩm đã bán: " + ex.getMessage(), ex);
+            throw ex;
+        }
+        return list;
+    }
+
+// Thêm hàm lấy tổng số bản ghi cho chi tiết sản phẩm đã bán
+    public int getTotalSoldProductDetailsCountByEmployee(
+            Integer employeeId, Integer shopId, Date startDate, Date endDate) throws SQLException {
+
+        StringBuilder sql = new StringBuilder();
+        List<Object> params = new ArrayList<>();
+
+        sql.append("SELECT COUNT(DISTINCT P.ProductID) "); // Đếm số lượng sản phẩm duy nhất
+        sql.append("FROM Product P ");
+        sql.append("JOIN InvoiceDetail ID ON P.ProductID = ID.ProductID ");
+        sql.append("JOIN Invoice I ON ID.InvoiceID = I.InvoiceID ");
+        sql.append("WHERE I.SaleEmployeeID = ? ");
+        params.add(employeeId);
+
+        sql.append(" AND I.Status = 1 ");
+
+        if (shopId != null) {
+            sql.append(" AND I.ShopID = ? ");
+            params.add(shopId);
+        }
+
+        if (startDate != null && endDate != null) {
+            sql.append(" AND I.InvoiceDate BETWEEN ? AND ? ");
+            params.add(new java.sql.Date(startDate.getTime()));
+            params.add(new java.sql.Date(endDate.getTime()));
+        }
+
+        System.out.println("SQL Product Detail Count Query: " + sql.toString());
+        System.out.println("Product Detail Count Parameters: " + params.toString());
+
+        try (PreparedStatement ps = this.connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(InvoiceDetailDAO.class.getName()).log(Level.SEVERE, "Lỗi khi đếm tổng số chi tiết sản phẩm đã bán: " + ex.getMessage(), ex);
+            throw ex;
+        }
+        return 0;
+    }
+
+    public BigDecimal getTotalProductRevenueByInvoice(int invoiceId) throws SQLException {
+        BigDecimal totalProductRevenue = BigDecimal.ZERO;
+        String sql = "SELECT SUM(Quantity * UnitPrice) "
+                + "FROM InvoiceDetail "
+                + "WHERE InvoiceID = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, invoiceId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    totalProductRevenue = rs.getBigDecimal(1);
+                }
+            }
+        }
+        return totalProductRevenue != null ? totalProductRevenue : BigDecimal.ZERO;
+    }
+
+    public BigDecimal getTotalProductRevenueByShop(int shopId, Date fromDate, Date toDate) {
+        BigDecimal totalRevenue = BigDecimal.ZERO;
+        String sql = "SELECT SUM(ID.UnitPrice * ID.Quantity) AS TotalRevenue "
+                + "FROM InvoiceDetail ID "
+                + "JOIN Invoice I ON ID.InvoiceID = I.InvoiceID "
+                + "WHERE I.ShopID = ? AND I.Status = 1";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, shopId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    totalRevenue = rs.getBigDecimal("TotalRevenue");
+                    if (totalRevenue == null) {
+                        totalRevenue = BigDecimal.ZERO;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return totalRevenue;
+    }
+
     public List<InvoiceDetail> getDetailsWithProductInfoByInvoiceID(int invoiceID) {
         List<InvoiceDetail> list = new ArrayList<>();
-        
+
         String sql = "SELECT id.[InvoiceDetailID], id.[InvoiceID], id.[ProductID], id.[UnitPrice], "
                 + "id.[Quantity], id.[Discount], id.[TotalPrice], "
-                + "p.[ProductName]" 
+                + "p.[ProductName]"
                 + "FROM [dbo].[InvoiceDetail] id "
                 + "JOIN [dbo].[Product] p ON id.ProductID = p.ProductID "
                 + "WHERE id.InvoiceID = ?";
@@ -317,7 +627,7 @@ public class InvoiceDetailDAO {
             ptm.setInt(1, invoiceID);
             try (ResultSet rs = ptm.executeQuery()) {
                 while (rs.next()) {
-    
+
                     Product product = new Product(
                             rs.getInt("ProductID"),
                             rs.getString("ProductName"),
@@ -337,8 +647,8 @@ public class InvoiceDetailDAO {
                             rs.getBigDecimal("UnitPrice"),
                             rs.getInt("Quantity"),
                             rs.getDouble("Discount"),
-                            rs.getDouble("TotalPrice"), 
-                            product 
+                            rs.getDouble("TotalPrice"),
+                            product
                     );
                     list.add(detail);
                 }
@@ -348,5 +658,36 @@ public class InvoiceDetailDAO {
         }
         return list;
     }
+
+    public static void main(String[] args) {
+
+        Connection dbConnection = null;
+        try {
+            // Kết nối CSDL thông qua DBContext
+            DBContext dbContext = new DBContext("ShopDB_SWPP");
+            dbConnection = dbContext.getConnection();
+
+            System.out.println("Kết nối cơ sở dữ liệu thành công!");
+
+            // Tạo DAO và truyền connection
+            InvoiceDetailDAO dao = new InvoiceDetailDAO(dbConnection);
+
+            // Dữ liệu đầu vào
+            int employeeId = 4; // ID nhân viên Sale cần test
+            int shopId = 1;     // ID cửa hàng
+
+            // Thiết lập khoảng thời gian: từ 2025-06-22 đến 2025-07-22
+            Timestamp start = Timestamp.valueOf("2025-06-22 00:00:00");
+            Timestamp end = Timestamp.valueOf("2025-07-22 23:59:59");
+
+            // Gọi hàm test
+            int totalQuantity = dao.getTotalQuantitySoldForAllProductsByEmployee(employeeId, shopId, start, end);
+
+            // In kết quả
+            System.out.println("➡️ Tổng số lượng sản phẩm đã bán bởi nhân viên ID " + employeeId + ": " + totalQuantity);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
-    

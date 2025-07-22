@@ -5,6 +5,8 @@
 package DTO;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -16,17 +18,31 @@ public class SalesEmployeeStatisticDto {
     private String fullName;
     private BigDecimal totalRevenue;
     private int totalOrders;
+    private int totalProductsSold;
     private BigDecimal averageRevenuePerOrder;
+   
 
     public SalesEmployeeStatisticDto() {
     }
 
-    public SalesEmployeeStatisticDto(int employeeID, String fullName, BigDecimal totalRevenue, int totalOrders, BigDecimal averageRevenuePerOrder) {
+
+
+    public SalesEmployeeStatisticDto(int employeeID, String fullName, BigDecimal totalRevenue, int totalOrders, int totalProductsSold, BigDecimal averageRevenuePerOrder) {
         this.employeeID = employeeID;
         this.fullName = fullName;
         this.totalRevenue = totalRevenue;
         this.totalOrders = totalOrders;
+        this.totalProductsSold = totalProductsSold; 
         this.averageRevenuePerOrder = averageRevenuePerOrder;
+    
+    }
+
+    public int getTotalProductsSold() {
+        return totalProductsSold;
+    }
+
+    public void setTotalProductsSold(int totalProductsSold) {
+        this.totalProductsSold = totalProductsSold;
     }
 
     public BigDecimal getAverageRevenuePerOrder() {
@@ -36,6 +52,8 @@ public class SalesEmployeeStatisticDto {
     public void setAverageRevenuePerOrder(BigDecimal averageRevenuePerOrder) {
         this.averageRevenuePerOrder = averageRevenuePerOrder;
     }
+
+   
 
     public int getEmployeeID() {
         return employeeID;

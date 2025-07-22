@@ -77,7 +77,7 @@
         <servlet-class>Controller.Home</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>ShowProfile</servlet-name>
+<servlet-name>ShowProfile</servlet-name>
         <servlet-class>Controller.ShowProfile</servlet-class>
     </servlet>
     <servlet>
@@ -157,7 +157,7 @@
         <servlet-class>Controller.VNPayReturn</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>ExtendSubscription</servlet-name>
+<servlet-name>ExtendSubscription</servlet-name>
         <servlet-class>Controller.RenewPackage</servlet-class>
     </servlet>
     <servlet>
@@ -234,7 +234,7 @@
     </servlet>
     <servlet>
         <servlet-name>AddReceiptPayment</servlet-name>
-        <servlet-class>Controller.AddReceiptPayment</servlet-class>
+<servlet-class>Controller.AddReceiptPayment</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>AddPaymentVoucherServlet</servlet-name>
@@ -315,7 +315,7 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>UpdateProfile</servlet-name>
-        <url-pattern>/UpdateProfile</url-pattern>
+<url-pattern>/UpdateProfile</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ShowDetailEmployee</servlet-name>
@@ -394,7 +394,7 @@
         <url-pattern>/ExtendSubscription</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>EditPackage</servlet-name>
+<servlet-name>EditPackage</servlet-name>
         <url-pattern>/EditPackage</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
@@ -470,7 +470,7 @@
         <url-pattern>/AddPaymentVoucherServlet</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>ListProductServlet</servlet-name>
+<servlet-name>ListProductServlet</servlet-name>
         <url-pattern>/ListProductServlet</url-pattern>
     </servlet-mapping>
     <servlet-mapping>

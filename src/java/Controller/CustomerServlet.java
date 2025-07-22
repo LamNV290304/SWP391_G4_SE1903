@@ -7,11 +7,14 @@ package Controller;
 import Context.DBContext;
 import Dal.CustomerDAO;
 import Models.Customer;
+import Models.Employee;
+import Models.User;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
@@ -22,8 +25,25 @@ import java.util.List;
  */
 public class CustomerServlet extends HttpServlet {
 
-    DBContext connection = new DBContext("SWP1");
-    private CustomerDAO cDAO = new CustomerDAO(connection.getConnection());
+    private CustomerDAO cDAO;
+
+    private boolean initDAOs(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            HttpSession session = request.getSession(false);
+            if (session == null || session.getAttribute("databaseName") == null) {
+                response.sendRedirect("login.jsp");
+                return false;
+            }
+
+            String databaseName = (String) session.getAttribute("databaseName");
+            DBContext connection = new DBContext(databaseName);
+            cDAO = new CustomerDAO(connection.getConnection());
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -33,6 +53,7 @@ public class CustomerServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+         if (!initDAOs(request, response)) return;
         String action = request.getParameter("action");
         if (action == null) {
             action = "list";
@@ -66,6 +87,7 @@ public class CustomerServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+         if (!initDAOs(request, response)) return;
         String action = request.getParameter("action");
         if (action == null) {
             action = "addOrUpdate";
@@ -132,27 +154,25 @@ public class CustomerServlet extends HttpServlet {
         try {
             String name = request.getParameter("customerName");
             String phone = request.getParameter("customerPhone");
-            String email = request.getParameter("email");
-            String address = request.getParameter("address");
-            // Lấy invoiceID để quay lại hóa đơn
+            String email = request.getParameter("customerEmail");
+            String address = request.getParameter("customerAddress");
             String returnInvoiceID = request.getParameter("returnInvoiceID");
-
-            Timestamp createdDate = Timestamp.from(Instant.now());
-            String createdBy = (String) request.getAttribute("username"); //
-            if (createdBy == null || createdBy.isEmpty()) {
-                createdBy = "System";
+          
+            HttpSession session = request.getSession(false);
+            String createdBy = "admin";
+            if (session != null && session.getAttribute("user") != null) {
+                Employee currentEmployee = (Employee) session.getAttribute("Employee");
+                createdBy = currentEmployee.getUsername();
             }
 
-            Customer newCustomer = new Customer();
-            newCustomer.setCustomerName(name);
-            newCustomer.setPhone(phone);
-            newCustomer.setEmail(email);
-            newCustomer.setAddress(address);
-            newCustomer.setStatus(true);
-            newCustomer.setCreatedDate(createdDate);
-            newCustomer.setCreatedBy(createdBy);
+            Customer c = new Customer();
+            c.setCustomerName(name);
+            c.setPhone(phone);
+            c.setEmail(email);
+            c.setAddress(address);
+            c.setCreatedBy(createdBy);
 
-            int newCustomerID = cDAO.addCustomer(newCustomer);
+            int newCustomerID = cDAO.addCustomer(c);
             if (newCustomerID != -1) {
                 request.setAttribute("successMessage", "Thêm khách hàng thành công! ID: " + newCustomerID);
 

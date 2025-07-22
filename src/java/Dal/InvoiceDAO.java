@@ -32,6 +32,46 @@ public class InvoiceDAO {
         this.connection = connection;
     }
 
+    public BigDecimal getTotalAmountByShopAndDateRange(int shopId, Date startDate, Date endDate) throws SQLException {
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        // Giả sử cột ngày tháng là InvoiceDate trong bảng Invoice
+        String sql = "SELECT SUM(TotalAmount) FROM Invoice WHERE ShopID = ? AND InvoiceDate BETWEEN ? AND ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, shopId);
+            ps.setTimestamp(2, new Timestamp(startDate.getTime()));
+            ps.setTimestamp(3, new Timestamp(endDate.getTime()));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    totalAmount = rs.getBigDecimal(1);
+                    if (totalAmount == null) { // Xử lý trường hợp SUM trả về NULL nếu không có bản ghi
+                        totalAmount = BigDecimal.ZERO;
+                    }
+                }
+            }
+        }
+        return totalAmount;
+    }
+
+    public int getTotalQuantityByShopAndDateRange(int shopId, Date startDate, Date endDate) throws SQLException {
+        int totalQuantity = 0;
+        // Bạn cần một cột TotalQuantity trong bảng Invoice, hoặc phải tính toán từ InvoiceDetail
+        // Nếu Invoice chưa có TotalQuantity, bạn phải JOIN với InvoiceDetail và SUM Quantity
+        String sql = "SELECT SUM(ID.Quantity) "
+                + "FROM Invoice I JOIN InvoiceDetail ID ON I.InvoiceID = ID.InvoiceID "
+                + "WHERE I.ShopID = ? AND I.InvoiceDate BETWEEN ? AND ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, shopId);
+            ps.setTimestamp(2, new Timestamp(startDate.getTime()));
+            ps.setTimestamp(3, new Timestamp(endDate.getTime()));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    totalQuantity = rs.getInt(1);
+                }
+            }
+        }
+        return totalQuantity;
+    }
+
     public List<Invoice> getAllInvoices() {
 
         String sql = "SELECT InvoiceID, CustomerID, EmployeeID, ShopID, InvoiceDate, "
@@ -49,7 +89,6 @@ public class InvoiceDAO {
                         rs.getInt("ShopID"),
                         rs.getTimestamp("InvoiceDate"),
                         rs.getBigDecimal("TotalAmount"),
-                   
                         rs.getInt("VATRateID"),
                         rs.getString("Note"),
                         rs.getBoolean("Status")
@@ -63,8 +102,8 @@ public class InvoiceDAO {
 
     public int addInvoice(Invoice i) throws SQLException {
         String sqlInsert = "INSERT INTO [dbo].[Invoice]\n"
-                + "           ([CustomerID],[EmployeeID],[ShopID],[InvoiceDate],[TotalAmount], VATRateID,[Note],[Status])\n"
-                + "VALUES (?,?,?,?,?,?,?,?)";
+                + "           ([CustomerID],[EmployeeID],[ShopID],[InvoiceDate],[TotalAmount], VATRateID,[Note],[Status],[SaleEmployeeID])\n"
+                + "VALUES (?,?,?,?,?,?,?,?,?)";
 
         int generatedId = -1;
         long startTime = System.currentTimeMillis();
@@ -75,10 +114,15 @@ public class InvoiceDAO {
             ptmInsert.setInt(3, i.getShopID());
             ptmInsert.setTimestamp(4, Timestamp.from(Instant.now()));
             ptmInsert.setBigDecimal(5, i.getTotalAmount());
-           
+
             ptmInsert.setInt(6, i.getVatRateID());
             ptmInsert.setString(7, i.getNote());
             ptmInsert.setBoolean(8, i.isStatus());
+            if (i.getSaleEmployeeID() != null) {
+                ptmInsert.setInt(9, i.getSaleEmployeeID());
+            } else {
+                ptmInsert.setNull(9, java.sql.Types.INTEGER); // Đảm bảo SQL Server nhận là NULL INTEGER
+            }
 
             long preUpdate = System.currentTimeMillis();
             int affectedRows = ptmInsert.executeUpdate();
@@ -134,25 +178,35 @@ public class InvoiceDAO {
 
     public Invoice searchInvoice(int invoiceID) {
         String sql = "SELECT InvoiceID, CustomerID, EmployeeID, ShopID, InvoiceDate, "
-                + "TotalAmount, VATRateID, Note, Status "
+                + "TotalAmount, VATRateID, Note, Status, SaleEmployeeID "
                 + "FROM Invoice WHERE InvoiceID = ?";
         try {
             PreparedStatement ptm = connection.prepareStatement(sql);
             ptm.setInt(1, invoiceID);
             ResultSet rs = ptm.executeQuery();
             if (rs.next()) {
-                return new Invoice(
+                Invoice invoice = new Invoice(
                         rs.getInt("InvoiceID"),
                         rs.getInt("CustomerID"),
                         rs.getInt("EmployeeID"),
                         rs.getInt("ShopID"),
                         rs.getTimestamp("InvoiceDate"),
                         rs.getBigDecimal("TotalAmount"),
-                    
                         rs.getInt("VATRateID"),
                         rs.getString("Note"),
                         rs.getBoolean("Status")
                 );
+
+                // --- THÊM DÒNG NÀY ĐỂ ĐỌC VÀ GÁN SaleEmployeeID ---
+                int saleEmployeeIdFromDb = rs.getInt("SaleEmployeeID");
+                if (rs.wasNull()) { // Kiểm tra nếu giá trị trong DB là NULL
+                    invoice.setSaleEmployeeID(null);
+                } else {
+                    invoice.setSaleEmployeeID(saleEmployeeIdFromDb);
+                }
+                // --------------------------------------------------
+
+                return invoice;
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -163,9 +217,7 @@ public class InvoiceDAO {
     public List<Invoice> getInvoicesByCustomerID(int customerID) {
         List<Invoice> list = new ArrayList<>();
         String sql = "SELECT i.InvoiceID, i.CustomerID, c.CustomerName, i.EmployeeID, e.FullName AS EmployeeName, "
-
-                + "i.ShopID, s.ShopName, i.InvoiceDate, i.TotalAmount, i.VATRateID, i.Note, i.Status \n" 
-
+                + "i.ShopID, s.ShopName, i.InvoiceDate, i.TotalAmount, i.VATRateID, i.Note, i.Status \n"
                 + "FROM [dbo].[Invoice] i \n"
                 + "JOIN [dbo].[Customer] c ON i.CustomerID = c.CustomerID\n"
                 + "JOIN [dbo].[Shop] s ON i.ShopID = s.ShopID\n"
@@ -184,7 +236,6 @@ public class InvoiceDAO {
                             rs.getInt("ShopID"),
                             rs.getTimestamp("InvoiceDate"),
                             rs.getBigDecimal("TotalAmount"),
-                            
                             rs.getInt("VATRateID"),
                             rs.getString("Note"),
                             rs.getBoolean("Status"),
@@ -243,7 +294,6 @@ public class InvoiceDAO {
                             rs.getInt("ShopID"),
                             rs.getTimestamp("InvoiceDate"),
                             rs.getBigDecimal("TotalAmount"),
-                          
                             rs.getInt("VATRateID"),
                             rs.getString("Note"),
                             rs.getBoolean("Status"),
@@ -313,7 +363,6 @@ public class InvoiceDAO {
                         rs.getInt("ShopID"),
                         rs.getTimestamp("InvoiceDate"),
                         rs.getBigDecimal("TotalAmount"),
-                       
                         rs.getInt("VATRateID"),
                         rs.getString("Note"),
                         rs.getBoolean("Status"),
@@ -330,7 +379,7 @@ public class InvoiceDAO {
 
     public boolean updateInvoice(Invoice i) {
         String sql = "UPDATE [dbo].[Invoice]\n"
-                + "    SET [CustomerID] = ?\n"
+                + "   SET [CustomerID] = ?\n"
                 + "      ,[EmployeeID] = ?\n"
                 + "      ,[ShopID] = ?\n"
                 + "      ,[InvoiceDate] = ?\n"
@@ -338,7 +387,7 @@ public class InvoiceDAO {
                 + "      ,[Note] = ?\n"
                 + "      ,[Status] = ?\n"
                 + "      ,[VATRateID] = ?\n"
-            
+                + "      ,[SaleEmployeeID] = ?\n"
                 + " WHERE InvoiceID = ? ";
 
         try (PreparedStatement ptm = connection.prepareStatement(sql)) {
@@ -350,9 +399,12 @@ public class InvoiceDAO {
             ptm.setString(6, i.getNote());
             ptm.setBoolean(7, i.isStatus());
             ptm.setInt(8, i.getVatRateID());
-           
-
-            ptm.setInt(9, i.getInvoiceID());
+            if (i.getSaleEmployeeID() != null) {
+                ptm.setInt(9, i.getSaleEmployeeID());
+            } else {
+                ptm.setNull(9, java.sql.Types.INTEGER); // Đảm bảo SQL Server nhận là NULL INTEGER
+            }
+            ptm.setInt(10, i.getInvoiceID());
 
             int n = ptm.executeUpdate();
             return n > 0;

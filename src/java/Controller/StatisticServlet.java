@@ -6,23 +6,37 @@ package Controller;
 
 import DTO.SalesEmployeeStatisticDto;
 import Context.DBContext;
+import DTO.SoldProductDetailDto;
 import Dal.EmployeeDAO;
+import Dal.ExportStatisticDAO;
+import Dal.InvoiceDAO;
+import Dal.InvoiceDetailDAO;
 import Dal.ShopDAO;
 import Models.Employee;
 import Models.ShopOwner;
-import Models.Shop;
+import Utils.ExcelExporter;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.sql.Timestamp;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.sql.Date;
+import java.util.Date;
 import java.sql.SQLException;
+import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -31,19 +45,32 @@ import java.util.List;
 public class StatisticServlet extends HttpServlet {
 
     private DBContext dbContext;
+    private InvoiceDAO iDAO;
     private EmployeeDAO eDAO;
+    private InvoiceDetailDAO idetailDAO;
     private ShopDAO sDAO;
-    private static final int DEFAULT_RECORDS_PER_PAGE = 5;
+    private ExportStatisticDAO exDAO;
+
     private static final Logger LOGGER = Logger.getLogger(StatisticServlet.class.getName());
+    private static final int DEFAULT_RECORDS_PER_PAGE = 5;
 
-    @Override
-    public void init() throws ServletException {
-        super.init();
-
-        dbContext = new DBContext("SWP1");
-        eDAO = new EmployeeDAO(dbContext.getConnection());
-        sDAO = new ShopDAO(dbContext.getConnection());
-
+    public boolean init(HttpServletRequest request, HttpServletResponse response) {
+        String databaseName = (String) request.getSession().getAttribute("databaseName");
+        if (databaseName == null) {
+            try {
+                request.getRequestDispatcher("login.jsp").forward(request, response);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return false;
+        }
+        DBContext connection = new DBContext(databaseName);
+        idetailDAO = new InvoiceDetailDAO(connection.getConnection());
+        iDAO = new InvoiceDAO(connection.getConnection());
+        eDAO = new EmployeeDAO(connection.getConnection());
+        sDAO = new ShopDAO(connection.getConnection());
+        exDAO = new ExportStatisticDAO(connection.getConnection());
+        return true;
     }
 
     @Override
@@ -54,70 +81,65 @@ public class StatisticServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        // Logic chung nếu có
+
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        if (!init(request, response)) {
+            return;
+        }
+        String action = request.getParameter("action");
+        if ("export".equalsIgnoreCase(action)) {
+            try {
+                exportEmployeeStatisticExcel(request, response);
+            } catch (SQLException ex) {
+                Logger.getLogger(StatisticServlet.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return;
+        }
         HttpSession session = request.getSession();
         String userRoleName = null;
 
-        ShopOwner loggedInShopOwner = (ShopOwner) session.getAttribute("shopOwner");
-        if (loggedInShopOwner != null) {
-            userRoleName = "ShopOwner";
-        } else {
-            Employee loggedInEmployee = (Employee) session.getAttribute("Employee");
-            if (loggedInEmployee != null && loggedInEmployee.getRole() != null) {
-                userRoleName = loggedInEmployee.getRole().getName();
-            }
+        Employee loggedInEmployee = (Employee) session.getAttribute("Employee");
+        if (loggedInEmployee != null && loggedInEmployee.getRole() != null) {
+            userRoleName = loggedInEmployee.getRole().getName();
         }
-
-        // Redirect to login if user is not authenticated or role is unknown
-        if (userRoleName == null || "Unknown".equalsIgnoreCase(userRoleName) || userRoleName.isEmpty()) {
-            response.sendRedirect("login.jsp"); // Or a more appropriate login path
-            return;
-        }
-
-        String action = request.getParameter("action");
 
         // Handle specific actions like Excel export
-        if ("exportExcel".equals(action)) {
-//            exportSalesStatisticsToExcel(request, response);
-        } else {
-            try {
-                // Dispatch to role-specific handlers
-                switch (userRoleName) {
-                    case "Admin":
-                        handleAdminRequest(request, response);
-                        break;
-                    case "ShopOwner":
-                        handleShopOwnerRequest(request, response);
-                        break;
-                    case "Cashier":
-                        handleCashierRequest(request, response);
-                        break;
-                    case "Staff":
-                        handleStaffRequest(request, response);
-                        break;
-                    default:
-                        // If role is recognized but not handled, or not allowed
-                        response.sendError(HttpServletResponse.SC_FORBIDDEN, "Bạn không có quyền truy cập trang này.");
-                        return;
-                }
-                // Forward to the JSP page to display statistics
-                request.getRequestDispatcher("sale_statistics.jsp").forward(request, response);
-            } catch (SQLException e) {
-                LOGGER.log(Level.SEVERE, "Database error during statistics retrieval for role: " + userRoleName, e);
-                request.setAttribute("errorMessage", "Đã xảy ra lỗi cơ sở dữ liệu: " + e.getMessage());
-                request.getRequestDispatcher("sale_statistics.jsp").forward(request, response);
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Unexpected error during statistics retrieval for role: " + userRoleName, e);
-                request.setAttribute("errorMessage", "Đã xảy ra lỗi không mong muốn: " + e.getMessage());
-                request.getRequestDispatcher("sale_statistics.jsp").forward(request, response);
+//        if ("exportExcel".equals(action)) {
+////            exportSalesStatisticsToExcel(request, response);
+//        } else {
+        try {
+            // Dispatch to role-specific handlers
+            switch (userRoleName) {
+
+                case "Manager":
+                    handleManagerRequest(request, response);
+                    break;
+                case "Cashier":
+                    handleCashierRequest(request, response);
+                    break;
+                case "Sale":
+                    handleSaleRequest(request, response);
+                    break;
+                default:
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Bạn không có quyền truy cập trang này.");
+                    return;
             }
+
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Database error during statistics retrieval for role: " + userRoleName, e);
+            request.setAttribute("errorMessage", "Đã xảy ra lỗi cơ sở dữ liệu: " + e.getMessage());
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Unexpected error during statistics retrieval for role: " + userRoleName, e);
+            request.setAttribute("errorMessage", "Đã xảy ra lỗi không mong muốn: " + e.getMessage());
+
         }
+//        }
+
     }
 
     @Override
@@ -125,477 +147,454 @@ public class StatisticServlet extends HttpServlet {
             throws ServletException, IOException {
         doGet(request, response);
     }
-
     // --- Các phương thức handle cho từng vai trò ---
-    private void handleAdminRequest(HttpServletRequest request, HttpServletResponse response)
+
+    private void handleManagerRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
 
-        // Retrieve and parse request parameters
-        String startDateParam = request.getParameter("startDate");
-        String endDateParam = request.getParameter("endDate");
-        String shopIdParam = request.getParameter("shopId");
-        String employeeIdParam = request.getParameter("employeeId");
-        String pageParam = request.getParameter("page");
-
-        // Explicit date parsing for startDate
-        Date startDate = null;
-        try {
-            if (startDateParam != null && !startDateParam.isEmpty()) {
-                startDate = Date.valueOf(startDateParam);
-            }
-        } catch (IllegalArgumentException e) {
-            request.setAttribute("errorMessage", "Định dạng ngày bắt đầu không hợp lệ. Vui lòng sử dụng định dạng YYYY-MM-DD.");
-        }
-
-        // Explicit date parsing for endDate
-        Date endDate = null;
-        try {
-            if (endDateParam != null && !endDateParam.isEmpty()) {
-                endDate = Date.valueOf(endDateParam);
-            }
-        } catch (IllegalArgumentException e) {
-            request.setAttribute("errorMessage", "Định dạng ngày kết thúc không hợp lệ. Vui lòng sử dụng định dạng YYYY-MM-DD.");
-        }
-
-        // Explicit integer parsing for filterShopId
-        Integer filterShopId = null;
-        if (shopIdParam != null && !shopIdParam.isEmpty() && !"all".equals(shopIdParam)) {
-            try {
-                filterShopId = Integer.parseInt(shopIdParam);
-            } catch (NumberFormatException e) {
-                request.setAttribute("errorMessage", "Tham số cửa hàng không hợp lệ.");
-            }
-        }
-
-        // Explicit integer parsing for targetEmployeeId
-        Integer targetEmployeeId = null;
-        if (employeeIdParam != null && !employeeIdParam.isEmpty() && !"all".equals(employeeIdParam)) {
-            try {
-                targetEmployeeId = Integer.parseInt(employeeIdParam);
-            } catch (NumberFormatException e) {
-                request.setAttribute("errorMessage", "Tham số nhân viên không hợp lệ.");
-            }
-        }
-
-
-        // Fetch all shops for the filter dropdown
-        List<Shop> allShops = sDAO.getAllShops(); // "SWP1" should ideally be dynamic or from config
-
-
-        request.setAttribute("allShops", allShops);
-
-        // Define allowed roles for sales statistics (Admin can see all relevant roles)
-        List<Integer> allowedRoleIds = List.of(1, 2, 3, 4); // Example: Admin, ShopOwner, Cashier, Staff
-
-        // Get filterable employees for the dropdown based on selected shop and allowed roles
-        List<SalesEmployeeStatisticDto> filterableEmployeeDTOs = eDAO.getSalesStatistics(
-                null, filterShopId, null, null, 1, Integer.MAX_VALUE, allowedRoleIds);
-
-        List<Employee> filterableEmployees = new ArrayList<>();
-        for (SalesEmployeeStatisticDto dto : filterableEmployeeDTOs) {
-            Employee emp = new Employee();
-            emp.setId(dto.getEmployeeID());
-            emp.setFullname(dto.getFullName());
-            filterableEmployees.add(emp);
-        }
-        request.setAttribute("allEmployees", filterableEmployees);
-
-        // Validate if the selected employee is valid for the current filters
-        if (targetEmployeeId != null && !isEmployeeInSalesStatisticList(targetEmployeeId, filterableEmployeeDTOs)) {
-            request.setAttribute("errorMessage", "Nhân viên được chọn không tồn tại hoặc không thuộc các vai trò được xem.");
-            targetEmployeeId = null; // Reset if invalid
-        }
-
-        // Explicit integer parsing for currentPage (pagination)
-        int currentPage = 1;
-        if (pageParam != null && !pageParam.isEmpty()) {
-            try {
-                currentPage = Math.max(1, Integer.parseInt(pageParam));
-            } catch (NumberFormatException e) {
-                request.setAttribute("errorMessage", "Tham số trang không hợp lệ.");
-                currentPage = 1; // Default to first page on error
-            }
-        }
-        int recordsPerPage = DEFAULT_RECORDS_PER_PAGE;
-
-        int totalRecords = eDAO.getTotalSalesStatisticsCount(
-                targetEmployeeId, filterShopId, startDate, endDate, allowedRoleIds);
-        int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
-
-        // Adjust current page to be within valid range
-        currentPage = Math.max(1, Math.min(currentPage, totalPages > 0 ? totalPages : 1));
-
-        // Fetch sales statistics based on filters and pagination
-        List<SalesEmployeeStatisticDto> salesStatistics = eDAO.getSalesStatistics(
-                targetEmployeeId, filterShopId, startDate, endDate, currentPage, recordsPerPage, allowedRoleIds);
-
-        // Set attributes for JSP
-        request.setAttribute("salesStatistics", salesStatistics);
-        request.setAttribute("userRole", "Admin");
-        request.setAttribute("statisticTitle", "Thống kê Doanh số Toàn hệ thống (Admin)");
-        request.setAttribute("currentPage", currentPage);
-        request.setAttribute("totalPages", totalPages);
-        request.setAttribute("recordsPerPage", recordsPerPage);
-        request.setAttribute("totalRecords", totalRecords);
-
-        // Retain filter values in the request for sticky forms
-        request.setAttribute("startDate", startDateParam);
-        request.setAttribute("endDate", endDateParam);
-        request.setAttribute("selectedShopId", shopIdParam);
-        request.setAttribute("selectedEmployeeId", employeeIdParam);
-    }
-
-    /**
-     * Handles requests for the ShopOwner role. Filters statistics by the shop
-     * owned by the logged-in ShopOwner. Allows further filtering by date range
-     * and employees within their shop.
-     *
-     * @param request The HttpServletRequest.
-     * @param response The HttpServletResponse.
-     * @throws ServletException If a servlet-specific error occurs.
-     * @throws IOException If an I/O error occurs.
-     * @throws SQLException If a database access error occurs.
-     */
-    private void handleShopOwnerRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException, SQLException {
         HttpSession session = request.getSession();
-        ShopOwner loggedInShopOwner = (ShopOwner) session.getAttribute("shopOwner");
+        Employee loggedInManager = (Employee) session.getAttribute("Employee");
 
-        // Ensure ShopOwner is logged in
-        if (loggedInShopOwner == null) {
+        if (loggedInManager == null || loggedInManager.getShopId() == 0
+                || loggedInManager.getRole() == null
+                || !"Manager".equals(loggedInManager.getRole().getName())) {
             response.sendRedirect("login.jsp");
             return;
         }
 
-        Shop shopOfOwner = sDAO.getShopByName(loggedInShopOwner.getShopName(), loggedInShopOwner.getDatabaseName());
-        Integer shopId = (shopOfOwner != null) ? shopOfOwner.getShopID() : null;
+        Integer shopId = loggedInManager.getShopId();
 
-        if (shopId == null) {
-            request.setAttribute("errorMessage", "Không tìm thấy thông tin cửa hàng cho ShopOwner này. Vui lòng kiểm tra lại cấu hình ShopOwner.");
+        String selectedEmployeeIdParam = request.getParameter("employeeId");
+        String pageParam = request.getParameter("page");
+        String selectedMonthParam = request.getParameter("selectedMonth");
+        String startDateParam = request.getParameter("startDate");
+        String endDateParam = request.getParameter("endDate");
+        Timestamp startDate = null;
+        Timestamp endDate = null;
+
+        try {
+            if (startDateParam != null && !startDateParam.isEmpty() && endDateParam != null && !endDateParam.isEmpty()) {
+                startDate = Timestamp.valueOf(startDateParam + " 00:00:00");
+                endDate = Timestamp.valueOf(endDateParam + " 23:59:59");
+            } else if (selectedMonthParam != null && !selectedMonthParam.isEmpty()) {
+                int month = Integer.parseInt(selectedMonthParam);
+                int currentYear = LocalDate.now().getYear(); // Lấy năm hiện tại
+                YearMonth yearMonth = YearMonth.of(currentYear, month);
+                startDate = Timestamp.valueOf(yearMonth.atDay(1).atStartOfDay());
+                endDate = Timestamp.valueOf(yearMonth.atEndOfMonth().atTime(23, 59, 59));
+            } else {
+                // Mặc định: 1 tháng trước đến hiện tại
+                LocalDate oneMonthAgo = LocalDate.now().minusMonths(1);
+                startDateParam = oneMonthAgo.toString();
+                startDate = Timestamp.valueOf(oneMonthAgo.atStartOfDay());
+
+                LocalDate today = LocalDate.now();
+                endDateParam = today.toString();
+                endDate = Timestamp.valueOf(today.atTime(23, 59, 59));
+            }
+
+        } catch (IllegalArgumentException e) {
+            request.setAttribute("errorMessage", "Định dạng ngày không hợp lệ.");
+            // Đảm bảo truyền đủ các tham số, bao gồm selectedMonthParam
+            setCommonRequestAttributes(request, loggedInManager, new ArrayList<>(), BigDecimal.ZERO, 0, 1, 1, 0, startDateParam, endDateParam, selectedMonthParam);
+            request.setAttribute("statisticType", "managerSummary"); // Giữ nguyên loại thống kê
+            request.getRequestDispatcher("sale_statistics.jsp").forward(request, response);
             return;
         }
 
-        // Retrieve and parse request parameters
-        String startDateParam = request.getParameter("startDate");
-        String endDateParam = request.getParameter("endDate");
-        String selectedEmployeeIdParam = request.getParameter("employeeId");
-        String pageParam = request.getParameter("page");
+        // Lấy tất cả Sale + Cashier trong shop
+        List<Employee> allowedEmployees = eDAO.getEmployeesByRoleAndShop(shopId, List.of(3, 4));
+        request.setAttribute("filterableEmployees", allowedEmployees);
 
-        // Explicit date parsing for startDate
-        Date startDate = null;
-        try {
-            if (startDateParam != null && !startDateParam.isEmpty()) {
-                startDate = Date.valueOf(startDateParam);
-            }
-        } catch (IllegalArgumentException e) {
-            request.setAttribute("errorMessage", "Định dạng ngày bắt đầu không hợp lệ. Vui lòng sử dụng định dạng YYYY-MM-DD.");
+        if (selectedEmployeeIdParam == null || selectedEmployeeIdParam.isEmpty()) {
+            selectedEmployeeIdParam = "all";
         }
-
-        // Explicit date parsing for endDate
-        Date endDate = null;
-        try {
-            if (endDateParam != null && !endDateParam.isEmpty()) {
-                endDate = Date.valueOf(endDateParam);
-            }
-        } catch (IllegalArgumentException e) {
-            request.setAttribute("errorMessage", "Định dạng ngày kết thúc không hợp lệ. Vui lòng sử dụng định dạng YYYY-MM-DD.");
-        }
-
-        // Explicit integer parsing for targetEmployeeId
-        Integer targetEmployeeId = null;
-        if (selectedEmployeeIdParam != null && !selectedEmployeeIdParam.isEmpty() && !"all".equals(selectedEmployeeIdParam)) {
-            try {
-                targetEmployeeId = Integer.parseInt(selectedEmployeeIdParam);
-            } catch (NumberFormatException e) {
-                request.setAttribute("errorMessage", "Tham số nhân viên không hợp lệ.");
-            }
-        }
-
-        // Allowed roles for ShopOwner (Cashier and Staff within their shop)
-        List<Integer> allowedRoleIds = List.of(3, 4); // Example: Cashier, Staff
-
-        // Get filterable employees (only those in the owner's shop with allowed roles)
-        List<SalesEmployeeStatisticDto> filterableEmployeeDTOs = eDAO.getSalesStatistics(
-                null, shopId, null, null, 1, Integer.MAX_VALUE, allowedRoleIds);
-
-        List<Employee> filterableEmployees = new ArrayList<>();
-        for (SalesEmployeeStatisticDto dto : filterableEmployeeDTOs) {
-            Employee emp = new Employee();
-            emp.setId(dto.getEmployeeID());
-            emp.setFullname(dto.getFullName());
-            filterableEmployees.add(emp);
-        }
-        request.setAttribute("filterableEmployees", filterableEmployees);
-
-        // Validate if the selected employee is valid for the current filters
-        if (targetEmployeeId != null && !isEmployeeInSalesStatisticList(targetEmployeeId, filterableEmployeeDTOs)) {
-            request.setAttribute("errorMessage", "Nhân viên được chọn không thuộc cửa hàng của bạn hoặc không phải là nhân viên bán hàng/thu ngân.");
-            targetEmployeeId = null; // Reset if invalid
-        }
-
-        // Explicit integer parsing for currentPage (pagination)
-        int currentPage = 1;
-        if (pageParam != null && !pageParam.isEmpty()) {
-            try {
-                currentPage = Math.max(1, Integer.parseInt(pageParam));
-            } catch (NumberFormatException e) {
-                request.setAttribute("errorMessage", "Tham số trang không hợp lệ.");
-                currentPage = 1; // Default to first page on error
-            }
-        }
-        int recordsPerPage = DEFAULT_RECORDS_PER_PAGE;
-
-        int totalRecords = eDAO.getTotalSalesStatisticsCount(
-                targetEmployeeId, shopId, startDate, endDate, allowedRoleIds);
-        int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
-
-        currentPage = Math.max(1, Math.min(currentPage, totalPages > 0 ? totalPages : 1));
-
-        // Fetch sales statistics
-        List<SalesEmployeeStatisticDto> salesStatistics = eDAO.getSalesStatistics(
-                targetEmployeeId, shopId, startDate, endDate, currentPage, recordsPerPage, allowedRoleIds);
-
-        // Set attributes for JSP
-        request.setAttribute("salesStatistics", salesStatistics);
-        request.setAttribute("userRole", "ShopOwner");
-        request.setAttribute("statisticTitle", "Thống kê Doanh số Bán hàng (Chủ cửa hàng)");
-        request.setAttribute("startDate", startDateParam);
-        request.setAttribute("endDate", endDateParam);
         request.setAttribute("selectedEmployeeId", selectedEmployeeIdParam);
-        request.setAttribute("currentPage", currentPage);
-        request.setAttribute("totalPages", totalPages);
-        request.setAttribute("recordsPerPage", recordsPerPage);
-        request.setAttribute("totalRecords", totalRecords);
+        request.setAttribute("selectedMonth", selectedMonthParam); // Đã có
+
+        int currentPage = 1;
+        try {
+            if (pageParam != null) {
+                currentPage = Integer.parseInt(pageParam);
+            }
+        } catch (NumberFormatException e) {
+            currentPage = 1;
+        }
+
+        int totalRecords = 1;
+        int totalPages = 0;
+        List<SalesEmployeeStatisticDto> statistics = new ArrayList<>();
+
+        if ("all".equals(selectedEmployeeIdParam)) {
+
+            List<Integer> employeeIds = new ArrayList<>();
+            employeeIds.add(loggedInManager.getId());
+            for (Employee emp : allowedEmployees) {
+                employeeIds.add(emp.getId());
+
+            }
+
+            totalRecords = eDAO.getTotalSalesStatisticsCountByEmployeeIds(employeeIds, shopId, startDate, endDate);
+
+            totalPages = (int) Math.ceil((double) totalRecords / DEFAULT_RECORDS_PER_PAGE);
+            currentPage = Math.max(1, Math.min(currentPage, totalPages));
+            statistics = eDAO.getSalesStatisticsByEmployeeIds(employeeIds, shopId, startDate, endDate, currentPage, DEFAULT_RECORDS_PER_PAGE);
+
+        } else {
+
+            try {
+                int employeeId = Integer.parseInt(selectedEmployeeIdParam);
+
+                Employee selected = allowedEmployees.stream()
+                        .filter(emp -> emp.getId() == employeeId)
+                        .findFirst()
+                        .orElse(null);
+
+                if (selected != null) {
+
+                    int roleId = selected.getRoleId();
+                    totalRecords = eDAO.getTotalSalesStatisticsCount(employeeId, shopId, startDate, endDate, List.of(roleId));
+
+                    totalPages = (int) Math.ceil((double) totalRecords / DEFAULT_RECORDS_PER_PAGE);
+                    currentPage = Math.max(1, Math.min(currentPage, totalPages));
+                    statistics = eDAO.getSalesStatistics(employeeId, shopId, startDate, endDate, currentPage, DEFAULT_RECORDS_PER_PAGE, List.of(roleId));
+                    if (roleId == 4) {
+
+                        List<SoldProductDetailDto> productSaleStatistics = idetailDAO.getSoldProductDetailsByEmployee(
+                                employeeId, shopId, startDate, endDate, currentPage, 5);
+
+                        BigDecimal overallTotalAmountSold = idetailDAO.getTotalAmountSoldForAllProductsByEmployee(employeeId, shopId, startDate, endDate);
+                        int overallTotalQuantitySold = idetailDAO.getTotalQuantitySoldForAllProductsByEmployee(employeeId, shopId, startDate, endDate);
+
+                        setCommonRequestAttributesForSale(request, selected, productSaleStatistics, overallTotalAmountSold, overallTotalQuantitySold,
+                                currentPage, totalPages, totalRecords, startDateParam, endDateParam, selectedMonthParam);
+                        request.setAttribute("userRole", "Cashier");
+                        request.setAttribute("statisticType", "saleProductDetail");
+                        request.getRequestDispatcher("sale_statistics.jsp").forward(request, response);
+
+                    } else {
+                        request.setAttribute("statisticType", "cashierSummary");
+                    }
+                } else {
+                    request.setAttribute("errorMessage", "Nhân viên được chọn không hợp lệ hoặc không thuộc cửa hàng.");
+                }
+            } catch (NumberFormatException e) {
+                request.setAttribute("errorMessage", "Tham số nhân viên không hợp lệ: " + selectedEmployeeIdParam);
+            }
+        }
+
+        BigDecimal totalSoldRevenue = idetailDAO.getTotalProductRevenueByShop(shopId, startDate, endDate);
+        int totalSoldProducts = idetailDAO.getTotalSoldProductsByShop(shopId);
+
+        setCommonRequestAttributes(request, loggedInManager, statistics, totalSoldRevenue, totalSoldProducts,
+                currentPage, totalPages, totalRecords, startDateParam, endDateParam, selectedMonthParam);
+
+        request.setAttribute("userRole", "Manager");
+        request.setAttribute("statisticType", "managerSummary");
+        request.getRequestDispatcher("sale_statistics.jsp").forward(request, response);
     }
 
-    /**
-     * Handles requests for the Cashier role. Cashiers can only view statistics
-     * for employees within their own shop, including themselves. They can
-     * filter by date range and other employees in their shop.
-     *
-     * @param request The HttpServletRequest.
-     * @param response The HttpServletResponse.
-     * @throws ServletException If a servlet-specific error occurs.
-     * @throws IOException If an I/O error occurs.
-     * @throws SQLException If a database access error occurs.
-     */
     private void handleCashierRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
         HttpSession session = request.getSession();
         Employee loggedInCashier = (Employee) session.getAttribute("Employee");
 
-        // Validate logged-in cashier information
         if (loggedInCashier == null || loggedInCashier.getId() == 0 || loggedInCashier.getShopId() == 0) {
             request.setAttribute("errorMessage", "Thông tin nhân viên thu ngân không khả dụng hoặc không có thông tin cửa hàng.");
+            request.setAttribute("statisticType", "cashierSummary");
+            request.getRequestDispatcher("sale_statistics.jsp").forward(request, response);
             return;
         }
 
-        Integer cashierShopId = loggedInCashier.getShopId();
-        // Integer loggedInCashierId = loggedInCashier.getId(); // Not directly used as a filter here but could be.
-
-        // Retrieve and parse request parameters
+        Integer shopId = loggedInCashier.getShopId();
+        int currentPage = 1;
+        try {
+            String pageParam = request.getParameter("page");
+            if (pageParam != null) {
+                currentPage = Integer.parseInt(pageParam);
+            }
+        } catch (NumberFormatException ex) {
+            currentPage = 1;
+        }
+        int totalPages = 1;
+        int totalRecords = 0;
         String startDateParam = request.getParameter("startDate");
         String endDateParam = request.getParameter("endDate");
+        String selectedMonthParam = request.getParameter("selectedMonth");
+        Timestamp startDate = null;
+        Timestamp endDate = null;
+
+        try {
+            if (selectedMonthParam != null && !selectedMonthParam.isEmpty()) {
+
+                int month = Integer.parseInt(selectedMonthParam);
+                int currentYear = LocalDate.now().getYear();
+                YearMonth yearMonth = YearMonth.of(currentYear, month);
+                startDate = Timestamp.valueOf(yearMonth.atDay(1).atStartOfDay());
+                endDate = Timestamp.valueOf(yearMonth.atEndOfMonth().atTime(23, 59, 59));
+
+                startDateParam = null;
+                endDateParam = null;
+
+            } else if (startDateParam != null && !startDateParam.isEmpty() && endDateParam != null && !endDateParam.isEmpty()) {
+
+                startDate = Timestamp.valueOf(startDateParam + " 00:00:00");
+                endDate = Timestamp.valueOf(endDateParam + " 23:59:59");
+            } else {
+
+                LocalDate oneMonthAgo = LocalDate.now().minusMonths(1);
+                startDateParam = oneMonthAgo.toString();
+                startDate = Timestamp.valueOf(oneMonthAgo.atStartOfDay());
+
+                LocalDate today = LocalDate.now();
+                endDateParam = today.toString();
+                endDate = Timestamp.valueOf(today.atTime(23, 59, 59));
+            }
+
+        } catch (IllegalArgumentException e) {
+            request.setAttribute("errorMessage", "Định dạng ngày không hợp lệ.");
+
+            setCommonRequestAttributes(request, loggedInCashier, new ArrayList<>(), BigDecimal.ZERO, 0, 1, 1, 0, startDateParam, endDateParam, selectedMonthParam);
+            request.setAttribute("statisticType", "cashierSummary");
+            request.getRequestDispatcher("sale_statistics.jsp").forward(request, response);
+            return;
+        }
+
+        List<Employee> salesEmployeesInShop = eDAO.getEmployeesByRoleAndShop(shopId, List.of(4));
+        List<Employee> filterableEmployees = new ArrayList<>();
+        filterableEmployees.add(loggedInCashier);
+        for (Employee emp : salesEmployeesInShop) {
+            if (emp.getId() != loggedInCashier.getId()) {
+                filterableEmployees.add(emp);
+            }
+        }
+        request.setAttribute("filterableEmployees", filterableEmployees);
+
         String selectedEmployeeIdParam = request.getParameter("employeeId");
-        String pageParam = request.getParameter("page");
-
-        // Explicit date parsing for startDate
-        Date startDate = null;
-        try {
-            if (startDateParam != null && !startDateParam.isEmpty()) {
-                startDate = Date.valueOf(startDateParam);
-            }
-        } catch (IllegalArgumentException e) {
-            request.setAttribute("errorMessage", "Định dạng ngày bắt đầu không hợp lệ. Vui lòng sử dụng định dạng YYYY-MM-DD.");
+        if (selectedEmployeeIdParam == null || selectedEmployeeIdParam.isEmpty()) {
+            selectedEmployeeIdParam = "all";
         }
+        request.setAttribute("selectedEmployeeId", selectedEmployeeIdParam);
+        request.setAttribute("selectedMonth", selectedMonthParam);
 
-        // Explicit date parsing for endDate
-        Date endDate = null;
-        try {
-            if (endDateParam != null && !endDateParam.isEmpty()) {
-                endDate = Date.valueOf(endDateParam);
+        List<SalesEmployeeStatisticDto> salesStatistics = new ArrayList<>();
+        if ("all".equals(selectedEmployeeIdParam)) {
+
+            List<Integer> employeeIds = new ArrayList<>();
+            employeeIds.add(loggedInCashier.getId());
+            for (Employee emp : salesEmployeesInShop) {
+                employeeIds.add(emp.getId());
             }
-        } catch (IllegalArgumentException e) {
-            request.setAttribute("errorMessage", "Định dạng ngày kết thúc không hợp lệ. Vui lòng sử dụng định dạng YYYY-MM-DD.");
-        }
+            totalRecords = eDAO.getTotalSalesStatisticsCountByEmployeeIds(employeeIds, shopId, startDate, endDate);
 
-        // Explicit integer parsing for targetEmployeeId
-        Integer targetEmployeeId = null;
-        if (selectedEmployeeIdParam != null && !selectedEmployeeIdParam.isEmpty() && !"all".equals(selectedEmployeeIdParam)) {
+            totalPages = (int) Math.ceil((double) totalRecords / DEFAULT_RECORDS_PER_PAGE);
+            currentPage = Math.max(1, Math.min(currentPage, totalPages));
+            salesStatistics = eDAO.getSalesStatisticsByEmployeeIds(employeeIds, shopId, startDate, endDate, currentPage, DEFAULT_RECORDS_PER_PAGE);
+
+        } else {
             try {
-                targetEmployeeId = Integer.parseInt(selectedEmployeeIdParam);
+                int employeeId = Integer.parseInt(selectedEmployeeIdParam);
+
+                Employee selected = filterableEmployees.stream()
+                        .filter(emp -> emp.getId() == employeeId)
+                        .findFirst()
+                        .orElse(null);
+
+                if (selected != null) {
+
+                    int roleId = selected.getRoleId();
+                    totalRecords = eDAO.getTotalSalesStatisticsCount(employeeId, shopId, startDate, endDate, List.of(roleId));
+
+                    totalPages = (int) Math.ceil((double) totalRecords / DEFAULT_RECORDS_PER_PAGE);
+                    currentPage = Math.max(1, Math.min(currentPage, totalPages));
+                    salesStatistics = eDAO.getSalesStatistics(employeeId, shopId, startDate, endDate, currentPage, DEFAULT_RECORDS_PER_PAGE, List.of(roleId));
+                    if (roleId == 4) {
+
+                        List<SoldProductDetailDto> productSaleStatistics = idetailDAO.getSoldProductDetailsByEmployee(
+                                employeeId, shopId, startDate, endDate, currentPage, DEFAULT_RECORDS_PER_PAGE);
+
+                        BigDecimal overallTotalAmountSold = idetailDAO.getTotalAmountSoldForAllProductsByEmployee(employeeId, shopId, startDate, endDate);
+                        int overallTotalQuantitySold = idetailDAO.getTotalQuantitySoldForAllProductsByEmployee(employeeId, shopId, startDate, endDate);
+
+                        setCommonRequestAttributesForSale(request, selected, productSaleStatistics, overallTotalAmountSold, overallTotalQuantitySold,
+                                currentPage, totalPages, totalRecords, startDateParam, endDateParam, selectedMonthParam);
+                        request.setAttribute("userRole", "Cashier");
+                        request.setAttribute("statisticType", "saleProductDetail");
+                        request.getRequestDispatcher("sale_statistics.jsp").forward(request, response);
+
+                    } else {
+                        request.setAttribute("statisticType", "cashierSummary");
+                    }
+                } else {
+                    request.setAttribute("errorMessage", "Nhân viên được chọn không hợp lệ hoặc không thuộc cửa hàng.");
+                }
             } catch (NumberFormatException e) {
-                request.setAttribute("errorMessage", "Tham số nhân viên không hợp lệ.");
+                request.setAttribute("errorMessage", "Tham số nhân viên không hợp lệ: " + selectedEmployeeIdParam);
             }
         }
 
-        // Allowed roles for Cashier's view (other cashiers and staff in their shop)
-        List<Integer> allowedRoleIds = List.of(3, 4); // Example: Cashier, Staff
+        BigDecimal totalSoldRevenue = idetailDAO.getTotalProductRevenueByShop(shopId, startDate, endDate);
+        int totalSoldProducts = idetailDAO.getTotalSoldProductsByShop(shopId);
 
-        // Get filterable employees within the cashier's shop and allowed roles
-        List<SalesEmployeeStatisticDto> filterableEmployeeDTOs = eDAO.getSalesStatistics(
-                null, cashierShopId, null, null, 1, Integer.MAX_VALUE, allowedRoleIds);
-
-        List<Employee> filterableEmployees = new ArrayList<>();
-        for (SalesEmployeeStatisticDto dto : filterableEmployeeDTOs) {
-            Employee emp = new Employee();
-            emp.setId(dto.getEmployeeID());
-            emp.setFullname(dto.getFullName());
-            filterableEmployees.add(emp);
+        setCommonRequestAttributes(request, loggedInCashier, salesStatistics, totalSoldRevenue, totalSoldProducts,
+                currentPage, totalPages, totalRecords, startDateParam, endDateParam, selectedMonthParam);
+        if (request.getAttribute("statisticType") == null) {
+            request.setAttribute("statisticType", "cashierSummary");
         }
-        request.setAttribute("filterableEmployees", filterableEmployees);
+        request.getRequestDispatcher("sale_statistics.jsp").forward(request, response);
+    }
 
-        // Validate selected employee
-        if (targetEmployeeId != null && !isEmployeeInSalesStatisticList(targetEmployeeId, filterableEmployeeDTOs)) {
-            request.setAttribute("errorMessage", "Nhân viên được chọn không tồn tại hoặc không thuộc cửa hàng của bạn/không phải nhân viên bán hàng.");
-            targetEmployeeId = null; // Reset if invalid
-        }
+    private void setCommonRequestAttributes(HttpServletRequest request, Employee loggedInCashier,
+            List<SalesEmployeeStatisticDto> salesStatistics,
+            BigDecimal totalSoldRevenue, int totalOrders,
+            int currentPage, int totalPages, int totalRecords,
+            String startDateParam, String endDateParam, String selectedMonthParam) {
+        request.setAttribute("totalOrders", totalOrders);
+        request.setAttribute("totalSoldRevenue", totalSoldRevenue);
 
-        // Explicit integer parsing for currentPage (pagination)
-        int currentPage = 1;
-        if (pageParam != null && !pageParam.isEmpty()) {
-            try {
-                currentPage = Math.max(1, Integer.parseInt(pageParam));
-            } catch (NumberFormatException e) {
-                request.setAttribute("errorMessage", "Tham số trang không hợp lệ.");
-                currentPage = 1; // Default to first page on error
-            }
-        }
-        int recordsPerPage = DEFAULT_RECORDS_PER_PAGE;
+        request.setAttribute("salesStatistics", salesStatistics != null ? salesStatistics : new ArrayList<>());
 
-        int totalRecords = eDAO.getTotalSalesStatisticsCount(
-                targetEmployeeId, cashierShopId, startDate, endDate, allowedRoleIds);
-        int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
+        request.setAttribute("userRole", loggedInCashier != null && loggedInCashier.getRole() != null ? loggedInCashier.getRole().getName() : "Unknown");
 
-        currentPage = Math.max(1, Math.min(currentPage, totalPages > 0 ? totalPages : 1));
-
-        // Fetch sales statistics
-        List<SalesEmployeeStatisticDto> salesStatistics = eDAO.getSalesStatistics(
-                targetEmployeeId, cashierShopId, startDate, endDate, currentPage, recordsPerPage, allowedRoleIds);
-
-        // Set attributes for JSP
-        request.setAttribute("salesStatistics", salesStatistics);
-        request.setAttribute("userRole", "Cashier");
-        request.setAttribute("statisticTitle", "Thống kê Doanh số (Thu ngân)");
+        request.setAttribute("statisticTitle", "Thống kê Doanh số của " + loggedInCashier.getFullname());
         request.setAttribute("startDate", startDateParam);
         request.setAttribute("endDate", endDateParam);
-        request.setAttribute("selectedEmployeeId", selectedEmployeeIdParam);
         request.setAttribute("currentPage", currentPage);
         request.setAttribute("totalPages", totalPages);
-        request.setAttribute("recordsPerPage", recordsPerPage);
+        request.setAttribute("selectedMonth", selectedMonthParam);
+        request.setAttribute("recordsPerPage", DEFAULT_RECORDS_PER_PAGE);
+        request.setAttribute("totalRecords", totalRecords);
+
+    }
+
+    private void setCommonRequestAttributesForSale(HttpServletRequest request, Employee loggedInEmployee,
+            List<SoldProductDetailDto> productSaleStatistics,
+            BigDecimal totalSoldRevenue, int totalQuantitySold,
+            int currentPage, int totalPages, int totalRecords,
+            String startDateParam, String endDateParam, String selectedMonthParam) {
+
+        request.setAttribute("totalSoldRevenue", totalSoldRevenue != null ? totalSoldRevenue : BigDecimal.ZERO);
+        request.setAttribute("totalQuantitySold", totalQuantitySold);
+
+        request.setAttribute("productSaleStatistics", productSaleStatistics != null ? productSaleStatistics : new ArrayList<>());
+        request.setAttribute("userRole", loggedInEmployee != null && loggedInEmployee.getRole() != null ? loggedInEmployee.getRole().getName() : "Unknown");
+
+        request.setAttribute("statisticType", "saleProductDetail");
+        request.setAttribute("statisticTitle", "Thống kê Sản phẩm đã bán của " + loggedInEmployee.getFullname());
+        request.setAttribute("selectedMonth", selectedMonthParam);
+        request.setAttribute("startDate", startDateParam);
+        request.setAttribute("endDate", endDateParam);
+        request.setAttribute("currentPage", currentPage);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("recordsPerPage", DEFAULT_RECORDS_PER_PAGE);
         request.setAttribute("totalRecords", totalRecords);
     }
 
-    /**
-     * Handles requests for the Staff role. Staff can only view their own sales
-     * statistics. Filters by date range.
-     *
-     * @param request The HttpServletRequest.
-     * @param response The HttpServletResponse.
-     * @throws ServletException If a servlet-specific error occurs.
-     * @throws IOException If an I/O error occurs.
-     * @throws SQLException If a database access error occurs.
-     */
-    private void handleStaffRequest(HttpServletRequest request, HttpServletResponse response)
+    private void handleSaleRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
-        HttpSession session = request.getSession();
-        Employee loggedInStaff = (Employee) session.getAttribute("Employee");
 
-        // Validate logged-in staff information
-        if (loggedInStaff == null || loggedInStaff.getId() == 0 || loggedInStaff.getShopId() == 0) {
-            request.setAttribute("errorMessage", "Thông tin nhân viên không khả dụng. Vui lòng đăng nhập lại.");
+        HttpSession session = request.getSession();
+        Employee loggedInEmployee = (Employee) session.getAttribute("Employee");
+
+        if (loggedInEmployee == null
+                || loggedInEmployee.getRole() == null
+                || !"Sale".equals(loggedInEmployee.getRole().getName())) {
+            response.sendRedirect("login.jsp");
             return;
         }
 
-        Integer targetEmployeeId = loggedInStaff.getId();
-        Integer shopId = loggedInStaff.getShopId();
+        Integer employeeId = loggedInEmployee.getId();
+        Integer shopId = loggedInEmployee.getShopId();
 
-        // Retrieve and parse date parameters
         String startDateParam = request.getParameter("startDate");
         String endDateParam = request.getParameter("endDate");
         String pageParam = request.getParameter("page");
+        String recordsPerPageParam = request.getParameter("recordsPerPage");
+        String selectedMonthParam = request.getParameter("selectedMonth");
 
-        // Explicit date parsing for startDate
-        Date startDate = null;
+        Timestamp startDate = null;
+        Timestamp endDate = null;
+
         try {
-            if (startDateParam != null && !startDateParam.isEmpty()) {
-                startDate = Date.valueOf(startDateParam);
+            if (selectedMonthParam != null && !selectedMonthParam.isEmpty()) {
+
+                int month = Integer.parseInt(selectedMonthParam);
+                int currentYear = LocalDate.now().getYear();
+                YearMonth yearMonth = YearMonth.of(currentYear, month);
+                startDate = Timestamp.valueOf(yearMonth.atDay(1).atStartOfDay());
+                endDate = Timestamp.valueOf(yearMonth.atEndOfMonth().atTime(23, 59, 59));
+
+                startDateParam = null;
+                endDateParam = null;
+
+            } else if (startDateParam != null && !startDateParam.isEmpty() && endDateParam != null && !endDateParam.isEmpty()) {
+
+                startDate = Timestamp.valueOf(startDateParam + " 00:00:00");
+                endDate = Timestamp.valueOf(endDateParam + " 23:59:59");
+            } else {
+
+                LocalDate oneMonthAgo = LocalDate.now().minusMonths(1);
+                startDateParam = oneMonthAgo.toString();
+                startDate = Timestamp.valueOf(oneMonthAgo.atStartOfDay());
+
+                LocalDate today = LocalDate.now();
+                endDateParam = today.toString();
+                endDate = Timestamp.valueOf(today.atTime(23, 59, 59));
             }
+
         } catch (IllegalArgumentException e) {
-            request.setAttribute("errorMessage", "Định dạng ngày bắt đầu không hợp lệ. Vui lòng sử dụng định dạng YYYY-MM-DD.");
+            request.setAttribute("errorMessage", "Định dạng ngày không hợp lệ.");
+
+            setCommonRequestAttributesForSale(request, loggedInEmployee, new ArrayList<>(), BigDecimal.ZERO, 0, 1, 1, 0, startDateParam, endDateParam, selectedMonthParam); // <-- THÊM selectedMonthParam
+            request.getRequestDispatcher("sale_statistics.jsp").forward(request, response);
+            return;
         }
 
-        // Explicit date parsing for endDate
-        Date endDate = null;
-        try {
-            if (endDateParam != null && !endDateParam.isEmpty()) {
-                endDate = Date.valueOf(endDateParam);
-            }
-        } catch (IllegalArgumentException e) {
-            request.setAttribute("errorMessage", "Định dạng ngày kết thúc không hợp lệ. Vui lòng sử dụng định dạng YYYY-MM-DD.");
-        }
+        List<Employee> filterableEmployees = new ArrayList<>();
+        filterableEmployees.add(loggedInEmployee);
+        request.setAttribute("filterableEmployees", filterableEmployees);
+        request.setAttribute("selectedEmployeeId", String.valueOf(employeeId));
+        request.setAttribute("selectedMonth", selectedMonthParam);
 
-        // Allowed role for Staff's view (only themselves)
-        List<Integer> allowedRoleIds = List.of(4); // Example: Staff role ID
-
-        // Explicit integer parsing for currentPage (pagination)
         int currentPage = 1;
         if (pageParam != null && !pageParam.isEmpty()) {
             try {
                 currentPage = Math.max(1, Integer.parseInt(pageParam));
             } catch (NumberFormatException e) {
                 request.setAttribute("errorMessage", "Tham số trang không hợp lệ.");
-                currentPage = 1; // Default to first page on error
+                currentPage = 1;
             }
         }
+
         int recordsPerPage = DEFAULT_RECORDS_PER_PAGE;
+        if (recordsPerPageParam != null && !recordsPerPageParam.isEmpty()) {
+            try {
+                recordsPerPage = Integer.parseInt(recordsPerPageParam);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
 
-        int totalRecords = eDAO.getTotalSalesStatisticsCount(
-                targetEmployeeId, shopId, startDate, endDate, allowedRoleIds);
+        int totalRecords = idetailDAO.getTotalSoldProductDetailsCountByEmployee(
+                employeeId, shopId, startDate, endDate);
+
         int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
-
         currentPage = Math.max(1, Math.min(currentPage, totalPages > 0 ? totalPages : 1));
 
-        // Fetch sales statistics for the logged-in staff
-        List<SalesEmployeeStatisticDto> salesStatistics = eDAO.getSalesStatistics(
-                targetEmployeeId, shopId, startDate, endDate, currentPage, recordsPerPage, allowedRoleIds);
+        List<SoldProductDetailDto> productSaleStatistics = idetailDAO.getSoldProductDetailsByEmployee(
+                employeeId, shopId, startDate, endDate, currentPage, recordsPerPage);
 
-        // Set attributes for JSP
-        request.setAttribute("salesStatistics", salesStatistics);
-        request.setAttribute("userRole", "Staff");
-        request.setAttribute("statisticTitle", "Thống kê Doanh số Cá nhân");
-        request.setAttribute("startDate", startDateParam);
-        request.setAttribute("endDate", endDateParam);
+        BigDecimal overallTotalAmountSold = idetailDAO.getTotalAmountSoldForAllProductsByEmployee(employeeId, shopId, startDate, endDate);
+        int overallTotalQuantitySold = idetailDAO.getTotalQuantitySoldForAllProductsByEmployee(employeeId, shopId, startDate, endDate);
 
-        // For staff, the employee dropdown should only show themselves
-        List<Employee> filterableEmployees = new ArrayList<>();
-        Employee staffForDropdown = new Employee();
-        staffForDropdown.setId(loggedInStaff.getId());
-        staffForDropdown.setFullname(loggedInStaff.getFullname());
-        filterableEmployees.add(staffForDropdown);
-        request.setAttribute("filterableEmployees", filterableEmployees);
-        request.setAttribute("selectedEmployeeId", String.valueOf(loggedInStaff.getId())); // Pre-select their ID
+        setCommonRequestAttributesForSale(request, loggedInEmployee, productSaleStatistics, overallTotalAmountSold, overallTotalQuantitySold,
+                currentPage, totalPages, totalRecords, startDateParam, endDateParam, selectedMonthParam);
 
-        request.setAttribute("currentPage", currentPage);
-        request.setAttribute("totalPages", totalPages);
-        request.setAttribute("recordsPerPage", recordsPerPage);
-        request.setAttribute("totalRecords", totalRecords);
+        request.getRequestDispatcher("sale_statistics.jsp").forward(request, response);
     }
 
-    /**
-     * Checks if a given employee ID exists in a list of
-     * SalesEmployeeStatisticDto objects. This is useful for validating selected
-     * employee filters against the allowed list.
-     *
-     * @param employeeId The employee ID to check.
-     * @param dtoList The list of SalesEmployeeStatisticDto objects.
-     * @return true if the employee ID is found in the list, false otherwise.
-     */
-    private boolean isEmployeeInSalesStatisticList(int employeeId, List<SalesEmployeeStatisticDto> dtoList) {
-        if (dtoList == null) {
-            return false;
-        }
-        for (SalesEmployeeStatisticDto dto : dtoList) {
+    private boolean isEmployeeInEmployeeList2(int employeeId, List<SalesEmployeeStatisticDto> employeeList) {
+        for (SalesEmployeeStatisticDto dto : employeeList) {
             if (dto.getEmployeeID() == employeeId) {
                 return true;
             }
@@ -603,169 +602,148 @@ public class StatisticServlet extends HttpServlet {
         return false;
     }
 
+    private boolean isEmployeeInEmployeeList(int employeeId, List<Employee> employees) {
+        if (employees == null) {
+            return false;
+        }
+        for (Employee e : employees) {
+            if (e.getId() == employeeId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void exportEmployeeStatisticExcel(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException, SQLException {
+        HttpSession session = request.getSession();
+        Employee loggedInEmployee = (Employee) session.getAttribute("Employee");
+
+        if (loggedInEmployee == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
+
+        int currentEmployeeId = loggedInEmployee.getId();
+        int shopId = loggedInEmployee.getShopId();
+        String role = loggedInEmployee.getRole().getName();
+
+        String statisticType = request.getParameter("statisticType");
+        String selectedEmployeeIdParam = request.getParameter("selectedEmployeeId");
+        Integer selectedEmployeeId = null;
+
+        List<Integer> employeeIdsForExport = new ArrayList<>();
+
+        if (selectedEmployeeIdParam != null && selectedEmployeeIdParam.equalsIgnoreCase("all")) {
+            // Nếu chọn "All", lấy tất cả nhân viên có vai trò 3 và 4 trong shop
+            List<Employee> salesCashierEmployeesInShop = eDAO.getEmployeesByRoleAndShop(shopId, List.of(3, 4)); // Giả sử 3: Cashier, 4: Sale
+            for (Employee emp : salesCashierEmployeesInShop) {
+                employeeIdsForExport.add(emp.getId());
+            }
+        } else if (selectedEmployeeIdParam != null && !selectedEmployeeIdParam.isEmpty()) {
+            try {
+                selectedEmployeeId = Integer.parseInt(selectedEmployeeIdParam);
+                employeeIdsForExport.add(selectedEmployeeId);
+            } catch (NumberFormatException e) {
+                // Nếu có lỗi parse hoặc không có tham số, mặc định là nhân viên hiện tại
+                employeeIdsForExport.add(currentEmployeeId);
+            }
+        } else {
+            // Mặc định, chỉ export của nhân viên hiện tại nếu không có lựa chọn cụ thể
+            employeeIdsForExport.add(currentEmployeeId);
+        }
+        String selectedMonthParam = request.getParameter("selectedMonth");
+        String startDateParam = request.getParameter("startDate");
+        String endDateParam = request.getParameter("endDate");
+
+        Timestamp startDate, endDate;
+        try {
+            if (selectedMonthParam != null && !selectedMonthParam.isEmpty()) {
+
+                int month = Integer.parseInt(selectedMonthParam);
+                int currentYear = LocalDate.now().getYear();
+                YearMonth yearMonth = YearMonth.of(currentYear, month);
+                startDate = Timestamp.valueOf(yearMonth.atDay(1).atStartOfDay());
+                endDate = Timestamp.valueOf(yearMonth.atEndOfMonth().atTime(23, 59, 59));
+            } else if (startDateParam != null && !startDateParam.isEmpty() && endDateParam != null && !endDateParam.isEmpty()) {
+
+                startDate = Timestamp.valueOf(LocalDate.parse(startDateParam).atStartOfDay());
+                endDate = Timestamp.valueOf(LocalDate.parse(endDateParam).atTime(23, 59, 59));
+            } else {
+
+                startDate = Timestamp.valueOf(LocalDate.now().minusMonths(1).atStartOfDay());
+                endDate = Timestamp.valueOf(LocalDate.now().atTime(23, 59, 59));
+            }
+        } catch (IllegalArgumentException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Định dạng ngày không hợp lệ.");
+            return;
+        }
+        List<Employee> allowedEmployees = eDAO.getEmployeesByRoleAndShop(shopId, List.of(3, 4));
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=Sales_Statistics.xlsx");
+        try (OutputStream out = response.getOutputStream()) {
+            if ("all".equalsIgnoreCase(statisticType) || ("Manager".equalsIgnoreCase(role))) {
+
+                Set<Integer> uniqueEmployeeIds = new HashSet<>();
+
+                uniqueEmployeeIds.add(loggedInEmployee.getId());
+
+                List<Employee> salesEmployeesInShop = eDAO.getEmployeesByRoleAndShop(shopId, List.of(3, 4));
+                for (Employee emp : salesEmployeesInShop) {
+                    uniqueEmployeeIds.add(emp.getId());
+                }
+
+          
+
+                List<SalesEmployeeStatisticDto> allStats = eDAO.getSalesStatisticsBySpecificEmployeeIdsForExcel(
+                        shopId, startDate, endDate, employeeIdsForExport);
+
+                ExcelExporter.exportAllStatistics(allStats, out);
+
+            } else if ("cashierSummary".equalsIgnoreCase(statisticType)
+                    || ("Cashier".equalsIgnoreCase(role) && statisticType == null)) {
+
+                if (selectedEmployeeId == null) {
+                    selectedEmployeeId = currentEmployeeId;
+                }
+
+                List<SalesEmployeeStatisticDto> statisticList = exDAO.getCashierSummaryStatistics(
+                        selectedEmployeeId, startDate, endDate, shopId);
+
+                BigDecimal totalRevenue = idetailDAO.getTotalProductRevenueByShop(shopId, startDate, endDate);
+                int totalSoldProducts = idetailDAO.getTotalSoldProductsByShop(shopId);
+
+                ExcelExporter.exportCashierSummaryStatistics(statisticList, totalRevenue, totalSoldProducts, out);
+
+            } else if ("saleProductDetail".equalsIgnoreCase(statisticType)
+                    || ("Sale".equalsIgnoreCase(role) && statisticType == null)) {
+
+                if (selectedEmployeeId == null) {
+                    selectedEmployeeId = currentEmployeeId;
+                }
+
+                List<SoldProductDetailDto> soldList = exDAO.getSoldProductDetailsForExport(
+                        selectedEmployeeId, shopId, startDate, endDate);
+
+                int totalQuantity = idetailDAO.getTotalQuantitySoldForAllProductsByEmployee(
+                        selectedEmployeeId, shopId, startDate, endDate);
+
+                BigDecimal totalAmount = idetailDAO.getTotalAmountSoldForAllProductsByEmployee(
+                        selectedEmployeeId, shopId, startDate, endDate);
+
+                ExcelExporter.exportSaleProductStatistics(soldList, totalQuantity, totalAmount, out);
+            } else {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Loại thống kê không hợp lệ hoặc vai trò không được hỗ trợ.");
+            }
+
+        } catch (Exception e) {
+            Logger.getLogger(StatisticServlet.class.getName()).log(Level.SEVERE, "Lỗi khi xuất file Excel", e);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi khi tạo file Excel.");
+        }
+    }
+
     @Override
     public String getServletInfo() {
         return "Servlet xử lý thống kê doanh số";
     }
-
-//    private void exportSalesStatisticsToExcel(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-//        HttpSession session = request.getSession();
-//
-//        String userRoleName = null;
-//        Integer loggedInEmployeeId = null;
-//        Integer loggedInShopId = null;
-//        String shopOwnerDatabaseName = null;
-//        Object loggedInUserObject = session.getAttribute("loggedInUser"); // Get the unified logged-in user object
-//
-//        ShopOwner loggedInShopOwner = (ShopOwner) session.getAttribute("shopOwner"); // Still get for specific attributes
-//        if (loggedInShopOwner != null) {
-//            userRoleName = "ShopOwner";
-//            shopOwnerDatabaseName = loggedInShopOwner.getDatabaseName();
-//        } else if (loggedInUserObject instanceof Employee) { // Check if it's an Employee
-//            Employee loggedInEmployee = (Employee) loggedInUserObject; // Cast to Employee
-//            loggedInEmployeeId = loggedInEmployee.getId();
-//            loggedInShopId = loggedInEmployee.getShopId();
-//            if (loggedInEmployee.getRole() != null) {
-//                userRoleName = loggedInEmployee.getRole().getName();
-//            } else {
-//                userRoleName = "Unknown";
-//            }
-//        }
-//
-//        if (userRoleName == null || "Unknown".equalsIgnoreCase(userRoleName)) {
-//            response.getWriter().println("Bạn chưa đăng nhập hoặc không có quyền.");
-//            return;
-//        }
-//
-//        try {
-//            String startDateStr = request.getParameter("startDate");
-//            String endDateStr = request.getParameter("endDate");
-//            String shopIdParam = request.getParameter("shopId");
-//            String selectedEmployeeIdParam = request.getParameter("employeeId");
-//
-//            Date startDate = null;
-//            Date endDate = null;
-//            Integer filterShopId = null;
-//            Integer targetEmployeeId = null;
-//
-//            try {
-//                if (startDateStr != null && !startDateStr.isEmpty()) {
-//                    startDate = Date.valueOf(startDateStr);
-//                }
-//                if (endDateStr != null && !endDateStr.isEmpty()) {
-//                    endDate = Date.valueOf(endDateStr);
-//                }
-//                // Only parse if not "all"
-//                if (shopIdParam != null && !shopIdParam.isEmpty() && !"all".equals(shopIdParam)) {
-//                    filterShopId = Integer.parseInt(shopIdParam);
-//                }
-//                if (selectedEmployeeIdParam != null && !selectedEmployeeIdParam.isEmpty() && !"all".equals(selectedEmployeeIdParam)) {
-//                    targetEmployeeId = Integer.parseInt(selectedEmployeeIdParam);
-//                }
-//            } catch (IllegalArgumentException e) {
-//                e.printStackTrace();
-//                // Not setting error message to request because we are writing directly to response
-//            }
-//
-//            // Define allowed roles for export based on user's role
-//            List<Integer> rolesForExport = new ArrayList<>();
-//
-//            if ("Admin".equalsIgnoreCase(userRoleName)) {
-//                rolesForExport.add(1); // Admin
-//                rolesForExport.add(2); // Staff
-//                rolesForExport.add(3); // Shop Owner
-//                rolesForExport.add(4); // Cashier
-//                // Admin can export for any shop or employee, so filterShopId and targetEmployeeId
-//                // come directly from parameters.
-//            } else if ("ShopOwner".equalsIgnoreCase(userRoleName) && loggedInShopOwner != null) {
-//                Shop shopOfOwner = sDAO.getShopByName(loggedInShopOwner.getShopName(), shopOwnerDatabaseName);
-//                if (shopOfOwner != null) {
-//                    loggedInShopId = shopOfOwner.getShopID();
-//                    // Shop Owner can only export for their shop
-//                    filterShopId = loggedInShopId; // Override filterShopId to owner's shop
-//                    if (shopIdParam != null && !shopIdParam.isEmpty() && !shopIdParam.equals("all") && !Integer.parseInt(shopIdParam).equals(loggedInShopId)) {
-//                        // User tried to export for a different shop, log or error
-//                        response.getWriter().println("Bạn không có quyền xuất thống kê của cửa hàng khác.");
-//                        return;
-//                    }
-//                    rolesForExport.add(2); // Staff
-//                    rolesForExport.add(4); // Cashier
-//                    // rolesForExport.add(3); // ShopOwner (if they track their own sales)
-//
-//                    // If a specific employee is selected, ensure they are within allowed roles for this shop
-//                    if (targetEmployeeId != null) {
-//                        List<SalesEmployeeStatisticDto> validEmployees = eDAO.getSalesStatistics(null, filterShopId, null, null, 1, Integer.MAX_VALUE, rolesForExport);
-//                        boolean isValidEmployee = false;
-//                        for (SalesEmployeeStatisticDto dto : validEmployees) {
-//                            if (dto.getEmployeeID().equals(targetEmployeeId)) {
-//                                isValidEmployee = true;
-//                                break;
-//                            }
-//                        }
-//                        if (!isValidEmployee) {
-//                            response.getWriter().println("Nhân viên được chọn không hợp lệ cho quyền của bạn.");
-//                            return;
-//                        }
-//                    }
-//                } else {
-//                    response.getWriter().println("Không tìm thấy thông tin cửa hàng cho ShopOwner này.");
-//                    return;
-//                }
-//            } else if ("Cashier".equalsIgnoreCase(userRoleName) && loggedInEmployeeId != null && loggedInShopId != null) {
-//                // Cashier can only export for their shop
-//                filterShopId = loggedInShopId;
-//                if (shopIdParam != null && !shopIdParam.isEmpty() && !shopIdParam.equals("all") && !Integer.parseInt(shopIdParam).equals(loggedInShopId)) {
-//                    response.getWriter().println("Bạn không có quyền xuất thống kê của cửa hàng khác.");
-//                    return;
-//                }
-//                rolesForExport.add(2); // Staff
-//                rolesForExport.add(4); // Cashier (themselves)
-//
-//                // If a specific employee is selected, ensure they are Staff or the Cashier themselves
-//                if (targetEmployeeId != null && !(targetEmployeeId.equals(loggedInEmployeeId) || eDAO.isEmployeeInRole(targetEmployeeId, 2))) {
-//                    response.getWriter().println("Nhân viên được chọn không hợp lệ cho quyền của bạn.");
-//                    return;
-//                }
-//            } else if ("Staff".equalsIgnoreCase(userRoleName) && loggedInEmployeeId != null && loggedInShopId != null) {
-//                // Staff can only export for themselves
-//                targetEmployeeId = loggedInEmployeeId; // Force employeeId to be self
-//                filterShopId = loggedInShopId; // Force shopId to be self's shop
-//                rolesForExport.add(2); // Only Staff role
-//                if (selectedEmployeeIdParam != null && !selectedEmployeeIdParam.isEmpty() && !selectedEmployeeIdParam.equals("all") && !Integer.parseInt(selectedEmployeeIdParam).equals(loggedInEmployeeId)) {
-//                    response.getWriter().println("Bạn chỉ có thể xuất thống kê của chính mình.");
-//                    return;
-//                }
-//                if (shopIdParam != null && !shopIdParam.isEmpty() && !shopIdParam.equals("all") && !Integer.parseInt(shopIdParam).equals(loggedInShopId)) {
-//                    response.getWriter().println("Bạn chỉ có thể xuất thống kê của cửa hàng mình.");
-//                    return;
-//                }
-//            } else {
-//                response.getWriter().println("Bạn không có quyền xuất thống kê.");
-//                return;
-//            }
-//
-//            List<SalesEmployeeStatisticDto> statisticsToExport = eDAO.getSalesStatistics(
-//                    targetEmployeeId,
-//                    filterShopId,
-//                    startDate,
-//                    endDate,
-//                    1, 
-//                    Integer.MAX_VALUE, 
-//                    rolesForExport
-//            );
-//
-//           
-//            response.setContentType("application/vnd.ms-excel");
-//            response.setHeader("Content-Disposition", "attachment; filename=SalesStatistics.xlsx");
-//
-//            response.getWriter().println("Chức năng xuất Excel với dữ liệu đã lọc đang được triển khai. Dữ liệu sẽ xuất: " + statisticsToExport.size() + " bản ghi.");
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            
-//            response.getWriter().println("Lỗi khi xuất Excel: " + e.getMessage());
-//        }
-//    }
-
-
 }

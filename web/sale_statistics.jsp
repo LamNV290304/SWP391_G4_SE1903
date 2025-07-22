@@ -12,7 +12,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Thống kê Doanh số Bán hàng</title>
+        <title>${statisticTitle}</title>
         <link rel="icon" type="image/x-icon" href="${pageContext.request.contextPath}/assets/img/favicon/favicon.ico" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -22,10 +22,13 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/demo.css" />
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+
         <script src="${pageContext.request.contextPath}/assets/vendor/js/helpers.js"></script>
         <script src="${pageContext.request.contextPath}/assets/js/config.js"></script>
     </head>
     <body>
+
+
         <div class="layout-wrapper layout-content-navbar">
             <div class="layout-container">
                 <jsp:include page="sidebar.jsp" />
@@ -43,8 +46,23 @@
                                 <h5 class="card-header">Lọc thống kê</h5>
                                 <div class="card-body">
                                     <form id="reportForm" action="StatisticServlet" method="GET">
+
                                         <div class="row align-items-end">
-                                            <%-- Shop Filter (Admin only) --%>
+
+                                            <c:choose>
+                                                <c:when test="${statisticType eq 'cashierSummary'}">
+                                                    <input type="hidden" name="action" value="cashierStatistic" />
+                                                </c:when>
+                                                <c:when test="${statisticType eq 'managerSummary'}">
+                                                    <input type="hidden" name="action" value="cashierStatistic" />
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <input type="hidden" name="action" value="saleStatistic" />
+                                                </c:otherwise>
+                                            </c:choose>
+
+
+
                                             <c:if test="${userRole eq 'Admin'}">
                                                 <div class="col-md-3 mb-3">
                                                     <label for="shopSelect" class="form-label">Chọn cửa hàng:</label>
@@ -59,20 +77,37 @@
                                                 </div>
                                             </c:if>
 
-                                            <%-- Employee Filter (Admin, ShopOwner, Cashier) --%>
-                                            <c:if test="${userRole eq 'Admin' || userRole eq 'ShopOwner' || userRole eq 'Cashier'}">
+
+                                            <c:if test="${userRole eq 'Admin' || userRole eq 'Manager' || userRole eq 'Cashier'}">
                                                 <div class="col-md-3 mb-3">
                                                     <label for="employeeSelect" class="form-label">Chọn nhân viên:</label>
                                                     <select class="form-select" id="employeeSelect" name="employeeId">
-                                                        <option value="all" ${selectedEmployeeId == 'all' || selectedEmployeeId == null ? 'selected' : ''}>Tất cả nhân viên</option>
+                                                        <option value="all" ${selectedEmployeeId == 'all' || selectedEmployeeId == null ? 'selected' : ''}>Tất cả</option>
                                                         <c:forEach var="employee" items="${filterableEmployees}">
-                                                            <option value="${employee.id}" ${selectedEmployeeId != null && selectedEmployeeId eq employee.id ? 'selected' : ''}>
+                                                            <option value="${employee.id}" ${selectedEmployeeId eq String.valueOf(employee.id) ? 'selected' : ''}>
                                                                 ${employee.fullname}
                                                             </option>
                                                         </c:forEach>
                                                     </select>
                                                 </div>
                                             </c:if>
+
+
+                                            <c:if test="${userRole eq 'Sale'}">
+                                                <input type="hidden" name="employeeId" value="${selectedEmployeeId}" />
+                                            </c:if>
+
+                                            <div class="col-md-3 mb-3">
+                                                <label for="selectedMonth" class="form-label">Tháng:</label>
+                                                <select class="form-select" id="selectedMonth" name="selectedMonth">
+                                                    <option value="">-- Chọn tháng --</option> <%-- Option để không chọn tháng --%>
+                                                    <c:forEach begin="1" end="12" var="monthNum">
+                                                        <option value="${monthNum}" ${param.selectedMonth == monthNum ? 'selected' : ''}>
+                                                            Tháng ${monthNum}
+                                                        </option>
+                                                    </c:forEach>
+                                                </select>
+                                            </div>
 
                                             <div class="col-md-3 mb-3">
                                                 <label for="startDate" class="form-label">Từ ngày:</label>
@@ -86,142 +121,186 @@
                                                        value="${not empty endDate ? endDate : ''}"
                                                        max="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>">
                                             </div>
-                                            <div class="col-md-auto mb-3"> <%-- Use col-md-auto for buttons --%>
-                                                <button type="submit" class="btn btn-primary me-2">Lọc</button>
-                                                <a href="StatisticServlet" class="btn btn-outline-secondary">Xem tổng cộng</a>
-                                            </div>
 
-                                            <input type="hidden" name="page" value="${currentPage}" />
-                                            <input type="hidden" name="recordsPerPage" value="${recordsPerPage}" />
+                                            <div class="col-md-auto mb-3">
+                                                <button type="submit" class="btn btn-primary me-2">Lọc</button>
+
+                                                <a href="StatisticServlet?action=<c:out value="${statisticType eq 'cashierSummary' ? 'cashierStatistic' : 'saleStatistic'}" />" class="btn btn-outline-secondary">Xem tổng cộng</a>
+                                            </div>
                                         </div>
+                                    </form>
+
+
+                                    <form action="StatisticServlet" method="get" id="exportForm">
+                                        <input type="hidden" name="action" value="export" />
+
+                                        <c:choose>
+                                            <c:when test="${statisticType eq 'cashierSummary' || statisticType eq 'managerSummary'}">
+                                                <input type="hidden" name="statisticType" value="cashierSummary" />
+                                            </c:when>
+                                            <c:when test="${statisticType eq 'saleProductDetail'}">
+                                                <input type="hidden" name="statisticType" value="saleProductDetail" />
+                                            </c:when>
+                                            <c:when test="${statisticType eq 'all'}">
+                                                <input type="hidden" name="statisticType" value="all" />
+                                            </c:when>
+                                        </c:choose>
+
+                                        <input type="hidden" name="selectedEmployeeId" value="${not empty selectedEmployeeId ? selectedEmployeeId : ''}" />
+
+                                        <c:if test="${not empty shopId && shopId ne 'all'}">
+                                            <input type="hidden" name="shopId" value="${shopId}" />
+                                        </c:if>
+                                        <c:if test="${shopId eq 'all'}">
+                                            <input type="hidden" name="shopId" value="all" />
+                                        </c:if>
+
+                                        <input type="hidden" name="selectedMonth" value="${not empty selectedMonth ? selectedMonth : ''}" />
+                                        <input type="hidden" name="startDate" value="${not empty startDate ? startDate : ''}" />
+                                        <input type="hidden" name="endDate" value="${not empty endDate ? endDate : ''}" />
+
+                                        <button type="submit" class="btn btn-outline-primary mt-2">Xuất Excel</button>
                                     </form>
                                 </div>
                             </div>
-
-                            <c:if test="${not empty salesStatistics}">
-                                <div class="row">
-                                    <div class="col-md-6 mb-2">
-                                        <div class="card h-100">
-                                            <div class="card-header py-1 px-3"><span class="fw-light small">📊 Doanh thu theo nhân viên</span></div>
-                                            <div class="card-body p-1" style="max-height:300px;">
-                                                <canvas id="revenueChart" style="height: 120px;"></canvas>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6 mb-2">
-                                        <div class="card h-100">
-                                            <div class="card-header py-1 px-3"><span class="fw-light small">🧾 Tỷ lệ đơn hàng</span></div>
-                                            <div class="card-body d-flex align-items-center justify-content-between p-2" style="height: 240px;">
-                                                <canvas id="orderPieChart" style="width: 65%; height: 100%;"></canvas>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </c:if>
 
                             <div class="card mb-4">
                                 <h5 class="card-header">${statisticTitle}</h5>
                                 <div class="table-responsive text-nowrap">
                                     <table class="table card-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Mã NV</th>
-                                                <th>Tên nhân viên</th>
-                                                <th>Tổng doanh thu</th>
-                                                <th>Tổng số đơn hàng</th>
-                                                <th>Doanh thu trung bình/Đơn hàng</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <c:choose>
-                                                <c:when test="${not empty salesStatistics}">
-                                                    <c:forEach var="stat" items="${salesStatistics}">
-                                                        <tr>
-                                                            <td><strong>${stat.employeeID}</strong></td>
-                                                            <td>${stat.fullName}</td>
-                                                            <td><fmt:formatNumber value="${stat.totalRevenue}" pattern="#,##0" /> VNĐ</td>
-                                                            <td>${stat.totalOrders}</td>
-                                                            <td><fmt:formatNumber value="${stat.averageRevenuePerOrder}" pattern="#,##0" /> VNĐ</td>
-                                                        </tr>
-                                                    </c:forEach>
-                                                </c:when>
-                                                <c:otherwise>
+
+                                        <c:choose>
+                                            <c:when test="${statisticType eq 'cashierSummary' or statisticType eq 'managerSummary'}">
+                                                <thead>
                                                     <tr>
-                                                        <td colspan="5" class="text-center">Không có dữ liệu thống kê.</td>
+                                                        <th>STT</th>
+                                                        <th>Mã NV</th>
+                                                        <th>Tên nhân viên</th>
+                                                        <th>Tổng doanh thu</th>
+                                                        <th>Tổng đơn hàng</th>
+                                                        <th>Doanh thu trung bình/Đơn hàng</th>
                                                     </tr>
-                                                </c:otherwise>
-                                            </c:choose>
-                                        </tbody>
+                                                </thead>
+                                                <tbody>
+                                                    <c:choose>
+                                                        <c:when test="${not empty salesStatistics}">
+                                                            <c:forEach var="stat" items="${salesStatistics}" varStatus="loop">
+                                                                <tr>
+                                                                    <td>${loop.index + 1}</td>
+                                                                    <td><strong>${stat.employeeID}</strong></td>
+                                                                    <td>${stat.fullName}</td>
+                                                                    <td><fmt:formatNumber value="${stat.totalRevenue}" pattern="#,##0" /> VNĐ</td>
+                                                                    <td>${stat.totalOrders}</td>
+                                                                    <td><fmt:formatNumber value="${stat.averageRevenuePerOrder}" pattern="#,##0" /> VNĐ</td>
+                                                                </tr>
+                                                            </c:forEach>
+                                                            <c:if test="${not empty overallTotalRevenue and not empty overallTotalOrders}">
+                                                                <tr>
+                                                                    <td colspan="3" class="text-end"><strong>Tổng cộng:</strong></td>
+                                                                    <td><strong><fmt:formatNumber value="${overallTotalRevenue}" pattern="#,##0" /> VNĐ</strong></td>
+                                                                    <td><strong>${overallTotalOrders}</strong></td>
+                                                                    <td></td>
+                                                                </tr>
+                                                            </c:if>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <tr>
+                                                                <td colspan="6" class="text-center">Không có dữ liệu thống kê doanh số.</td>
+                                                            </tr>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </tbody>
+                                            </c:when>
+
+                                            <c:when test="${statisticType eq 'saleProductDetail'}">
+                                                <thead>
+                                                    <tr>
+                                                        <th>STT</th>
+                                                        <th>Mã sản phẩm</th>
+                                                        <th>Tên sản phẩm</th>
+                                                        <th>Số lượng đã bán</th>
+                                                        <th>Giá đơn vị trung bình</th>
+                                                        <th>Thành tiền</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <c:choose>
+                                                        <c:when test="${not empty productSaleStatistics}">
+                                                            <c:forEach var="productDetail" items="${productSaleStatistics}" varStatus="loop">
+                                                                <tr>
+                                                                    <td>${loop.index + 1}</td>
+                                                                    <td><strong>${productDetail.productID}</strong></td>
+                                                                    <td>${productDetail.productName}</td>
+                                                                    <td>${productDetail.quantitySold}</td>
+                                                                    <td><fmt:formatNumber value="${productDetail.unitPrice}" pattern="#,##0" /> VNĐ</td>
+                                                                    <td><fmt:formatNumber value="${productDetail.amount}" pattern="#,##0" /> VNĐ</td>
+                                                                </tr>
+                                                            </c:forEach>
+
+                                                            <c:if test="${not empty totalSoldRevenue and not empty totalQuantitySold}">
+                                                                <tr>
+                                                                    <td colspan="3" class="text-end"><strong>Tổng cộng:</strong></td>
+                                                                    <td><strong>${totalQuantitySold}</strong></td>
+                                                                    <td></td>
+                                                                    <td><strong><fmt:formatNumber value="${totalSoldRevenue}" pattern="#,##0" /> VNĐ</strong></td>
+                                                                </tr>
+                                                            </c:if>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <tr>
+                                                                <td colspan="6" class="text-center">Không có dữ liệu chi tiết sản phẩm đã bán.</td>
+                                                            </tr>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </tbody>
+                                            </c:when>
+
+                                            <c:otherwise>
+
+                                                <tbody>
+                                                    <tr>
+                                                        <td colspan="6" class="text-center">Vui lòng chọn loại thống kê để hiển thị.</td>
+                                                    </tr>
+                                                </tbody>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </table>
                                 </div>
-                                <%-- Phần phân trang --%>
-                                <div class="card-footer d-flex justify-content-center flex-wrap align-items-center">
-                                    <nav aria-label="Page navigation" class="mb-2 mb-md-0">
-                                        <c:if test="${totalPages > 1}">
-                                            <ul class="pagination mb-0">
-                                                <c:url var="baseLink" value="StatisticServlet">
-                                                    <%-- Giữ lại các tham số lọc hiện tại --%>
-                                                    <c:if test="${not empty param.startDate}">
-                                                        <c:param name="startDate" value="${param.startDate}" />
-                                                    </c:if>
-                                                    <c:if test="${not empty param.endDate}">
-                                                        <c:param name="endDate" value="${param.endDate}" />
-                                                    </c:if>
-                                                    <c:if test="${not empty param.shopId}">
-                                                        <c:param name="shopId" value="${param.shopId}" />
-                                                    </c:if>
-                                                    <c:if test="${not empty param.employeeId}"> <%-- Add employeeId to pagination links --%>
-                                                        <c:param name="employeeId" value="${param.employeeId}" />
-                                                    </c:if>
-                                                    <c:if test="${not empty recordsPerPage}">
-                                                        <c:param name="recordsPerPage" value="${recordsPerPage}" />
-                                                    </c:if>
-                                                </c:url>
+                                <nav aria-label="Page navigation">
+                                    <ul class="pagination justify-content-center">
 
-                                                <li class="page-item <c:if test="${currentPage == 1}">disabled</c:if>">
-                                                    <a class="page-link" href="<c:url value="${baseLink}"><c:param name="page" value="${currentPage - 1}"/></c:url>">
-                                                        <i class="tf-icon bx bx-chevrons-left"></i>
-                                                    </a>
-                                                </li>
-                                                <c:set var="numPagesToShow" value="5" />
-                                                <c:set var="halfPagesToShow" value="${numPagesToShow / 2}" />
-
-                                                <c:set var="startPage" value="${currentPage - halfPagesToShow}" />
-                                                <c:set var="endPage" value="${currentPage + halfPagesToShow}" />
-
-                                                <c:if test="${startPage < 1}">
-                                                    <c:set var="startPage" value="1" />
-                                                    <c:set var="endPage" value="${numPagesToShow > totalPages ? totalPages : numPagesToShow}" />
-                                                </c:if>
-
-                                                <c:if test="${endPage > totalPages}">
-                                                    <c:set var="endPage" value="${totalPages}" />
-                                                    <c:set var="startPage" value="${totalPages - numPagesToShow + 1}" />
-                                                    <c:if test="${startPage < 1}">
-                                                        <c:set var="startPage" value="1" />
-                                                    </c:if>
-                                                </c:if>
-
-                                                <c:forEach begin="${startPage}" end="${endPage}" var="i">
-                                                    <li class="page-item <c:if test="${i == currentPage}">active</c:if>">
-                                                        <c:url var="pageLink" value="${baseLink}">
-                                                            <c:param name="page" value="${i}" />
-                                                        </c:url>
-                                                        <a class="page-link" href="${pageLink}">${i}</a>
-                                                    </li>
-                                                </c:forEach>
-
-                                                <li class="page-item <c:if test="${currentPage == totalPages}">disabled</c:if>">
-                                                    <a class="page-link" href="<c:url value="${baseLink}"><c:param name="page" value="${currentPage + 1}"/></c:url>">
-                                                        <i class="tf-icon bx bx-chevrons-right"></i>
-                                                    </a>
-                                                </li>
-                                            </ul>
+                                        <c:if test="${currentPage > 1}">
+                                            <li class="page-item">
+                                                <a class="page-link"
+                                                   href="StatisticServlet?action=${param.action}&page=${currentPage - 1}&employeeId=${selectedEmployeeId}&shopId=${selectedShopId}&startDate=${startDate}&endDate=${endDate}&selectedMonth=${param.selectedMonth}">
+                                                    «
+                                                </a>
+                                            </li>
                                         </c:if>
-                                    </nav>
 
-                                </div>
+                                        <c:forEach begin="1" end="${totalPages}" var="i">
+                                            <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                                <a class="page-link"
+                                                   href="StatisticServlet?action=${param.action}&page=${i}&employeeId=${selectedEmployeeId}&shopId=${selectedShopId}&startDate=${startDate}&endDate=${endDate}&selectedMonth=${param.selectedMonth}">
+                                                    ${i}
+                                                </a>
+                                            </li>
+                                        </c:forEach>
+
+                                        <c:if test="${currentPage < totalPages}">
+                                            <li class="page-item">
+                                                <a class="page-link"
+                                                   href="StatisticServlet?action=${param.action}&page=${currentPage + 1}&employeeId=${selectedEmployeeId}&shopId=${selectedShopId}&startDate=${startDate}&endDate=${endDate}&selectedMonth=${param.selectedMonth}">
+                                                    »
+                                                </a>
+                                            </li>
+                                        </c:if>
+
+                                    </ul>
+                                </nav>
+
+
+
                             </div>
                         </div>
 
@@ -229,138 +308,44 @@
                         <div class="content-backdrop fade"></div>
                     </div>
                 </div>
+                <div class="layout-overlay layout-menu-toggle"></div>
             </div>
-            <div class="layout-overlay layout-menu-toggle"></div>
-        </div>
 
-        <script src="${pageContext.request.contextPath}/assets/vendor/libs/jquery/jquery.js"></script>
-        <script src="${pageContext.request.contextPath}/assets/vendor/libs/popper/popper.js"></script>
-        <script src="${pageContext.request.contextPath}/assets/vendor/js/bootstrap.js"></script>
-        <script src="${pageContext.request.contextPath}/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
-        <script src="${pageContext.request.contextPath}/assets/vendor/js/menu.js"></script>
-        <script src="${pageContext.request.contextPath}/assets/js/main.js"></script>
+            <script src="${pageContext.request.contextPath}/assets/vendor/libs/jquery/jquery.js"></script>
+            <script src="${pageContext.request.contextPath}/assets/vendor/libs/popper/popper.js"></script>
+            <script src="${pageContext.request.contextPath}/assets/vendor/js/bootstrap.js"></script>
+            <script src="${pageContext.request.contextPath}/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+            <script src="${pageContext.request.contextPath}/assets/vendor/js/menu.js"></script>
+            <script src="${pageContext.request.contextPath}/assets/js/main.js"></script>
 
-        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
-
-        <c:if test="${not empty salesStatistics}">
+            <script async defer src="https://buttons.github.io/buttons.js"></script>
             <script>
-                Chart.register(ChartDataLabels);
+                document.addEventListener('DOMContentLoaded', function () {
+                    const selectedMonthSelect = document.getElementById('selectedMonth');
+                    const startDateInput = document.getElementById('startDate');
+                    const endDateInput = document.getElementById('endDate');
 
-                const employeeNames = [
-                <c:forEach var="stat" items="${salesStatistics}" varStatus="loop">
-                "${stat.fullName}"<c:if test="${!loop.last}">,</c:if>
-                </c:forEach>
-                ];
-                const revenues = [
-                <c:forEach var="stat" items="${salesStatistics}" varStatus="loop">
-                    ${stat.totalRevenue}<c:if test="${!loop.last}">,</c:if>
-                </c:forEach>
-                ];
-                const orders = [
-                <c:forEach var="stat" items="${salesStatistics}" varStatus="loop">
-                    ${stat.totalOrders * 1}<c:if test="${!loop.last}">,</c:if>
-                </c:forEach>
-                ];
 
-                new Chart(document.getElementById('revenueChart').getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: employeeNames,
-                        datasets: [{
-                                label: 'Doanh thu (VNĐ)',
-                                data: revenues,
-                                backgroundColor: '#5A8DEE'
-                            }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {display: false},
-                            tooltip: {
-                                callbacks: {
-                                    label: ctx => ctx.formattedValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' VNĐ'
-                                }
-                            },
-                            datalabels: {
-                                formatter: function (value, context) {
-                                    return value.toLocaleString('vi-VN') + ' VNĐ';
-                                },
-                                color: '#fff',
-                                font: {
-                                    weight: 'bold',
-                                    size: 11
-                                },
-                                anchor: 'center',
-                                align: 'center'
-                            }
-                        },
-                        scales: {
-                            y: {
-                                ticks: {
-                                    callback: value => value.toLocaleString('vi-VN') + ' VNĐ'
-                                }
-                            }
+                    selectedMonthSelect.addEventListener('change', function () {
+                        if (this.value !== "") {
+                            startDateInput.value = '';
+                            endDateInput.value = '';
                         }
-                    }
-                });
+                    });
 
-                new Chart(document.getElementById('orderPieChart').getContext('2d'), {
-                    type: 'pie',
-                    data: {
-                        labels: employeeNames,
-                        datasets: [{
-                                data: orders,
-                                backgroundColor: ['#5A8DEE', '#39DA8A', '#FF5B5C', '#FDAC41', '#00CFDD']
-                            }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'right',
-                                labels: {
-                                    boxWidth: 12,
-                                    padding: 15
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function (ctx) {
-                                        const value = Number(ctx.raw);
-                                        const total = ctx.dataset.data.reduce((acc, val) => acc + Number(val), 0);
-                                        const percentage = ((value / total) * 100).toFixed(1);
-                                        const label = ctx.label || ctx.chart.data.labels[ctx.dataIndex];
-                                        return `${label}: ${value} đơn (${percentage}%)`;
-                                    }
-                                }
-                            },
-                            datalabels: {
-                                formatter: (value, ctx) => {
-                                    let sum = 0;
-                                    let dataArr = ctx.chart.data.datasets[0].data;
-                                    dataArr.forEach(data => {
-                                        sum += Number(data);
-                                    });
-                                    let percentage = (value * 100 / sum).toFixed(1) + "%";
-                                    return percentage;
-                                },
-                                color: '#fff',
-                                font: {
-                                    weight: 'bold',
-                                    size: 14
-                                },
-                                anchor: 'end',
-                                align: 'start',
-                                offset: 5,
-                                display: function (ctx) {
-                                    return ctx.dataset.data[ctx.dataIndex] > (ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0) * 0.03);
-                                }
-                            }
+                    startDateInput.addEventListener('change', function () {
+                        if (this.value !== "") {
+                            selectedMonthSelect.value = '';
                         }
-                    }
+                    });
+
+                    endDateInput.addEventListener('change', function () {
+                        if (this.value !== "") {
+                            selectedMonthSelect.value = '';
+                        }
+                    });
                 });
             </script>
-        </c:if>
+        </div>
     </body>
 </html>

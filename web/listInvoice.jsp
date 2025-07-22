@@ -91,7 +91,7 @@
                             </div>
 
                             <div class="mb-3 text-end">
-                                <a href="InvoiceServlet?action=showAddForm" class="btn btn-primary">
+                                <a href="InvoiceServlet?action=createInvoiceForCashier" class="btn btn-primary">
                                     <i class='bx bx-plus me-1'></i>Thêm hóa đơn mới
                                 </a>
                             </div>
@@ -103,6 +103,7 @@
                                         <thead>
                                             <tr>
                                                 <th>Mã HĐ</th>
+                                                <th>Thu ngân</th>
                                                 <th>Khách hàng</th>
                                                 <th>Shop</th>
                                                 <th>Ngày tạo</th>
@@ -116,8 +117,11 @@
                                             <c:forEach var="inv" items="${invoiceList}">
                                                 <tr>
                                                     <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>${inv.invoiceID}</strong></td>
+                                                    <td>${inv.employeeName}</td>
                                                     <td>${inv.customerName}</td>
                                                     <td>${inv.shopName}</td>
+                                                    
+
                                                     <td><fmt:formatDate value="${inv.invoiceDate}" pattern="dd/MM/yyyy HH:mm:ss" /></td>
                                                     <td><fmt:formatNumber value="${inv.totalAmount}" pattern="#,##0" /> VNĐ</td>
                                                     <td>
