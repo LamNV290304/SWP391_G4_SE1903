@@ -98,7 +98,7 @@
                                                         <div class="card h-100">
                                                             <c:forEach var="p" items="${vectorP}">
                                                                 <c:if test="${i.product.productID == p.productID}">
-                                                                    <img class="card-img-top" src="${p.imageUrl}" alt="${p.productName}" style="object-fit:cover; " />
+                                                                    <img class="card-img-top" src="images/${p.imageUrl}" alt="${p.productName}" style="object-fit:cover; " />
 
                                                                     <div class="card-body">
                                                                         <h5 class="card-title">${p.productName}</h5>
