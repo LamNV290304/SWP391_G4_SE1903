@@ -115,8 +115,8 @@ public class UpdateImportReceipt extends HttpServlet {
         String note = request.getParameter("note");
 
         double value = Double.parseDouble(request.getParameter("Total"));
-
-        try (Connection conn = new DBContext("Test").getConnection()) {
+String databaseName = (String) request.getSession().getAttribute("databaseName");
+        try (Connection conn = new DBContext(databaseName).getConnection()) {
 
             ImportReceiptDAO receiptDAO = new ImportReceiptDAO(conn);
             InventoryDAO inventoryDAO = new InventoryDAO(conn);

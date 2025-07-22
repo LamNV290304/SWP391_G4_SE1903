@@ -38,8 +38,8 @@ public class ExportReceiptServlet extends HttpServlet {
             throws ServletException, IOException {
         try {
             response.setContentType("text/html;charset=UTF-8");
-            
-            DBContext connection = new DBContext("Test");
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
+            DBContext connection = new DBContext(databaseName);
             ShopDAO shopDAO = new ShopDAO(connection.getConnection());
             TypeExportReceiptDAO typeDAO = new TypeExportReceiptDAO(connection.getConnection());
             EmployeeDAO employeeDAO = new EmployeeDAO(connection.getConnection());
@@ -71,10 +71,11 @@ public class ExportReceiptServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String databaseName = (String) request.getSession().getAttribute("databaseName");
         try {
             response.setContentType("text/html;charset=UTF-8");
             
-            DBContext db = new DBContext("Test");
+            DBContext db = new DBContext(databaseName);
             ExportReceiptDAO dao = new ExportReceiptDAO(db.getConnection());
             
 // Lấy filter từ form
@@ -147,9 +148,9 @@ request.getRequestDispatcher("ExportReceipt.jsp").forward(request, response);
             throws ServletException, IOException {
         String action = request.getParameter("action");
         String receiptIdRaw = request.getParameter("receiptId");
-
+String databaseName = (String) request.getSession().getAttribute("databaseName");
         if (action != null && receiptIdRaw != null) {
-            try (Connection conn = new DBContext("Test").getConnection()) {
+            try (Connection conn = new DBContext(databaseName).getConnection()) {
                 ExportReceiptDAO exportReceiptDAO = new ExportReceiptDAO(conn);
                 ExportReceiptDetailDAO detailDAO = new ExportReceiptDetailDAO(conn);
                 InventoryDAO inventoryDAO = new InventoryDAO(conn);

@@ -39,7 +39,8 @@ public class TypeReceiptServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        Connection conn = new DBContext("Test").getConnection();
+        String databaseName = (String) request.getSession().getAttribute("databaseName");
+        Connection conn = new DBContext(databaseName).getConnection();
         TypeExportReceiptDAO daoEx = new TypeExportReceiptDAO(conn);
         TypeImportReceiptDAO daoIm = new TypeImportReceiptDAO(conn);
         SupplierDAO supDAO = new SupplierDAO(conn);
@@ -81,7 +82,8 @@ public class TypeReceiptServlet extends HttpServlet {
             throws ServletException, IOException {
         String action = request.getParameter("action");
         String id = request.getParameter("id");
-        Connection conn = new DBContext("Test").getConnection();
+        String databaseName = (String) request.getSession().getAttribute("databaseName");
+        Connection conn = new DBContext(databaseName).getConnection();
         TypeExportReceiptDAO daoEx = new TypeExportReceiptDAO(conn);
         TypeImportReceiptDAO daoIm = new TypeImportReceiptDAO(conn);
         SupplierDAO supDAO = new SupplierDAO(conn);

@@ -39,8 +39,9 @@ public class ImportReceiptServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
             response.setContentType("text/html;charset=UTF-8");
-            DBContext connection = new DBContext("Test");
+            DBContext connection = new DBContext(databaseName);
             Connection conn = connection.getConnection();
             ImportReceiptDAO dao = new ImportReceiptDAO(conn);
             ImportReceiptDetailDAO detailDao = new ImportReceiptDetailDAO(conn);
@@ -121,9 +122,9 @@ public class ImportReceiptServlet extends HttpServlet {
             throws ServletException, IOException {
         String action = request.getParameter("action");
         String receiptIdRaw = request.getParameter("receiptId");
-
+String databaseName = (String) request.getSession().getAttribute("databaseName");
         if (action != null && receiptIdRaw != null) {
-            try (Connection conn = new DBContext("Test").getConnection()) {
+            try (Connection conn = new DBContext(databaseName).getConnection()) {
                 ImportReceiptDAO importReceiptDAO = new ImportReceiptDAO(conn);
                 ImportReceiptDetailDAO detailDAO = new ImportReceiptDetailDAO(conn);
                 InventoryDAO inventoryDAO = new InventoryDAO(conn);

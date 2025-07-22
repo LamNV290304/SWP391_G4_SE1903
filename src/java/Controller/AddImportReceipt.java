@@ -57,22 +57,23 @@ public class AddImportReceipt extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
             response.setContentType("text/html;charset=UTF-8");
-            Connection conn = new DBContext("Test").getConnection();
+            Connection conn = new DBContext(databaseName).getConnection();
             EmployeeDAO empDao = new EmployeeDAO(conn);
             TypeImportReceiptDAO typeImp = new TypeImportReceiptDAO(conn);
             ShopDAO shopDao = new ShopDAO(conn);
             SupplierDAO supDAO = new SupplierDAO(conn);
             ProductDAO ProDAO = new ProductDAO(conn);
-            
+
             request.setAttribute("listEmp", empDao.getAllEmployee());
             request.setAttribute("listSup", supDAO.getAllSuppliers());
             request.setAttribute("listShop", shopDao.getAllShops());
-            
+
             request.setAttribute("listType", typeImp.getAllTypeImportReceipts(1));
-            
+
             request.setAttribute("listProduct", ProDAO.getAllProducts());
-            
+
             request.setAttribute("listEmp", empDao.getAllEmployee());
             request.setAttribute("listSup", supDAO.getAllSuppliers());
             request.setAttribute("listShop", shopDao.getAllShops());
@@ -117,7 +118,7 @@ public class AddImportReceipt extends HttpServlet {
         String employeeID = request.getParameter("EmployeeID");
         String shopID_raw = request.getParameter("shopID");
         String importDateStr = request.getParameter("Date");
-       
+
         if (code == null || supplierID == null || employeeID == null || shopID_raw == null || importDateStr == null) {
             request.setAttribute("erroll", "Type,Supplier,Employee,Shop,ImportDate must be not null");
             request.getRequestDispatcher("ErrolReceipt.jsp").forward(request, response);
@@ -144,8 +145,8 @@ public class AddImportReceipt extends HttpServlet {
         String note = request.getParameter("note");
 
         double value = Double.parseDouble(request.getParameter("Total"));
-
-        try (Connection conn = new DBContext("Test").getConnection()) {
+        String databaseName = (String) request.getSession().getAttribute("databaseName");
+        try (Connection conn = new DBContext(databaseName).getConnection()) {
 
             ImportReceiptDAO receiptDAO = new ImportReceiptDAO(conn);
             InventoryDAO inventoryDAO = new InventoryDAO(conn);
@@ -223,10 +224,9 @@ public class AddImportReceipt extends HttpServlet {
                     productDAO.getProductById(Integer.parseInt(importDetail.getProductID())).setImportPrice(BigDecimal.valueOf(importDetail.getPrice()));
                 }
             }
-            
+
             response.sendRedirect("ImportReceiptServlet?message=add_success");
 
-            
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi thêm phiếu nhập: " + e.getMessage());

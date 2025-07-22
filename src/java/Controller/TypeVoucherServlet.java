@@ -35,7 +35,8 @@ public class TypeVoucherServlet extends HttpServlet {
     throws ServletException, IOException {
         try {
             response.setContentType("text/html;charset=UTF-8");
-            Connection conn = new DBContext("Test").getConnection();
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
+            Connection conn = new DBContext(databaseName).getConnection();
             TypeReceiptVoucherDAO thuDAO = new TypeReceiptVoucherDAO(conn);   // DAO cho phiếu thu
             TypePaymentVoucherDAO chiDAO = new TypePaymentVoucherDAO(conn);   // DAO cho phiếu chi
             
@@ -73,8 +74,8 @@ public class TypeVoucherServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
            String action = request.getParameter("action");
-
-        try (Connection conn = new DBContext("Test").getConnection()) {
+String databaseName = (String) request.getSession().getAttribute("databaseName");
+        try (Connection conn = new DBContext(databaseName).getConnection()) {
             TypeReceiptVoucherDAO receiptDAO = new TypeReceiptVoucherDAO(conn);
             TypePaymentVoucherDAO paymentDAO = new TypePaymentVoucherDAO(conn);
 
