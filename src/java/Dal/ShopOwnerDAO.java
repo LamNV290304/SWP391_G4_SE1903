@@ -384,6 +384,48 @@ public class ShopOwnerDAO {
         }
     }
 
+    public boolean updateShopOwnerProfile(String username, String shopName, String email, String phone, String taxNum) {
+        String sql = "UPDATE ShopOwners SET ShopName = ?, Email = ?, Phone = ?, TaxNumber = ? WHERE Username = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, shopName);
+            ps.setString(2, email);
+            ps.setString(3, phone);
+            ps.setString(4, taxNum);
+            ps.setString(5, username);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public ShopOwner getShopOwnerByUsername(String username) {
+        String sql = "SELECT * FROM ShopOwners WHERE Username = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                ShopOwner shopOwner = new ShopOwner();
+                shopOwner.setId(rs.getInt("Id"));
+                shopOwner.setUsername(rs.getString("Username"));
+                shopOwner.setFullname(rs.getString("Fullname"));
+                shopOwner.setEmail(rs.getString("Email"));
+                shopOwner.setPhone(rs.getString("Phone"));
+                shopOwner.setShopName(rs.getString("ShopName"));
+                shopOwner.setTaxNumber(rs.getString("TaxNumber"));
+                shopOwner.setStatus(rs.getBoolean("Status"));
+                return shopOwner;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     public static void main(String[] args) {
         try (Connection conn = DBContext.getCentralConnection()) {
 

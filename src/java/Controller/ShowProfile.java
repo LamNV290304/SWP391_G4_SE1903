@@ -67,9 +67,17 @@ public class ShowProfile extends HttpServlet {
 
         try {
             String databaseName = (String) request.getSession().getAttribute("databaseName");
+            if (databaseName.isEmpty() || databaseName == null) {
+                response.sendRedirect(request.getContextPath() + "/SaleSphere");
+                return;
+            }
 
             if (databaseName.equals("CentralDB")) {
                 ShopOwner shopOwner = (ShopOwner) request.getSession().getAttribute("shopOwner");
+                if (shopOwner == null) {
+                    response.sendRedirect(request.getContextPath() + "/SaleSphere");
+                    return;
+                }
                 request.setAttribute("shopOwner", shopOwner);
                 request.getRequestDispatcher("/ShopOwner/showProfile.jsp").forward(request, response);
                 return;
@@ -83,7 +91,7 @@ public class ShowProfile extends HttpServlet {
 
             request.setAttribute("employee", employeeDto);
             request.getRequestDispatcher("showProfile.jsp").forward(request, response);
-            
+
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ShowProfile.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
@@ -103,7 +111,7 @@ public class ShowProfile extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        doGet(request, response);
     }
 
     /**

@@ -1,6 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<c:if test="${empty sessionScope.shopOwner}">
+    <c:redirect url="SaleSphere"/>
+</c:if>
 <!DOCTYPE html>
 <html lang="vi" class="light-style layout-menu-fixed">
     <head>
@@ -50,6 +53,10 @@
                                 </select>
 
                                 <button type="submit" class="btn btn-primary">Lọc</button>
+
+                                <button type="submit" name="export" value="excel" class="btn btn-success">
+                                    📤 Xuất Excel
+                                </button>
                             </form>
 
                             <!-- Bảng thanh toán -->
@@ -132,7 +139,7 @@
                                 </ul>
                             </nav>
 
-                            
+
                         </div>
                         <jsp:include page="footer.jsp" />
                     </div>

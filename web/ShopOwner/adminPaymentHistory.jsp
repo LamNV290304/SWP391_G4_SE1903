@@ -8,6 +8,10 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+
+<c:if test="${empty sessionScope.shopOwner}">
+    <c:redirect url="SaleSphere"/>
+</c:if>
 <!DOCTYPE html>
 <html lang="vi" class="light-style layout-menu-fixed">
     <head>
@@ -64,6 +68,10 @@
                                        value="${fn:escapeXml(search)}" />
 
                                 <button type="submit" class="btn btn-primary">Lọc</button>
+
+                                <button type="submit" name="export" value="excel" class="btn btn-success">
+                                    📤 Xuất Excel
+                                </button>
                             </form>
 
                             <!-- Bảng dữ liệu -->

@@ -67,6 +67,11 @@ public class ShowShopDetail extends HttpServlet {
         try {
             int shopOwnerId = Integer.parseInt(request.getParameter("Id"));
             
+            if (shopOwnerId != 1) {
+                response.sendRedirect(request.getContextPath() + "/SaleSphere");
+                return;
+            }
+            
             ShopOwnerDAO shopOwnerDAO = new ShopOwnerDAO(DBContext.getCentralConnection());
             ShopOwner shopOwner = shopOwnerDAO.getShopOwnerById(shopOwnerId);
            

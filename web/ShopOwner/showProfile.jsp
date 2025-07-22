@@ -6,7 +6,9 @@
 
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-
+<c:if test="${empty sessionScope.shopOwner}">
+    <c:redirect url="SaleSphere"/>
+</c:if>
 <!DOCTYPE html>
 <html lang="en" class="light-style layout-menu-fixed" data-theme="theme-default"
       data-assets-path="./assets/" data-template="vertical-menu-template-free">
@@ -61,6 +63,18 @@
 
                             <div class="card">
                                 <h5 class="card-header">Thông tin cửa hàng</h5>
+                                <c:if test="${not empty sessionScope.successMessage}">
+                                    <div class="alert alert-success" role="alert">
+                                        ${sessionScope.successMessage}
+                                    </div>
+                                    <c:remove var="successMessage" scope="session"/>
+                                </c:if>
+                                <c:if test="${not empty sessionScope.errorMessage}">
+                                    <div class="alert alert-danger" role="alert">
+                                        ${sessionScope.errorMessage}
+                                    </div>
+                                    <c:remove var="errorMessage" scope="session"/>
+                                </c:if>
                                 <div class="card-body">
                                     <ul class="list-unstyled mb-0">
                                         <li class="mb-3"><strong>Email:</strong> ${shopOwner.email}</li>
@@ -108,7 +122,11 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Số điện thoại</label>
-                            <input type="text" name="phone" class="form-control" value="${shopOwner.phone}" required>
+                            <input type="number" name="phone" class="form-control" value="${shopOwner.phone}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mã số thuế</label>
+                            <input type="number" name="taxNumber" class="form-control" value="${shopOwner.taxNumber}" required>
                         </div>
                         <input type="hidden" name="username" value="${shopOwner.username}">
                     </div>

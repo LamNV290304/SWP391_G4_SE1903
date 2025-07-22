@@ -64,10 +64,15 @@ public class ShowListShopOwner extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        
+        ShopOwner shopOwner = (ShopOwner) request.getSession().getAttribute("shopOwner");
+        if (shopOwner == null || shopOwner.getId() != 1) {
+            response.sendRedirect(request.getContextPath() + "/SaleSphere");
+            return;
+        }
         // Lấy từ khóa tìm kiếm nếu có
         String search = Optional.ofNullable(request.getParameter("search")).orElse("").trim();
-        if (!search.isEmpty()){
+        if (!search.isEmpty()) {
             search = Validator.normalizeInput(search);
         }
         // Phân trang

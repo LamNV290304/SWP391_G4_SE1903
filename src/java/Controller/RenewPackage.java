@@ -78,7 +78,7 @@ public class RenewPackage extends HttpServlet {
             int subscriptionId = Integer.parseInt(request.getParameter("subscriptionId"));
             ShopOwner shopOwner = (ShopOwner) request.getSession().getAttribute("shopOwner");
             if (shopOwner == null) {
-                response.sendRedirect("login.jsp");
+                response.sendRedirect(request.getContextPath() + "/SaleSphere");
                 return;
             }
 

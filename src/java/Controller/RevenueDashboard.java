@@ -6,6 +6,7 @@ package Controller;
 
 import Context.DBContext;
 import Dal.RevenueDAO;
+import Models.ShopOwner;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -59,6 +60,12 @@ public class RevenueDashboard extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
+
+            ShopOwner shopOwner = (ShopOwner) request.getSession().getAttribute("shopOwner");
+            if (shopOwner == null || shopOwner.getId() != 1) {
+                response.sendRedirect(request.getContextPath() + "/SaleSphere");
+                return;
+            }
             String fromMonth = request.getParameter("fromMonth");
             String toMonth = request.getParameter("toMonth");
 

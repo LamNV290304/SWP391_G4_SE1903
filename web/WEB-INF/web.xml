@@ -4,9 +4,17 @@
         <servlet-name>ShowShopDetail</servlet-name>
         <servlet-class>Controller.ShowShopDetail</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>UpdateShopProfile</servlet-name>
+        <servlet-class>Controller.UpdateShopProfile</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>ShowShopDetail</servlet-name>
         <url-pattern>/ShowShopDetail</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateShopProfile</servlet-name>
+        <url-pattern>/UpdateShopProfile</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>50</session-timeout>
