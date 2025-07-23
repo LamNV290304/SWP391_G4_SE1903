@@ -84,9 +84,9 @@
         <li class="menu-header small text-uppercase"><span class="menu-header-text">Quản Lý Kho</span></li>
         <!-- Qu?n Lï¿½ Kho -->
         <li class="menu-item">
-            <a href="cards-basic.html" class="menu-link">
+            <a href="ListShopServlet" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-collection"></i>
-                <div data-i18n="Basic">Đang Cập Nhật-</div>
+                <div >Điểm bán hàng-</div>
             </a>
         </li>
         <!-- Hï¿½ng Hï¿½a -->

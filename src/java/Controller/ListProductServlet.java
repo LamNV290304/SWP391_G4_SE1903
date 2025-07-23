@@ -158,7 +158,55 @@ public class ListProductServlet extends HttpServlet {
 
         // Sau khi update hoặc delete, redirect lại về list
         response.sendRedirect("ListProductServlet");
+    }else if ("add".equals(action)) {
+    String productName = request.getParameter("productName");
+    String categoryID = request.getParameter("categoryID");
+    BigDecimal importPrice = new BigDecimal(request.getParameter("importPrice"));
+    BigDecimal sellingPrice = new BigDecimal(request.getParameter("sellingPrice"));
+    String description = request.getParameter("description");
+    boolean status = Boolean.parseBoolean(request.getParameter("status"));
+    String unitID = request.getParameter("unitID");
+
+    // Xử lý ảnh nếu có upload (ở mức cơ bản)
+    String imageFileName = null;
+    try {
+        jakarta.servlet.http.Part imagePart = request.getPart("image");
+        if (imagePart != null && imagePart.getSize() > 0) {
+            String submittedFileName = imagePart.getSubmittedFileName();
+            imageFileName = java.nio.file.Paths.get(submittedFileName).getFileName().toString();
+            String uploadPath = getServletContext().getRealPath("/") + "images";
+            java.io.File uploadDir = new java.io.File(uploadPath);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+            imagePart.write(uploadPath + java.io.File.separator + imageFileName);
+        }
+    } catch (Exception e) {
+        e.printStackTrace(); // hoặc log lỗi nếu cần
     }
+
+    // Tạo đối tượng Product mới
+    Product product = new Product();
+    product.setProductName(productName);
+    product.setCategoryID(categoryID);
+    product.setImportPrice(importPrice);
+    product.setSellingPrice(sellingPrice);
+    product.setDescription(description);
+    product.setStatus(status);
+    product.setUnitID(unitID);
+    if (imageFileName != null) {
+        product.setImageUrl(imageFileName);
+    }
+
+    // Thêm vào database
+    String databaseName = (String) request.getSession().getAttribute("databaseName");
+    DBContext dBContext = new DBContext(databaseName);
+    ProductDAO productDAO = new ProductDAO(dBContext.getConnection());
+    productDAO.createProduct(product);
+
+    response.sendRedirect("ListProductServlet");
+}
+
     }
     /** 
      * Returns a short description of the servlet.
