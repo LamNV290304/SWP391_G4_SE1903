@@ -37,7 +37,7 @@ public class RoleDAO {
     }
     
     public static void main(String[] args) {
-    try (Connection conn = DBContext.getConnection("ShopDB_TTest")) {
+    try (Connection conn = DBContext.getConnection("CentralDB")) {
         RoleDAO roleDAO = new RoleDAO(conn);
         List<Role> roles = roleDAO.getAllRoles();
 

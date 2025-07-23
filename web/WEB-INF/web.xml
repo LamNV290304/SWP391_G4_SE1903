@@ -8,6 +8,10 @@
         <servlet-name>UpdateShopProfile</servlet-name>
         <servlet-class>Controller.UpdateShopProfile</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ShowListPermission</servlet-name>
+        <servlet-class>Controller.ShowListPermission</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>ShowShopDetail</servlet-name>
         <url-pattern>/ShowShopDetail</url-pattern>
@@ -15,6 +19,10 @@
     <servlet-mapping>
         <servlet-name>UpdateShopProfile</servlet-name>
         <url-pattern>/UpdateShopProfile</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ShowListPermission</servlet-name>
+        <url-pattern>/ShowListPermission</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>50</session-timeout>

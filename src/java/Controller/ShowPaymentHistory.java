@@ -5,11 +5,9 @@
 package Controller;
 
 import Context.DBContext;
-import DTO.PaymentDto;
 import Dal.PaymentDAO;
 import Dal.ServicePackageDAO;
 import Models.Payment;
-import Models.ServicePackage;
 import Models.ShopOwner;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -17,11 +15,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.math.BigDecimal;
 import java.sql.*;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
