@@ -635,7 +635,7 @@ public class StatisticServlet extends HttpServlet {
         List<Integer> employeeIdsForExport = new ArrayList<>();
 
         if (selectedEmployeeIdParam != null && selectedEmployeeIdParam.equalsIgnoreCase("all")) {
-            // Nếu chọn "All", lấy tất cả nhân viên có vai trò 3 và 4 trong shop
+           
             List<Employee> salesCashierEmployeesInShop = eDAO.getEmployeesByRoleAndShop(shopId, List.of(3, 4)); // Giả sử 3: Cashier, 4: Sale
             for (Employee emp : salesCashierEmployeesInShop) {
                 employeeIdsForExport.add(emp.getId());
