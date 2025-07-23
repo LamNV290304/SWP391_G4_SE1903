@@ -221,13 +221,16 @@ public final class DatabaseHelper {
             TotalAmount DECIMAL(18,2) NOT NULL,
             Note NVARCHAR(255),
             Status BIT DEFAULT 1,
-        		VATRateID int NULL,
+        	VATRateID int NULL,
+        	SaleEmployeeID INT,
             FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
             FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
             FOREIGN KEY (ShopID) REFERENCES Shop(ShopID),
+        	FOREIGN KEY (SaleEmployeeID) REFERENCES Employee(EmployeeID),
         	FOREIGN KEY (VATRateID) REFERENCES VATRates(VATRateID)
         
         );
+        
         CREATE TABLE InvoiceDetail (
             InvoiceDetailID INT IDENTITY(1,1) PRIMARY KEY,
             InvoiceID INT NOT NULL,
@@ -481,8 +484,7 @@ public final class DatabaseHelper {
         
             FOREIGN KEY (SalaryID) REFERENCES Salary(SalaryID),
             FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID)
-        );
-        
+        );        
         CREATE TABLE OTPs (
             Id INT IDENTITY(1,1) PRIMARY KEY,
             Email NVARCHAR(100) NOT NULL,
@@ -499,8 +501,7 @@ public final class DatabaseHelper {
         (3, 'Cashier', 'Handles sales transactions'),
         (4, 'Sale', 'Responsible for sales and customer relations');
                                 
-                                INSERT INTO VATRates (Rate)
-                                VALUES (0.10);
+                                INSERT INTO VATRates (Rate) VALUES (0.10);
         """;
 
         try (Connection masterConn = DBContext.getMasterConnection(); Statement stmt = masterConn.createStatement()) {

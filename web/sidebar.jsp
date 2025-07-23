@@ -139,6 +139,11 @@
                         <div >Thiết lập kho hàng</div>
                     </a>
                 </li>
+                <li class="menu-item">
+                    <a href="TransferReceipt" class="menu-link">
+                        <div >Chuyển kho</div>
+                    </a>
+                </li>
             </ul>
         </li>
 
@@ -152,24 +157,6 @@
         <!-- Forms & Tables -->
         <li class="menu-header small text-uppercase"><span class="menu-header-text">Bán Hàng</span></li>
         <!-- Forms -->
-        <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-detail"></i>
-                <div data-i18n="Form Elements">Menu</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="forms-basic-inputs.html" class="menu-link">
-                        <div data-i18n="Basic Inputs">Chương Trinh</div>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="forms-input-groups.html" class="menu-link">
-                        <div data-i18n="Input groups">Danh Mục</div>
-                    </a>
-                </li>
-            </ul>
-        </li>
         <li class="menu-item">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-detail"></i>
@@ -240,13 +227,6 @@
                     </a>
                 </li>
             </ul>
-        </li>
-        <!-- Danh M?c -->
-        <li class="menu-item">
-            <a href="tables-basic.html" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-table"></i>
-                <div data-i18n="Tables">Danh Mục</div>
-            </a>
         </li>
         <!-- Misc -->
         <li class="menu-header small text-uppercase"><span class="menu-header-text">Misc</span></li>
