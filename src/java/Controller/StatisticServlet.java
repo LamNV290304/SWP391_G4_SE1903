@@ -136,8 +136,6 @@ public class StatisticServlet extends HttpServlet {
             request.setAttribute("errorMessage", "Đã xảy ra lỗi không mong muốn: " + e.getMessage());
 
         }
-//        }
-
     }
 
     @Override
@@ -145,8 +143,6 @@ public class StatisticServlet extends HttpServlet {
             throws ServletException, IOException {
         doGet(request, response);
     }
-
-
     private void handleManagerRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
 
@@ -155,7 +151,7 @@ public class StatisticServlet extends HttpServlet {
 
         if (loggedInManager == null || loggedInManager.getShopId() == 0
                 || loggedInManager.getRole() == null
-                || !"Manager".equals(loggedInManager.getRole().getName())) {
+                || !"Manager".equals(loggedInManager.getRole().getName())|| !"Admin".equals(loggedInManager.getRole().getName())) {
             response.sendRedirect("login.jsp");
             return;
         }
