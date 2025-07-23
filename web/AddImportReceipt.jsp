@@ -143,6 +143,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                                                         <thead>
                                                             <tr>
                                                                 <th style="width: 20%;">Mã Sản phẩm</th>
+                                                                <th style="width: 20%;">Tên Sản phẩm</th> 
                                                                 <th style="width: 13%;">Số lượng</th>
                                                                 <th style="width: 15%;">Đơn Giá</th>
                                                                 <th style="width: 15%;">Thành Tiền</th>
@@ -152,20 +153,24 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                                                         </thead>
                                                         <tbody>
                                                             <tr>
+                                                                <td>
+                                                                    <input type="text" name="productID[]" class="form-control product-id" placeholder="Nhập mã sản phẩm" required />
+                                                                </td>
+                                                                <td>
+  <div class="d-flex align-items-center gap-2">
+    <input type="text" class="form-control product-name" name="productName[]" readonly />
+    <a href="ListProductServlet" target="_blank" class="btn btn-outline-primary btn-sm add-product-btn d-none">➕</a>
+  </div>
+</td>
 
-                                                                <td> 
-                                                                    <select class="form-select" name="productID[]">
-                                                                        <option selected disabled>Chọn Sản Phẩm</option>
-                                                                        <c:forEach var="prod" items="${listProduct}">
-                                                                            <option value="${prod.productID}">${prod.productName}</option>
-                                                                        </c:forEach>
-                                                                    </select></td>
+
                                                                 <td><input type="number" name="quantity[]" class="form-control" required /></td>
                                                                 <td><input type="number" name="price[]" class="form-control" required /></td>
-                                                                <td><input type="number" name="total[]" class="form-control" readonly /></td>
+                                                                <td><input type="text" name="total[]" class="form-control text-end" readonly /></td>
                                                                 <td><input type="text" name="note[]" class="form-control" required /></td>
                                                                 <td><button type="button" class="btn btn-danger btn-sm remove-row">Xóa</button></td>
                                                             </tr>
+
                                                         </tbody>
                                                     </table>
                                                 </div>
@@ -188,63 +193,69 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
 
                                     // Khi thêm dòng mới, cũng tự động gán luôn importReceiptID
                                     document.getElementById("addRowBtn").addEventListener("click", function () {
-                                        const tableBody = document.querySelector("#productTable tbody");
-                                        const newRow = document.createElement("tr");
-                                        newRow.innerHTML = `
-                                  <td> 
-                                          <select class="form-select" name="productID[]">
-                                    <option selected disabled>Chọn Sản Phẩm</option>
-                                    <c:forEach var="prod" items="${listProduct}">
-                                      <option value="${prod.productID}">${prod.productName}</option>
-                                    </c:forEach>
-                                  </select></td>
-                                    <td><input type="number" name="quantity[]" class="form-control" required /></td>
-                                    <td><input type="number" name="price[]" class="form-control" required /></td>
-                                    <td><input type="number" name="total[]" class="form-control" readonly /></td>
-                                    <td><input type="text" name="note[]" class="form-control" required /></td>
-                                    <td><button type="button" class="btn btn-danger btn-sm remove-row">Xóa</button></td>
-                                  `;
-                                        tableBody.appendChild(newRow);
-                                    });
+                                    const tableBody = document.querySelector("#productTable tbody");
+                                    const newRow = document.createElement("tr");
+                                    newRow.innerHTML = `
+<td><input type="text" name="productID[]" class="form-control product-id" placeholder="Nhập mã sản phẩm" required /></td>
+<td>
+  <div class="d-flex align-items-center gap-2">
+    <input type="text" class="form-control product-name" name="productName[]" readonly />
+    <a href="/AddProduct" target="_blank" class="btn btn-outline-primary btn-sm add-product-btn d-none">➕</a>
+  </div>
+</td>
+<td><input type="number" name="quantity[]" class="form-control" required /></td>
+<td><input type="number" name="price[]" class="form-control" required /></td>
+<td><input type="text" name="total[]" class="form-control text-end" readonly /></td>
+<td><input type="text" name="note[]" class="form-control" required /></td>
+<td><button type="button" class="btn btn-danger btn-sm remove-row">Xóa</button></td>
+`;
 
+                                    tableBody.appendChild(newRow);
+                                    });
                                     // Tính thành tiền + tổng cộng mỗi khi người dùng nhập số
                                     document.addEventListener("input", function (e) {
-                                        if (e.target.name === "quantity[]" || e.target.name === "price[]") {
-                                            const row = e.target.closest("tr");
-                                            const qty = parseFloat(row.querySelector('input[name="quantity[]"]').value) || 0;
-                                            const price = parseFloat(row.querySelector('input[name="price[]"]').value) || 0;
-                                            const total = qty * price;
-                                            row.querySelector('input[name="total[]"]').value = total.toFixed(2);
+  if (e.target.classList.contains("product-id")) {
+    const row = e.target.closest("tr");
+    const productId = e.target.value.trim();
+    const nameInput = row.querySelector(".product-name");
+    const addBtn = row.querySelector(".add-product-btn");
 
-                                            calculateGrandTotal();
-                                        }
-                                    });
+    if (productMap[productId]) {
+      nameInput.value = productMap[productId];
+      nameInput.readOnly = true;
+      addBtn.classList.add("d-none");
+    } else {
+      nameInput.value = "";
+      nameInput.readOnly = true;
+      addBtn.classList.remove("d-none");
+
+      // Gán đường dẫn có sẵn mã để
+    }
+  }
+});
 
                                     // Xóa dòng
                                     document.addEventListener("click", function (e) {
-                                        if (e.target.classList.contains("remove-row")) {
-                                            e.target.closest("tr").remove();
-                                            calculateGrandTotal();
-                                        }
+                                    if (e.target.classList.contains("remove-row")) {
+                                    e.target.closest("tr").remove();
+                                    calculateGrandTotal();
+                                    }
                                     });
-
                                     // Hàm tính tổng cộng
                                     function calculateGrandTotal() {
-                                        const totals = document.querySelectorAll('input[name="total[]"]');
-                                        let sum = 0;
-                                        totals.forEach(input => {
-                                            sum += parseFloat(input.value) || 0;
-                                        });
-
-                                        // Cập nhật nội dung hiển thị
-                                        document.getElementById("grandTotal").textContent = sum.toLocaleString("vi-VN", {
-                                            style: "currency",
-                                            currency: "VND"
-                                        });
-
-                                        // ✅ Cập nhật giá trị input hidden
-                                        document.getElementById("grandTotalInput").value = sum.toFixed(2);
+                                    const totals = document.querySelectorAll('input[name="total[]"]');
+                                    let sum = 0;
+                                    totals.forEach(input => {
+                                    const raw = input.value.replace(/\D/g, '');
+                                    sum += parseFloat(raw) || 0;
+                                    });
+                                    document.getElementById("grandTotal").textContent = formatCurrency(sum);
+                                    document.getElementById("grandTotalInput").value = sum;
                                     }
+
+
+                                    // Cập nhật nội dung hiển thị
+
                                 </script>
                                 <script>
                                     const productOptions = `
@@ -279,6 +290,45 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
 
     </div>
 
+    <script>
+        function formatCurrency(value) {
+        return Number(value).toLocaleString("vi-VN", {
+        style: "currency",
+                currency: "VND"
+        });
+        }
+
+        // Format tất cả input khi load trang
+        window.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('input[name="total[]"]').forEach(input => {
+        const raw = input.value.replace(/\D/g, '');
+        input.value = formatCurrency(raw);
+        });
+        });
+    </script>
+    <script>
+        const productMap = {
+        <c:forEach var="prod" items="${listProduct}">
+        "${prod.productID}": "${prod.productName}",
+        </c:forEach>
+        };
+    </script>
+    <script>
+        // Tính thành tiền khi nhập số lượng hoặc đơn giá
+  document.addEventListener("input", function (e) {
+    if (e.target.name === "quantity[]" || e.target.name === "price[]") {
+      const row = e.target.closest("tr");
+      const quantity = parseFloat(row.querySelector('input[name="quantity[]"]').value) || 0;
+      const price = parseFloat(row.querySelector('input[name="price[]"]').value) || 0;
+      const total = quantity * price;
+
+      const totalField = row.querySelector('input[name="total[]"]');
+      totalField.value = formatCurrency(total);
+      
+      calculateGrandTotal(); // Cập nhật tổng cộng
+    }
+  });
+    </script>
 
     <script src="assets/vendor/libs/jquery/jquery.js"></script>
     <script src="assets/vendor/libs/popper/popper.js"></script>
@@ -286,6 +336,16 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
     <script src="assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
     <script src="assets/vendor/js/menu.js"></script> <!-- Xử lý toggle -->
     <script src="assets/js/main.js"></script> <!-- Main logic -->
-
+    <script>
+        // Tự động cập nhật tên sản phẩm khi chọn mã sản phẩm
+        document.addEventListener("change", function (e) {
+        if (e.target.classList.contains("product-select")) {
+        const selectedOption = e.target.options[e.target.selectedIndex];
+        const productName = selectedOption.getAttribute("data-name") || "";
+        const row = e.target.closest("tr");
+        row.querySelector(".product-name").value = productName;
+        }
+        });
+    </script>
 </body>
 </html>

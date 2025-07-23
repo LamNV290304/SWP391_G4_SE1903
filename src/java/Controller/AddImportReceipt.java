@@ -171,15 +171,15 @@ public class AddImportReceipt extends HttpServlet {
 
             receipt.setStatus(true);
 
-            // Thêm phiếu nhập
+             // Thêm phiếu nhập
             receiptDAO.insertImportReceipt(receipt);
 
             List<ImportReceiptDetail> listImportDetail = new ArrayList<>();
             String[] productIDs = request.getParameterValues("productID[]");
+            String[] productNames = request.getParameterValues("productName[]");
             String[] quantities = request.getParameterValues("quantity[]");
             String[] prices = request.getParameterValues("price[]");
             String[] notes = request.getParameterValues("note[]");
-
             int size = productIDs.length;
             for (int i = 0; i < size; i++) {
 
@@ -196,21 +196,20 @@ public class AddImportReceipt extends HttpServlet {
                 receiptDetailDAO.insertDetail(importDetail);
 
             }
-
+            int e=0;
             for (ImportReceiptDetail importDetail : listImportDetail) {
 
                 // Kiểm tra và cập nhật tồn kho
                 Inventory inv = inventoryDAO.getInventoryByShopAndProduct(Integer.parseInt(importDetail.getProductID()), Integer.parseInt(shopID_raw));
 
                 if (inv != null) {
-
+                    
                     int newQty = inv.getQuantity() + importDetail.getQuantity();
 
                     inventoryDAO.updateInventoryQuantity(inv.getInventoryID(), newQty);
                     productDAO.getProductById(Integer.parseInt(importDetail.getProductID())).setImportPrice(BigDecimal.valueOf(importDetail.getPrice()));
+                    e++;
                 } else {
-
-                    // Tạo mới hàng tồn kho nếu chưa có
                     Inventory newInv = new Inventory();
 
                     //newInv.setInventoryID("INV" + System.currentTimeMillis()); // ID tạm thời
@@ -224,9 +223,10 @@ public class AddImportReceipt extends HttpServlet {
                     productDAO.getProductById(Integer.parseInt(importDetail.getProductID())).setImportPrice(BigDecimal.valueOf(importDetail.getPrice()));
                 }
             }
-
+            
             response.sendRedirect("ImportReceiptServlet?message=add_success");
 
+            
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi thêm phiếu nhập: " + e.getMessage());
