@@ -107,14 +107,12 @@ public class StatisticServlet extends HttpServlet {
             userRoleName = loggedInEmployee.getRole().getName();
         }
 
-        // Handle specific actions like Excel export
-//        if ("exportExcel".equals(action)) {
-////            exportSalesStatisticsToExcel(request, response);
-//        } else {
         try {
-            // Dispatch to role-specific handlers
+         
             switch (userRoleName) {
-
+                case "Admin":
+                    handleManagerRequest(request, response);
+                    break;
                 case "Manager":
                     handleManagerRequest(request, response);
                     break;
@@ -125,7 +123,7 @@ public class StatisticServlet extends HttpServlet {
                     handleSaleRequest(request, response);
                     break;
                 default:
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Bạn không có quyền truy cập trang này.");
+                    response.sendRedirect("login.jsp");
                     return;
             }
 
@@ -147,7 +145,7 @@ public class StatisticServlet extends HttpServlet {
             throws ServletException, IOException {
         doGet(request, response);
     }
-    // --- Các phương thức handle cho từng vai trò ---
+
 
     private void handleManagerRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
@@ -183,7 +181,7 @@ public class StatisticServlet extends HttpServlet {
                 startDate = Timestamp.valueOf(yearMonth.atDay(1).atStartOfDay());
                 endDate = Timestamp.valueOf(yearMonth.atEndOfMonth().atTime(23, 59, 59));
             } else {
-                // Mặc định: 1 tháng trước đến hiện tại
+          
                 LocalDate oneMonthAgo = LocalDate.now().minusMonths(1);
                 startDateParam = oneMonthAgo.toString();
                 startDate = Timestamp.valueOf(oneMonthAgo.atStartOfDay());
@@ -195,14 +193,13 @@ public class StatisticServlet extends HttpServlet {
 
         } catch (IllegalArgumentException e) {
             request.setAttribute("errorMessage", "Định dạng ngày không hợp lệ.");
-            // Đảm bảo truyền đủ các tham số, bao gồm selectedMonthParam
+         
             setCommonRequestAttributes(request, loggedInManager, new ArrayList<>(), BigDecimal.ZERO, 0, 1, 1, 0, startDateParam, endDateParam, selectedMonthParam);
             request.setAttribute("statisticType", "managerSummary"); // Giữ nguyên loại thống kê
             request.getRequestDispatcher("sale_statistics.jsp").forward(request, response);
             return;
         }
 
-        // Lấy tất cả Sale + Cashier trong shop
         List<Employee> allowedEmployees = eDAO.getEmployeesByRoleAndShop(shopId, List.of(3, 4));
         request.setAttribute("filterableEmployees", allowedEmployees);
 
@@ -634,24 +631,39 @@ public class StatisticServlet extends HttpServlet {
 
         List<Integer> employeeIdsForExport = new ArrayList<>();
 
-        if (selectedEmployeeIdParam != null && selectedEmployeeIdParam.equalsIgnoreCase("all")) {
-           
-            List<Employee> salesCashierEmployeesInShop = eDAO.getEmployeesByRoleAndShop(shopId, List.of(3, 4)); // Giả sử 3: Cashier, 4: Sale
-            for (Employee emp : salesCashierEmployeesInShop) {
-                employeeIdsForExport.add(emp.getId());
+        // Xử lý danh sách nhân viên cần export
+        if ("all".equalsIgnoreCase(selectedEmployeeIdParam)) {
+            if ("Manager".equalsIgnoreCase(role)) {
+                // Manager: export tất cả Cashier và Sale trong shop
+                List<Employee> salesCashierEmployees = eDAO.getEmployeesByRoleAndShop(shopId, List.of(3, 4));
+                for (Employee emp : salesCashierEmployees) {
+                    employeeIdsForExport.add(emp.getId());
+                }
+            } else if ("Cashier".equalsIgnoreCase(role)) {
+                // Cashier: chỉ export bản thân và các Sale
+                employeeIdsForExport.add(currentEmployeeId); // bản thân
+
+                List<Employee> saleEmployees = eDAO.getEmployeesByRoleAndShop(shopId, List.of(4)); // 4: Sale
+                for (Employee emp : saleEmployees) {
+                    employeeIdsForExport.add(emp.getId());
+                }
+            } else {
+                // Role khác không được export all
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Bạn không có quyền export toàn bộ thống kê.");
+                return;
             }
         } else if (selectedEmployeeIdParam != null && !selectedEmployeeIdParam.isEmpty()) {
             try {
                 selectedEmployeeId = Integer.parseInt(selectedEmployeeIdParam);
                 employeeIdsForExport.add(selectedEmployeeId);
             } catch (NumberFormatException e) {
-                // Nếu có lỗi parse hoặc không có tham số, mặc định là nhân viên hiện tại
-                employeeIdsForExport.add(currentEmployeeId);
+                employeeIdsForExport.add(currentEmployeeId); // fallback
             }
         } else {
-            // Mặc định, chỉ export của nhân viên hiện tại nếu không có lựa chọn cụ thể
             employeeIdsForExport.add(currentEmployeeId);
         }
+
+        // Xử lý ngày tháng
         String selectedMonthParam = request.getParameter("selectedMonth");
         String startDateParam = request.getParameter("startDate");
         String endDateParam = request.getParameter("endDate");
@@ -659,18 +671,16 @@ public class StatisticServlet extends HttpServlet {
         Timestamp startDate, endDate;
         try {
             if (selectedMonthParam != null && !selectedMonthParam.isEmpty()) {
-
                 int month = Integer.parseInt(selectedMonthParam);
-                int currentYear = LocalDate.now().getYear();
-                YearMonth yearMonth = YearMonth.of(currentYear, month);
+                int year = LocalDate.now().getYear();
+                YearMonth yearMonth = YearMonth.of(year, month);
                 startDate = Timestamp.valueOf(yearMonth.atDay(1).atStartOfDay());
                 endDate = Timestamp.valueOf(yearMonth.atEndOfMonth().atTime(23, 59, 59));
-            } else if (startDateParam != null && !startDateParam.isEmpty() && endDateParam != null && !endDateParam.isEmpty()) {
-
+            } else if (startDateParam != null && !startDateParam.isEmpty()
+                    && endDateParam != null && !endDateParam.isEmpty()) {
                 startDate = Timestamp.valueOf(LocalDate.parse(startDateParam).atStartOfDay());
                 endDate = Timestamp.valueOf(LocalDate.parse(endDateParam).atTime(23, 59, 59));
             } else {
-
                 startDate = Timestamp.valueOf(LocalDate.now().minusMonths(1).atStartOfDay());
                 endDate = Timestamp.valueOf(LocalDate.now().atTime(23, 59, 59));
             }
@@ -678,26 +688,15 @@ public class StatisticServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Định dạng ngày không hợp lệ.");
             return;
         }
-        List<Employee> allowedEmployees = eDAO.getEmployeesByRoleAndShop(shopId, List.of(3, 4));
+
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=Sales_Statistics.xlsx");
+
         try (OutputStream out = response.getOutputStream()) {
-            if ("all".equalsIgnoreCase(statisticType) || ("Manager".equalsIgnoreCase(role))) {
-
-                Set<Integer> uniqueEmployeeIds = new HashSet<>();
-
-                uniqueEmployeeIds.add(loggedInEmployee.getId());
-
-                List<Employee> salesEmployeesInShop = eDAO.getEmployeesByRoleAndShop(shopId, List.of(3, 4));
-                for (Employee emp : salesEmployeesInShop) {
-                    uniqueEmployeeIds.add(emp.getId());
-                }
-
-          
+            if (employeeIdsForExport.size() > 1 || "Manager".equalsIgnoreCase(role)) {
 
                 List<SalesEmployeeStatisticDto> allStats = eDAO.getSalesStatisticsBySpecificEmployeeIdsForExcel(
                         shopId, startDate, endDate, employeeIdsForExport);
-
                 ExcelExporter.exportAllStatistics(allStats, out);
 
             } else if ("cashierSummary".equalsIgnoreCase(statisticType)
@@ -707,13 +706,13 @@ public class StatisticServlet extends HttpServlet {
                     selectedEmployeeId = currentEmployeeId;
                 }
 
-                List<SalesEmployeeStatisticDto> statisticList = exDAO.getCashierSummaryStatistics(
+                List<SalesEmployeeStatisticDto> statList = exDAO.getCashierSummaryStatistics(
                         selectedEmployeeId, startDate, endDate, shopId);
 
                 BigDecimal totalRevenue = idetailDAO.getTotalProductRevenueByShop(shopId, startDate, endDate);
                 int totalSoldProducts = idetailDAO.getTotalSoldProductsByShop(shopId);
 
-                ExcelExporter.exportCashierSummaryStatistics(statisticList, totalRevenue, totalSoldProducts, out);
+                ExcelExporter.exportCashierSummaryStatistics(statList, totalRevenue, totalSoldProducts, out);
 
             } else if ("saleProductDetail".equalsIgnoreCase(statisticType)
                     || ("Sale".equalsIgnoreCase(role) && statisticType == null)) {
@@ -727,11 +726,11 @@ public class StatisticServlet extends HttpServlet {
 
                 int totalQuantity = idetailDAO.getTotalQuantitySoldForAllProductsByEmployee(
                         selectedEmployeeId, shopId, startDate, endDate);
-
                 BigDecimal totalAmount = idetailDAO.getTotalAmountSoldForAllProductsByEmployee(
                         selectedEmployeeId, shopId, startDate, endDate);
 
                 ExcelExporter.exportSaleProductStatistics(soldList, totalQuantity, totalAmount, out);
+
             } else {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Loại thống kê không hợp lệ hoặc vai trò không được hỗ trợ.");
             }

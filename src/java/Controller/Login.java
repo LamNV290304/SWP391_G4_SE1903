@@ -120,7 +120,7 @@ public class Login extends HttpServlet {
                 return;
             }
             
-            DBContext connection = new DBContext("ShopDB_hihihaha");
+            DBContext connection = new DBContext(databaseName);
             NotiDAO notiDAO = new NotiDAO(connection.getConnection());
             //view for Noti
             Vector<Noti> vectorNoti = notiDAO.getAllNoti("SELECT * FROM [dbo].[Noti] "
