@@ -7,6 +7,7 @@ package Controller;
 import Context.DBContext;
 import Dal.ServicePackageDAO;
 import Models.ServicePackage;
+import Models.ShopOwner;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -75,6 +76,13 @@ public class EditPackage extends HttpServlet {
             throws ServletException, IOException {
 
         try {
+            ShopOwner shopOwnerLogged = (ShopOwner) request.getSession().getAttribute("shopOwner");
+
+            if (shopOwnerLogged == null || shopOwnerLogged.getId() != 1) {
+                response.sendRedirect(request.getContextPath() + "/SaleSphere");
+                return;
+            }
+            
             int id = Integer.parseInt(request.getParameter("id"));
             String name = request.getParameter("name");
             int duration = Integer.parseInt(request.getParameter("durationInDays"));

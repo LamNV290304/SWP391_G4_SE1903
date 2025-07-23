@@ -4,13 +4,25 @@
         <servlet-name>ShowShopDetail</servlet-name>
         <servlet-class>Controller.ShowShopDetail</servlet-class>
     </servlet>
-    <servlet-mapping>
-        <servlet-name>ShowRevenueShop</servlet-name>
-        <url-pattern>/ShowRevenueShop</url-pattern>
-    </servlet-mapping>
+    <servlet>
+        <servlet-name>UpdateShopProfile</servlet-name>
+        <servlet-class>Controller.UpdateShopProfile</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ShowListPermission</servlet-name>
+        <servlet-class>Controller.ShowListPermission</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>ShowShopDetail</servlet-name>
         <url-pattern>/ShowShopDetail</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateShopProfile</servlet-name>
+        <url-pattern>/UpdateShopProfile</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ShowListPermission</servlet-name>
+        <url-pattern>/ShowListPermission</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>50</session-timeout>
@@ -203,10 +215,6 @@
     <servlet>
         <servlet-name>ResetPassword</servlet-name>
         <servlet-class>Controller.ResetPassword</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>ShowRevenueShop</servlet-name>
-        <servlet-class>Controller.ShowRevenueShop</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>UpdateImportReceipt</servlet-name>

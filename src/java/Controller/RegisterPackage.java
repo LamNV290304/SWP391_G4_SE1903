@@ -93,7 +93,7 @@ public class RegisterPackage extends HttpServlet {
             int packageId = Integer.parseInt(request.getParameter("packageId"));
             ShopOwner shopOwner = (ShopOwner) request.getSession().getAttribute("shopOwner");
             if (shopOwner == null) {
-                response.sendRedirect("login.jsp");
+                response.sendRedirect(request.getContextPath() + "/SaleSphere");
                 return;
             }
 
@@ -150,7 +150,7 @@ public class RegisterPackage extends HttpServlet {
             String paymentUrl = generateVnpayUrl(vnp_Params);
             response.sendRedirect(paymentUrl);
 
-        } catch (ClassNotFoundException | SQLException ex ) {
+        } catch (ClassNotFoundException | SQLException ex) {
             request.getRequestDispatcher("ShopOwner/home.jsp?error=" + URLEncoder.encode("Lỗi khi xử lý đăng kí.", StandardCharsets.UTF_8)).forward(request, response);
         }
     }
@@ -179,8 +179,8 @@ public class RegisterPackage extends HttpServlet {
                 String encodedValue = URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString());
                 hashData.append(fieldName).append('=').append(encodedValue);
                 query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()))
-                     .append('=')
-                     .append(encodedValue);
+                        .append('=')
+                        .append(encodedValue);
                 if (i < fieldNames.size() - 1) {
                     hashData.append('&');
                     query.append('&');

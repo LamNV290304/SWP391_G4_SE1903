@@ -5,6 +5,7 @@
 package Controller;
 
 import Context.DBContext;
+import DTO.PaymentDto;
 import Dal.PaymentDAO;
 import Dal.ServicePackageDAO;
 import Dal.ShopOwnerDAO;
@@ -14,6 +15,7 @@ import Models.ShopOwner;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.util.*;
 import java.util.logging.Level;
@@ -51,11 +53,15 @@ public class ShowPaymentHistoryAdmin extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            String shopOwnerIdParam = request.getParameter("shopOwnerId");
-            if (shopOwnerIdParam == null) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Thiếu shopOwnerId");
+            
+            ShopOwner shopOwnerLogged = (ShopOwner) request.getSession().getAttribute("shopOwner");
+
+            if (shopOwnerLogged == null || shopOwnerLogged.getId() != 1) {
+                response.sendRedirect(request.getContextPath() + "/SaleSphere");
                 return;
             }
+            
+            String shopOwnerIdParam = request.getParameter("shopOwnerId");
 
             int shopOwnerId = Integer.parseInt(shopOwnerIdParam);
 
@@ -67,7 +73,6 @@ public class ShowPaymentHistoryAdmin extends HttpServlet {
                     sortMap.put(parts[0], parts[1]);
                 }
             }
-
             String packageIdParam = request.getParameter("packageId");
             Integer selectedPackageId = null;
             if (packageIdParam != null && !packageIdParam.isEmpty()) {
@@ -99,6 +104,14 @@ public class ShowPaymentHistoryAdmin extends HttpServlet {
             int totalPages = (int) Math.ceil((double) totalRecords / limit);
             List<ServicePackage> packageList = packageDAO.getAll();
             double totalAmount = paymentDAO.sumSuccessfulPayments(shopOwnerId);
+
+            String exportType = request.getParameter("export");
+
+            if ("excel".equals(exportType)) {
+                System.out.println("hehehe");
+                exportToExcel(request, response, payments, totalAmount); // Gọi hàm riêng
+                return; // Kết thúc luồng xuất excel
+            }
 
             request.setAttribute("payments", payments);
             request.setAttribute("shop", shopOwner);
@@ -143,4 +156,53 @@ public class ShowPaymentHistoryAdmin extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
+    private void exportToExcel(HttpServletRequest request, HttpServletResponse response, List<Payment> payments, double totalAmount) throws IOException {
+        org.apache.poi.ss.usermodel.Workbook workbook = new org.apache.poi.xssf.usermodel.XSSFWorkbook();
+        org.apache.poi.ss.usermodel.Sheet sheet = workbook.createSheet("Lịch sử thanh toán");
+
+        org.apache.poi.ss.usermodel.Row header = sheet.createRow(0);
+        String[] columns = {"Gói dịch vụ", "Ngày thanh toán", "Số tiền", "Trạng thái", "Chủ shop", "Tên shop"};
+        for (int i = 0; i < columns.length; i++) {
+            header.createCell(i).setCellValue(columns[i]);
+        }
+
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
+
+        int rowIndex = 1;
+        for (Payment p : payments) {
+            org.apache.poi.ss.usermodel.Row row = sheet.createRow(rowIndex++);
+            row.createCell(0).setCellValue(p.getPackageName());
+            row.createCell(1).setCellValue(sdf.format(p.getPaymentDate()));
+            row.createCell(2).setCellValue(p.getAmount());
+            row.createCell(3).setCellValue(p.getStatus());
+        }
+
+        org.apache.poi.ss.usermodel.Row totalRow = sheet.createRow(rowIndex++);
+        org.apache.poi.ss.usermodel.Cell labelCell = totalRow.createCell(0);
+        labelCell.setCellValue("TỔNG SỐ TIỀN KHÁCH ĐÃ TRẢ:");
+
+        org.apache.poi.ss.usermodel.CellStyle boldStyle = workbook.createCellStyle();
+        org.apache.poi.ss.usermodel.Font boldFont = workbook.createFont();
+        boldFont.setBold(true);
+        boldStyle.setFont(boldFont);
+        labelCell.setCellStyle(boldStyle);
+
+        org.apache.poi.ss.usermodel.Cell totalCell = totalRow.createCell(2);
+        totalCell.setCellValue(totalAmount);
+
+        org.apache.poi.ss.usermodel.CellStyle currencyStyle = workbook.createCellStyle();
+        org.apache.poi.ss.usermodel.DataFormat format = workbook.createDataFormat();
+        currencyStyle.setDataFormat(format.getFormat("#,##0₫"));
+        totalCell.setCellStyle(currencyStyle);
+
+        for (int i = 0; i < columns.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=LichSuThanhToan.xlsx");
+
+        workbook.write(response.getOutputStream());
+        workbook.close();
+    }
 }

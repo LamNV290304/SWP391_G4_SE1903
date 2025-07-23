@@ -8,6 +8,7 @@ import Context.DBContext;
 import DTO.PaymentDto;
 import Dal.PaymentDAO;
 import Dal.ServicePackageDAO;
+import Models.Payment;
 import Models.ShopOwner;
 import Utils.StringUtils;
 import Utils.Validator;
@@ -68,7 +69,7 @@ public class AdminPaymentHistory extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         ShopOwner currentUser = (ShopOwner) req.getSession().getAttribute("shopOwner");
         if (currentUser == null || currentUser.getId() != 1) {
-            res.sendRedirect("login.jsp");
+            res.sendRedirect(req.getContextPath() + "/SaleSphere");
             return;
         }
 
@@ -89,7 +90,16 @@ public class AdminPaymentHistory extends HttpServlet {
             int total = paymentDAO.countAllPaymentsForAdmin(packageId, fromDate, toDate, search);
             int totalPages = (int) Math.ceil(total * 1.0 / PAGE_SIZE);
 
-            BigDecimal totalAmount = paymentDAO.getTotalPaid(fromDate, toDate); // Viết hàm này trong DAO
+            BigDecimal totalAmount = paymentDAO.getTotalPaid(fromDate, toDate);
+
+            String exportType = req.getParameter("export");
+
+            if ("excel".equals(exportType)) {
+                System.out.println("hehehe");
+                exportToExcel(req, res, payments, totalAmount); // Gọi hàm riêng
+                return; // Kết thúc luồng xuất excel
+            }
+
             req.setAttribute("totalAmount", totalAmount);
             req.setAttribute("payments", payments);
             req.setAttribute("currentPage", page);
@@ -131,5 +141,57 @@ public class AdminPaymentHistory extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
+
+    private void exportToExcel(HttpServletRequest request, HttpServletResponse response, List<PaymentDto> payments, BigDecimal totalAmount) throws IOException {
+        org.apache.poi.ss.usermodel.Workbook workbook = new org.apache.poi.xssf.usermodel.XSSFWorkbook();
+        org.apache.poi.ss.usermodel.Sheet sheet = workbook.createSheet("Lịch sử thanh toán");
+
+        org.apache.poi.ss.usermodel.Row header = sheet.createRow(0);
+        String[] columns = {"Gói dịch vụ", "Ngày thanh toán", "Số tiền", "Trạng thái", "Chủ shop", "Tên shop"};
+        for (int i = 0; i < columns.length; i++) {
+            header.createCell(i).setCellValue(columns[i]);
+        }
+
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
+
+        int rowIndex = 1;
+        for (PaymentDto p : payments) {
+            org.apache.poi.ss.usermodel.Row row = sheet.createRow(rowIndex++);
+            row.createCell(0).setCellValue(p.getPackageName());
+            row.createCell(1).setCellValue(sdf.format(p.getPaymentDate()));
+            row.createCell(2).setCellValue(p.getAmount());
+            row.createCell(3).setCellValue(p.getStatus());
+            row.createCell(4).setCellValue(p.getShopOwnerName());
+            row.createCell(5).setCellValue(p.getShopName());
+        }
+
+        org.apache.poi.ss.usermodel.Row totalRow = sheet.createRow(rowIndex++);
+        org.apache.poi.ss.usermodel.Cell labelCell = totalRow.createCell(0);
+        labelCell.setCellValue("TỔNG SỐ TIỀN KHÁCH ĐÃ TRẢ:");
+
+        org.apache.poi.ss.usermodel.CellStyle boldStyle = workbook.createCellStyle();
+        org.apache.poi.ss.usermodel.Font boldFont = workbook.createFont();
+        boldFont.setBold(true);
+        boldStyle.setFont(boldFont);
+        labelCell.setCellStyle(boldStyle);
+
+        org.apache.poi.ss.usermodel.Cell totalCell = totalRow.createCell(2);
+        totalCell.setCellValue(totalAmount.doubleValue());
+
+        org.apache.poi.ss.usermodel.CellStyle currencyStyle = workbook.createCellStyle();
+        org.apache.poi.ss.usermodel.DataFormat format = workbook.createDataFormat();
+        currencyStyle.setDataFormat(format.getFormat("#,##0₫"));
+        totalCell.setCellStyle(currencyStyle);
+
+        for (int i = 0; i < columns.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=LichSuThanhToan.xlsx");
+
+        workbook.write(response.getOutputStream());
+        workbook.close();
+    }
 
 }

@@ -65,7 +65,7 @@ public class MySubscription extends HttpServlet {
         ShopOwner loggedInOwner = (ShopOwner) session.getAttribute("shopOwner");
 
         if (loggedInOwner == null) {
-            response.sendRedirect("login.jsp");
+            response.sendRedirect(request.getContextPath() + "/SaleSphere");
             return;
         }
 

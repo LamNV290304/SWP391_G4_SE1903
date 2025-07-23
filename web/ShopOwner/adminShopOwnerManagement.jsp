@@ -7,7 +7,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-
+<c:if test="${empty sessionScope.shopOwner}">
+    <c:redirect url="SaleSphere"/>
+</c:if>
 <!DOCTYPE html>
 <html lang="vi" class="light-style layout-menu-fixed">
     <head>
@@ -95,7 +97,7 @@
                                                                     </button>
                                                                     <div class="dropdown-menu">
                                                                         <a href="ShowPaymentHistoryAdmin?shopOwnerId=${owner.id}" class="dropdown-item btn btn-sm btn-outline-primary">Xem Lịch sử giao dịch</a><br>
-                                                                        <a href="ShowRevenueShop?shopOwnerId=${owner.id}" class="dropdown-item btn btn-sm btn-outline-primary">Xem doanh thu của khách hàng</a>
+                                                                        <a href="ShowShopDetail?Id=${owner.id}" class="dropdown-item btn btn-sm btn-outline-primary">Xem thông tin của chủ sở hữu</a>
                                                                     </div>
                                                                 </div>
                                                             </td>
