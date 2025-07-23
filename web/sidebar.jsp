@@ -139,6 +139,11 @@
                         <div >Thiết lập kho hàng</div>
                     </a>
                 </li>
+                <li class="menu-item">
+                    <a href="TransferReceipt" class="menu-link">
+                        <div >Chuyển kho</div>
+                    </a>
+                </li>
             </ul>
         </li>
 
