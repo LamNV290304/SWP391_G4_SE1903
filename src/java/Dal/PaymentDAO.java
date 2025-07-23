@@ -1,5 +1,6 @@
 package Dal;
 
+import Context.DBContext;
 import DTO.PaymentDto;
 import Models.Payment;
 import java.math.BigDecimal;
@@ -344,5 +345,36 @@ public class PaymentDAO {
             e.printStackTrace();
         }
         return 0.0;
+    }
+
+    public static void main(String[] args) throws ClassNotFoundException {
+        try (Connection connection = DBContext.getConnection("CentralDB")) {
+            System.out.println("✅ Kết nối thành công!");
+
+            // Tạo DAO và gọi hàm
+            PaymentDAO dao = new PaymentDAO(connection);
+
+            int shopOwnerId = 8003;
+            int offset = 0;
+            int limit = 10;
+            String sort = "desc";
+            Integer packageId = null; // hoặc 3 nếu muốn lọc
+            String fromDate = "2025-7-10";
+            String toDate = "2025-7-17";
+
+            List<Payment> list = dao.getPaymentsByShopOwner(shopOwnerId, offset, limit, sort, packageId, fromDate, toDate);
+
+            System.out.println("📄 Danh sách giao dịch:");
+            for (Payment p : list) {
+                System.out.println("Gói: " + p.getPackageName()
+                        + " | Ngày thanh toán: " + p.getPaymentDate()
+                        + " | Hết hạn: " + p.getExpireAt()
+                        + " | Số tiền: " + p.getAmount()
+                        + " | Trạng thái: " + p.getStatus());
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Kết nối thất bại: " + e.getMessage());
+        }
     }
 }

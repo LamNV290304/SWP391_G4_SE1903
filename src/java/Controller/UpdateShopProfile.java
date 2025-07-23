@@ -5,10 +5,7 @@
 package Controller;
 
 import Context.DBContext;
-import DTO.ShopSubscriptionDTO;
-import Dal.ServicePackageDAO;
-import Dal.ShopSubscriptionDAO;
-import Models.ServicePackage;
+import Dal.ShopOwnerDAO;
 import Models.ShopOwner;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -16,8 +13,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,7 +22,7 @@ import java.util.logging.Logger;
  *
  * @author Admin
  */
-public class ShowServicePackage extends HttpServlet {
+public class UpdateShopProfile extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -44,10 +41,10 @@ public class ShowServicePackage extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ShowServicePackage</title>");
+            out.println("<title>Servlet UpdateShopProfile</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ShowServicePackage at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet UpdateShopProfile at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -65,40 +62,7 @@ public class ShowServicePackage extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        try {
-            ShopOwner shopOwner = (ShopOwner) request.getSession().getAttribute("shopOwner");
-            
-            if (shopOwner == null) {
-                response.sendRedirect(request.getContextPath() + "/SaleSphere");
-                return;
-            }
-            
-            String success = request.getParameter("success");
-            String error = request.getParameter("error");
-
-            if (success != null) {
-                request.setAttribute("success", success);
-            }
-            if (error != null) {
-                request.setAttribute("error", error);
-            }
-
-            ServicePackageDAO dao = new ServicePackageDAO(DBContext.getCentralConnection());
-            List<ServicePackage> packages = dao.getAll();
-            request.setAttribute("packages", packages);
-
-            ShopSubscriptionDAO subDAO = new ShopSubscriptionDAO(DBContext.getCentralConnection());
-            ShopSubscriptionDTO currentSub = subDAO.getActiveSubscriptionByShopId(shopOwner.getId());
-            if (currentSub != null) {
-                request.setAttribute("hasActivePackage", true);
-            }
-            request.getRequestDispatcher("ShopOwner/home.jsp").forward(request, response);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(ShowServicePackage.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(ShowServicePackage.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        processRequest(request, response);
     }
 
     /**
@@ -112,7 +76,38 @@ public class ShowServicePackage extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        doGet(request, response);
+        try {
+            ShopOwner shopOwner = (ShopOwner) request.getSession().getAttribute("shopOwner");
+
+            if (shopOwner == null) {
+                response.sendRedirect(request.getContextPath() + "/SaleSphere");
+                return;
+            }
+            HttpSession session = request.getSession();
+
+            String shopName = request.getParameter("shopName");
+            String email = request.getParameter("email");
+            String phone = request.getParameter("phone");
+            String username = request.getParameter("username");
+            String taxNumber = request.getParameter("taxNumber");
+
+            ShopOwnerDAO dao = new ShopOwnerDAO(DBContext.getCentralConnection());
+
+            boolean isSuccess = dao.updateShopOwnerProfile(username, shopName, email, phone,taxNumber);
+
+            if (isSuccess) {
+                ShopOwner updated = dao.getShopOwnerByUsername(username);
+                session.setAttribute("shopOwner", updated);
+                session.setAttribute("successMessage", "✅ Cập nhật thông tin thành công!");
+            }
+
+            request.getRequestDispatcher("ShowProfile").forward(request, response);
+
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(UpdateShopProfile.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(UpdateShopProfile.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**

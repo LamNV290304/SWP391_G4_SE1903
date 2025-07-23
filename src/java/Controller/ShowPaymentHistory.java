@@ -8,7 +8,6 @@ import Context.DBContext;
 import Dal.PaymentDAO;
 import Dal.ServicePackageDAO;
 import Models.Payment;
-import Models.ServicePackage;
 import Models.ShopOwner;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -17,9 +16,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.sql.*;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -71,7 +68,7 @@ public class ShowPaymentHistory extends HttpServlet {
         try {
             ShopOwner shopOwner = (ShopOwner) request.getSession().getAttribute("shopOwner");
             if (shopOwner == null) {
-                response.sendRedirect(request.getContextPath() + "/login.jsp");
+                response.sendRedirect(request.getContextPath() + "/SaleSphere");
                 return;
             }
 
@@ -114,6 +111,13 @@ public class ShowPaymentHistory extends HttpServlet {
                         shopOwner.getId(), selectedPackageId, fromDateStr, toDateStr
                 );
                 int totalPages = (int) Math.ceil((double) totalRecords / limit);
+                String exportType = request.getParameter("export");
+
+                if ("excel".equals(exportType)) {
+                    System.out.println("hehehe");
+                    exportToExcel(request, response, payments); // Gọi hàm riêng
+                    return; // Kết thúc luồng xuất excel
+                }
 
                 request.setAttribute("payments", payments);
                 request.setAttribute("sortDir", sortDir); // Để dùng hiển thị mũi tên
@@ -156,4 +160,34 @@ public class ShowPaymentHistory extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
+    private void exportToExcel(HttpServletRequest request, HttpServletResponse response, List<Payment> payments) throws IOException {
+        org.apache.poi.ss.usermodel.Workbook workbook = new org.apache.poi.xssf.usermodel.XSSFWorkbook();
+        org.apache.poi.ss.usermodel.Sheet sheet = workbook.createSheet("Lịch sử thanh toán");
+
+        org.apache.poi.ss.usermodel.Row header = sheet.createRow(0);
+        String[] columns = {"Gói dịch vụ", "Ngày thanh toán", "Số tiền", "Trạng thái", "Chủ shop", "Tên shop"};
+        for (int i = 0; i < columns.length; i++) {
+            header.createCell(i).setCellValue(columns[i]);
+        }
+
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
+
+        int rowIndex = 1;
+        for (Payment p : payments) {
+            org.apache.poi.ss.usermodel.Row row = sheet.createRow(rowIndex++);
+            row.createCell(0).setCellValue(p.getPackageName());
+            row.createCell(1).setCellValue(sdf.format(p.getPaymentDate()));
+            row.createCell(2).setCellValue(p.getAmount());
+            row.createCell(3).setCellValue(p.getStatus());
+        }
+        for (int i = 0; i < columns.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=LichSuThanhToan.xlsx");
+
+        workbook.write(response.getOutputStream());
+        workbook.close();
+    }
 }

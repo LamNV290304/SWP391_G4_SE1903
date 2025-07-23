@@ -77,6 +77,10 @@ public class Login extends HttpServlet {
             String password = request.getParameter("password");
 
             String databaseName = (String) request.getSession().getAttribute("databaseName");
+            if (databaseName == null){
+                response.sendRedirect(request.getContextPath() + "/SaleSphere");
+                return;
+            }
             Connection con = DBContext.getConnection(databaseName);
 
             if (databaseName.equals("CentralDB")) {

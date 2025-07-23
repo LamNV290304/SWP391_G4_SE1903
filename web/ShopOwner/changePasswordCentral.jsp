@@ -6,6 +6,9 @@
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<c:if test="${empty sessionScope.shopOwner}">
+    <c:redirect url="SaleSphere"/>
+</c:if>
 <!DOCTYPE html>
 <html lang="en" class="light-style layout-menu-fixed" dir="ltr"
       data-theme="theme-default" data-assets-path="./assets/" data-template="vertical-menu-template-free">

@@ -66,16 +66,17 @@ public class ShowShopDetail extends HttpServlet {
             throws ServletException, IOException {
         try {
             int shopOwnerId = Integer.parseInt(request.getParameter("Id"));
-            int shopId = Integer.parseInt(request.getParameter("shopId"));
+            
+            if (shopOwnerId != 1) {
+                response.sendRedirect(request.getContextPath() + "/SaleSphere");
+                return;
+            }
             
             ShopOwnerDAO shopOwnerDAO = new ShopOwnerDAO(DBContext.getCentralConnection());
             ShopOwner shopOwner = shopOwnerDAO.getShopOwnerById(shopOwnerId);
+           
             
-            ShopDAO shopDAO = new ShopDAO(DBContext.getCentralConnection());
-            Shop shop = shopDAO.getShopById(shopId);
-            
-            request.setAttribute("shop", shop);
-            request.setAttribute("id", shopOwnerId);
+            request.setAttribute("shop", shopOwner);
             request.getRequestDispatcher("ShopOwner/showShopDetails.jsp").forward(request, response);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ShowShopDetail.class.getName()).log(Level.SEVERE, null, ex);

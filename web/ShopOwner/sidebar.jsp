@@ -96,6 +96,19 @@
                     </li>
                 </ul>
             </li>
+            <li class="menu-item">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bx-cube-alt"></i>
+                    <div data-i18n="Misc">Phân quyền hệ thống</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item">
+                        <a href="ShowListPermission" class="menu-link">
+                            <div data-i18n="Basic">Phân quyền</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
         </c:if>
     </ul>
 </aside>

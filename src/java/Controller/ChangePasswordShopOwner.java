@@ -40,12 +40,12 @@ public class ChangePasswordShopOwner extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, ClassNotFoundException {
-        
+
         HttpSession session = request.getSession();
         ShopOwner loggedInOwner = (ShopOwner) session.getAttribute("shopOwner");
 
         if (loggedInOwner == null) {
-            response.sendRedirect("login.jsp");
+            response.sendRedirect(request.getContextPath() + "/SaleSphere");
             return;
         }
 
