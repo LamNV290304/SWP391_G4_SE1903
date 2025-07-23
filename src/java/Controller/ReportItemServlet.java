@@ -27,11 +27,27 @@ import java.sql.SQLException;
  */
 public class ReportItemServlet extends HttpServlet {
 
-    DBContext connection = new DBContext("SWP1");
-    ShopItemDAO shopItemDAO = new ShopItemDAO(connection.getConnection());
-    ItemCategoryDAO itemDao = new ItemCategoryDAO(connection.getConnection());
-    ShopDAO sDAO = new ShopDAO(connection.getConnection());
+    ShopItemDAO shopItemDAO;
+    ItemCategoryDAO itemDao;
+    ShopDAO sDAO;
 
+      private boolean initDAOs(HttpServletRequest request, HttpServletResponse response) {
+        String databaseName = (String) request.getSession().getAttribute("databaseName");
+        if (databaseName == null) {
+            try {
+                request.getRequestDispatcher("login.jsp").forward(request, response);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return false;
+        }
+        DBContext connection = new DBContext(databaseName);
+        shopItemDAO = new ShopItemDAO(connection.getConnection());
+        itemDao = new ItemCategoryDAO(connection.getConnection());
+        sDAO = new ShopDAO(connection.getConnection());
+    
+        return true;
+    }
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -40,6 +56,9 @@ public class ReportItemServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+         if (!initDAOs(request, response)) {
+            return;
+        }
         String action = request.getParameter("action");
         if (action == null) {
             action = "show";

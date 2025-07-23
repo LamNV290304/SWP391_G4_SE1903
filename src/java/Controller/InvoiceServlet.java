@@ -852,12 +852,12 @@ public class InvoiceServlet extends HttpServlet {
 
             InvoiceDetail detail = new InvoiceDetail(invoiceID, productID, unitPrice, quantity, discount);
             detail.setShopID(shopID);
-            Employee loggedInEmployee = (Employee) request.getSession().getAttribute("Employee");
-            if (loggedInEmployee.getRole().getId() != 3) {
-                request.setAttribute("errorMessage", "Bạn không có quyền tạo hóa đơn theo cách này. Chỉ nhân viên thu ngân mới được phép.");
-                listInvoices(request, response);
-                return;
-            }
+//            Employee loggedInEmployee = (Employee) request.getSession().getAttribute("Employee");
+//            if (loggedInEmployee.getRole().getId() != 3) {
+//                request.setAttribute("errorMessage", "Bạn không có quyền tạo hóa đơn theo cách này. Chỉ nhân viên thu ngân mới được phép.");
+//                listInvoices(request, response);
+//                return;
+//            }
             boolean success = idetail.addInvoiceDetailAndUpdateInventory(detail, shopID);
 
             if (success) {
@@ -1036,13 +1036,13 @@ public class InvoiceServlet extends HttpServlet {
         }
 
         Employee loggedInEmployee = (Employee) session.getAttribute("Employee");
-
-        // Xác nhận RoleID của Cashier. Giả sử 2 là Cashier.
-        if (loggedInEmployee.getRole().getId() != 3) {
-            request.setAttribute("errorMessage", "Bạn không có quyền tạo hóa đơn theo cách này. Chỉ nhân viên thu ngân mới được phép.");
-            listInvoices(request, response);
-            return;
-        }
+//
+//        // Xác nhận RoleID của Cashier. Giả sử 2 là Cashier.
+//        if (loggedInEmployee.getRole().getId() != 3) {
+//            request.setAttribute("errorMessage", "Bạn không có quyền tạo hóa đơn theo cách này. Chỉ nhân viên thu ngân mới được phép.");
+//            listInvoices(request, response);
+//            return;
+//        }
 
         try {
             int defaultCustomerID = cDAO.getGuestCustomerID();
@@ -1118,11 +1118,11 @@ public class InvoiceServlet extends HttpServlet {
     private void showManageInvoiceDetailForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
           Employee loggedInEmployee = (Employee) request.getSession().getAttribute("Employee");
-            if (loggedInEmployee.getRole().getId() != 3) {
-                request.setAttribute("errorMessage", "Bạn không có quyền tạo hóa đơn theo cách này. Chỉ nhân viên thu ngân mới được phép.");
-                listInvoices(request, response);
-                return;
-            }
+//            if (loggedInEmployee.getRole().getId() != 3) {
+//                request.setAttribute("errorMessage", "Bạn không có quyền tạo hóa đơn theo cách này. Chỉ nhân viên thu ngân mới được phép.");
+//                listInvoices(request, response);
+//                return;
+//            }
         String editDetailIdParam = request.getParameter("editDetailID");
         String invoiceIdParam = request.getParameter("invoiceID");
         String newCustomerIDParam = request.getParameter("newCustomerID");
@@ -1367,11 +1367,11 @@ public class InvoiceServlet extends HttpServlet {
     private void listInvoiceDetail(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
          Employee loggedInEmployee = (Employee) request.getSession().getAttribute("Employee");
-            if (loggedInEmployee.getRole().getId() != 3) {
-                request.setAttribute("errorMessage", "Bạn không có quyền xem chi tiết hóa đơn theo cách này. Chỉ nhân viên thu ngân mới được phép.");
-                listInvoices(request, response);
-                return;
-            }
+//            if (loggedInEmployee.getRole().getId() != 3) {
+//                request.setAttribute("errorMessage", "Bạn không có quyền xem chi tiết hóa đơn theo cách này. Chỉ nhân viên thu ngân mới được phép.");
+//                listInvoices(request, response);
+//                return;
+//            }
         String invoiceIDParam = request.getParameter("invoiceID");
 
         if (invoiceIDParam == null || invoiceIDParam.trim().isEmpty()) {
