@@ -6,6 +6,8 @@
 
 <%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
 <!DOCTYPE html>
 <c:if test="${empty sessionScope.Employee}">
     <c:redirect url="loginEmployee.jsp"/>
@@ -35,6 +37,9 @@
         <script src="./assets/js/config.js"></script>
     </head>
     <body>
+        <fmt:setLocale value="vi_VN" />
+<fmt:setBundle basename="resources" />
+
         <div class="layout-wrapper layout-content-navbar">
             <div class="layout-container">
 
@@ -74,17 +79,22 @@
                                         <div class="col-md-2">
                                             <select name="status" class="form-select">
                                                 <option value="">Tất cả trạng thái</option>
-                                                <option value="true" ${param.status == 'true' ? 'selected' : ''}>Hiển thị</option>
-                                                <option value="false" ${param.status == 'false' ? 'selected' : ''}>Ẩn</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <select name="categoryID" class="form-select">
-                                                <option value="">Tất cả danh mục</option>
+                                                <option value="true"
+                                                        <c:if test="${param.status == 'true'}">selected</c:if>>Hiển thị</option>
+                                                        <option value="false"
+                                                        <c:if test="${param.status == 'false'}">selected</c:if>>Ẩn</option>
+
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <select name="categoryID" class="form-select">
+                                                    <option value="">Tất cả danh mục</option>
                                                 <c:forEach var="c" items="${categoryList}">
-                                                    <option value="${c.categoryID}" ${param.categoryID == c.categoryID ? "selected" : ""}>
+                                                    <option value="${c.categoryID}"
+                                                            <c:if test="${param.categoryID == c.categoryID}">selected</c:if>>
                                                         ${c.categoryName}
                                                     </option>
+
                                                 </c:forEach>
                                             </select>
                                         </div>
@@ -93,8 +103,20 @@
                                             <a href="ListProductServlet" class="btn btn-secondary">Reset</a>
                                         </div>
                                     </form>
+                                     <form action="ListProductServlet" method="post" enctype="multipart/form-data" class="d-flex align-items-center gap-2">
+    <input type="hidden" name="action" value="import" />
+    <input type="file" class="form-control" name="excelFile" accept=".xlsx" required />
+    <button type="submit" class="btn btn-success">
+        <i class="bx bx-upload"></i> Import Excel
+    </button>
+    <a href="DownloadProductTemplate" class="btn btn-outline-success">
+    📥 Tải file mẫu Excel
+</a>
+
+</form>
+                                                        
                                     <button class="btn btn-success" onclick="openAddModal()">Thêm sản phẩm</button>
-                                    <!-- Modal -->
+                                    <!-- Modal Add-->
                                     <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
                                         <div class="modal-dialog modal-lg">
                                             <div class="modal-content">
@@ -204,17 +226,18 @@
                                             <tr>
                                                 <td>${p.productID}</td>
                                                 <td>${p.productName}</td>
-                                                 <td>${p.categoryName}</td>
-                                                    <td>${p.unitDescription}</td>
-                                                <td>${p.importPrice}</td>
-                                                <td>${p.sellingPrice}</td>
+                                                <td>${p.categoryName}</td>
+                                                <td>${p.unitDescription}</td>
+                                                <td><fmt:formatNumber value="${p.importPrice}" type="currency" currencySymbol="₫" groupingUsed="true" /></td>
+                                                <td><fmt:formatNumber value="${p.sellingPrice}" type="currency" currencySymbol="₫" groupingUsed="true" /></td>
+
                                                 <td>
-                                                        <c:choose>
-                                                            <c:when test="${p.status}"><span class="badge bg-success">Hiển thị</span></c:when>
-                                                            <c:otherwise><span class="badge bg-secondary">Ẩn</span></c:otherwise>
-                                                        </c:choose>
-                                                    </td>
-                                                
+                                                    <c:choose>
+                                                        <c:when test="${p.status}"><span class="badge bg-success">Hiển thị</span></c:when>
+                                                        <c:otherwise><span class="badge bg-secondary">Ẩn</span></c:otherwise>
+                                                    </c:choose>
+                                                </td>
+
                                                 <td>
                                                     <button class="btn btn-sm btn-outline-primary"
                                                             data-bs-toggle="modal" 
@@ -225,9 +248,11 @@
                                                             data-sell="${p.sellingPrice}"
                                                             data-category="${p.categoryID}"
                                                             data-unit="${p.unitID}"
-                                                            data-image="${p.imageUrl}">
+                                                            data-image="${p.imageUrl}"
+                                                            data-status="${p.status}">
                                                         <i class="bx bx-edit-alt"></i>
                                                     </button>
+
 
 
                                                     <button class="btn btn-sm btn-outline-danger"
@@ -285,6 +310,16 @@
                                                                 <input class="form-control" type="file" name="image" />
                                                                 <img id="preview-edit-image" src="#" style="max-height: 100px; margin-top: 10px;" />
                                                             </div>
+                                                            <input class="form-control" type="file" name="image" id="edit-image" accept="image/*" />
+<img id="preview-edit-image" src="#" style="max-height: 100px; margin-top: 10px; display: none;" />
+
+                                                        </div>
+                                                        <div class="mb-3 col-md-6">
+                                                            <label class="form-label">Trạng thái</label>
+                                                            <select name="status" id="edit-status" class="form-select" required>
+                                                                <option value="true">Hoạt động</option>
+                                                                <option value="false">Ngừng bán</option>
+                                                            </select>
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button type="submit" name="action" value="update" class="btn btn-primary">Cập nhật</button>
@@ -339,8 +374,13 @@
                 }
             });
             function openAddModal() {
-                document.getElementById('productForm').reset();
+                const form = document.getElementById('productForm');
+                form.reset(); // reset form sẽ xóa các giá trị input, bao gồm hidden
+
+                // đặt lại action = 'add'
                 document.getElementById('action').value = 'add';
+
+                // mở modal
                 new bootstrap.Modal(document.getElementById('productModal')).show();
             }
         </script>
@@ -352,42 +392,51 @@
         <script src="assets/js/main.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    const editModalEl = document.getElementById('editModal');
-                    const deleteModalEl = document.getElementById('deleteModal');
+            document.addEventListener('DOMContentLoaded', function () {
+                const editModalEl = document.getElementById('editModal');
+                const deleteModalEl = document.getElementById('deleteModal');
 
-                    // Listen for opening the Edit modal
-                    editModalEl.addEventListener('show.bs.modal', function (event) {
-                        const button = event.relatedTarget;
-                        if (!button)
-                            return;
+                // Listen for opening the Edit modal
+                editModalEl.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    if (!button)
+                        return;
 
-                        document.getElementById('edit-id').value = button.getAttribute('data-id');
-                        document.getElementById('edit-name').value = button.getAttribute('data-name');
-                        document.getElementById('edit-import').value = button.getAttribute('data-import');
-                        document.getElementById('edit-sell').value = button.getAttribute('data-sell');
-                        document.getElementById('edit-category').value = button.getAttribute('data-category');
-                        document.getElementById('edit-unit').value = button.getAttribute('data-unit');
+                    document.getElementById('edit-id').value = button.getAttribute('data-id');
+                    document.getElementById('edit-name').value = button.getAttribute('data-name');
+                    document.getElementById('edit-import').value = button.getAttribute('data-import');
+                    document.getElementById('edit-sell').value = button.getAttribute('data-sell');
+                    document.getElementById('edit-category').value = button.getAttribute('data-category');
+                    document.getElementById('edit-unit').value = button.getAttribute('data-unit');
+                    document.getElementById("edit-status").value = button.getAttribute("data-status");
 
-                        const image = button.getAttribute('data-image');
-                        if (image) {
-                            document.getElementById('preview-edit-image').src = 'images/' + image;
-                            document.getElementById('preview-edit-image').style.display = 'block';
-                        } else {
-                            document.getElementById('preview-edit-image').style.display = 'none';
-                        }
-                    });
-
-                    // Listen for opening the Delete modal
-                    deleteModalEl.addEventListener('show.bs.modal', function (event) {
-                        const button = event.relatedTarget;
-                        if (!button)
-                            return;
-
-                        document.getElementById('delete-id').value = button.getAttribute('data-id');
-                        document.getElementById('delete-name').innerText = button.getAttribute('data-name');
-                    });
+                    const image = button.getAttribute('data-image');
+                    if (image) {
+                        document.getElementById('preview-edit-image').src = 'images/' + image;
+                        document.getElementById('preview-edit-image').style.display = 'block';
+                    } else {
+                        document.getElementById('preview-edit-image').style.display = 'none';
+                    }
                 });
+
+                // Listen for opening the Delete modal
+                deleteModalEl.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    if (!button)
+                        return;
+
+                    document.getElementById('delete-id').value = button.getAttribute('data-id');
+                    document.getElementById('delete-name').innerText = button.getAttribute('data-name');
+                });
+            });
+document.getElementById('edit-image').addEventListener('change', function (event) {
+    const [file] = event.target.files;
+    if (file) {
+        const preview = document.getElementById('preview-edit-image');
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+    }
+});
 
         </script>
 

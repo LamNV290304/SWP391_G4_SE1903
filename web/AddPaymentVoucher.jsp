@@ -72,7 +72,7 @@
                                         <label class="form-label">Cửa hàng</label>
                                         <select name="shopID" class="form-select" required>
                                             <c:forEach var="s" items="${listShop}">
-                                                <option value="${s.shopID}">${s.shopName}</option>
+                                                <option value= "${s.shopID}">${s.shopName}</option>
                                             </c:forEach>
                                         </select>
                                     </div>
@@ -80,11 +80,7 @@
                                     <!-- Nhân viên -->
                                     <div class="mb-3 col-md-6">
                                         <label class="form-label">Nhân viên</label>
-                                        <select name="employeeID" class="form-select" required>
-                                            <c:forEach var="e" items="${listEmp}">
-                                                <option value="${e.id}">${e.fullname}</option>
-                                            </c:forEach>
-                                        </select>
+                                        <input type="text" name="EmployeeID" class="form-control" value="${sessionScope.Employee.id}" readonly />
                                     </div>
 
                                     <!-- Nhà cung cấp -->

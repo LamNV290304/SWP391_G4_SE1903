@@ -121,6 +121,12 @@
                                             </button>
                                         </form>
                                     </div>
+                                        <form action="PaymentVoucherServlet" method="post" enctype="multipart/form-data">
+    <input type="file" name="excelFile" accept=".xls,.xlsx" required />
+    <input type="hidden" name="action" value="importExcel" />
+    <button type="submit">Nhập Excel</button>
+</form>
+
                                     <div class="table-responsive text-nowrap mt-3">
                                         <table class="table table-bordered">
                                             <thead>
@@ -164,7 +170,7 @@
                                                                 <c:otherwise>—</c:otherwise>
                                                             </c:choose>
                                                         </td>
-                                                        <td><fmt:formatNumber value="${pv.amount}" type="currency" currencySymbol="₫"/></td>
+                                                        <td><fmt:formatNumber value="${pv.amount}" pattern="#,##0₫" /></td>
                                                         <td>${pv.note}</td>
                                                         <td>
                                                             <c:choose>
@@ -208,6 +214,15 @@
                                                     </tr>
                                                 </c:forEach>
                                             </tbody>
+                                             <tfoot>
+        <tr>
+            <td colspan="5" class="text-end fw-bold">Tổng cộng:</td>
+            <td class="fw-bold text-danger">
+                <fmt:formatNumber value="${totalCost}" pattern="#,##0₫"/>
+            </td>
+            <td colspan="5"></td>
+        </tr>
+    </tfoot>
                                         </table>
 
                                         <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">

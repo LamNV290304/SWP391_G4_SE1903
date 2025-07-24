@@ -263,6 +263,44 @@ public class InventoryDAO {
         return list;
     }
 
+    public Inventory getInventoryByShopAndProductAndLastUpdated(int productID, int shopID, Date lastUpdated) {
+    String sql = "SELECT i.InventoryID, i.ProductID, p.ProductName, i.ShopID, s.ShopName, i.Quantity, i.LastUpdated " +
+                 "FROM Inventory i " +
+                 "JOIN Product p ON i.ProductID = p.ProductID " +
+                 "LEFT JOIN Shop s ON i.ShopID = s.ShopID " +
+                 "WHERE i.ProductID = ? AND i.ShopID = ? AND i.LastUpdated = ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, productID);
+        ps.setInt(2, shopID);
+        ps.setTimestamp(3, new java.sql.Timestamp(lastUpdated.getTime()));
+
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                Inventory inv = new Inventory();
+                inv.setInventoryID(rs.getInt("InventoryID"));
+
+                Product p = new Product();
+                p.setProductID(rs.getInt("ProductID"));
+                p.setProductName(rs.getString("ProductName"));
+                inv.setProduct(p);
+
+                Shop s = new Shop();
+                s.setShopID(rs.getInt("ShopID"));
+                s.setShopName(rs.getString("ShopName"));
+                inv.setShop(s);
+
+                inv.setQuantity(rs.getInt("Quantity"));
+                inv.setLastUpdated(rs.getTimestamp("LastUpdated"));
+
+                return inv;
+            }
+        }
+    } catch (SQLException e) {
+        Logger.getLogger(InventoryDAO.class.getName()).log(Level.SEVERE, null, e);
+    }
+    return null;
+}
+
     public boolean insertInventory(Inventory inventory) {
         String sql = "INSERT INTO Inventory ( ProductID, ShopID, Quantity, LastUpdated) "
                 + "VALUES ( ?, ?, ?, ?)";
@@ -277,6 +315,60 @@ public class InventoryDAO {
         }
         return false;
     }
+public List<Inventory> getListInventoryBy(int productID, int shopID) {
+    List<Inventory> list = new ArrayList<>();
+    String sql = "SELECT i.InventoryID, i.ProductID, p.ProductName, i.ShopID, s.ShopName, i.Quantity, i.LastUpdated "
+               + "FROM Inventory i "
+               + "JOIN Product p ON i.ProductID = p.ProductID "
+               + "LEFT JOIN Shop s ON i.ShopID = s.ShopID "
+               + "WHERE i.ProductID = ? AND i.ShopID = ? "
+               + "ORDER BY i.LastUpdated ASC"; // <-- Sắp xếp từ cũ đến mới
+
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, productID);
+        ps.setInt(2, shopID);
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Inventory inv = new Inventory();
+                inv.setInventoryID(rs.getInt("InventoryID"));
+
+                Product p = new Product();
+                p.setProductID(rs.getInt("ProductID"));
+                p.setProductName(rs.getString("ProductName"));
+                inv.setProduct(p);
+
+                Shop s = new Shop();
+                s.setShopID(rs.getInt("ShopID"));
+                s.setShopName(rs.getString("ShopName"));
+                inv.setShop(s);
+
+                inv.setQuantity(rs.getInt("Quantity"));
+                inv.setLastUpdated(rs.getTimestamp("LastUpdated"));
+
+                list.add(inv);
+            }
+        }
+    } catch (SQLException e) {
+        Logger.getLogger(InventoryDAO.class.getName()).log(Level.SEVERE, null, e);
+    }
+    return list;
+}
+
+public int getQuantityBy(int productID, int shopID) {
+    String sql = "SELECT SUM(Quantity) AS TotalQuantity FROM Inventory WHERE ProductID = ? AND ShopID = ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, productID);
+        ps.setInt(2, shopID);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("TotalQuantity");
+            }
+        }
+    } catch (SQLException e) {
+        Logger.getLogger(InventoryDAO.class.getName()).log(Level.SEVERE, null, e);
+    }
+    return 0;
+}
 
     public static void main(String[] args) {
         try (Connection conn = new DBContext("SWP7").getConnection()) {

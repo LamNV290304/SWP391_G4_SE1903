@@ -65,8 +65,9 @@ public class AddExportReceipt extends HttpServlet {
             throws ServletException, IOException {
         try {
             String databaseName = (String) request.getSession().getAttribute("databaseName");
-            response.setContentType("text/html;charset=UTF-8");
             Connection conn = new DBContext(databaseName).getConnection();
+            response.setContentType("text/html;charset=UTF-8");
+
             EmployeeDAO empDao = new EmployeeDAO(conn);
             TypeExportReceiptDAO typeImp = new TypeExportReceiptDAO(conn);
             ShopDAO shopDao = new ShopDAO(conn);
@@ -196,32 +197,37 @@ public class AddExportReceipt extends HttpServlet {
                 ExportReceipt.insertDetail(exportDetail);
             }
 
-            for (ExportReceiptDetail exportDetail : listExportDetail) {
+           for (ExportReceiptDetail exportDetail : listExportDetail) {
+    int productId = Integer.parseInt(exportDetail.getProductID());
+    int exportQty = exportDetail.getQuantity();
 
-                // Kiểm tra và cập nhật tồn kho
-                Inventory inv = inventoryDAO.getInventoryByShopAndProduct(Integer.parseInt(exportDetail.getProductID()), Integer.parseInt(shopID_raw));
+    // Lấy danh sách inventory sắp xếp từ cũ đến mới
+    List<Inventory> inventoryList = inventoryDAO.getListInventoryBy(productId, shopID);
 
-                if (inv != null) {
+    for (int i = 0; i < size && exportQty > 0; i++) {
+        Inventory inv = inventoryList.get(i);
+        int currentQty = inv.getQuantity();
 
-                    int newQty = inv.getQuantity() - exportDetail.getQuantity();
+        if (exportQty >= currentQty) {
+            // Trừ hết số lượng hiện có
+            inventoryDAO.updateInventoryQuantity(inv.getInventoryID(), 0);
+            exportQty -= currentQty;
+        } else {
+            // Trừ một phần, còn lại giữ nguyên
+            inventoryDAO.updateInventoryQuantity(inv.getInventoryID(), currentQty - exportQty);
+            exportQty = 0;
+        }
 
-                    inventoryDAO.updateInventoryQuantity(inv.getInventoryID(), newQty);
+        // Nếu đây là bản ghi cuối cùng và vẫn còn số lượng cần trừ => cho phép âm
+        if (i == size - 1 && exportQty > 0) {
+            int newQty = -exportQty;
+            inventoryDAO.updateInventoryQuantity(inv.getInventoryID(), newQty);
+            exportQty = 0;
+        }
+    }
+}
 
-                } else {
-
-                    // Tạo mới hàng tồn kho nếu chưa có
-                    Inventory newInv = new Inventory();
-                    newInv.setProduct(productDAO.getProductById(Integer.parseInt(exportDetail.getProductID())));
-
-                    newInv.setShop(shopDAO.getShopById(shopID));
-
-                    newInv.setQuantity(exportDetail.getQuantity());
-                    newInv.setLastUpdated(Timestamp.from(Instant.now()));
-                    inventoryDAO.insertInventory(newInv);
-                }
-            }
             //Tạo thông báo
-            
 
             response.sendRedirect("ExportReceiptServlet?message=add_success");
         } catch (Exception e) {

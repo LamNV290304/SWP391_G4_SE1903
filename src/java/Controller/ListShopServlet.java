@@ -82,7 +82,52 @@ public class ListShopServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
+       try {
+        String databaseName = (String) request.getSession().getAttribute("databaseName");
+        Connection conn = new DBContext(databaseName).getConnection();
+        ShopDAO shopDAO = new ShopDAO(conn);
+
+        String shopIDStr = request.getParameter("shopID"); // chỉ có khi update hoặc delete
+        String shopName = request.getParameter("shopName");
+        String shopCode = request.getParameter("shopCode");
+        String address = request.getParameter("address");
+        String phone = request.getParameter("phone");
+        String createdDate = request.getParameter("createdDate");
+        String statusStr = request.getParameter("status");
+
+        if (shopName != null && shopCode != null && address != null && phone != null && createdDate != null) {
+            // Xử lý thêm hoặc sửa
+            boolean isUpdate = (shopIDStr != null && !shopIDStr.isEmpty());
+            boolean status = Boolean.parseBoolean(statusStr);
+            Shop shop = new Shop();
+
+            shop.setShopName(shopName);
+            shop.setShopCode(shopCode);
+            shop.setAddress(address);
+            shop.setPhone(phone);
+            shop.setCreatedDate(Date.valueOf(createdDate));
+            shop.setStatus(status);
+
+            if (isUpdate) {
+                int shopID = Integer.parseInt(shopIDStr);
+                shop.setShopID(shopID);
+                shopDAO.updateShop(shop);
+            } else {
+                shopDAO.createShop(shop);
+            }
+
+        } else if (shopIDStr != null && (shopName == null || shopName.isEmpty())) {
+            // Nếu chỉ có shopID và không có các trường khác thì là xóa
+            int shopID = Integer.parseInt(shopIDStr);
+            shopDAO.deleteShop(shopID);
+        }
+
+        response.sendRedirect("ListShopServlet");
+
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi xử lý cửa hàng.");
+    }
     }
 
     /** 

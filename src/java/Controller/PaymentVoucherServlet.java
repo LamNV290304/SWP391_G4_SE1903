@@ -22,14 +22,23 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.*;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 /**
  *
  * @author Thai Anh
  */
+@MultipartConfig
 public class PaymentVoucherServlet extends HttpServlet {
 
     /**
@@ -49,10 +58,15 @@ public class PaymentVoucherServlet extends HttpServlet {
             Connection conn = new DBContext(databaseName).getConnection();
             TypeReceiptVoucherDAO thuDAO = new TypeReceiptVoucherDAO(conn);   // DAO cho phiếu thu
             TypePaymentVoucherDAO chiDAO = new TypePaymentVoucherDAO(conn);   // DAO cho phiếu chi
-            
+            PaymentVoucherDAO dao = new PaymentVoucherDAO(conn);
             request.setAttribute("typeReceiptList", thuDAO.getAllTypes(1));
             request.setAttribute("typePaymentList", chiDAO.getAllTypes(1));
-            
+            BigDecimal totalCost = BigDecimal.ZERO;
+            List<PaymentVoucher> list = dao.getAllPaymentVouchers();
+for (PaymentVoucher pv : list) {
+    totalCost = totalCost.add(pv.getAmount());
+}
+request.setAttribute("totalCost", totalCost);
             request.getRequestDispatcher("listPaymentVoucher.jsp").forward(request, response);
         } catch (SQLException ex) {
             Logger.getLogger(PaymentVoucherServlet.class.getName()).log(Level.SEVERE, null, ex);
@@ -193,7 +207,54 @@ String databaseName = (String) request.getSession().getAttribute("databaseName")
             // Xử lý xoá phiếu chi
             int id = Integer.parseInt(request.getParameter("paymentVoucherID"));
             dao.deletePaymentVoucher(id);
+        } else if ("importExcel".equals(action)) {
+    System.out.println("Bắt đầu xử lý importExcel...");
+Part filePart = request.getPart("excelFile");
+System.out.println("Đã lấy được filePart: " + (filePart != null));
+    InputStream fileContent = filePart.getInputStream();
+
+    // Sử dụng Apache POI để đọc Excel
+    Workbook workbook = WorkbookFactory.create(fileContent);
+    Sheet sheet = workbook.getSheetAt(0);
+
+    for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+        Row row = sheet.getRow(i);
+        if (row == null) continue;
+
+        try {
+            PaymentVoucher pv = new PaymentVoucher();
+            pv.setShopID((int) row.getCell(0).getNumericCellValue());
+            pv.setEmployeeID((int) row.getCell(1).getNumericCellValue());
+
+            Cell supplierCell = row.getCell(2);
+            if (supplierCell != null && supplierCell.getCellType() != CellType.BLANK) {
+                pv.setSupplierID((int) supplierCell.getNumericCellValue());
+            } else {
+                pv.setSupplierID(null);
+            }
+
+            java.util.Date paymentDate = row.getCell(3).getDateCellValue();
+            pv.setPaymentDate(paymentDate);
+
+            pv.setAmount(BigDecimal.valueOf(row.getCell(4).getNumericCellValue()));
+            pv.setNote(row.getCell(5).getStringCellValue());
+            pv.setStatus("Đã chi".equalsIgnoreCase(row.getCell(6).getStringCellValue()));
+            pv.setTypeID((int) row.getCell(7).getNumericCellValue());
+            pv.setPaymentMethodID((int) row.getCell(8).getNumericCellValue());
+            pv.setCreatedDate(new java.util.Date());
+
+            dao.insertPaymentVoucher(pv); // cần tạo phương thức insert
+        } catch (Exception ex) {
+           ex.printStackTrace();
+    Logger.getLogger(PaymentVoucherServlet.class.getName()).log(Level.SEVERE, "Lỗi import Excel", ex);
+    request.setAttribute("error", "Lỗi khi import file Excel!");
+            // Optionally log row + error
         }
+    }
+
+    workbook.close();
+}
+
     } catch (Exception e) {
         e.printStackTrace();
         request.setAttribute("error", "Lỗi xử lý phiếu chi");

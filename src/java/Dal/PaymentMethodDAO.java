@@ -133,7 +133,7 @@ public class PaymentMethodDAO {
 
     // Test trong main
     public static void main(String[] args) {
-        try (Connection conn = new DBContext("Test").getConnection()) {
+        try (Connection conn = new DBContext("ShopDB_Go1").getConnection()) {
             PaymentMethodDAO dao = new PaymentMethodDAO(conn);
 
             // ✅ Thêm mới
