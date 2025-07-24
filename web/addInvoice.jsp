@@ -4,6 +4,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
 <!DOCTYPE html>
+<c:if test="${empty sessionScope.Employee}">
+    <c:redirect url="loginEmployee.jsp"/>
+</c:if>
 <html lang="en"
       class="light-style layout-menu-fixed"
       dir="ltr"

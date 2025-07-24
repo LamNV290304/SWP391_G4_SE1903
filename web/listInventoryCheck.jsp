@@ -12,6 +12,9 @@
 <%@ page import="java.sql.Connection" %>
 <%@ page import="Context.DBContext" %>
 <!DOCTYPE html>
+<c:if test="${empty sessionScope.Employee}">
+    <c:redirect url="loginEmployee.jsp"/>
+</c:if>
 <!--
 Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
 Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template

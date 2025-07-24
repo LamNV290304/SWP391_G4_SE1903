@@ -12,6 +12,9 @@
 Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
 Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
 -->
+<c:if test="${empty sessionScope.Employee}">
+    <c:redirect url="loginEmployee.jsp"/>
+</c:if>
 <html
   lang="en"
   class="light-style layout-menu-fixed"

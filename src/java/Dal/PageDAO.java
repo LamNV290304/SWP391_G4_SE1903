@@ -34,7 +34,6 @@ public class PageDAO {
                 page.setPageCode(rs.getString("PageCode"));
                 page.setPagePath(rs.getString("PagePath"));
                 page.setDisplayName(rs.getString("DisplayName"));
-                page.setIconClass(rs.getString("IconClass"));
 
                 pages.put(page.getPageCode(), page);
             }

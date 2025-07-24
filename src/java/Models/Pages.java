@@ -12,17 +12,15 @@ public class Pages {
     private String pageCode;
     private String pagePath;
     private String displayName;
-    private String iconClass;
 
     public Pages() {
     }
 
     
-    public Pages(String pageCode, String pagePath, String displayName, String iconClass) {
+    public Pages(String pageCode, String pagePath, String displayName) {
         this.pageCode = pageCode;
         this.pagePath = pagePath;
         this.displayName = displayName;
-        this.iconClass = iconClass;
     }
 
     public String getPageCode() {
@@ -48,14 +46,4 @@ public class Pages {
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
-
-    public String getIconClass() {
-        return iconClass;
-    }
-
-    public void setIconClass(String iconClass) {
-        this.iconClass = iconClass;
-    }
-    
-    
 }

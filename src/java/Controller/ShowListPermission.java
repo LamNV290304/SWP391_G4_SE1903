@@ -18,8 +18,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -120,23 +123,24 @@ public class ShowListPermission extends HttpServlet {
             }
 
             int roleId = Integer.parseInt(request.getParameter("roleId"));
-            String[] pageIds = request.getParameterValues("pageIds"); // có thể null nếu không tick gì
+            String[] grantedPageCodes = request.getParameterValues("pageIds"); // Có thể null
 
             Connection conn = DBContext.getCentralConnection();
             PermissionDAO permissionDAO = new PermissionDAO(conn);
+            PageDAO pageDAO = new PageDAO(conn);
 
-            // 1. Xóa tất cả quyền hiện tại của role này
-            //permissionDAO.deletePermissionsByRoleId(roleId);
+            Map<String, Pages> allPages = pageDAO.getAllPages();
 
-            // 2. Thêm lại những page được tick
-            if (pageIds != null) {
-                for (String pidStr : pageIds) {
-                    int pageId = Integer.parseInt(pidStr);
-                    //permissionDAO.insertPermission(roleId, pageId);
-                }
+            Set<String> grantedSet = new HashSet<>();
+            if (grantedPageCodes != null) {
+                grantedSet.addAll(Arrays.asList(grantedPageCodes));
             }
 
-            // 3. Thêm flash thành công
+            for (String pageCode : allPages.keySet()) {
+                boolean isGranted = grantedSet.contains(pageCode);
+                permissionDAO.updatePermission(roleId, pageCode, isGranted);
+            }
+
             request.getSession().setAttribute("flash_success", "Cập nhật phân quyền thành công!");
             response.sendRedirect("ShowListPermission?roleId=" + roleId);
 

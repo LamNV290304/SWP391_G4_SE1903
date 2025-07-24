@@ -7,6 +7,7 @@ package Controller;
 import Dal.EmployeeDAO;
 import Dal.ShopOwnerDAO;
 import Models.Employee;
+import Utils.AccessControlUtil;
 import Utils.PasswordUtils;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -38,11 +39,16 @@ public class ChangePassword extends HttpServlet {
 
         String databaseName = (String) request.getSession().getAttribute("databaseName");
 
+        if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+            return;
+        }
+        
         HttpSession session = request.getSession();
         Employee loggedInEmployee = (Employee) session.getAttribute("Employee");
 
         if (loggedInEmployee == null) {
-            response.sendRedirect("login.jsp");
+            response.sendRedirect("loginEmployee.jsp");
             return;
         }
 

@@ -40,4 +40,14 @@ public class PermissionDAO {
 
         return permissionMap;
     }
+
+    public void updatePermission(int roleId, String pageCode, boolean isPermission) throws SQLException {
+    String sqlUpdate = "UPDATE Permissions SET IsPermission = ? WHERE RoleId = ? AND PageCode = ?";
+    try (PreparedStatement stmt = connection.prepareStatement(sqlUpdate)) {
+        stmt.setBoolean(1, isPermission);
+        stmt.setInt(2, roleId);
+        stmt.setString(3, pageCode);
+        stmt.executeUpdate();
+    }
+}
 }

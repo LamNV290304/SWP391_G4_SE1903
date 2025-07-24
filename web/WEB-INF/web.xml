@@ -27,6 +27,8 @@
     <servlet>
         <servlet-name>BirthdayReportServlet</servlet-name>
         <servlet-class>Controller.BirthdayReportServlet</servlet-class>
+        <servlet-name>Home</servlet-name>
+        <servlet-class>Controller.Home</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>ShowShopDetail</servlet-name>
@@ -55,10 +57,11 @@
     <servlet-mapping>
         <servlet-name>BirthdayReportServlet</servlet-name>
         <url-pattern>/BirthdayReportServlet</url-pattern>
+        <servlet-name>Home</servlet-name>
+        <url-pattern>/Home</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>50</session-timeout>
-        <!-- đơn vị: phút -->
     </session-config>
     <servlet>
         <servlet-name>StartProject</servlet-name>
@@ -115,10 +118,6 @@
     <servlet>
         <servlet-name>ShowEmployeeList</servlet-name>
         <servlet-class>Controller.ShowEmployeeList</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>Home</servlet-name>
-        <servlet-class>Controller.Home</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ShowProfile</servlet-name>
@@ -345,10 +344,6 @@
         <servlet-name>CustomerServlet</servlet-name>
         <servlet-class>Controller.CustomerServlet</servlet-class>
     </servlet>
-    <servlet-mapping>
-        <servlet-name>Home</servlet-name>
-        <url-pattern>/Home</url-pattern>
-    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ShowProfile</servlet-name>
         <url-pattern>/ShowProfile</url-pattern>

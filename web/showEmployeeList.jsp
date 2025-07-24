@@ -1,6 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
+<c:if test="${empty sessionScope.Employee}">
+    <c:redirect url="loginEmployee.jsp"/>
+</c:if>
 <html lang="en" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default" data-assets-path="./assets/" data-template="vertical-menu-template-free">
     <head>
         <title>Danh sách nhân viên</title>
@@ -159,19 +162,25 @@
                                                                 <i class="bx bx-dots-vertical-rounded"></i>
                                                             </button>
                                                             <div class="dropdown-menu">
-                                                                <a class="dropdown-item" href="ShowDetailEmployee?id=${e.id}"><i class="bx bx-edit-alt me-1"></i> Chi tiết</a>
-                                                                <c:choose>
-                                                                    <c:when test="${e.status}">
-                                                                        <a class="dropdown-item" href="UpdateStatusEmployee?id=${e.id}&statusE=0">
-                                                                            <i class="bx bx-lock me-1"></i> Khoá tài khoản
-                                                                        </a>
-                                                                    </c:when>
-                                                                    <c:otherwise>
-                                                                        <a class="dropdown-item" href="UpdateStatusEmployee?id=${e.id}&statusE=1">
-                                                                            <i class="bx bx-lock-open me-1"></i> Mở tài khoản
-                                                                        </a>
-                                                                    </c:otherwise>
-                                                                </c:choose>
+                                                                <c:if test="${grantedPages['ShowDetailEmployee']}">
+                                                                    <a class="dropdown-item" href="ShowDetailEmployee?id=${e.id}">
+                                                                        <i class="bx bx-edit-alt me-1"></i> Chi tiết
+                                                                    </a>
+                                                                </c:if>
+                                                                <c:if test="${grantedPages['UpdateStatusEmployee']}">
+                                                                    <c:choose>
+                                                                        <c:when test="${e.status}">
+                                                                            <a class="dropdown-item" href="UpdateStatusEmployee?id=${e.id}&statusE=0">
+                                                                                <i class="bx bx-lock me-1"></i> Khoá tài khoản
+                                                                            </a>
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            <a class="dropdown-item" href="UpdateStatusEmployee?id=${e.id}&statusE=1">
+                                                                                <i class="bx bx-lock-open me-1"></i> Mở tài khoản
+                                                                            </a>
+                                                                        </c:otherwise>
+                                                                    </c:choose>
+                                                                </c:if>
                                                             </div>
                                                         </div>
                                                     </td>
