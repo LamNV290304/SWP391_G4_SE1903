@@ -101,7 +101,7 @@
                                         <button type="submit" class="btn btn-primary me-2">
                                             <i class='bx bx-right-arrow-alt me-1'></i> Thêm khách hàng
                                         </button>
-                                        <a href="${pageContext.request.contextPath}/CustomerServlet?action=list" class="btn btn-secondary"> <%-- Đổi link hủy về trang danh sách khách hàng --%>
+                                        <a href="${pageContext.request.contextPath}/InvoiceServlet?action=list" class="btn btn-secondary"> <%-- Đổi link hủy về trang danh sách khách hàng --%>
                                             <i class='bx bx-x me-1'></i> Hủy bỏ
                                         </a>
                                     </form>

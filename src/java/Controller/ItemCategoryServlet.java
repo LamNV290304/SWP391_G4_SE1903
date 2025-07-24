@@ -23,10 +23,23 @@ import java.util.List;
  */
 public class ItemCategoryServlet extends HttpServlet {
 
-    DBContext connection = new DBContext("SWP1");
-    ItemCategoryDAO itemDao = new ItemCategoryDAO(connection.getConnection());
    
-
+    ItemCategoryDAO itemDao;
+   
+private boolean initDAO(HttpServletRequest request, HttpServletResponse response) {
+        String dbName = (String) request.getSession().getAttribute("databaseName");
+        if (dbName == null) {
+            try {
+                request.getRequestDispatcher("login.jsp").forward(request, response);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return false;
+        }
+        DBContext db = new DBContext(dbName);
+        itemDao = new ItemCategoryDAO(db.getConnection());
+        return true;
+    }
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -47,11 +60,13 @@ public class ItemCategoryServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        if (!initDAO(request, response)) {
+            return;
+        }
         String action = request.getParameter("action");
         if (action == null) {
             action = "list";
         }
-
         try {
             switch (action) {
                 case "list":
@@ -78,6 +93,9 @@ public class ItemCategoryServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        if (!initDAO(request, response)) {
+            return;
+        }
         request.setCharacterEncoding("UTF-8"); 
         String action = request.getParameter("action");
         if (action == null) {

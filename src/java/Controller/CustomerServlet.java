@@ -53,7 +53,9 @@ public class CustomerServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-         if (!initDAOs(request, response)) return;
+        if (!initDAOs(request, response)) {
+            return;
+        }
         String action = request.getParameter("action");
         if (action == null) {
             action = "list";
@@ -87,7 +89,9 @@ public class CustomerServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-         if (!initDAOs(request, response)) return;
+        if (!initDAOs(request, response)) {
+            return;
+        }
         String action = request.getParameter("action");
         if (action == null) {
             action = "addOrUpdate";
@@ -157,12 +161,23 @@ public class CustomerServlet extends HttpServlet {
             String email = request.getParameter("customerEmail");
             String address = request.getParameter("customerAddress");
             String returnInvoiceID = request.getParameter("returnInvoiceID");
-          
+
             HttpSession session = request.getSession(false);
-            String createdBy = "admin";
+            String createdBy = "Cashier";
             if (session != null && session.getAttribute("user") != null) {
                 Employee currentEmployee = (Employee) session.getAttribute("Employee");
                 createdBy = currentEmployee.getUsername();
+            }
+            if (cDAO.isPhoneExists(phone)) {
+                request.setAttribute("customerName", name);
+                request.setAttribute("customerPhone", phone);
+                request.setAttribute("customerEmail", email);
+                request.setAttribute("customerAddress", address);
+                request.setAttribute("returnInvoiceID", returnInvoiceID);
+
+                request.setAttribute("errorMessage", "Số điện thoại <strong>" + phone + "</strong> đã tồn tại. Vui lòng sử dụng số khác.");
+                request.getRequestDispatcher("/customerForm.jsp").forward(request, response);
+                return; 
             }
 
             Customer c = new Customer();
@@ -177,7 +192,6 @@ public class CustomerServlet extends HttpServlet {
                 request.setAttribute("successMessage", "Thêm khách hàng thành công! ID: " + newCustomerID);
 
                 if (returnInvoiceID != null && !returnInvoiceID.isEmpty()) {
-
                     response.sendRedirect(request.getContextPath()
                             + "/InvoiceServlet?action=manageInvoiceDetails&invoiceID=" + returnInvoiceID
                             + "&newCustomerID=" + newCustomerID);

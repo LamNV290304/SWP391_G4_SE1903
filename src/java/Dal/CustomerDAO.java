@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.Statement;
+import java.sql.Date;
 
 /**
  *
@@ -56,8 +57,9 @@ public class CustomerDAO {
     }
 
     public Customer getCustomerById(int customerID) {
-        String sql = "SELECT CustomerID, CustomerName, Phone, Email, Address, Status, CreatedDate, CreatedBy "
+        String sql = "SELECT CustomerID, CustomerName, Phone, Email, Address, Birthday, Status, CreatedDate, CreatedBy "
                 + "FROM [dbo].[Customer] WHERE CustomerID = ?";
+
         try (PreparedStatement ptm = connection.prepareStatement(sql)) {
             ptm.setInt(1, customerID);
             try (ResultSet rs = ptm.executeQuery()) {
@@ -70,7 +72,9 @@ public class CustomerDAO {
                             rs.getString("Address"),
                             rs.getBoolean("Status"),
                             rs.getTimestamp("CreatedDate"),
-                            rs.getString("CreatedBy"));
+                            rs.getString("CreatedBy"),
+                            rs.getDate("Birthday"));
+
                 }
             }
         } catch (SQLException ex) {
@@ -82,7 +86,7 @@ public class CustomerDAO {
     public boolean updateCustomerStatus(int customerID, boolean status) {
         String sql = "UPDATE [dbo].[Customer] SET Status = ? WHERE CustomerID = ?";
         try (PreparedStatement ptm = connection.prepareStatement(sql)) {
-            ptm.setBoolean(1, status); 
+            ptm.setBoolean(1, status);
             ptm.setInt(2, customerID);
             int affectedRows = ptm.executeUpdate();
             return affectedRows > 0;
@@ -178,6 +182,55 @@ public class CustomerDAO {
         }
     }
 
+    public List<Customer> getCustomersByMonthAndKeyword(Integer month, String keyword) throws SQLException {
+        List<Customer> list = new ArrayList<>();
+        String sql = "SELECT * FROM Customer WHERE Status = 1";
+
+        if (month != null) {
+            sql += " AND MONTH(Birthday) = ?";
+        }
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql += " AND (CustomerName LIKE ? OR Phone LIKE ?)";
+        }
+
+        PreparedStatement ps = connection.prepareStatement(sql);
+        int i = 1;
+        if (month != null) {
+            ps.setInt(i++, month);
+        }
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            String kw = "%" + keyword + "%";
+            ps.setString(i++, kw);
+            ps.setString(i++, kw);
+        }
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            Customer c = new Customer();
+            c.setCustomerID(rs.getInt("CustomerID"));
+            c.setCustomerName(rs.getString("CustomerName"));
+            c.setPhone(rs.getString("Phone"));
+            c.setEmail(rs.getString("Email"));
+            c.setBirthday(rs.getDate("Birthday"));
+            list.add(c);
+        }
+        return list;
+    }
+
+
+    public boolean isPhoneExists(String phone) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM Customer WHERE Phone = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, phone);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+        return false;
+    }
+
     public Customer getCustomerByPhone(String phone) {
         String sql = "SELECT *\n"
                 + "  FROM [dbo].[Customer]\n"
@@ -243,24 +296,23 @@ public class CustomerDAO {
 //        }
         System.out.println("--- Bắt đầu Test Case 3: Xóa khách hàng ---");
 
-      
-        int idToDelete=31;
-    
-            boolean deleted = dao.deleteCustomer(idToDelete);
+        int idToDelete = 31;
 
-            if (deleted) {
-                System.out.println("Test Case 3 thành công: Đã xóa khách hàng với ID: " + idToDelete);
+        boolean deleted = dao.deleteCustomer(idToDelete);
 
-                Customer checkCustomer = dao.getCustomerById(idToDelete);
-                if (checkCustomer == null) {
-                    System.out.println("Test Case 3: Kiểm tra lại thành công - Khách hàng ID " + idToDelete + " không còn tồn tại.");
-                } else {
-                    System.out.println("Test Case 3 LỖI: Khách hàng ID " + idToDelete + " vẫn tồn tại sau khi xóa.");
-                }
+        if (deleted) {
+            System.out.println("Test Case 3 thành công: Đã xóa khách hàng với ID: " + idToDelete);
+
+            Customer checkCustomer = dao.getCustomerById(idToDelete);
+            if (checkCustomer == null) {
+                System.out.println("Test Case 3: Kiểm tra lại thành công - Khách hàng ID " + idToDelete + " không còn tồn tại.");
             } else {
-                System.out.println("Test Case 3 THẤT BẠI: Không thể xóa khách hàng với ID: " + idToDelete);
-                
+                System.out.println("Test Case 3 LỖI: Khách hàng ID " + idToDelete + " vẫn tồn tại sau khi xóa.");
             }
-        }
+        } else {
+            System.out.println("Test Case 3 THẤT BẠI: Không thể xóa khách hàng với ID: " + idToDelete);
 
+        }
     }
+
+}

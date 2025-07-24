@@ -14,7 +14,7 @@ import Dal.InvoiceDetailDAO;
 import Dal.ShopDAO;
 import Models.Employee;
 import Models.Shop;
-import Models.ShopOwner;
+
 import Utils.ExcelExporter;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -23,21 +23,20 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.OutputStream;
-import java.io.PrintWriter;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+
 import java.sql.Timestamp;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.Date;
+
 import java.sql.SQLException;
 import java.time.YearMonth;
 import java.util.ArrayList;
-import java.util.HashSet;
+
 import java.util.List;
-import java.util.Set;
+
 
 /**
  *
@@ -186,7 +185,7 @@ public class StatisticServlet extends HttpServlet {
                 endDate = Timestamp.valueOf(endDateParam + " 23:59:59");
             } else if (selectedMonthParam != null && !selectedMonthParam.isEmpty()) {
                 int month = Integer.parseInt(selectedMonthParam);
-                int currentYear = LocalDate.now().getYear(); // Lấy năm hiện tại
+                int currentYear = LocalDate.now().getYear(); 
                 YearMonth yearMonth = YearMonth.of(currentYear, month);
                 startDate = Timestamp.valueOf(yearMonth.atDay(1).atStartOfDay());
                 endDate = Timestamp.valueOf(yearMonth.atEndOfMonth().atTime(23, 59, 59));

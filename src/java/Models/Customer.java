@@ -3,12 +3,16 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Models;
+
+import java.sql.Date;
 import java.sql.Timestamp;
+
 /**
  *
  * @author duckh
  */
 public class Customer {
+
     private int customerID;
     private String customerName;
     private String phone;
@@ -17,6 +21,7 @@ public class Customer {
     private boolean status;
     private Timestamp createdDate;
     private String createdBy;
+    private Date birthday;
 
     public Customer() {
     }
@@ -32,6 +37,18 @@ public class Customer {
         this.createdBy = createdBy;
     }
 
+    public Customer(int customerID, String customerName, String phone, String email, String address, boolean status, Timestamp createdDate, String createdBy, Date birthday) {
+        this.customerID = customerID;
+        this.customerName = customerName;
+        this.phone = phone;
+        this.email = email;
+        this.address = address;
+        this.status = status;
+        this.createdDate = createdDate;
+        this.createdBy = createdBy;
+        this.birthday = birthday;
+    }
+
     public Customer(String customerName, String phone, String email, String address, boolean status, Timestamp createdDate, String createdBy) {
         this.customerName = customerName;
         this.phone = phone;
@@ -40,6 +57,14 @@ public class Customer {
         this.status = status;
         this.createdDate = createdDate;
         this.createdBy = createdBy;
+    }
+
+    public Date getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
     }
 
     public int getCustomerID() {
@@ -105,6 +130,5 @@ public class Customer {
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
-    
-    
+
 }

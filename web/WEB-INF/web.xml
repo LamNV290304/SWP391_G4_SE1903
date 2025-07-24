@@ -16,6 +16,18 @@
         <servlet-name>ListShopServlet</servlet-name>
         <servlet-class>Controller.ListShopServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>LoyalCustomerServlet</servlet-name>
+        <servlet-class>Controller.LoyalCustomerServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>PromotionServlet</servlet-name>
+        <servlet-class>Controller.PromotionServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>BirthdayReportServlet</servlet-name>
+        <servlet-class>Controller.BirthdayReportServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>ShowShopDetail</servlet-name>
         <url-pattern>/ShowShopDetail</url-pattern>
@@ -31,6 +43,18 @@
     <servlet-mapping>
         <servlet-name>ListShopServlet</servlet-name>
         <url-pattern>/ListShopServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LoyalCustomerServlet</servlet-name>
+        <url-pattern>/LoyalCustomerServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PromotionServlet</servlet-name>
+        <url-pattern>/PromotionServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>BirthdayReportServlet</servlet-name>
+        <url-pattern>/BirthdayReportServlet</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>50</session-timeout>

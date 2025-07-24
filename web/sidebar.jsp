@@ -173,11 +173,7 @@
 
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="StatisticServlet" class="menu-link">
-                        <div data-i18n="Horizontal Form">Thống kê nhân viên bán hàng</div>
-                    </a>
-                </li>
+                
             </ul>
         </li>
         <li class="menu-header small text-uppercase"><span class="menu-header-text">Đồ dùng cửa hàng</span></li>
@@ -226,6 +222,36 @@
 
                     </a>
                 </li>
+            </ul>
+        </li>
+        <li class="menu-header small text-uppercase"><span class="menu-header-text">Thống Kê</span></li>
+         <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-detail"></i>
+                <div data-i18n="Form Layouts">Thống Kê</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="LoyalCustomerServlet" class="menu-link">
+                        <div data-i18n="Vertical Form">Khách Hàng Thân Thiết </div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="StatisticServlet" class="menu-link">
+                        <div data-i18n="Horizontal Form">Bán Hàng</div>
+                    </a>
+                </li>
+                 <li class="menu-item">
+                    <a href="PromotionServlet" class="menu-link">
+                        <div data-i18n="Horizontal Form">Chương Trình Khuyến Mãi</div>
+                    </a>
+                </li>
+                 <li class="menu-item">
+                    <a href="BirthdayReportServlet" class="menu-link">
+                        <div data-i18n="Horizontal Form">Sinh Nhật Khách Hàng</div>
+                    </a>
+                </li>
+       
             </ul>
         </li>
         <!-- Misc -->
