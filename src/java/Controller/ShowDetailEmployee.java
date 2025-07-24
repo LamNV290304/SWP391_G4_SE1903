@@ -8,6 +8,7 @@ import Context.DBContext;
 import DTO.EmployeeDto;
 import Dal.*;
 import Models.*;
+import Utils.AccessControlUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -64,6 +65,15 @@ public class ShowDetailEmployee extends HttpServlet {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
             String databaseName = (String) request.getSession().getAttribute("databaseName");
+
+            if (databaseName == null) {
+                response.sendRedirect("SaleSphere");
+            }
+
+            if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+                response.sendRedirect("loginEmployee.jsp");
+                return;
+            }
 
             Connection conn = DBContext.getConnection(databaseName);
             EmployeeDAO employeeDAO = new EmployeeDAO(conn);

@@ -4,6 +4,7 @@
  */
 package Controller;
 
+import Models.Employee;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -28,9 +29,13 @@ public class Home extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        request.getRequestDispatcher("Home.jsp").forward(request, response);
+        Employee loggedInEmployee = (Employee) request.getSession().getAttribute("Employee");
 
+        if (loggedInEmployee == null) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
+        response.sendRedirect("Home.jsp");
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

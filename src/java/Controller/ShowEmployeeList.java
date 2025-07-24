@@ -11,6 +11,7 @@ import Dal.RoleDAO;
 import Dal.ShopDAO;
 import Models.Role;
 import Models.Shop;
+import Utils.AccessControlUtil;
 import Utils.Validator;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -68,6 +69,15 @@ public class ShowEmployeeList extends HttpServlet {
         int page = 1;
         int recordsPerPage = 10;
         String databaseName = (String) request.getSession().getAttribute("databaseName");
+
+        if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
+
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
 
         if (request.getParameter("page") != null) {
             page = Integer.parseInt(request.getParameter("page"));

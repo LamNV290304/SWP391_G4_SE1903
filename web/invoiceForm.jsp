@@ -1,154 +1,157 @@
-    <%--
-        Document : invoiceForm
-        Created on : Jun 17, 2025, 4:44:48 PM
-        Author   : duckh
-    --%>
+<%--
+    Document : invoiceForm
+    Created on : Jun 17, 2025, 4:44:48 PM
+    Author   : duckh
+--%>
 
-    <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
-    <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-    <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
-    <!DOCTYPE html>
-    <html lang="vi"
-          class="light-style layout-menu-fixed"
-          dir="ltr"
-          data-theme="theme-default"
-          data-assets-path="${pageContext.request.contextPath}/assets/"
-          data-template="vertical-menu-template-free">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-            <title>Tạo Hóa Đơn Mới - Quản Lý Bán Hàng</title>
+<!DOCTYPE html>
+<c:if test="${empty sessionScope.Employee}">
+    <c:redirect url="loginEmployee.jsp"/>
+</c:if>
+<html lang="vi"
+      class="light-style layout-menu-fixed"
+      dir="ltr"
+      data-theme="theme-default"
+      data-assets-path="${pageContext.request.contextPath}/assets/"
+      data-template="vertical-menu-template-free">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Tạo Hóa Đơn Mới - Quản Lý Bán Hàng</title>
 
-            <link rel="icon" type="image/x-icon" href="${pageContext.request.contextPath}/assets/img/favicon/favicon.ico" />
+        <link rel="icon" type="image/x-icon" href="${pageContext.request.contextPath}/assets/img/favicon/favicon.ico" />
 
-            <link rel="preconnect" href="https://fonts.googleapis.com" />
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-            <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
-            <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/vendor/fonts/boxicons.css" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/vendor/fonts/boxicons.css" />
 
-            <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/vendor/css/core.css" class="template-customizer-core-css" />
-            <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
-            <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/demo.css" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/vendor/css/core.css" class="template-customizer-core-css" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/demo.css" />
 
-            <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
 
-            <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
-            <script src="${pageContext.request.contextPath}/assets/vendor/js/helpers.js"></script>
-            <script src="${pageContext.request.contextPath}/assets/js/config.js"></script>
-        </head>
-        <body>
-            <div class="layout-wrapper layout-content-navbar">
-                <div class="layout-container">
-                    <jsp:include page="sidebar.jsp" />
-                    <div class="layout-page">
-                        <jsp:include page="navBar.jsp" />
-                        <div class="content-wrapper">
-                            <div class="container-xxl flex-grow-1 container-p-y">
-                                <h4 class="fw-bold py-3 mb-4">
-                                    <span class="text-muted fw-light">Hóa đơn /</span> Tạo Hóa Đơn Mới
-                                </h4>
+        <script src="${pageContext.request.contextPath}/assets/vendor/js/helpers.js"></script>
+        <script src="${pageContext.request.contextPath}/assets/js/config.js"></script>
+    </head>
+    <body>
+        <div class="layout-wrapper layout-content-navbar">
+            <div class="layout-container">
+                <jsp:include page="sidebar.jsp" />
+                <div class="layout-page">
+                    <jsp:include page="navBar.jsp" />
+                    <div class="content-wrapper">
+                        <div class="container-xxl flex-grow-1 container-p-y">
+                            <h4 class="fw-bold py-3 mb-4">
+                                <span class="text-muted fw-light">Hóa đơn /</span> Tạo Hóa Đơn Mới
+                            </h4>
 
-                                <c:if test="${not empty selectedInvoice}">
-                                    <div class="card mb-4">
-                                        <h5 class="card-header">Thông tin hóa đơn</h5>
-                                        <div class="card-body">
-                                            <p><strong>Mã hóa đơn:</strong> ${selectedInvoice.invoiceID}</p>
-                                            <p><strong>Ngày lập:</strong> <fmt:formatDate value="${selectedInvoice.invoiceDate}" pattern="dd/MM/yyyy HH:mm:ss" /></p>
-                                            <p><strong>Tổng tiền:</strong> <fmt:formatNumber value="${selectedInvoice.totalAmount}" pattern="#,##0" /> VNĐ</p>
-                                            <c:if test="${not empty selectedInvoice.saleEmployeeID}">
-                                                <p><strong>Nhân viên bán hàng:</strong>
-                                                    <c:forEach var="saleEmp" items="${salesEmployees}">
-                                                        <c:if test="${saleEmp.id == selectedInvoice.saleEmployeeID}">
-                                                            ${saleEmp.fullname}
-                                                        </c:if>
-                                                    </c:forEach>
-                                                </p>
-                                            </c:if>
-                                        </div>
-                                    </div>
-                                </c:if>
-
-                                <c:if test="${not empty errorMessage}">
-                                    <div class="alert alert-danger" role="alert">
-                                        ${errorMessage}
-                                    </div>
-                                </c:if>
-                                <c:if test="${not empty successMessage}">
-                                    <div class="alert alert-success" role="alert">
-                                        ${successMessage}
-                                    </div>
-                                    <c:remove var="successMessage" scope="session"/>
-                                </c:if>
-
-                                <%-- Phần chọn nhân viên Sale (Tách riêng khỏi form khách hàng) --%>
+                            <c:if test="${not empty selectedInvoice}">
                                 <div class="card mb-4">
-                                    <h5 class="card-header">Chọn nhân viên bán hàng</h5>
+                                    <h5 class="card-header">Thông tin hóa đơn</h5>
                                     <div class="card-body">
-                                        <div class="row mb-3">
-                                            <div class="col-md-6">
-                                                <label for="saleEmployeeIDDropdown" class="form-label">Nhân viên bán hàng (tùy chọn)</label>
-                                                <select class="form-select" id="saleEmployeeIDDropdown" aria-label="Chọn nhân viên bán hàng">
-                                                    <option value="">-- Không chọn --</option>
-                                                    <c:forEach var="saleEmp" items="${salesEmployees}">
-                                                        <option value="${saleEmp.id}" ${saleEmp.id == selectedSaleEmployeeID ? 'selected' : ''}>
-                                                            ${saleEmp.fullname}
-                                                        </option>
-                                                    </c:forEach>
-                                                </select>
-                                                <small class="form-text text-muted">Chọn nhân viên bán hàng cho hóa đơn này.</small>
-                                            </div>
-                                        </div>
-                                        <%-- Thêm hidden input để lưu giá trị saleEmployeeID cho các form khác --%>
-                                        <input type="hidden" name="saleEmployeeID" id="globalSaleEmployeeID" value="${selectedSaleEmployeeID != null ? selectedSaleEmployeeID : ''}" />
+                                        <p><strong>Mã hóa đơn:</strong> ${selectedInvoice.invoiceID}</p>
+                                        <p><strong>Ngày lập:</strong> <fmt:formatDate value="${selectedInvoice.invoiceDate}" pattern="dd/MM/yyyy HH:mm:ss" /></p>
+                                        <p><strong>Tổng tiền:</strong> <fmt:formatNumber value="${selectedInvoice.totalAmount}" pattern="#,##0" /> VNĐ</p>
+                                        <c:if test="${not empty selectedInvoice.saleEmployeeID}">
+                                            <p><strong>Nhân viên bán hàng:</strong>
+                                                <c:forEach var="saleEmp" items="${salesEmployees}">
+                                                    <c:if test="${saleEmp.id == selectedInvoice.saleEmployeeID}">
+                                                        ${saleEmp.fullname}
+                                                    </c:if>
+                                                </c:forEach>
+                                            </p>
+                                        </c:if>
                                     </div>
                                 </div>
-                                <%-- Kết thúc phần chọn nhân viên Sale --%>
+                            </c:if>
 
-                                <div class="card mb-4">
-                                    <h5 class="card-header">Thông tin khách hàng</h5>
-                                    <div class="card-body">
-                                        <%-- Thêm id="customerInfoForm" vào form này để JS có thể thao tác dễ dàng hơn --%>
-                                        <form action="InvoiceServlet" method="post" id="customerInfoForm">
-                                            <%-- Action mặc định là checkCustomerPhone, sẽ được thay đổi bằng JS nếu click "Cập nhật thông tin hóa đơn" --%>
-                                            <input type="hidden" name="action" value="checkCustomerPhone" />
-                                            <input type="hidden" name="invoiceID" value="${selectedInvoice.invoiceID}" />
-                                            <%-- Giữ nguyên input hidden này để đảm bảo customerID luôn có mặt --%>
-                                            <input type="hidden" name="customerID" value="${customerID != null ? customerID : defaultCustomerId}" />
-                                            <%-- Thêm input hidden cho saleEmployeeID để luôn truyền giá trị hiện tại (từ globalSaleEmployeeID) khi submit form --%>
-                                            <input type="hidden" name="saleEmployeeID" id="hiddenSaleEmployeeIDForCustomer" value="${selectedSaleEmployeeID != null ? selectedSaleEmployeeID : ''}" />
+                            <c:if test="${not empty errorMessage}">
+                                <div class="alert alert-danger" role="alert">
+                                    ${errorMessage}
+                                </div>
+                            </c:if>
+                            <c:if test="${not empty successMessage}">
+                                <div class="alert alert-success" role="alert">
+                                    ${successMessage}
+                                </div>
+                                <c:remove var="successMessage" scope="session"/>
+                            </c:if>
+
+                            <%-- Phần chọn nhân viên Sale (Tách riêng khỏi form khách hàng) --%>
+                            <div class="card mb-4">
+                                <h5 class="card-header">Chọn nhân viên bán hàng</h5>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="saleEmployeeIDDropdown" class="form-label">Nhân viên bán hàng (tùy chọn)</label>
+                                            <select class="form-select" id="saleEmployeeIDDropdown" aria-label="Chọn nhân viên bán hàng">
+                                                <option value="">-- Không chọn --</option>
+                                                <c:forEach var="saleEmp" items="${salesEmployees}">
+                                                    <option value="${saleEmp.id}" ${saleEmp.id == selectedSaleEmployeeID ? 'selected' : ''}>
+                                                        ${saleEmp.fullname}
+                                                    </option>
+                                                </c:forEach>
+                                            </select>
+                                            <small class="form-text text-muted">Chọn nhân viên bán hàng cho hóa đơn này.</small>
+                                        </div>
+                                    </div>
+                                    <%-- Thêm hidden input để lưu giá trị saleEmployeeID cho các form khác --%>
+                                    <input type="hidden" name="saleEmployeeID" id="globalSaleEmployeeID" value="${selectedSaleEmployeeID != null ? selectedSaleEmployeeID : ''}" />
+                                </div>
+                            </div>
+                            <%-- Kết thúc phần chọn nhân viên Sale --%>
+
+                            <div class="card mb-4">
+                                <h5 class="card-header">Thông tin khách hàng</h5>
+                                <div class="card-body">
+                                    <%-- Thêm id="customerInfoForm" vào form này để JS có thể thao tác dễ dàng hơn --%>
+                                    <form action="InvoiceServlet" method="post" id="customerInfoForm">
+                                        <%-- Action mặc định là checkCustomerPhone, sẽ được thay đổi bằng JS nếu click "Cập nhật thông tin hóa đơn" --%>
+                                        <input type="hidden" name="action" value="checkCustomerPhone" />
+                                        <input type="hidden" name="invoiceID" value="${selectedInvoice.invoiceID}" />
+                                        <%-- Giữ nguyên input hidden này để đảm bảo customerID luôn có mặt --%>
+                                        <input type="hidden" name="customerID" value="${customerID != null ? customerID : defaultCustomerId}" />
+                                        <%-- Thêm input hidden cho saleEmployeeID để luôn truyền giá trị hiện tại (từ globalSaleEmployeeID) khi submit form --%>
+                                        <input type="hidden" name="saleEmployeeID" id="hiddenSaleEmployeeIDForCustomer" value="${selectedSaleEmployeeID != null ? selectedSaleEmployeeID : ''}" />
 
 
-                                            <div class="row mb-3">
-                                                <div class="col-md-6">
-                                                    <label for="customerPhone" class="form-label">Số điện thoại khách hàng</label>
-                                                    <div class="input-group">
-                                                        <input type="text" id="customerPhone" name="customerPhone" class="form-control" placeholder="Nhập số điện thoại"
-                                                               value="${customerPhone != null ? customerPhone : ''}" />
-                                                        <button type="submit" class="btn btn-info">Kiểm tra SĐT</button>
-                                                    </div>
-                                                    <small class="form-text text-muted">
-                                                        <c:if test="${not empty phoneCheckMessage}">
-                                                            ${phoneCheckMessage}
-                                                        </c:if>
-                                                    </small>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="customerPhone" class="form-label">Số điện thoại khách hàng</label>
+                                                <div class="input-group">
+                                                    <input type="text" id="customerPhone" name="customerPhone" class="form-control" placeholder="Nhập số điện thoại"
+                                                           value="${customerPhone != null ? customerPhone : ''}" />
+                                                    <button type="submit" class="btn btn-info">Kiểm tra SĐT</button>
                                                 </div>
+                                                <small class="form-text text-muted">
+                                                    <c:if test="${not empty phoneCheckMessage}">
+                                                        ${phoneCheckMessage}
+                                                    </c:if>
+                                                </small>
                                             </div>
+                                        </div>
 
-                                            <div class="row mb-3">
-                                                <div class="col-md-6">
-                                                    <label for="customerName" class="form-label">Tên khách hàng</label>
-                                                    <input type="text" id="customerName" name="customerName" class="form-control" placeholder="Tên khách hàng"
-                                                           value="${customerName != null ? customerName : 'Khách vãng lai'}"
-                                                           <c:if test="${customerFieldsReadonly}">readonly</c:if> />
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="customerName" class="form-label">Tên khách hàng</label>
+                                                <input type="text" id="customerName" name="customerName" class="form-control" placeholder="Tên khách hàng"
+                                                       value="${customerName != null ? customerName : 'Khách vãng lai'}"
+                                                       <c:if test="${customerFieldsReadonly}">readonly</c:if> />
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label for="customerEmail" class="form-label">Email khách hàng</label>
                                                     <input type="email" id="customerEmail" name="customerEmail" class="form-control" placeholder="Email khách hàng"
                                                            value="${customerEmail != null ? customerEmail : ''}"
-                                                           <c:if test="${customerFieldsReadonly}">readonly</c:if> />
+                                                    <c:if test="${customerFieldsReadonly}">readonly</c:if> />
                                                 </div>
                                             </div>
                                             <div class="row mb-3">
@@ -156,228 +159,228 @@
                                                     <label for="customerAddress" class="form-label">Địa chỉ</label>
                                                     <input type="text" id="customerAddress" name="customerAddress" class="form-control" placeholder="Địa chỉ khách hàng"
                                                            value="${customerAddress != null ? customerAddress : ''}"
-                                                           <c:if test="${customerFieldsReadonly}">readonly</c:if> />
+                                                    <c:if test="${customerFieldsReadonly}">readonly</c:if> />
                                                 </div>
                                             </div>
 
-                                            <c:if test="${showAddCustomerButton}">
-                                                <%-- Cần đảm bảo saleEmployeeID cũng được truyền khi thêm khách hàng mới --%>
-                                                <a href="CustomerServlet?action=showCreateForm&phone=${customerPhone}&invoiceID=${selectedInvoice.invoiceID}&saleEmployeeID=${selectedSaleEmployeeID}&customerID=${customerID != null ? customerID : defaultCustomerId}" class="btn btn-success me-2">Thêm khách hàng mới</a>
-                                            </c:if>
+                                        <c:if test="${showAddCustomerButton}">
+                                            <%-- Cần đảm bảo saleEmployeeID cũng được truyền khi thêm khách hàng mới --%>
+                                            <a href="CustomerServlet?action=showCreateForm&phone=${customerPhone}&invoiceID=${selectedInvoice.invoiceID}&saleEmployeeID=${selectedSaleEmployeeID}&customerID=${customerID != null ? customerID : defaultCustomerId}" class="btn btn-success me-2">Thêm khách hàng mới</a>
+                                        </c:if>
 
-                                        </form>
-                                    </div>
-                                </div>
-                                <%-- Kết thúc đoạn code cần sửa đổi --%>
-
-                                <%-- Tiếp tục phần Thêm mặt hàng mới vào hóa đơn --%>
-                                <div class="card mb-4">
-                                    <h5 class="card-header">Thêm mặt hàng mới vào hóa đơn</h5>
-                                    <div class="card-body">
-                                        <form action="InvoiceServlet" method="post" id="addItemForm">
-                                            <input type="hidden" name="action" value="selectProductForPrice" id="selectProductAction"/>
-                                            <input type="hidden" name="invoiceID" value="${selectedInvoice.invoiceID}" />
-                                            <input type="hidden" name="shopID" value="${selectedInvoice.shopID}" />
-                                            <input type="hidden" name="customerID" value="${customerID != null ? customerID : defaultCustomerId}" />
-                                            <%-- Đảm bảo saleEmployeeID cũng được truyền khi thêm mặt hàng --%>
-                                            <%-- Lấy giá trị từ global hidden input --%>
-                                            <input type="hidden" name="saleEmployeeID" id="hiddenSaleEmployeeIDForAddItem" value="${selectedSaleEmployeeID != null ? selectedSaleEmployeeID : ''}" />
-
-
-                                            <div class="mb-3">
-                                                <label for="productID" class="form-label">Mã sản phẩm:</label>
-                                                <select class="form-select" id="productID" name="productID" required>
-                                                    <option value="">-- Chọn sản phẩm --</option>
-                                                    <c:forEach var="invItem" items="${inventories}">
-                                                        <c:if test="${invItem.quantity > 0}">
-                                                            <option value="${invItem.product.productID}"
-                                                                    ${param.productID == invItem.product.productID ? 'selected' : ''}>
-                                                                ${invItem.product.productID} - ${invItem.product.productName} (Tồn: ${invItem.quantity})
-                                                            </option>
-                                                        </c:if>
-                                                    </c:forEach>
-                                                </select>
-                                            </div>
-                                            <%-- Các trường khác của sản phẩm --%>
-                                            <div class="mb-3">
-                                                <label for="quantity" class="form-label">Số lượng:</label>
-                                                <input type="number" class="form-control" id="quantity" name="quantity" placeholder="Số lượng" min="1" required
-                                                       value="${param.quantity != null ? param.quantity : ''}" />
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="unitPrice" class="form-label">Đơn giá:</label>
-                                                <input type="number" class="form-control" id="unitPrice" name="unitPrice" placeholder="Đơn giá" step="any" min="0" required
-                                                       value="<fmt:formatNumber value="${not empty selectedUnitPrice ? selectedUnitPrice : (param.unitPrice != null ? param.unitPrice : '')}" pattern="#0"/>" />
-                                                <small class="form-text text-muted">Đơn giá bán của sản phẩm.</small>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="discount" class="form-label">Giảm giá (%):</label>
-                                                <input type="number" class="form-control" id="discount" name="discount" placeholder="Giảm giá (%)" step="any" min="0" max="100" value="${param.discount != null ? param.discount : '0'}" />
-                                                <small class="form-text text-muted">Phần trăm giảm giá cho mặt hàng này (0-100).</small>
-                                            </div>
-                                            <button type="submit" class="btn btn-primary me-2" onclick="document.getElementById('selectProductAction').value = 'addDetail';">
-                                                <i class='bx bx-plus me-1'></i> Thêm mặt hàng
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-
-                                <div class="card">
-                                    <h5 class="card-header">Danh sách các mặt hàng đã có</h5>
-                                    <div class="table-responsive text-nowrap">
-                                        <table class="table table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th>Mã SP</th>
-                                                    <th>Số lượng</th>
-                                                    <th>Giá bán</th>
-                                                    <th>Giảm giá (%)</th>
-                                                    <th>Thành tiền</th>
-                                                    <th>Hành động</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="table-border-bottom-0">
-                                                <c:forEach var="detail" items="${invoiceDetails}">
-                                                    <tr>
-                                                        <c:choose>
-                                                            <c:when test="${editDetailID eq detail.invoiceDetailID}">
-                                                                <form method="post" action="InvoiceServlet" style="margin:0;">
-                                                                    <input type="hidden" name="action" value="updateDetail" />
-                                                                    <input type="hidden" name="invoiceDetailID" value="${detail.invoiceDetailID}" />
-                                                                    <input type="hidden" name="invoiceID" value="${selectedInvoice.invoiceID}" />
-                                                                    <input type="hidden" name="customerID" value="${customerID != null ? customerID : defaultCustomerId}" />
-                                                                    <%-- Truyền saleEmployeeID khi sửa chi tiết hóa đơn (lấy từ global hidden input) --%>
-                                                                    <input type="hidden" name="saleEmployeeID" id="hiddenSaleEmployeeIDForUpdateDetail" value="${selectedSaleEmployeeID != null ? selectedSaleEmployeeID : ''}" />
-
-                                                                    <td>
-                                                                        <select class="form-select form-select-sm" name="productID" required>
-                                                                            <c:forEach var="prod" items="${products}">
-                                                                                <option value="${prod.productID}" ${detail.productID == prod.productID ? 'selected' : ''}>
-                                                                                    ${prod.productName}
-                                                                                </option>
-                                                                            </c:forEach>
-                                                                        </select>
-                                                                    </td>
-                                                                    <td><input type="number" class="form-control form-control-sm" name="quantity" value="${detail.quantity}" min="1" required /></td>
-                                                                    <td><input type="number" class="form-control form-control-sm" name="unitPrice" value="${detail.unitPrice}" step="any" min="0" required /></td>
-                                                                    <td><input type="number" class="form-control form-control-sm" name="discount" step="any" value="${detail.discount}" min="0" max="100" /></td>
-                                                                    <td><fmt:formatNumber value="${detail.totalPrice}" pattern="#,##0" /> VNĐ</td>
-                                                                    <td>
-                                                                        <button type="submit" class="btn btn-success btn-sm me-1">
-                                                                            <i class='bx bx-save me-1'></i> Lưu
-                                                                        </button>
-                                                                        <%-- Đảm bảo saleEmployeeID và customerID được truyền khi hủy sửa chi tiết --%>
-                                                                        <a href="InvoiceServlet?action=manageInvoiceDetails&invoiceID=${selectedInvoice.invoiceID}&saleEmployeeID=${selectedSaleEmployeeID}&customerID=${customerID != null ? customerID : defaultCustomerId}" class="btn btn-secondary btn-sm">
-                                                                            <i class='bx bx-x me-1'></i> Hủy
-                                                                        </a>
-                                                                    </td>
-                                                                </form>
-                                                            </c:when>
-                                                            <c:otherwise>
-                                                                <td>
-                                                                    <c:set var="productNameDisplay" value="${detail.productID}"/>
-                                                                    <c:forEach var="prod" items="${products}">
-                                                                        <c:if test="${prod.productID == detail.productID}">
-                                                                            <c:set var="productNameDisplay" value="${prod.productID} - ${prod.productName}"/>
-                                                                        </c:if>
-                                                                    </c:forEach>
-                                                                    ${productNameDisplay}
-                                                                </td>
-                                                                <td>${detail.quantity}</td>
-                                                                <td><fmt:formatNumber value="${detail.unitPrice}" pattern="#,##0" /> VNĐ</td>
-                                                                <td>${detail.discount} %</td>
-                                                                <td><fmt:formatNumber value="${detail.totalPrice}" pattern="#,##0" /> VNĐ</td>
-                                                                <td>
-                                                                    <%-- TRUYỀN THÊM customerID TẠI ĐÂY KHI BẤM SỬA --%>
-                                                                    <a href="InvoiceServlet?action=manageInvoiceDetails&invoiceID=${selectedInvoice.invoiceID}&editDetailID=${detail.invoiceDetailID}&saleEmployeeID=${selectedSaleEmployeeID}&customerID=${customerID != null ? customerID : defaultCustomerId}" class="btn btn-info btn-sm me-1">
-                                                                        <i class='bx bx-edit-alt me-1'></i> Sửa
-                                                                    </a>
-                                                                    <%-- Đảm bảo saleEmployeeID được truyền khi xóa chi tiết hóa đơn (đã có) --%>
-<!--                                                                    <a href="InvoiceServlet?action=deleteDetail&invoiceID=${selectedInvoice.invoiceID}&invoiceDetailID=${detail.invoiceDetailID}&customerID=${customerID != null ? customerID : defaultCustomerId}&saleEmployeeID=${selectedSaleEmployeeID}" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa mặt hàng này?');">
-                                                                        <i class='bx bx-trash me-1'></i> Xóa
-                                                                    </a>-->
-                                                                </td>
-                                                            </c:otherwise>
-                                                        </c:choose>
-                                                    </tr>
-                                                </c:forEach>
-                                                <c:if test="${empty invoiceDetails && empty editDetailID}">
-                                                    <tr>
-                                                        <td colspan="6" class="text-center">Chưa có mặt hàng nào trong hóa đơn này.</td>
-                                                    </tr>
-                                                </c:if>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-
-                                <div class="mt-4 text-center">
-                                    <%-- Truyền saleEmployeeID và customerID khi quay lại danh sách --%>
-                                    <a href="InvoiceServlet?action=list&saleEmployeeID=${selectedSaleEmployeeID}&customerID=${customerID != null ? customerID : defaultCustomerId}" class="btn btn-secondary">
-                                        <i class='bx bx-arrow-back me-1'></i> Quay lại danh sách Hóa đơn
-                                    </a>
-                                    <c:if test="${not empty selectedInvoice.invoiceID}">
-                                      
-                                        <a href="InvoiceServlet?action=listDetail&invoiceID=${selectedInvoice.invoiceID}&saleEmployeeID=${selectedSaleEmployeeID}&customerID=${customerID != null ? customerID : defaultCustomerId}" class="btn btn-primary">
-                                            <i class='bx bx-search me-1'></i> Xem Hóa đơn
-                                        </a>
-                                    </c:if>
+                                    </form>
                                 </div>
                             </div>
-                            <jsp:include page="footer.jsp" />
-                            <div class="content-backdrop fade"></div>
+                            <%-- Kết thúc đoạn code cần sửa đổi --%>
+
+                            <%-- Tiếp tục phần Thêm mặt hàng mới vào hóa đơn --%>
+                            <div class="card mb-4">
+                                <h5 class="card-header">Thêm mặt hàng mới vào hóa đơn</h5>
+                                <div class="card-body">
+                                    <form action="InvoiceServlet" method="post" id="addItemForm">
+                                        <input type="hidden" name="action" value="selectProductForPrice" id="selectProductAction"/>
+                                        <input type="hidden" name="invoiceID" value="${selectedInvoice.invoiceID}" />
+                                        <input type="hidden" name="shopID" value="${selectedInvoice.shopID}" />
+                                        <input type="hidden" name="customerID" value="${customerID != null ? customerID : defaultCustomerId}" />
+                                        <%-- Đảm bảo saleEmployeeID cũng được truyền khi thêm mặt hàng --%>
+                                        <%-- Lấy giá trị từ global hidden input --%>
+                                        <input type="hidden" name="saleEmployeeID" id="hiddenSaleEmployeeIDForAddItem" value="${selectedSaleEmployeeID != null ? selectedSaleEmployeeID : ''}" />
+
+
+                                        <div class="mb-3">
+                                            <label for="productID" class="form-label">Mã sản phẩm:</label>
+                                            <select class="form-select" id="productID" name="productID" required>
+                                                <option value="">-- Chọn sản phẩm --</option>
+                                                <c:forEach var="invItem" items="${inventories}">
+                                                    <c:if test="${invItem.quantity > 0}">
+                                                        <option value="${invItem.product.productID}"
+                                                                ${param.productID == invItem.product.productID ? 'selected' : ''}>
+                                                            ${invItem.product.productID} - ${invItem.product.productName} (Tồn: ${invItem.quantity})
+                                                        </option>
+                                                    </c:if>
+                                                </c:forEach>
+                                            </select>
+                                        </div>
+                                        <%-- Các trường khác của sản phẩm --%>
+                                        <div class="mb-3">
+                                            <label for="quantity" class="form-label">Số lượng:</label>
+                                            <input type="number" class="form-control" id="quantity" name="quantity" placeholder="Số lượng" min="1" required
+                                                   value="${param.quantity != null ? param.quantity : ''}" />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="unitPrice" class="form-label">Đơn giá:</label>
+                                            <input type="number" class="form-control" id="unitPrice" name="unitPrice" placeholder="Đơn giá" step="any" min="0" required
+                                                   value="<fmt:formatNumber value="${not empty selectedUnitPrice ? selectedUnitPrice : (param.unitPrice != null ? param.unitPrice : '')}" pattern="#0"/>" />
+                                            <small class="form-text text-muted">Đơn giá bán của sản phẩm.</small>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="discount" class="form-label">Giảm giá (%):</label>
+                                            <input type="number" class="form-control" id="discount" name="discount" placeholder="Giảm giá (%)" step="any" min="0" max="100" value="${param.discount != null ? param.discount : '0'}" />
+                                            <small class="form-text text-muted">Phần trăm giảm giá cho mặt hàng này (0-100).</small>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary me-2" onclick="document.getElementById('selectProductAction').value = 'addDetail';">
+                                            <i class='bx bx-plus me-1'></i> Thêm mặt hàng
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <h5 class="card-header">Danh sách các mặt hàng đã có</h5>
+                                <div class="table-responsive text-nowrap">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Mã SP</th>
+                                                <th>Số lượng</th>
+                                                <th>Giá bán</th>
+                                                <th>Giảm giá (%)</th>
+                                                <th>Thành tiền</th>
+                                                <th>Hành động</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="table-border-bottom-0">
+                                            <c:forEach var="detail" items="${invoiceDetails}">
+                                                <tr>
+                                                    <c:choose>
+                                                        <c:when test="${editDetailID eq detail.invoiceDetailID}">
+                                                    <form method="post" action="InvoiceServlet" style="margin:0;">
+                                                        <input type="hidden" name="action" value="updateDetail" />
+                                                        <input type="hidden" name="invoiceDetailID" value="${detail.invoiceDetailID}" />
+                                                        <input type="hidden" name="invoiceID" value="${selectedInvoice.invoiceID}" />
+                                                        <input type="hidden" name="customerID" value="${customerID != null ? customerID : defaultCustomerId}" />
+                                                        <%-- Truyền saleEmployeeID khi sửa chi tiết hóa đơn (lấy từ global hidden input) --%>
+                                                        <input type="hidden" name="saleEmployeeID" id="hiddenSaleEmployeeIDForUpdateDetail" value="${selectedSaleEmployeeID != null ? selectedSaleEmployeeID : ''}" />
+
+                                                        <td>
+                                                            <select class="form-select form-select-sm" name="productID" required>
+                                                                <c:forEach var="prod" items="${products}">
+                                                                    <option value="${prod.productID}" ${detail.productID == prod.productID ? 'selected' : ''}>
+                                                                        ${prod.productName}
+                                                                    </option>
+                                                                </c:forEach>
+                                                            </select>
+                                                        </td>
+                                                        <td><input type="number" class="form-control form-control-sm" name="quantity" value="${detail.quantity}" min="1" required /></td>
+                                                        <td><input type="number" class="form-control form-control-sm" name="unitPrice" value="${detail.unitPrice}" step="any" min="0" required /></td>
+                                                        <td><input type="number" class="form-control form-control-sm" name="discount" step="any" value="${detail.discount}" min="0" max="100" /></td>
+                                                        <td><fmt:formatNumber value="${detail.totalPrice}" pattern="#,##0" /> VNĐ</td>
+                                                        <td>
+                                                            <button type="submit" class="btn btn-success btn-sm me-1">
+                                                                <i class='bx bx-save me-1'></i> Lưu
+                                                            </button>
+                                                            <%-- Đảm bảo saleEmployeeID và customerID được truyền khi hủy sửa chi tiết --%>
+                                                            <a href="InvoiceServlet?action=manageInvoiceDetails&invoiceID=${selectedInvoice.invoiceID}&saleEmployeeID=${selectedSaleEmployeeID}&customerID=${customerID != null ? customerID : defaultCustomerId}" class="btn btn-secondary btn-sm">
+                                                                <i class='bx bx-x me-1'></i> Hủy
+                                                            </a>
+                                                        </td>
+                                                    </form>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <td>
+                                                        <c:set var="productNameDisplay" value="${detail.productID}"/>
+                                                        <c:forEach var="prod" items="${products}">
+                                                            <c:if test="${prod.productID == detail.productID}">
+                                                                <c:set var="productNameDisplay" value="${prod.productID} - ${prod.productName}"/>
+                                                            </c:if>
+                                                        </c:forEach>
+                                                        ${productNameDisplay}
+                                                    </td>
+                                                    <td>${detail.quantity}</td>
+                                                    <td><fmt:formatNumber value="${detail.unitPrice}" pattern="#,##0" /> VNĐ</td>
+                                                    <td>${detail.discount} %</td>
+                                                    <td><fmt:formatNumber value="${detail.totalPrice}" pattern="#,##0" /> VNĐ</td>
+                                                    <td>
+                                                        <%-- TRUYỀN THÊM customerID TẠI ĐÂY KHI BẤM SỬA --%>
+                                                        <a href="InvoiceServlet?action=manageInvoiceDetails&invoiceID=${selectedInvoice.invoiceID}&editDetailID=${detail.invoiceDetailID}&saleEmployeeID=${selectedSaleEmployeeID}&customerID=${customerID != null ? customerID : defaultCustomerId}" class="btn btn-info btn-sm me-1">
+                                                            <i class='bx bx-edit-alt me-1'></i> Sửa
+                                                        </a>
+                                                        <%-- Đảm bảo saleEmployeeID được truyền khi xóa chi tiết hóa đơn (đã có) --%>
+<!--                                                                    <a href="InvoiceServlet?action=deleteDetail&invoiceID=${selectedInvoice.invoiceID}&invoiceDetailID=${detail.invoiceDetailID}&customerID=${customerID != null ? customerID : defaultCustomerId}&saleEmployeeID=${selectedSaleEmployeeID}" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa mặt hàng này?');">
+                                                            <i class='bx bx-trash me-1'></i> Xóa
+                                                        </a>-->
+                                                    </td>
+                                                </c:otherwise>
+                                            </c:choose>
+                                            </tr>
+                                        </c:forEach>
+                                        <c:if test="${empty invoiceDetails && empty editDetailID}">
+                                            <tr>
+                                                <td colspan="6" class="text-center">Chưa có mặt hàng nào trong hóa đơn này.</td>
+                                            </tr>
+                                        </c:if>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 text-center">
+                                <%-- Truyền saleEmployeeID và customerID khi quay lại danh sách --%>
+                                <a href="InvoiceServlet?action=list&saleEmployeeID=${selectedSaleEmployeeID}&customerID=${customerID != null ? customerID : defaultCustomerId}" class="btn btn-secondary">
+                                    <i class='bx bx-arrow-back me-1'></i> Quay lại danh sách Hóa đơn
+                                </a>
+                                <c:if test="${not empty selectedInvoice.invoiceID}">
+
+                                    <a href="InvoiceServlet?action=listDetail&invoiceID=${selectedInvoice.invoiceID}&saleEmployeeID=${selectedSaleEmployeeID}&customerID=${customerID != null ? customerID : defaultCustomerId}" class="btn btn-primary">
+                                        <i class='bx bx-search me-1'></i> Xem Hóa đơn
+                                    </a>
+                                </c:if>
+                            </div>
                         </div>
+                        <jsp:include page="footer.jsp" />
+                        <div class="content-backdrop fade"></div>
                     </div>
                 </div>
-                <div class="layout-overlay layout-menu-toggle"></div>
             </div>
-            <script src="${pageContext.request.contextPath}/assets/vendor/libs/jquery/jquery.js"></script>
-            <script src="${pageContext.request.contextPath}/assets/vendor/libs/popper/popper.js"></script>
-            <script src="${pageContext.request.contextPath}/assets/vendor/js/bootstrap.js"></script>
-            <script src="${pageContext.request.contextPath}/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
-            <script src="${pageContext.request.contextPath}/assets/vendor/js/menu.js"></script>
+            <div class="layout-overlay layout-menu-toggle"></div>
+        </div>
+        <script src="${pageContext.request.contextPath}/assets/vendor/libs/jquery/jquery.js"></script>
+        <script src="${pageContext.request.contextPath}/assets/vendor/libs/popper/popper.js"></script>
+        <script src="${pageContext.request.contextPath}/assets/vendor/js/bootstrap.js"></script>
+        <script src="${pageContext.request.contextPath}/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+        <script src="${pageContext.request.contextPath}/assets/vendor/js/menu.js"></script>
 
-            <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-            <script src="${pageContext.request.contextPath}/assets/js/main.js"></script>
+        <script src="${pageContext.request.contextPath}/assets/js/main.js"></script>
 
-            <script async defer src="https://buttons.github.io/buttons.js"></script>
-            <script type="text/javascript">
-                $(document).ready(function () {
-                    $('#productID').select2({
-                        placeholder: "Tìm kiếm hoặc chọn sản phẩm...",
-                        allowClear: true
-                    });
+        <script async defer src="https://buttons.github.io/buttons.js"></script>
+        <script type="text/javascript">
+                                            $(document).ready(function () {
+                                                $('#productID').select2({
+                                                    placeholder: "Tìm kiếm hoặc chọn sản phẩm...",
+                                                    allowClear: true
+                                                });
 
-                    // Khởi tạo Select2 cho dropdown Sale Employee
-                    $('#saleEmployeeIDDropdown').select2({
-                        placeholder: "Chọn nhân viên bán hàng...",
-                        allowClear: true
-                    });
+                                                // Khởi tạo Select2 cho dropdown Sale Employee
+                                                $('#saleEmployeeIDDropdown').select2({
+                                                    placeholder: "Chọn nhân viên bán hàng...",
+                                                    allowClear: true
+                                                });
 
-                    // Khi dropdown Sale Employee thay đổi, cập nhật hidden input của cả hai form
-                    $('#saleEmployeeIDDropdown').on('change', function () {
-                        var selectedSaleEmpId = $(this).val();
-                        $('#globalSaleEmployeeID').val(selectedSaleEmpId); // Cập nhật hidden input global
-                        $('#hiddenSaleEmployeeIDForCustomer').val(selectedSaleEmpId); // Cập nhật hidden input của form khách hàng
-                        $('#hiddenSaleEmployeeIDForAddItem').val(selectedSaleEmpId); // Cập nhật hidden input của form thêm mặt hàng
-                        $('#hiddenSaleEmployeeIDForUpdateDetail').val(selectedSaleEmpId); // Cập nhật hidden input của form sửa chi tiết
-                    });
+                                                // Khi dropdown Sale Employee thay đổi, cập nhật hidden input của cả hai form
+                                                $('#saleEmployeeIDDropdown').on('change', function () {
+                                                    var selectedSaleEmpId = $(this).val();
+                                                    $('#globalSaleEmployeeID').val(selectedSaleEmpId); // Cập nhật hidden input global
+                                                    $('#hiddenSaleEmployeeIDForCustomer').val(selectedSaleEmpId); // Cập nhật hidden input của form khách hàng
+                                                    $('#hiddenSaleEmployeeIDForAddItem').val(selectedSaleEmpId); // Cập nhật hidden input của form thêm mặt hàng
+                                                    $('#hiddenSaleEmployeeIDForUpdateDetail').val(selectedSaleEmpId); // Cập nhật hidden input của form sửa chi tiết
+                                                });
 
-                    // Đảm bảo hidden inputs có giá trị ban đầu khi trang tải
-                    var initialSaleEmployeeID = $('#saleEmployeeIDDropdown').val();
-                    $('#globalSaleEmployeeID').val(initialSaleEmployeeID);
-                    $('#hiddenSaleEmployeeIDForCustomer').val(initialSaleEmployeeID);
-                    $('#hiddenSaleEmployeeIDForAddItem').val(initialSaleEmployeeID);
-                    $('#hiddenSaleEmployeeIDForUpdateDetail').val(initialSaleEmployeeID);
+                                                // Đảm bảo hidden inputs có giá trị ban đầu khi trang tải
+                                                var initialSaleEmployeeID = $('#saleEmployeeIDDropdown').val();
+                                                $('#globalSaleEmployeeID').val(initialSaleEmployeeID);
+                                                $('#hiddenSaleEmployeeIDForCustomer').val(initialSaleEmployeeID);
+                                                $('#hiddenSaleEmployeeIDForAddItem').val(initialSaleEmployeeID);
+                                                $('#hiddenSaleEmployeeIDForUpdateDetail').val(initialSaleEmployeeID);
 
 
-                    // Auto-submit form khi chọn sản phẩm
-                    $('#productID').on('change', function () {
-                        document.getElementById('selectProductAction').value = 'selectProductForPrice';
-                        document.getElementById('addItemForm').submit();
-                    });
-                });
-            </script>
-        </body>
-    </html>
+                                                // Auto-submit form khi chọn sản phẩm
+                                                $('#productID').on('change', function () {
+                                                    document.getElementById('selectProductAction').value = 'selectProductForPrice';
+                                                    document.getElementById('addItemForm').submit();
+                                                });
+                                            });
+        </script>
+    </body>
+</html>

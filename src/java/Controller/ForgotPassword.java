@@ -81,23 +81,27 @@ public class ForgotPassword extends HttpServlet {
         try {
             String databaseName = (String) request.getSession().getAttribute("databaseName");
 
+            if (databaseName == null) {
+                response.sendRedirect("SaleSphere");
+            }
+
             String email = request.getParameter("email");
             if (databaseName.equals("CentralDB")) {
                 ShopOwnerDAO shopOwnerDAO = new ShopOwnerDAO(DBContext.getCentralConnection());
                 boolean isExists = shopOwnerDAO.isEmailExist(email);
-                
+
                 if (!isExists) {
                     request.setAttribute("error", "Email không tồn tại.");
                     request.getRequestDispatcher("forgotPassword.jsp").forward(request, response);
                     return;
                 }
-                
+
                 String otp = String.format("%06d", new Random().nextInt(999999));
 
                 Timestamp expiredAt = new Timestamp(System.currentTimeMillis() + 5 * 60 * 1000);
 
                 shopOwnerDAO.upsertOTP(email, otp, expiredAt);
-                
+
                 MailUtil.sendResetPasswordLink(email, otp, databaseName);
 
                 response.sendRedirect("emailSent.jsp");
@@ -105,7 +109,7 @@ public class ForgotPassword extends HttpServlet {
                 EmployeeDAO dao = new EmployeeDAO(DBContext.getConnection(databaseName));
 
                 boolean emailExists = dao.isEmailExists(email);
-                
+
                 if (!emailExists) {
                     request.setAttribute("error", "Email không tồn tại.");
                     request.getRequestDispatcher("forgotPassword.jsp").forward(request, response);

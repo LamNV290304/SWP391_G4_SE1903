@@ -67,6 +67,11 @@ public class ResetPassword extends HttpServlet {
             throws ServletException, IOException {
         try {
             String databaseName = request.getParameter("databaseName");
+            
+            if (databaseName == null) {
+                response.sendRedirect("SaleSphere");
+            }
+            
             if (databaseName.equals("CentralDB")) {
                 String email = request.getParameter("email");
                 String otp = request.getParameter("otp");

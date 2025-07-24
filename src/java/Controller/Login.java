@@ -8,6 +8,7 @@ import Context.DBContext;
 import Context.DatabaseHelper;
 import Dal.EmployeeDAO;
 import Dal.NotiDAO;
+import Dal.PermissionDAO;
 import Dal.ShopOwnerDAO;
 import Models.Employee;
 import Models.Noti;
@@ -19,6 +20,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.security.Permission;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Vector;
@@ -77,7 +79,7 @@ public class Login extends HttpServlet {
             String password = request.getParameter("password");
 
             String databaseName = (String) request.getSession().getAttribute("databaseName");
-            if (databaseName == null){
+            if (databaseName == null) {
                 response.sendRedirect(request.getContextPath() + "/SaleSphere");
                 return;
             }
@@ -119,7 +121,7 @@ public class Login extends HttpServlet {
                 request.getRequestDispatcher("loginEmployee.jsp").forward(request, response);
                 return;
             }
-            
+
             DBContext connection = new DBContext(databaseName);
             NotiDAO notiDAO = new NotiDAO(connection.getConnection());
             //view for Noti
@@ -133,6 +135,10 @@ public class Login extends HttpServlet {
             //set time for Noti
             Map<Integer, Integer> mapNotiDate = notiDAO.MapListNotiDate();
 
+            PermissionDAO permissionDAO = new PermissionDAO(DBContext.getCentralConnection());
+            Map<String, Boolean> grantedPages = permissionDAO.getGrantedPageMapByRoleId(employee.getRoleId());
+            
+            request.getSession().setAttribute("grantedPages", grantedPages);
             request.getSession().setAttribute("mapNotiDate", mapNotiDate);
             request.getSession().setAttribute("vectorNoti", vectorNoti);
             request.getSession().setAttribute("Employee", employee);

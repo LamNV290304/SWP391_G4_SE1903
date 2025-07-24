@@ -86,6 +86,10 @@ public class ShowProfile extends HttpServlet {
             Connection connection = DBContext.getConnection(databaseName);
             EmployeeDAO employeeDAO = new EmployeeDAO(connection);
             Employee employee = (Employee) request.getSession().getAttribute("Employee");
+            
+            if (employee == null){
+                response.sendRedirect("loginEmployee.jsp");
+            }
 
             EmployeeDto employeeDto = employeeDAO.getEmployeeProfileByUsername(employee.getUsername());
 

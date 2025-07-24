@@ -13,6 +13,7 @@ import Dal.ShopDAO;
 import Models.Employee;
 import Models.Role;
 import Models.Shop;
+import Utils.AccessControlUtil;
 import Utils.MailUtil;
 import static Utils.PasswordUtils.hashPassword;
 import java.io.IOException;
@@ -75,6 +76,15 @@ public class AddEmployee extends HttpServlet {
             throws ServletException, IOException {
         String databaseName = (String) request.getSession().getAttribute("databaseName");
 
+        if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
+
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
+
         try (Connection conn = DBContext.getConnection(databaseName)) {
             ShopDAO shopDAO = new ShopDAO(conn);
             RoleDAO roleDAO = new RoleDAO(conn);
@@ -105,6 +115,10 @@ public class AddEmployee extends HttpServlet {
         try {
             String databaseName = (String) request.getSession().getAttribute("databaseName");
 
+            if (databaseName == null) {
+                response.sendRedirect("SaleSphere");
+            }
+            
             Connection conn = DBContext.getConnection(databaseName);
             String fullName = request.getParameter("fullName");
             String email = request.getParameter("email");
@@ -142,9 +156,9 @@ public class AddEmployee extends HttpServlet {
             e.setShopId(shopId);
             e.setRoleId(roleId);
             e.setStatus(status);
-            
+
             String shopCode = DatabaseHelper.getShopCodeByDatabaseName(databaseName);
-            
+
             String link = "http://localhost:9999/SWP391_G4_SE1903/" + shopCode;
 
             try {

@@ -80,7 +80,7 @@
 
                             <!-- Form phân quyền -->
                             <c:if test="${not empty selectedRoleId}">
-                                <form method="post" action="UpdatePermission">
+                                <form method="post" action="ShowListPermission">
                                     <input type="hidden" name="roleId" value="${selectedRoleId}"/>
 
                                     <div class="row">
@@ -93,7 +93,7 @@
                                                            value="${page.value.pageCode}"
                                                            <c:if test="${grantedPages[page.value.pageCode]}">checked</c:if> />
                                                     <label class="form-check-label fw-medium" for="page_${page.value.pageCode}">
-                                                        <i class="${page.value.iconClass}"></i> ${page.value.displayName}
+                                                        ${page.value.displayName}
                                                     </label>
                                                 </div>
                                             </div>
