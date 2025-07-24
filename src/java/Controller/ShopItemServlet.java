@@ -35,11 +35,31 @@ import java.util.List;
  */
 public class ShopItemServlet extends HttpServlet {
 
-    DBContext connection = new DBContext("SWP1");
-    ItemCategoryDAO itemDAO = new ItemCategoryDAO(connection.getConnection());
-    ShopItemDAO shopItemDAO = new ShopItemDAO(connection.getConnection());
-    ShopDAO sDAO = new ShopDAO(connection.getConnection());
-    UnitDAO uDAO = new UnitDAO(connection.getConnection());
+   
+    ItemCategoryDAO itemDAO;
+    ShopItemDAO shopItemDAO;
+    ShopDAO sDAO;
+    UnitDAO uDAO;
+
+    private boolean initDAOs(HttpServletRequest request, HttpServletResponse response) {
+        String databaseName = (String) request.getSession().getAttribute("databaseName");
+        if (databaseName == null) {
+            try {
+                request.getRequestDispatcher("login.jsp").forward(request, response);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return false;
+        }
+        DBContext connection = new DBContext(databaseName);
+
+        itemDAO = new ItemCategoryDAO(connection.getConnection());
+        shopItemDAO = new ShopItemDAO(connection.getConnection());
+        sDAO = new ShopDAO(connection.getConnection());
+        uDAO = new UnitDAO(connection.getConnection());
+    
+        return true;
+    }
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -49,6 +69,9 @@ public class ShopItemServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        if (!initDAOs(request, response)) {
+            return;
+        }
         String action = request.getParameter("action");
         if (action == null) {
             action = "list";
@@ -90,6 +113,9 @@ public class ShopItemServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
+        if (!initDAOs(request, response)) {
+            return;
+        }
         String action = request.getParameter("action");
         if (action == null) {
             action = "list";

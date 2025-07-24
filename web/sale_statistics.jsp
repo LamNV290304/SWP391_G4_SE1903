@@ -70,11 +70,15 @@
                                                 <div class="col-md-3 mb-3">
                                                     <label for="shopSelect" class="form-label">Chọn cửa hàng:</label>
                                                     <select class="form-select" id="shopSelect" name="shopId">
-                                                        <option value="all" ${selectedShopId == 'all' || selectedShopId == null ? 'selected' : ''}>Tất cả cửa hàng</option>
+                                                        <option value="all" ${selectedShopId == 'all' || selectedShopId == null ? 'selected' : ''}>
+                                                            Tất cả cửa hàng
+                                                        </option>
+
                                                         <c:forEach var="shop" items="${allShops}">
-                                                            <option value="${shop.shopID}" ${selectedShopId != null && selectedShopId eq shop.shopID ? 'selected' : ''}>
+                                                            <option value="${shop.shopID}" ${selectedShopId != null && selectedShopId eq shop.shopID.toString() ? 'selected' : ''}>
                                                                 ${shop.shopName}
                                                             </option>
+
                                                         </c:forEach>
                                                     </select>
                                                 </div>
@@ -151,8 +155,8 @@
 
                                         <input type="hidden" name="selectedEmployeeId" value="${not empty selectedEmployeeId ? selectedEmployeeId : ''}" />
 
-                                        <c:if test="${not empty shopId && shopId ne 'all'}">
-                                            <input type="hidden" name="shopId" value="${shopId}" />
+                                        <c:if test="${not empty selectedShopId}">
+                                            <input type="hidden" name="shopId" value="${selectedShopId}" />
                                         </c:if>
                                         <c:if test="${shopId eq 'all'}">
                                             <input type="hidden" name="shopId" value="all" />

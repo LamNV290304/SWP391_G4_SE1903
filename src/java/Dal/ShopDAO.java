@@ -142,6 +142,30 @@ public class ShopDAO {
 
     return null;
 }
+    public static void main(String[] args) {
 
+        Connection dbConnection = null;
+        try {
+
+            DBContext dbContext = new DBContext("ShopDB_SWPP");
+            dbConnection = dbContext.getConnection();
+
+            if (dbConnection != null) {
+                System.out.println("Kết nối cơ sở dữ liệu thành công!");
+
+                ShopDAO dao = new ShopDAO(dbConnection);
+
+            
+                List<Shop> all = dao.getAllShops();
+                for (Shop shop : all) {
+                    System.out.println(shop.getShopName());
+                }
+               
+            }
+        } catch (Exception ex) {
+            System.err.println("Lỗi khi đóng kết nối: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
 }
 
