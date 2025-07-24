@@ -141,7 +141,6 @@ public class LoyalCustomerServlet extends HttpServlet {
             searchKeyword = "";
         }
 
-        // Xử lý phân trang
         String pageParam = request.getParameter("page");
         int page = 1;
         try {

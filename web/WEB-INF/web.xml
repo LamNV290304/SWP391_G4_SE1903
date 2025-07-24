@@ -27,6 +27,8 @@
     <servlet>
         <servlet-name>BirthdayReportServlet</servlet-name>
         <servlet-class>Controller.BirthdayReportServlet</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>Home</servlet-name>
         <servlet-class>Controller.Home</servlet-class>
     </servlet>
@@ -57,6 +59,8 @@
     <servlet-mapping>
         <servlet-name>BirthdayReportServlet</servlet-name>
         <url-pattern>/BirthdayReportServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>Home</servlet-name>
         <url-pattern>/Home</url-pattern>
     </servlet-mapping>
