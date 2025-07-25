@@ -167,7 +167,8 @@ public class AddEmployee extends HttpServlet {
             } catch (SQLException ex) {
                 Logger.getLogger(AddEmployee.class.getName()).log(Level.SEVERE, null, ex);
             }
-
+            
+            request.getSession().setAttribute("successMessage", "Thêm nhân viên thành công");
             response.sendRedirect("ShowEmployeeList");
         } catch (NumberFormatException ex) {
             throw new ServletException(ex);
