@@ -60,6 +60,10 @@ public class Logout extends HttpServlet {
 
         if (session != null) {
             session.removeAttribute("Employee");
+        } 
+        
+        if (session == null){
+            response.sendRedirect("SaleSphere");
         }
 
         response.sendRedirect("login.jsp");
