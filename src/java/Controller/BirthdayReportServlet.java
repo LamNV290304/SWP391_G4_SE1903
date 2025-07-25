@@ -31,19 +31,27 @@ import javax.mail.MessagingException;
  */
 public class BirthdayReportServlet extends HttpServlet {
 
-    DBContext db = new DBContext("ShopDB_SWPP");
-    private CustomerDAO cDAO = new CustomerDAO(db.getConnection());
-    private PromotionDAO pDAO = new PromotionDAO(db.getConnection());
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+    private CustomerDAO cDAO;
+    private PromotionDAO pDAO;
+
+    public boolean init(HttpServletRequest request, HttpServletResponse response) {
+        String databaseName = (String) request.getSession().getAttribute("databaseName");
+        if (databaseName == null) {
+            try {
+                request.getRequestDispatcher("login.jsp").forward(request, response);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return false;
+        }
+        DBContext connection = new DBContext(databaseName);
+        cDAO = new CustomerDAO(connection.getConnection());
+        pDAO = new PromotionDAO(connection.getConnection());
+
+        return true;
+    }
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -61,7 +69,6 @@ public class BirthdayReportServlet extends HttpServlet {
             if (searchKeyword == null) {
                 searchKeyword = "";
             }
-
             Date fromDate, toDate;
             Integer monthFilter = null;
             LocalDate today = LocalDate.now();
