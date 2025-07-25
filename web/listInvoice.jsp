@@ -112,7 +112,7 @@
                                                 <th>Ngày tạo</th>
                                                 <th>Tổng tiền</th>
                                                 <th>Trạng thái</th>
-                                                <th>Ghi chú</th>
+                                               
                                                 <th>Thao tác</th>
                                             </tr>
                                         </thead>
@@ -144,7 +144,7 @@
                                                             </c:otherwise>
                                                         </c:choose>
                                                     </td>
-                                                    <td>${inv.note}</td>
+                                                  
                                                     <td>
                                                         <div class="dropdown">
                                                             <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
