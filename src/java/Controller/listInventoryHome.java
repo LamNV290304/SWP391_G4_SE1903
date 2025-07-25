@@ -7,6 +7,7 @@ package Controller;
 
 import Dal.InventoryDAO;
 import Models.Inventory;
+import Utils.AccessControlUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -37,6 +38,14 @@ response.setContentType("text/html; charset=UTF-8");
 String databaseName = (String) request.getSession().getAttribute("databaseName");
            Context.DBContext db = new Context.DBContext(databaseName); // hoặc dùng constructor mặc định nếu bạn đã sửa
         Connection connection = db.getConnection();
+        if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
+
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
         InventoryDAO dao = new InventoryDAO(connection);
          
         List<Inventory> inventoryList = dao.getAllInventories();

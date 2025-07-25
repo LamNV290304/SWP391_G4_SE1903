@@ -8,6 +8,7 @@ import Models.Inventory;
 import Models.Product;
 import Models.Shop;
 import Context.DBContext;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.util.*;
 import java.sql.PreparedStatement;
@@ -223,6 +224,22 @@ public class InventoryDAO {
         }
         return list;
     }
+public int countProductsInStockByShop(int shopId, int minQuantity, int maxQuantity) {
+    String sql = "SELECT COUNT(DISTINCT ProductID) FROM Inventory WHERE ShopID = ? AND Quantity BETWEEN ? AND ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, shopId);
+        ps.setInt(2, minQuantity);
+        ps.setInt(3, maxQuantity);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
 
     public List<Inventory> getAllInventoriesInProductIDAndStoreID(int search, int storeId) {
         List<Inventory> list = new ArrayList<>();
@@ -366,6 +383,39 @@ public int getQuantityBy(int productID, int shopID) {
         }
     } catch (SQLException e) {
         Logger.getLogger(InventoryDAO.class.getName()).log(Level.SEVERE, null, e);
+    }
+    return 0;
+}
+public BigDecimal getTotalQuantityByShop(int shopId) {
+   String sql = "SELECT SUM(i.Quantity * p.ImportPrice) AS TotalValue "
+               + "FROM Inventory i "
+               + "JOIN Product p ON i.ProductID = p.ProductID "
+               + "WHERE i.ShopID = ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, shopId);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                BigDecimal total = rs.getBigDecimal("TotalValue");
+                return total != null ? total : BigDecimal.ZERO;
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return BigDecimal.ZERO;
+}
+public int getInventoryQuantityByProductAndShop(int productId, int shopId) {
+    String sql = "SELECT SUM(Quantity) FROM Inventory WHERE ProductID = ? AND ShopID = ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, productId);
+        ps.setInt(2, shopId);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1); // Nếu không có bản ghi, sẽ trả về 0
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
     return 0;
 }

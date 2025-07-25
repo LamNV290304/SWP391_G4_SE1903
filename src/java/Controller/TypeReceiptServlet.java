@@ -11,6 +11,7 @@ import Dal.TypeImportReceiptDAO;
 import Models.Supplier;
 import Models.TypeExportReceipt;
 import Models.TypeImportReceipt;
+import Utils.AccessControlUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -41,6 +42,14 @@ public class TypeReceiptServlet extends HttpServlet {
             throws ServletException, IOException {
         String databaseName = (String) request.getSession().getAttribute("databaseName");
         Connection conn = new DBContext(databaseName).getConnection();
+        if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
+
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
         TypeExportReceiptDAO daoEx = new TypeExportReceiptDAO(conn);
         TypeImportReceiptDAO daoIm = new TypeImportReceiptDAO(conn);
         SupplierDAO supDAO = new SupplierDAO(conn);

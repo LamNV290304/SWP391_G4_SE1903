@@ -8,6 +8,7 @@ package Controller;
 import Context.DBContext;
 import Dal.ShopDAO;
 import Models.Shop;
+import Utils.AccessControlUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -60,6 +61,22 @@ public class ListShopServlet extends HttpServlet {
          try {
              String databaseName = (String) request.getSession().getAttribute("databaseName");
             Connection conn = new DBContext(databaseName).getConnection();
+            if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
+
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
+            if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
+
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
             ShopDAO shopDAO = new ShopDAO(conn);
             List<Shop> list = shopDAO.getAllShops();
              

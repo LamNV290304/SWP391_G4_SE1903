@@ -21,6 +21,7 @@ import Models.ImportReceiptDetail;
 import Models.Inventory;
 import Models.InventoryCheck;
 import Models.InventoryCheckDetail;
+import Utils.AccessControlUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -56,6 +57,14 @@ public class InventoryCheckServlet extends HttpServlet {
             throws ServletException, IOException, SQLException {
         String databaseName = (String) request.getSession().getAttribute("databaseName");
         DBContext connection = new DBContext(databaseName);
+        if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
+
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
         InventoryCheckDAO dao = new InventoryCheckDAO(connection.getConnection());
         EmployeeDAO daoEmp = new EmployeeDAO(connection.getConnection());
         ShopDAO daoShop = new ShopDAO(connection.getConnection());
@@ -137,6 +146,14 @@ public class InventoryCheckServlet extends HttpServlet {
         if (action != null && receiptIdRaw != null) {
             String databaseName = (String) request.getSession().getAttribute("databaseName");
             try (Connection conn = new DBContext(databaseName).getConnection()) {
+                if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
+
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
                 InventoryCheckDAO inventoryCheckDAO = new InventoryCheckDAO(conn);
                 InventoryCheckDetailDAO detailDAO = new InventoryCheckDetailDAO(conn);
                 InventoryDAO inventoryDAO = new InventoryDAO(conn);

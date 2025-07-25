@@ -19,6 +19,7 @@ import Models.ExportReceiptDetail;
 import Models.Inventory;
 import Models.InventoryCheck;
 import Models.InventoryCheckDetail;
+import Utils.AccessControlUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -56,7 +57,17 @@ public class AddInventoryCheck extends HttpServlet {
             throws ServletException, IOException {
         try {
             response.setContentType("text/html;charset=UTF-8");
-            Connection conn = new DBContext("Test").getConnection();
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
+            response.setContentType("text/html;charset=UTF-8");
+            if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
+
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
+            Connection conn = new DBContext(databaseName).getConnection();
             EmployeeDAO empDao = new EmployeeDAO(conn);
             ShopDAO shopDao = new ShopDAO(conn);
             SupplierDAO supDAO = new SupplierDAO(conn);
@@ -138,7 +149,18 @@ public class AddInventoryCheck extends HttpServlet {
 
         String note = request.getParameter("note");
 
-        try (Connection conn = new DBContext("Test").getConnection()) {
+        try {
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
+            response.setContentType("text/html;charset=UTF-8");
+            if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
+
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
+            Connection conn = new DBContext(databaseName).getConnection();
             InventoryCheckDAO inventoryCheckDao = new InventoryCheckDAO(conn);
             InventoryDAO inventoryDAO = new InventoryDAO(conn);
 

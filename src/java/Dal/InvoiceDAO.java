@@ -52,12 +52,18 @@ public class InvoiceDAO {
         }
         return totalAmount;
     }
-   public double getTotalAmountDateRange(Date fromDate, Date toDate) {
+   public double getTotalAmountDateRange(int shopId, Date fromDate, Date toDate) {
     double total = 0;
-    String sql = "SELECT SUM(Amount) FROM ReceiptVoucher WHERE CreatedDate BETWEEN ? AND ?";
+    String sql = "SELECT SUM(TotalAmount) FROM Invoice WHERE InvoiceDate BETWEEN ? AND ?"
+               + (shopId > 0 ? " AND ShopID = ?" : "");
+
     try (PreparedStatement ps = connection.prepareStatement(sql)) {
         ps.setDate(1, new java.sql.Date(fromDate.getTime()));
         ps.setDate(2, new java.sql.Date(toDate.getTime()));
+        if (shopId > 0) {
+            ps.setInt(3, shopId);
+        }
+
         ResultSet rs = ps.executeQuery();
         if (rs.next()) {
             total = rs.getDouble(1);
@@ -241,7 +247,7 @@ public class InvoiceDAO {
 
 
 
-public double getRevenueChangePercent(Date from, Date to) throws SQLException {
+public double getRevenueChangePercent(Date from, Date to,int shopId) throws SQLException {
     // ví dụ: so sánh từDate với 1 ngày trước đó
     LocalDate f = from.toLocalDate();
     LocalDate t = to.toLocalDate();
@@ -254,16 +260,22 @@ public double getRevenueChangePercent(Date from, Date to) throws SQLException {
     ResultSet rsPrev = psPrev.executeQuery();
     double prev = rsPrev.next() ? rsPrev.getDouble(1) : 0.0;
 
-    double current = getTotalAmountDateRange(from, to);
+    double current = getTotalAmountDateRange(shopId,from, to);
     if (prev == 0) return 100.0;
     return ((current - prev) / prev) * 100;
 }
 
-public int countInvoiceByDateRange(Date fromDate, Date toDate) {
-    String sql = "SELECT COUNT(*) FROM Invoice WHERE InvoiceDate BETWEEN ? AND ?";
+public int countInvoiceByDateRange(Date fromDate, Date toDate, int shopId) {
+    String sql = "SELECT COUNT(*) FROM Invoice WHERE InvoiceDate BETWEEN ? AND ?"
+               + (shopId > 0 ? " AND ShopID = ?" : "");
+
     try (PreparedStatement ps = connection.prepareStatement(sql)) {
         ps.setDate(1, fromDate);
         ps.setDate(2, toDate);
+        if (shopId > 0) {
+            ps.setInt(3, shopId);
+        }
+
         try (ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt(1);
@@ -274,6 +286,7 @@ public int countInvoiceByDateRange(Date fromDate, Date toDate) {
     }
     return 0;
 }
+
 
     public List<Invoice> getInvoicesByCustomerID(int customerID) {
         List<Invoice> list = new ArrayList<>();
