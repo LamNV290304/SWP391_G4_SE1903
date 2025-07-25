@@ -72,7 +72,6 @@ public class ShowShopDetail extends HttpServlet {
                 return;
             }
             
-            
             int shopOwnerId = Integer.parseInt(request.getParameter("Id"));     
             
             ShopOwnerDAO shopOwnerDAO = new ShopOwnerDAO(DBContext.getCentralConnection());
