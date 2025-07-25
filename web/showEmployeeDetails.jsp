@@ -92,19 +92,19 @@
                                     <div class="mt-4 d-flex justify-content-between">
                                         <a href="ShowEmployeeList" class="btn btn-outline-secondary"><i class="bx bx-arrow-back"></i> Quay lại danh sách</a>
                                         <c:if test="${sessionScope.grantedPages['UpdateEmployeeDetails']}">
-                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editEmployeeModal">
-                                            <i class="bx bx-edit-alt"></i> Chỉnh sửa
-                                        </button>
-                                        <c:if>
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editEmployeeModal">
+                                                <i class="bx bx-edit-alt"></i> Chỉnh sửa
+                                            </button>
+                                        </c:if>
                                     </div>
                                 </div>
                             </div>
-
                         </div>
 
-                        <!-- Footer -->
-                        <jsp:include page="footer.jsp" />
                     </div>
+
+                    <!-- Footer -->
+                    <jsp:include page="footer.jsp" />
                 </div>
             </div>
         </div>
@@ -181,4 +181,3 @@
         <script src="./assets/js/main.js"></script>
     </body>
 </html>
- 
