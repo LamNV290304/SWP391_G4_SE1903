@@ -196,8 +196,12 @@
 
 
         <!-- Forms -->
+        <!-- Forms -->
         <c:if test="${sessionScope.grantedPages['InvoiceServlet'] 
-                      or sessionScope.grantedPages['StatisticServlet']}">
+                      or sessionScope.grantedPages['StatisticServlet']
+                      or sessionScope.grantedPages['LoyalCustomerServlet']
+                      or sessionScope.grantedPages['PromotionServlet']
+                      or sessionScope.grantedPages['BirthdayReportServlet']}">
               <li class="menu-item">
                   <a href="javascript:void(0);" class="menu-link menu-toggle">
                       <i class="menu-icon tf-icons bx bx-detail"></i>
@@ -218,19 +222,33 @@
                               </a>
                           </li>
                       </c:if>
+                      <c:if test="${sessionScope.grantedPages['LoyalCustomerServlet']}">
+                          <li class="menu-item">
+                              <a href="LoyalCustomerServlet" class="menu-link">
+                                  <div data-i18n="Vertical Form">Khách Hàng Thân Thiết</div>
+                              </a>
+                          </li>
+                      </c:if>
+                      <c:if test="${sessionScope.grantedPages['PromotionServlet']}">
+                          <li class="menu-item">
+                              <a href="PromotionServlet" class="menu-link">
+                                  <div data-i18n="Horizontal Form">Chương Trình Khuyến Mãi</div>
+                              </a>
+                          </li>
+                      </c:if>
+                      <c:if test="${sessionScope.grantedPages['BirthdayReportServlet']}">
+                          <li class="menu-item">
+                              <a href="BirthdayReportServlet" class="menu-link">
+                                  <div data-i18n="Horizontal Form">Sinh Nhật Khách Hàng</div>
+                              </a>
+                          </li>
+                      </c:if>
                   </ul>
               </li>
         </c:if>
 
-                    <a href="InvoiceServlet" class="menu-link">
-                        <div data-i18n="Vertical Form">Danh sách hóa đơn </div>
 
-                    </a>
-                </li>
-                
-            </ul>
-        </li>
-        <li class="menu-header small text-uppercase"><span class="menu-header-text">Đồ dùng cửa hàng</span></li>
+
         <c:if test="${sessionScope.grantedPages['ShopItemServlet'] 
                       or sessionScope.grantedPages['ItemCategoryServlet'] 
                       or sessionScope.grantedPages['ReportItemServlet']}">
@@ -298,48 +316,6 @@
                   </ul>
               </li>
         </c:if>
-
-                    <a href="PaymentVoucherServlet" class="menu-link">
-                        <div >Phiếu Chi </div>
-
-                    </a>
-                    <a href="TypeVoucherServlet" class="menu-link">
-                        <div >Thiết lập thu chi</div>
-
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <li class="menu-header small text-uppercase"><span class="menu-header-text">Thống Kê</span></li>
-         <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-detail"></i>
-                <div data-i18n="Form Layouts">Thống Kê</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="LoyalCustomerServlet" class="menu-link">
-                        <div data-i18n="Vertical Form">Khách Hàng Thân Thiết </div>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="StatisticServlet" class="menu-link">
-                        <div data-i18n="Horizontal Form">Bán Hàng</div>
-                    </a>
-                </li>
-                 <li class="menu-item">
-                    <a href="PromotionServlet" class="menu-link">
-                        <div data-i18n="Horizontal Form">Chương Trình Khuyến Mãi</div>
-                    </a>
-                </li>
-                 <li class="menu-item">
-                    <a href="BirthdayReportServlet" class="menu-link">
-                        <div data-i18n="Horizontal Form">Sinh Nhật Khách Hàng</div>
-                    </a>
-                </li>
-       
-            </ul>
-        </li>
         <!-- Misc -->
         <li class="menu-header small text-uppercase"><span class="menu-header-text">Misc</span></li>
         <li class="menu-item">

@@ -166,7 +166,20 @@ public final class DatabaseHelper {
             [Address] NVARCHAR(255),
             Status BIT DEFAULT 1,
             CreatedDate DATETIME DEFAULT GETDATE(),
-            CreatedBy NVARCHAR(100)
+            CreatedBy NVARCHAR(100),
+        	Birthday DATE
+        );
+        CREATE TABLE Promotion (
+            PromotionID INT PRIMARY KEY IDENTITY(1,1),
+            PromotionName NVARCHAR(255) NOT NULL,
+            StartDate DATE NOT NULL,
+            EndDate DATE NOT NULL,
+            Status BIT NOT NULL, 
+            CreatedDate DATETIME DEFAULT GETDATE(),
+            CreatedBy NVARCHAR(100),
+            DiscountRate FLOAT NOT NULL DEFAULT 0,
+            CategoryID INT NULL,
+            FOREIGN KEY (CategoryID) REFERENCES Category(CategoryID)
         );
         CREATE TABLE Supplier (
             SupplierID INT IDENTITY(1,1) PRIMARY KEY,
@@ -484,13 +497,6 @@ public final class DatabaseHelper {
         
             FOREIGN KEY (SalaryID) REFERENCES Salary(SalaryID),
             FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID)
-        );        
-        CREATE TABLE OTPs (
-            Id INT IDENTITY(1,1) PRIMARY KEY,
-            Email NVARCHAR(100) NOT NULL,
-            OTP CHAR(6) NOT NULL,
-            ExpiredAt DATETIME NOT NULL,
-            Status INT DEFAULT 0
         );
                                         """;
 
