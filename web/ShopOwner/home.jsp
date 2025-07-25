@@ -60,7 +60,7 @@
                                 <div class="alert alert-success">${sessionScope.flash_success}</div>
                                 <c:remove var="flash_success" scope="session" />
                             </c:if>
-                            <c:if test="${not empty sessionScope.flash_success}">
+                            <c:if test="${not empty sessionScope.flash_fail}">
                                 <div class="alert alert-danger">${sessionScope.flash_fail}</div>
                                 <c:remove var="flash_fail" scope="session" />
                             </c:if>
@@ -68,67 +68,73 @@
                             <!-- Danh sách gói -->
                             <div class="row">
                                 <c:forEach var="pkg" items="${packages}">
-                                    <div class="col-md-6 col-lg-4 mb-4">
-                                        <div class="card h-100">
-                                            <div class="card-body text-center">
-                                                <h5 class="card-title">${pkg.name}</h5>
-                                                <p class="text-muted mb-1">Thời hạn: <strong>${pkg.durationInDays}</strong> ngày</p>
-                                                <p class="text-muted">Giá: <strong><fmt:formatNumber value="${pkg.price}" type="currency" currencySymbol="₫"/></strong></p>
-                                                <p class="mb-3">${pkg.description}</p>
+                                    <c:if test="${sessionScope.shopOwner.id == 1 || pkg.status}">
+                                        <div class="col-md-6 col-lg-4 mb-4">
+                                            <div class="card h-100">
+                                                <div class="card-body text-center">
+                                                    <h5 class="card-title">${pkg.name}</h5>
+                                                    <p class="text-muted mb-1">Thời hạn: <strong>${pkg.durationInDays}</strong> ngày</p>
+                                                    <p class="text-muted">Giá: <strong><fmt:formatNumber value="${pkg.price}" type="currency" currencySymbol="₫"/></strong></p>
+                                                    <p class="mb-3">${pkg.description}</p>
 
-                                                <!-- Admin: chỉnh sửa -->
-                                                <c:if test="${sessionScope.shopOwner.id == 1}">
-                                                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editModal${pkg.id}">
-                                                        Chỉnh sửa gói
-                                                    </button>
-                                                </c:if>
+                                                    <!-- Admin: chỉnh sửa -->
+                                                    <c:if test="${sessionScope.shopOwner.id == 1}">
+                                                        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editModal${pkg.id}">
+                                                            Chỉnh sửa gói
+                                                        </button>
+                                                    </c:if>
 
-                                                <!-- Người dùng thường: chọn gói -->
-                                                <c:if test="${sessionScope.shopOwner.id != 1}">
-                                                    <form method="post" action="RegisterPackage"
-                                                          onsubmit="${hasActivePackage ? 'return confirmChangePackage();' : ''}">
-                                                        <input type="hidden" name="packageId" value="${pkg.id}" />
-                                                        <button type="submit" class="btn btn-primary">Chọn gói</button>
-                                                    </form>
-                                                </c:if>
+                                                    <!-- Người dùng thường: chọn gói -->
+                                                    <c:if test="${sessionScope.shopOwner.id != 1}">
+                                                        <form method="post" action="RegisterPackage"
+                                                              onsubmit="${hasActivePackage ? 'return confirmChangePackage();' : ''}">
+                                                            <input type="hidden" name="packageId" value="${pkg.id}" />
+                                                            <button type="submit" class="btn btn-primary">Chọn gói</button>
+                                                        </form>
+                                                    </c:if>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <!-- Modal chỉnh sửa -->
-                                    <div class="modal fade" id="editModal${pkg.id}" tabindex="-1" aria-labelledby="editModalLabel${pkg.id}" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <form action="EditPackage" method="post" class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="editModalLabel${pkg.id}">Chỉnh sửa: ${pkg.name}</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <input type="hidden" name="id" value="${pkg.id}" />
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Tên gói</label>
-                                                        <input type="text" name="name" class="form-control" value="${pkg.name}" required />
+                                        <!-- Modal chỉnh sửa -->
+                                        <div class="modal fade" id="editModal${pkg.id}" tabindex="-1" aria-labelledby="editModalLabel${pkg.id}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <form action="EditPackage" method="post" class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="editModalLabel${pkg.id}">Chỉnh sửa: ${pkg.name}</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                     </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Thời hạn (ngày)</label>
-                                                        <input type="number" name="durationInDays" class="form-control" value="${pkg.durationInDays}" required />
+                                                    <div class="modal-body">
+                                                        <input type="hidden" name="id" value="${pkg.id}" />
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Tên gói</label>
+                                                            <input type="text" name="name" class="form-control" value="${pkg.name}" required />
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Thời hạn (ngày)</label>
+                                                            <input type="number" name="durationInDays" class="form-control" value="${pkg.durationInDays}" required />
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Giá</label>
+                                                            <input type="number" name="price" class="form-control" value="${pkg.price}" required />
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Mô tả</label>
+                                                            <textarea name="description" class="form-control" rows="3">${pkg.description}</textarea>
+                                                        </div>
+                                                        <div class="form-check mb-3">
+                                                            <input class="form-check-input" type="checkbox" name="status" id="status${pkg.id}" ${pkg.status ? 'checked' : ''} />
+                                                            <label class="form-check-label" for="status${pkg.id}">Kích hoạt gói</label>
+                                                        </div>
                                                     </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Giá</label>
-                                                        <input type="number" name="price" class="form-control" value="${pkg.price}" required />
+                                                    <div class="modal-footer">
+                                                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                                                     </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Mô tả</label>
-                                                        <textarea name="description" class="form-control" rows="3">${pkg.description}</textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                                </div>
-                                            </form>
+                                                </form>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </c:if>
                                 </c:forEach>
                             </div>
                         </div>

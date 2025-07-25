@@ -41,52 +41,6 @@ public class ChangePasswordShopOwner extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, ClassNotFoundException {
 
-        HttpSession session = request.getSession();
-        ShopOwner loggedInOwner = (ShopOwner) session.getAttribute("shopOwner");
-
-        if (loggedInOwner == null) {
-            response.sendRedirect(request.getContextPath() + "/SaleSphere");
-            return;
-        }
-
-        String currentPassword = request.getParameter("currentPassword");
-        String newPassword = request.getParameter("newPassword");
-        String confirmPassword = request.getParameter("confirmPassword");
-
-        if (!newPassword.equals(confirmPassword)) {
-            session.setAttribute("errorMessage", "Mật khẩu mới và xác nhận không khớp.");
-            response.sendRedirect("ShopOwner/changePasswordCentral.jsp");
-            return;
-        }
-
-        try (Connection conn = new DBContext("CentralDB").getConnection()) {
-            ShopOwnerDAO dao = new ShopOwnerDAO(conn);
-
-            // Kiểm tra mật khẩu hiện tại
-            boolean isCorrect = dao.checkPasswordShopOwner(loggedInOwner.getId(), currentPassword);
-            if (!isCorrect) {
-                session.setAttribute("errorMessage", "Mật khẩu hiện tại không đúng.");
-                response.sendRedirect("ShopOwner/changePasswordCentral.jsp");
-                return;
-            }
-
-            String hashedPassword = PasswordUtils.hashPassword(newPassword);
-            dao.updatePasswordByUsername(loggedInOwner.getUsername(), hashedPassword);
-
-            Connection shopConn = Context.DBContext.getConnection(loggedInOwner.getDatabaseName());
-            EmployeeDAO shopDAO = new EmployeeDAO(shopConn);
-
-            shopDAO.updatePassword(loggedInOwner.getId(), hashedPassword);
-
-            session.setAttribute("successMessage", "Đổi mật khẩu thành công!");
-            response.sendRedirect("ShopOwner/changePasswordCentral.jsp");
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            session.setAttribute("errorMessage", "Có lỗi xảy ra. Vui lòng thử lại sau.");
-            response.sendRedirect("ShopOwner/changePasswordCentral.jsp");
-        }
-
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -101,11 +55,7 @@ public class ChangePasswordShopOwner extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
-            processRequest(request, response);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(ChangePasswordShopOwner.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        request.getRequestDispatcher("ShopOwner/changePasswordCentral.jsp").forward(request, response);
     }
 
     /**
@@ -119,10 +69,59 @@ public class ChangePasswordShopOwner extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
-            processRequest(request, response);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(ChangePasswordShopOwner.class.getName()).log(Level.SEVERE, null, ex);
+        HttpSession session = request.getSession();
+        ShopOwner loggedInOwner = (ShopOwner) session.getAttribute("shopOwner");
+
+        if (loggedInOwner == null) {
+            response.sendRedirect("SaleSphere");
+            return;
+        }
+
+        String currentPassword = request.getParameter("currentPassword");
+        String newPassword = request.getParameter("newPassword");
+        String confirmPassword = request.getParameter("confirmPassword");
+
+        if (!newPassword.equals(confirmPassword)) {
+            session.setAttribute("errorMessage", "Mật khẩu mới và xác nhận không khớp.");
+            request.getRequestDispatcher("ShopOwner/changePasswordCentral.jsp").forward(request, response);
+            return;
+        }
+
+        try (Connection conn = new DBContext("CentralDB").getConnection()) {
+            ShopOwnerDAO dao = new ShopOwnerDAO(conn);
+
+            // Kiểm tra mật khẩu hiện tại
+            boolean isCorrect = dao.checkPasswordShopOwner(loggedInOwner.getId(), currentPassword);
+            if (!isCorrect) {
+                session.setAttribute("errorMessage", "Mật khẩu hiện tại không đúng.");
+                request.getRequestDispatcher("ShopOwner/changePasswordCentral.jsp").forward(request, response);
+                return;
+            }
+
+            String hashedPassword = PasswordUtils.hashPassword(newPassword);
+            dao.updatePasswordByUsername(loggedInOwner.getUsername(), hashedPassword);
+
+            if (loggedInOwner.getDatabaseName().equals("CentralDB")) {
+                session.setAttribute("successMessage", "Đổi mật khẩu thành công!");
+                request.getRequestDispatcher("ShopOwner/changePasswordCentral.jsp").forward(request, response);
+                return;
+            }
+            Connection shopConn = Context.DBContext.getConnection(loggedInOwner.getDatabaseName());
+            EmployeeDAO shopDAO = new EmployeeDAO(shopConn);
+
+            shopDAO.updatePassword(loggedInOwner.getId(), hashedPassword);
+
+            session.setAttribute("successMessage", "Đổi mật khẩu thành công!");
+            request.getRequestDispatcher("ShopOwner/changePasswordCentral.jsp").forward(request, response);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            session.setAttribute("errorMessage", "Có lỗi xảy ra. Vui lòng thử lại sau.");
+            request.getRequestDispatcher("ShopOwner/changePasswordCentral.jsp").forward(request, response);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            session.setAttribute("errorMessage", "Có lỗi xảy ra. Vui lòng thử lại sau.");
+            request.getRequestDispatcher("ShopOwner/changePasswordCentral.jsp").forward(request, response);
         }
     }
 

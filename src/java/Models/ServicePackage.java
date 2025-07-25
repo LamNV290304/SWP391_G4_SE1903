@@ -14,17 +14,29 @@ public class ServicePackage {
     private int durationInDays;
     private double price;
     private String description;
+    private boolean status;
 
     public ServicePackage() {
     }
 
-    public ServicePackage(int id, String name, int durationInDays, double price, String description) {
+    public ServicePackage(int id, String name, int durationInDays, double price, String description, boolean status) {
         this.id = id;
         this.name = name;
         this.durationInDays = durationInDays;
         this.price = price;
         this.description = description;
+        this.status = status;
     }
+
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
+
+    
 
     public int getId() {
         return id;

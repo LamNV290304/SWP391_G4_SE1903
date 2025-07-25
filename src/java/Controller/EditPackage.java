@@ -88,8 +88,9 @@ public class EditPackage extends HttpServlet {
             int duration = Integer.parseInt(request.getParameter("durationInDays"));
             double price = Double.parseDouble(request.getParameter("price"));
             String description = request.getParameter("description");
+            boolean status = request.getParameter("status") != null;
 
-            ServicePackage pkg = new ServicePackage(id, name, duration, price, description);
+            ServicePackage pkg = new ServicePackage(id, name, duration, price, description, status);
 
             ServicePackageDAO dao = new ServicePackageDAO(DBContext.getCentralConnection());
             boolean updated = dao.updatePackage(pkg);
