@@ -6,6 +6,7 @@ package Controller;
 
 import Context.DBContext;
 import Dal.EmployeeDAO;
+import Utils.AccessControlUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -36,6 +37,15 @@ public class UpdateStatusEmployee extends HttpServlet {
             throws ServletException, IOException {
         try {
             String databaseName = (String) request.getSession().getAttribute("databaseName");
+            
+            if (databaseName == null) {
+                response.sendRedirect("SaleSphere");
+            }
+
+            if (!AccessControlUtil.hasPermission(request, "UpdateStatusEmployee")) {
+                response.sendRedirect("loginEmployee.jsp");
+                return;
+            }
 
             Connection conn = DBContext.getConnection(databaseName);
             EmployeeDAO employeeDAO = new EmployeeDAO(conn);
