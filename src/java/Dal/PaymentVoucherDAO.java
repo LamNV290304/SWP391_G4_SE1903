@@ -72,6 +72,39 @@ public class PaymentVoucherDAO {
 
         return false;
     }
+// Tính tổng số tiền đã chi trong khoảng ngày
+public double getTotalExpense(java.sql.Date fromDate, java.sql.Date toDate) {
+    String sql = "SELECT SUM(Amount) AS Total FROM PaymentVoucher WHERE CreatedDate BETWEEN ? AND ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setDate(1, fromDate);
+        ps.setDate(2, toDate);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getDouble("Total");
+            }
+        }
+    } catch (SQLException ex) {
+        Logger.getLogger(PaymentVoucherDAO.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    return 0;
+}
+
+// Đếm số lượng phiếu chi trong khoảng ngày
+public int countPaymentVouchers(java.sql.Date fromDate, java.sql.Date toDate) {
+    String sql = "SELECT COUNT(*) AS Count FROM PaymentVoucher WHERE CreatedDate BETWEEN ? AND ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setDate(1, fromDate);
+        ps.setDate(2, toDate);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("Count");
+            }
+        }
+    } catch (SQLException ex) {
+        Logger.getLogger(PaymentVoucherDAO.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    return 0;
+}
 
     // Lấy phiếu chi theo ID
     public PaymentVoucher getPaymentVoucherByID(int id) {

@@ -17,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +52,22 @@ public class InvoiceDAO {
         }
         return totalAmount;
     }
+   public double getTotalAmountDateRange(Date fromDate, Date toDate) {
+    double total = 0;
+    String sql = "SELECT SUM(Amount) FROM ReceiptVoucher WHERE CreatedDate BETWEEN ? AND ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setDate(1, new java.sql.Date(fromDate.getTime()));
+        ps.setDate(2, new java.sql.Date(toDate.getTime()));
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            total = rs.getDouble(1);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return total;
+}
+
 
     public int getTotalQuantityByShopAndDateRange(int shopId, Date startDate, Date endDate) throws SQLException {
         int totalQuantity = 0;
@@ -213,6 +230,50 @@ public class InvoiceDAO {
         }
         return null;
     }
+    public int countDistinctCustomers(Date from, Date to) throws SQLException {
+    String sql = "SELECT COUNT(DISTINCT CustomerID) FROM Invoice WHERE InvoiceDate BETWEEN ? AND ?";
+    PreparedStatement ps = connection.prepareStatement(sql);
+    ps.setDate(1, from);
+    ps.setDate(2, to);
+    ResultSet rs = ps.executeQuery();
+    return rs.next() ? rs.getInt(1) : 0;
+}
+
+
+
+public double getRevenueChangePercent(Date from, Date to) throws SQLException {
+    // ví dụ: so sánh từDate với 1 ngày trước đó
+    LocalDate f = from.toLocalDate();
+    LocalDate t = to.toLocalDate();
+    LocalDate fPrev = f.minusDays(f.until(t).getDays());
+
+    String sqlPrev = "SELECT SUM(TotalAmount) FROM Invoice WHERE InvoiceDate BETWEEN ? AND ?";
+    PreparedStatement psPrev = connection.prepareStatement(sqlPrev);
+    psPrev.setDate(1, Date.valueOf(fPrev));
+    psPrev.setDate(2, Date.valueOf(f.minusDays(1)));
+    ResultSet rsPrev = psPrev.executeQuery();
+    double prev = rsPrev.next() ? rsPrev.getDouble(1) : 0.0;
+
+    double current = getTotalAmountDateRange(from, to);
+    if (prev == 0) return 100.0;
+    return ((current - prev) / prev) * 100;
+}
+
+public int countInvoiceByDateRange(Date fromDate, Date toDate) {
+    String sql = "SELECT COUNT(*) FROM Invoice WHERE InvoiceDate BETWEEN ? AND ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setDate(1, fromDate);
+        ps.setDate(2, toDate);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
 
     public List<Invoice> getInvoicesByCustomerID(int customerID) {
         List<Invoice> list = new ArrayList<>();

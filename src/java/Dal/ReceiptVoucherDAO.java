@@ -172,7 +172,7 @@ public List<ReceiptVoucher> filterReceiptVouchers(
 
     // Test nhanh
     public static void main(String[] args) {
-        try (Connection conn = new DBContext("Test").getConnection()) {
+        try (Connection conn = new DBContext("ShopDB_Go1").getConnection()) {
             ReceiptVoucherDAO dao = new ReceiptVoucherDAO(conn);
             List<ReceiptVoucher> list = dao.getAllReceiptVouchers();
             for (ReceiptVoucher rv : list) {

@@ -83,7 +83,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         <div class="card-body">
           <div class="mb-3">
             <label for="receiptId" class="form-label">Mã Nhân Viên</label>
-            <input type="text" name="EmployeeID" class="form-control" id="receiptId" placeholder="PN001" />
+            <input type="text" name="EmployeeID" class="form-control" value="${sessionScope.Employee.id}" readonly />
           </div>
           <div class="mb-3">
             <label for="warehouse" class="form-label">Kho Kiểm kê</label>

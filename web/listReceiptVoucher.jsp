@@ -2,6 +2,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
+
+
 <!DOCTYPE html>
 <c:if test="${empty sessionScope.Employee}">
     <c:redirect url="loginEmployee.jsp"/>
@@ -144,11 +146,10 @@
                                             </div>
                                         </form>
                                         <div class="col-md-2 text-end">
-                                            <form method="post" action="AddReceiptPayment" >
-                                                <button type="submit" class="btn btn-primary">
-                                                    <i class="bx bx-filter-alt me-1"></i> Thêm mới phiếu thu
-                                                </button>
-                                            </form>
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+    <i class="bx bx-plus me-1"></i> Thêm mới phiếu thu
+</button>
+
                                         </div>
 
                                         <div class="table-responsive text-nowrap" style="max-height: 500px; overflow-y: auto;">
@@ -195,7 +196,7 @@
                                                                     </c:when>
                                                                     <c:otherwise>—</c:otherwise>
                                                                 </c:choose></td>
-                                                            <td><fmt:formatNumber value="${rv.amount}" type="currency" currencySymbol="₫"/></td>
+                                                            <td><fmt:formatNumber value="${rv.amount}" pattern="#,##0₫" /></td>
                                                             <td>${rv.note}</td>
                                                             <td>
                                                                 <c:choose>
@@ -239,9 +240,103 @@
                                                             </td>
 
                                                         </tr>
+                                                        
                                                     </c:forEach>
                                                 </tbody>
+                                                <tfoot>
+    <tr>
+        <td colspan="5" class="text-end fw-bold">Tổng số tiền:</td>
+        <td colspan="6" class="fw-bold text-danger">
+            <fmt:formatNumber value="${totalAmount}" pattern="#,##0₫" />
+        </td>
+    </tr>
+</tfoot>
                                             </table>
+                                            <!-- Modal Thêm mới phiếu thu -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <form method="post" action="ReceiptVoucherServlet">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thêm mới phiếu thu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body row g-3">
+                    <!-- Không có ID vì là thêm mới -->
+                    <div class="col-md-6">
+                        <label class="form-label">Cửa hàng</label>
+                        <select name="shopID" class="form-select">
+                            <c:forEach var="s" items="${shops}">
+                                <option value="${s.shopID}">${s.shopName}</option>
+                            </c:forEach>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Nhân viên</label>
+                        <input type="text" name="employeeID" class="form-control" value="${sessionScope.Employee.id}" readonly />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Khách hàng</label>
+                        <select name="customerID" class="form-select">
+                            <option value="">—</option>
+                            <c:forEach var="c" items="${customers}">
+                                <option value="${c.customerID}">${c.customerName}</option>
+                            </c:forEach>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Ngày thu</label>
+                        <input type="date" name="receiptDate" class="form-control" required/>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Số tiền</label>
+                        <input type="number" step="0.01" name="amount" class="form-control" required/>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Ghi chú</label>
+                        <input type="text" name="note" class="form-control"/>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Trạng thái</label>
+                        <select name="status" class="form-select">
+                            <option value="true">Đã thu</option>
+                            <option value="false">Hủy</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Loại phiếu</label>
+                        <select name="typeID" class="form-select">
+                            <c:forEach var="t" items="${types}">
+                                <option value="${t.typeID}">${t.typeName}</option>
+                            </c:forEach>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">PT Thanh toán</label>
+                        <select name="paymentMethodID" class="form-select">
+                            <c:forEach var="pm" items="${paymentMethods}">
+                                <option value="${pm.paymentMethodID}">${pm.methodName}</option>
+                            </c:forEach>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success" name="action" value="add">Thêm mới</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
                                             <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
                                                 <div class="modal-dialog modal-lg">
                                                     <form method="post" action="ReceiptVoucherServlet">

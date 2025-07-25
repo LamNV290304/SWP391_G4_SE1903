@@ -196,19 +196,19 @@ public class AddImportReceipt extends HttpServlet {
                 receiptDetailDAO.insertDetail(importDetail);
 
             }
-            int e=0;
             for (ImportReceiptDetail importDetail : listImportDetail) {
 
                 // Kiểm tra và cập nhật tồn kho
-                Inventory inv = inventoryDAO.getInventoryByShopAndProduct(Integer.parseInt(importDetail.getProductID()), Integer.parseInt(shopID_raw));
+                Inventory inv = inventoryDAO.getInventoryByShopAndProductAndLastUpdated(Integer.parseInt(importDetail.getProductID()), Integer.parseInt(shopID_raw),importDate);
 
                 if (inv != null) {
                     
                     int newQty = inv.getQuantity() + importDetail.getQuantity();
 
                     inventoryDAO.updateInventoryQuantity(inv.getInventoryID(), newQty);
-                    productDAO.getProductById(Integer.parseInt(importDetail.getProductID())).setImportPrice(BigDecimal.valueOf(importDetail.getPrice()));
-                    e++;
+                    Product pro = productDAO.getProductById(Integer.parseInt(importDetail.getProductID()));
+                    pro.setImportPrice(BigDecimal.valueOf(importDetail.getPrice()));
+                    productDAO.updateProduct(pro);
                 } else {
                     Inventory newInv = new Inventory();
 
@@ -220,7 +220,9 @@ public class AddImportReceipt extends HttpServlet {
                     newInv.setQuantity(importDetail.getQuantity());
                     newInv.setLastUpdated(Timestamp.from(Instant.now()));
                     inventoryDAO.insertInventory(newInv);
-                    productDAO.getProductById(Integer.parseInt(importDetail.getProductID())).setImportPrice(BigDecimal.valueOf(importDetail.getPrice()));
+                    Product pro = productDAO.getProductById(Integer.parseInt(importDetail.getProductID()));
+                    pro.setImportPrice(BigDecimal.valueOf(importDetail.getPrice()));
+                    productDAO.updateProduct(pro);
                 }
             }
             

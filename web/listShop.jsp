@@ -1,5 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
 <!DOCTYPE html>
 <c:if test="${empty sessionScope.Employee}">
     <c:redirect url="loginEmployee.jsp"/>
@@ -63,7 +65,7 @@
                                     <div class="modal fade" id="addShopModal" tabindex="-1" aria-labelledby="addShopModalLabel" aria-hidden="true">
                                         <div class="modal-dialog modal-lg">
                                             <div class="modal-content">
-                                                <form action="addShop" method="post">
+                                                <form action="ListShopServlet" method="post">
                                                     <div class="modal-header">
                                                         <h5 class="modal-title" id="addShopModalLabel">Thêm cửa hàng mới</h5>
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
@@ -126,7 +128,8 @@
                                                     <td>${s.shopName}</td>
                                                     <td>${s.address}</td>
                                                     <td>${s.phone}</td>
-                                                    <td>${s.createdDate}</td>
+                                                    <td><fmt:formatDate value="${s.createdDate}" pattern="dd-MM-yyyy" /></td>
+
                                                     <td>
                                                         <c:choose>
                                                             <c:when test="${s.status}"><span class="badge bg-success">Hoạt động</span></c:when>
@@ -146,14 +149,11 @@
                                                         </button>
                                                     </td>
                                                 </tr>
-                                            </c:forEach>
-                                        </tbody>
-                                    </table>
-                                    <!-- Modal Sửa -->
+                                                <!-- Modal Sửa -->
                                     <div class="modal fade" id="editShopModal${s.shopID}" tabindex="-1" aria-labelledby="editShopModalLabel${s.shopID}" aria-hidden="true">
                                         <div class="modal-dialog modal-lg">
                                             <div class="modal-content">
-                                                <form action="updateShop" method="post">
+                                                <form action="ListShopServlet" method="post">
                                                     <input type="hidden" name="shopID" value="${s.shopID}">
                                                     <div class="modal-header">
                                                         <h5 class="modal-title" id="editShopModalLabel${s.shopID}">Sửa cửa hàng</h5>
@@ -166,7 +166,7 @@
                                                         </div>
                                                         <div class="mb-3">
                                                             <label class="form-label">Mã cửa hàng</label>
-                                                            <input type="text" class="form-control" name="shopCode" value="${s.shopCode}" required>
+                                                            <input type="text" class="form-control" name="shopCode" value="${s.shopID}" readonly>
                                                         </div>
                                                         <div class="mb-3">
                                                             <label class="form-label">Địa chỉ</label>
@@ -183,8 +183,9 @@
                                                         <div class="mb-3">
                                                             <label class="form-label">Trạng thái</label>
                                                             <select class="form-select" name="status">
-                                                                <option value="1" ${s.status == 1 ? 'selected' : ''}>Đang hoạt động</option>
-                                                                <option value="0" ${s.status == 0 ? 'selected' : ''}>Ngưng hoạt động</option>
+                                                                <option value="true" ${s.status ? 'selected' : ''}>Đang hoạt động</option>
+                                                                s<option value="false" ${!s.status ? 'selected' : ''}>Ngưng hoạt động</option>
+                        
                                                             </select>
                                                         </div>
                                                     </div>
@@ -196,11 +197,11 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <!-- Modal Xóa -->
+                                             <!-- Modal Xóa -->
                                     <div class="modal fade" id="deleteShopModal${s.shopID}" tabindex="-1" aria-labelledby="deleteShopModalLabel${s.shopID}" aria-hidden="true">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
-                                                <form action="deleteShop" method="post">
+                                                <form action="ListShopServlet" method="post">
                                                     <input type="hidden" name="shopID" value="${s.shopID}">
                                                     <div class="modal-header">
                                                         <h5 class="modal-title" id="deleteShopModalLabel${s.shopID}">Xác nhận xóa</h5>
@@ -218,6 +219,11 @@
                                         </div>
                                     </div>
 
+                                            </c:forEach>
+                                        </tbody>
+                                    </table>
+                                    
+                                   
 
                                 </div>
                             </div>

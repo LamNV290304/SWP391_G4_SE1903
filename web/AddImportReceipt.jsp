@@ -53,6 +53,12 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
         <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
         <script src="./assets/js/config.js"></script>
+        <style>
+  .is-invalid {
+    border-color: #dc3545;
+  }
+</style>
+
     </head>
     <body>
         <div  class="layout-wrapper layout-content-navbar">
@@ -82,18 +88,21 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
 
                                             <div class="mb-3">
                                                 <label for="warehouse" class="form-label">Nhà cung cấp</label>
-                                                <select class="form-select" id="warehouse" name="SupplierID">
-                                                    <option selected disabled>Chọn nhà cung cấp</option>
+                                                <select class="form-select" id="warehouse" name="SupplierID" required>
+                                                    <option value="" selected disabled>Chọn nhà cung cấp</option>
                                                     <c:forEach var="lsup" items="${listSup}">
                                                         <option value="${lsup.supplierID}">${lsup.supplierName}</option>
                                                     </c:forEach>
                                                 </select>
+
                                             </div>
 
 
                                             <div class="mb-3">
-                                                <label for="receiptId" class="form-label">Mã Nhân Viên</label>
-                                                <input type="text" name="EmployeeID" class="form-control" id="receiptId" placeholder="PN001" />
+                                                <label for="receiptId" class="form-label">Mã Nhân Viên </label>
+                                                <input type="text" name="EmployeeID" class="form-control" value="${sessionScope.Employee.id}" readonly />
+
+
                                             </div>
                                             <div class="mb-3">
                                                 <label for="warehouse" class="form-label">Kho Nhập</label>
@@ -160,11 +169,11 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                                                                     <input type="text" name="productID[]" class="form-control product-id" placeholder="Nhập mã sản phẩm" required />
                                                                 </td>
                                                                 <td>
-  <div class="d-flex align-items-center gap-2">
-    <input type="text" class="form-control product-name" name="productName[]" readonly />
-    <a href="ListProductServlet" target="_blank" class="btn btn-outline-primary btn-sm add-product-btn d-none">➕</a>
-  </div>
-</td>
+                                                                    <div class="d-flex align-items-center gap-2">
+                                                                        <input type="text" class="form-control product-name" name="productName[]" readonly />
+                                                                        <a href="ListProductServlet" target="_blank" class="btn btn-outline-primary btn-sm add-product-btn d-none">➕</a>
+                                                                    </div>
+                                                                </td>
 
 
                                                                 <td><input type="number" name="quantity[]" class="form-control" required /></td>
@@ -212,31 +221,41 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
 <td><input type="text" name="note[]" class="form-control" required /></td>
 <td><button type="button" class="btn btn-danger btn-sm remove-row">Xóa</button></td>
 `;
-
                                     tableBody.appendChild(newRow);
                                     });
                                     // Tính thành tiền + tổng cộng mỗi khi người dùng nhập số
                                     document.addEventListener("input", function (e) {
-  if (e.target.classList.contains("product-id")) {
-    const row = e.target.closest("tr");
-    const productId = e.target.value.trim();
-    const nameInput = row.querySelector(".product-name");
-    const addBtn = row.querySelector(".add-product-btn");
+                                    if (e.target.classList.contains("product-id")) {
+                                    const row = e.target.closest("tr");
+                                    const productId = e.target.value.trim();
+                                    const nameInput = row.querySelector(".product-name");
+                                    const addBtn = row.querySelector(".add-product-btn");
+                                    if (productMap[productId]) {
+    nameInput.value = productMap[productId];
+    nameInput.readOnly = true;
+    addBtn.classList.add("d-none");
+    nameInput.classList.remove("is-invalid"); // bỏ viền đỏ nếu hợp lệ
+} else {
+    nameInput.value = "";
+    nameInput.readOnly = true;
+    addBtn.classList.remove("d-none");
 
-    if (productMap[productId]) {
-      nameInput.value = productMap[productId];
-      nameInput.readOnly = true;
-      addBtn.classList.add("d-none");
-    } else {
-      nameInput.value = "";
-      nameInput.readOnly = true;
-      addBtn.classList.remove("d-none");
+    nameInput.classList.add("is-invalid");
 
-      // Gán đường dẫn có sẵn mã để
+    // Hiển thị alert nếu chưa có
+    if (!row.querySelector(".product-alert")) {
+        const alert = document.createElement("div");
+        alert.className = "text-danger product-alert mt-1";
+        alert.innerText = "❗ Sản phẩm chưa có trong danh sách. Vui lòng thêm!";
+        nameInput.parentElement.appendChild(alert);
     }
-  }
-});
+}
+// Xóa cảnh báo nếu trước đó có
+const existingAlert = row.querySelector(".product-alert");
+if (existingAlert) existingAlert.remove();
 
+                                    }
+                                    });
                                     // Xóa dòng
                                     document.addEventListener("click", function (e) {
                                     if (e.target.classList.contains("remove-row")) {
@@ -318,19 +337,17 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
     </script>
     <script>
         // Tính thành tiền khi nhập số lượng hoặc đơn giá
-  document.addEventListener("input", function (e) {
-    if (e.target.name === "quantity[]" || e.target.name === "price[]") {
-      const row = e.target.closest("tr");
-      const quantity = parseFloat(row.querySelector('input[name="quantity[]"]').value) || 0;
-      const price = parseFloat(row.querySelector('input[name="price[]"]').value) || 0;
-      const total = quantity * price;
-
-      const totalField = row.querySelector('input[name="total[]"]');
-      totalField.value = formatCurrency(total);
-      
-      calculateGrandTotal(); // Cập nhật tổng cộng
-    }
-  });
+        document.addEventListener("input", function (e) {
+        if (e.target.name === "quantity[]" || e.target.name === "price[]") {
+        const row = e.target.closest("tr");
+        const quantity = parseFloat(row.querySelector('input[name="quantity[]"]').value) || 0;
+        const price = parseFloat(row.querySelector('input[name="price[]"]').value) || 0;
+        const total = quantity * price;
+        const totalField = row.querySelector('input[name="total[]"]');
+        totalField.value = formatCurrency(total);
+        calculateGrandTotal(); // Cập nhật tổng cộng
+        }
+        });
     </script>
 
     <script src="assets/vendor/libs/jquery/jquery.js"></script>

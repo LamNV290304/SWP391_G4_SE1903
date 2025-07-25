@@ -103,7 +103,7 @@ public class TypeImportReceiptDAO {
         return false;
     }
     public static void main(String[] args) {
-          try (Connection conn = new DBContext("Test").getConnection()) {
+          try (Connection conn = new DBContext("ShopDB_Go1").getConnection()) {
         TypeImportReceiptDAO dao = new TypeImportReceiptDAO(conn);
         
 TypeImportReceipt type1 = new TypeImportReceipt("Nhap cho Tanh");

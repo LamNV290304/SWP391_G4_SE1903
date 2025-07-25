@@ -56,6 +56,11 @@ public class ReceiptVoucherServlet extends HttpServlet {
             request.setAttribute("employees", employeeDAO.getAllEmployee());
             request.setAttribute("customers", customerDAO.getAllCustomer());
             request.setAttribute("types", typeReceipt.getAllTypes(1));
+            BigDecimal totalAmount = BigDecimal.ZERO;
+for (ReceiptVoucher rv : vouchers) {
+    totalAmount = totalAmount.add(rv.getAmount());
+}
+request.setAttribute("totalAmount", totalAmount);
             request.setAttribute("paymentMethods", paymentMethodDAO.getAllPaymentMethods());
             request.getRequestDispatcher("listReceiptVoucher.jsp").forward(request, response);
         } catch (SQLException ex) {
@@ -146,44 +151,60 @@ String databaseName = (String) request.getSession().getAttribute("databaseName")
             ReceiptVoucherDAO dao = new ReceiptVoucherDAO(conn);
 
             if ("update".equals(action)) {
-                ReceiptVoucher rv = extractReceiptVoucher(request);
-                dao.updateReceiptVoucher(rv);
-            } else if ("delete".equals(action)) {
+             ReceiptVoucher rv = extractReceiptVoucher(request, true);
+
+    // 🛠️ BỔ SUNG kiểm tra tránh null CreatedDate
+    if (rv.getCreatedDate() == null) {
+        rv.setCreatedDate(new Date()); // hoặc lấy từ form nếu có
+    }
+
+    dao.updateReceiptVoucher(rv);
+    response.sendRedirect("ReceiptVoucherServlet?message=update_success");
+
+        } else if ("delete".equals(action)) {
                 int id = Integer.parseInt(request.getParameter("receiptVoucherID"));
                 dao.deleteReceiptVoucher(id);
-            }
+                response.sendRedirect("ReceiptVoucherServlet");
+            } else if ("add".equals(action)) {
+            ReceiptVoucher rv = extractReceiptVoucher(request, false);
+            rv.setCreatedDate(new Date()); // Gán ngày tạo là hiện tại
+            dao.insertReceiptVoucher(rv);
+            response.sendRedirect("ReceiptVoucherServlet?message=add_success");
+
+        }
 
         } catch (Exception e) {
             throw new ServletException(e);
         }
-
-        response.sendRedirect("ReceiptVoucherServlet");
     }
 
-    private ReceiptVoucher extractReceiptVoucher(HttpServletRequest request) throws Exception {
-        ReceiptVoucher rv = new ReceiptVoucher();
+    private ReceiptVoucher extractReceiptVoucher(HttpServletRequest request, boolean isUpdate) throws Exception {
+    ReceiptVoucher rv = new ReceiptVoucher();
 
+    if (isUpdate) {
         rv.setReceiptVoucherID(Integer.parseInt(request.getParameter("receiptVoucherID")));
-        rv.setShopID(Integer.parseInt(request.getParameter("shopID")));
-        rv.setEmployeeID(Integer.parseInt(request.getParameter("employeeID")));
-
-        String custStr = request.getParameter("customerID");
-        if (custStr != null && !custStr.isEmpty()) {
-            rv.setCustomerID(Integer.parseInt(custStr));
-        }
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        rv.setReceiptDate(sdf.parse(request.getParameter("receiptDate")));
-
-        rv.setAmount(new BigDecimal(request.getParameter("amount")));
-        rv.setNote(request.getParameter("note"));
-        rv.setStatus(Boolean.parseBoolean(request.getParameter("status")));
-        rv.setCreatedDate(new Date()); // Cập nhật createdDate hiện tại
-        rv.setTypeID(Integer.parseInt(request.getParameter("typeID")));
-        rv.setPaymentMethodID(Integer.parseInt(request.getParameter("paymentMethodID")));
-
-        return rv;
     }
+
+    rv.setShopID(Integer.parseInt(request.getParameter("shopID")));
+    rv.setEmployeeID(Integer.parseInt(request.getParameter("employeeID")));
+
+    String custStr = request.getParameter("customerID");
+    if (custStr != null && !custStr.isEmpty()) {
+        rv.setCustomerID(Integer.parseInt(custStr));
+    }
+
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    rv.setReceiptDate(sdf.parse(request.getParameter("receiptDate")));
+
+    rv.setAmount(new BigDecimal(request.getParameter("amount")));
+    rv.setNote(request.getParameter("note"));
+    rv.setStatus(Boolean.parseBoolean(request.getParameter("status")));
+    rv.setTypeID(Integer.parseInt(request.getParameter("typeID")));
+    rv.setPaymentMethodID(Integer.parseInt(request.getParameter("paymentMethodID")));
+
+    return rv;
+}
+
 
     /**
      * Returns a short description of the servlet.
@@ -224,6 +245,7 @@ String databaseName = (String) request.getSession().getAttribute("databaseName")
 
         if (isUpdate) {
             rv.setReceiptVoucherID(Integer.parseInt(request.getParameter("id")));
+            
         }
 
         rv.setReceiptDate(java.sql.Date.valueOf(request.getParameter("receiptDate")));
@@ -238,6 +260,17 @@ String databaseName = (String) request.getSession().getAttribute("databaseName")
         rv.setStatus(Boolean.parseBoolean(request.getParameter("status")));
         rv.setTypeID(Integer.parseInt(request.getParameter("typeID")));
         rv.setPaymentMethodID(Integer.parseInt(request.getParameter("paymentMethodID")));
+        // Set createdDate cho cả add và update nếu có trong request
+String createdDateStr = request.getParameter("createdDate");
+if (createdDateStr != null && !createdDateStr.isEmpty()) {
+    try {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date createdDate = sdf.parse(createdDateStr);
+        rv.setCreatedDate(createdDate);
+    } catch (Exception e) {
+        e.printStackTrace(); // log nếu parse lỗi
+    }
+}
 
         return rv;
     }

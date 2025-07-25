@@ -86,13 +86,31 @@ public class AddPaymentVoucherServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+    
+    
+    
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String databaseName = (String) request.getSession().getAttribute("databaseName");
         try (Connection conn = new DBContext(databaseName).getConnection()) {
-            int shopID = Integer.parseInt(request.getParameter("shopID"));
-            int employeeID = Integer.parseInt(request.getParameter("employeeID"));
+           String shopIDStr = request.getParameter("shopID");
+int shopID = 0; // giá trị mặc định nếu cần
+
+if (shopIDStr != null && !shopIDStr.trim().isEmpty()) {
+    try {
+        shopID = Integer.parseInt(shopIDStr);
+    } catch (NumberFormatException e) {
+        request.setAttribute("errorMessage", "Shop ID không hợp lệ.");
+        doGet(request, response); // hoặc redirect lại trang add
+        return;
+    }
+} else {
+    request.setAttribute("errorMessage", "Vui lòng chọn cửa hàng.");
+    doGet(request, response);
+    return;
+}
+            int employeeID = Integer.parseInt(request.getParameter("EmployeeID"));
 
             String supplierIDStr = request.getParameter("supplierID");
             Integer supplierID = (supplierIDStr != null && !supplierIDStr.isEmpty()) ? Integer.parseInt(supplierIDStr) : null;
@@ -104,7 +122,13 @@ public class AddPaymentVoucherServlet extends HttpServlet {
             String note = request.getParameter("note");
             boolean status = Boolean.parseBoolean(request.getParameter("status"));
             int typeID = Integer.parseInt(request.getParameter("typeID"));
-            int paymentMethodID = Integer.parseInt(request.getParameter("paymentMethodID"));
+            String paymentMethodStr = request.getParameter("paymentMethodID");
+if (paymentMethodStr == null || paymentMethodStr.trim().isEmpty()) {
+    request.setAttribute("errorMessage", "Vui lòng chọn phương thức thanh toán.");
+    doGet(request, response);
+    return;
+}
+int paymentMethodID = Integer.parseInt(paymentMethodStr);
 
             // Tạo đối tượng phiếu chi
             PaymentVoucher pv = new PaymentVoucher();

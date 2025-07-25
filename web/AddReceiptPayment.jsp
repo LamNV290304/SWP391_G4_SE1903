@@ -72,15 +72,7 @@
 
                                     <div class="mb-3 col-md-6">
                                         <label class="form-label">Nhân viên</label>
-                                        <select name="employeeID" class="form-select">
-                                            <option value="">Tất cả</option>
-                                            <c:forEach var="e" items="${listEmp}">
-                                                <option value="${e.id}"
-                                                        <c:if test="${paramEmployeeID != null && paramEmployeeID == e.id}">selected</c:if>>
-                                                    ${e.fullname}
-                                                </option>
-                                            </c:forEach>
-                                        </select>
+                                        <input type="text" name="EmployeeID" class="form-control" value="${sessionScope.Employee.id}" readonly />
                                     </div>
 
                                     <div class="mb-3 col-md-6">

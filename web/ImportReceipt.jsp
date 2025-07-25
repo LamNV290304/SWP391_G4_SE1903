@@ -2,6 +2,7 @@
          pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
 <!DOCTYPE html>
 <!--
 Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -54,8 +55,10 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
         <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
         <script src="./assets/js/config.js"></script>
+        
     </head>
     <body>
+        <fmt:setLocale value="vi_VN"/>
         <div  class="layout-wrapper layout-content-navbar">
             <div class="layout-container">
                 <!--menu-->
@@ -105,7 +108,10 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                         <td>${ir.importReceiptID}</td>
                         <td><fmt:formatDate value="${ir.receiptDate}" pattern="dd/MM/yyyy" /></td>
                         <td>${ir.shopID}</td>
-                        <td>${ir.totalAmount}</td>
+                        
+
+                        <td><fmt:formatNumber value="${ir.totalAmount}" type="currency"/></td>
+
                         <td>${ir.supplierID}</td>
                         <td>${ir.employeeID}</td>
                         <td>${ir.note}</td>
@@ -155,8 +161,8 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                 <tr>
                   <td>${detail.productID}</td>
                   <td>${detail.quantity}</td>
-                  <td><fmt:formatNumber value="${detail.unitPrice}" type="currency"/></td>
-                  <td><fmt:formatNumber value="${detail.quantity * detail.unitPrice}" type="currency"/></td>
+                  <td><fmt:formatNumber value="${detail.price}" type="currency"/></td>
+                  <td><fmt:formatNumber value="${detail.quantity * detail.price}" type="currency"/></td>
                 </tr>
               </c:if>
             </c:forEach>
@@ -206,4 +212,5 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
             <script src="assets/js/main.js"></script> <!-- Main logic -->
 
     </body>
+    
 </html>

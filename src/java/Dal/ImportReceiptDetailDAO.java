@@ -57,15 +57,14 @@ public class ImportReceiptDetailDAO {
 
     // Insert
     public void insertDetail(ImportReceiptDetail d) {
-        String sql = "INSERT INTO ImportReceiptDetail (ImportReceiptDetailID, ImportReceiptID, ProductID, Quantity, Price, Note) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO ImportReceiptDetail (ImportReceiptID, ProductID, Quantity, Price, Note) VALUES (?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, d.getImportReceiptDetailID());
-            ps.setInt(2, d.getImportReceiptID());
-            ps.setString(3, d.getProductID());
-            ps.setInt(4, d.getQuantity());
-            ps.setDouble(5, d.getPrice());
-            ps.setString(6, d.getNote());
+            ps.setInt(1, d.getImportReceiptID());
+            ps.setString(2, d.getProductID());
+            ps.setInt(3, d.getQuantity());
+            ps.setDouble(4, d.getPrice());
+            ps.setString(5, d.getNote());
             ps.executeUpdate();
 
         } catch (SQLException e) {
@@ -126,7 +125,7 @@ public class ImportReceiptDetailDAO {
 
     // Test main method
     public static void main(String[] args) {
-        try (Connection conn = new DBContext("Test").getConnection()) {
+        try (Connection conn = new DBContext("ShopDB_Go1").getConnection()) {
             ImportReceiptDetailDAO dao = new ImportReceiptDetailDAO(conn);
 
             // Test insert

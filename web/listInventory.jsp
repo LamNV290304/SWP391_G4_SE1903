@@ -5,6 +5,8 @@
 --%>
 <%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
 <!DOCTYPE html>
 <c:if test="${empty sessionScope.Employee}">
     <c:redirect url="loginEmployee.jsp"/>
@@ -127,7 +129,6 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                                                 <th>Cửa Hàng</th>
                                                 <th>Số lượng</th>
                                                 <th>Cập nhật lần cuối</th>
-                                                <th>Thao Tác</th>
                                             </tr>
                                         </thead>
                                         <tbody class="table-border-bottom-0">
@@ -137,22 +138,11 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                                                     <td>${inv.product.productName}</td>
                                                     <td>${inv.shop.shopName}</td>
                                                     <td>${inv.quantity}</td>
-                                                    <td>${inv.lastUpdated}</td>
                                                     <td>
-                                                        <div class="dropdown">
-                                                            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                                                                <i class="bx bx-dots-vertical-rounded"></i>
-                                                            </button>
-                                                            <div class="dropdown-menu">
-                                                                <a class="dropdown-item" href="javascript:void(0);">
-                                                                    <i class="bx bx-edit-alt me-1"></i> Edit
-                                                                </a>
-                                                                <a class="dropdown-item" href="javascript:void(0);">
-                                                                    <i class="bx bx-trash me-1"></i> Delete
-                                                                </a>
-                                                            </div>
-                                                        </div>
+                                                        <fmt:formatDate value="${inv.lastUpdated}" pattern="HH:mm dd/MM/yyyy" />
                                                     </td>
+
+
                                                 </tr>
                                             </c:forEach>
                                         </tbody>
