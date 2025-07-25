@@ -70,7 +70,7 @@ public class ShowDetailEmployee extends HttpServlet {
                 response.sendRedirect("SaleSphere");
             }
 
-            if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            if (!AccessControlUtil.hasPermission(request, "ShowDetailEmployee")) {
                 response.sendRedirect("loginEmployee.jsp");
                 return;
             }
@@ -111,6 +111,15 @@ public class ShowDetailEmployee extends HttpServlet {
             String databaseName = (String) request.getSession().getAttribute("databaseName");
             Connection conn = DBContext.getConnection(databaseName);
 
+            if (databaseName == null) {
+                response.sendRedirect("SaleSphere");
+            }
+
+            if (!AccessControlUtil.hasPermission(request, "UpdateEmployeeDetails")) {
+                response.sendRedirect("loginEmployee.jsp");
+                return;
+            }
+            
             int id = Integer.parseInt(request.getParameter("id"));
             String fullName = request.getParameter("fullName");
             String email = request.getParameter("email");

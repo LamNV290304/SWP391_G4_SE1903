@@ -74,7 +74,7 @@ public class ShowEmployeeList extends HttpServlet {
             response.sendRedirect("SaleSphere");
         }
 
-        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+        if (!AccessControlUtil.hasPermission(request, "ShowEmployeeList")) {
             response.sendRedirect("loginEmployee.jsp");
             return;
         }

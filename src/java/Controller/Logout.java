@@ -56,10 +56,14 @@ public class Logout extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession(false);
+        HttpSession session = request.getSession();
 
         if (session != null) {
             session.removeAttribute("Employee");
+        } 
+        
+        if (session == null){
+            response.sendRedirect("SaleSphere");
         }
 
         response.sendRedirect("login.jsp");

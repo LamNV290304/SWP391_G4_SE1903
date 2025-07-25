@@ -60,7 +60,7 @@
                             <div class="card">
                                 <h5 class="card-header">Đổi mật khẩu</h5>
                                 <div class="card-body">
-                                    <form action="${pageContext.request.contextPath}/ChangePasswordShopOwner" method="post">
+                                    <form action="ChangePasswordShopOwner" method="post">
                                         <div class="mb-3">
                                             <label for="currentPassword" class="form-label">Mật khẩu hiện tại</label>
                                             <input type="password" class="form-control" id="currentPassword" name="currentPassword" required />

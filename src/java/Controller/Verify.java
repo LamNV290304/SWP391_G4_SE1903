@@ -105,10 +105,10 @@ public class Verify extends HttpServlet {
             DatabaseHelper.initializeShopDatabase(databaseName, firstEmployee);
 
             String link = "http://localhost:9999/SWP391_G4_SE1903/" + shopCode;
-
+            
             MailUtil.sendLink(email, link);
-
-            response.sendRedirect("successRegister.jsp");
+            request.setAttribute("link", link);
+            request.getRequestDispatcher("successRegister.jsp").forward(request, response);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Verify.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {

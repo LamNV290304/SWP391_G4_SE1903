@@ -37,6 +37,7 @@ public class ServicePackageDAO {
                 pkg.setDurationInDays(rs.getInt("DurationInDays"));
                 pkg.setPrice(rs.getDouble("Price"));
                 pkg.setDescription(rs.getString("Description"));
+                pkg.setStatus(rs.getBoolean("Status"));
                 packages.add(pkg);
             }
 
@@ -58,7 +59,8 @@ public class ServicePackageDAO {
                             rs.getString("Name"),
                             rs.getInt("DurationInDays"),
                             rs.getDouble("Price"),
-                            rs.getString("Description")
+                            rs.getString("Description"),
+                            rs.getBoolean("Status")
                     );
                 }
             }
@@ -109,7 +111,7 @@ public class ServicePackageDAO {
     }
 
     public boolean updatePackage(ServicePackage pkg) {
-        String sql = "UPDATE ServicePackages SET Name = ?, DurationInDays = ?, Price = ?, Description = ? WHERE Id = ?";
+        String sql = "UPDATE ServicePackages SET Name = ?, DurationInDays = ?, Price = ?, Description = ?, Status = ? WHERE Id = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
@@ -117,18 +119,19 @@ public class ServicePackageDAO {
             ps.setInt(2, pkg.getDurationInDays());
             ps.setDouble(3, pkg.getPrice());
             ps.setString(4, pkg.getDescription());
-            ps.setInt(5, pkg.getId());
+            ps.setBoolean(5, pkg.isStatus());
+            ps.setInt(6, pkg.getId());
 
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.getMessage();
             return false;
         }
     }
 
     public boolean createPackage(ServicePackage pkg) {
-        String sql = "INSERT INTO ServicePackages (Name, DurationInDays, Price, Description) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO ServicePackages (Name, DurationInDays, Price, Description, Status) VALUES (?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
@@ -136,7 +139,7 @@ public class ServicePackageDAO {
             ps.setInt(2, pkg.getDurationInDays());
             ps.setDouble(3, pkg.getPrice());
             ps.setString(4, pkg.getDescription());
-
+            ps.setBoolean(5, true);
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {

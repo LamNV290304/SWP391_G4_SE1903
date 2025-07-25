@@ -5,6 +5,8 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <!DOCTYPE html>
 <html
     lang="en"
@@ -72,12 +74,14 @@
                             <div class="">
                                 <div class="card mb-4">
                                     <div class="card-header d-flex align-items-center justify-content-between">
-                                        <h2 class="mb-0" style="color: green">Verify Successfully</h2>
-                                        
+                                        <h2 class="mb-0" style="color: green">Xác minh thành công</h2>
+
                                     </div>
                                     <div class="card-body">
-                                        <h3 class="mt-2">Please check your email</h3>
-                                        
+                                        <h3 class="mt-2">Vui lòng kiểm tra email</h3>
+                                        <div class="col-sm-10">
+                                            <a href="${link}" class="btn btn-primary d-grid w-100">Hoặc bấm vào đây</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
