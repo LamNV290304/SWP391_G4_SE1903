@@ -46,7 +46,7 @@ public class TypeReceiptServlet extends HttpServlet {
             response.sendRedirect("SaleSphere");
         }
 
-        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+        if (!AccessControlUtil.hasPermission(request, "TypeReceiptServlet")) {
             response.sendRedirect("loginEmployee.jsp");
             return;
         }

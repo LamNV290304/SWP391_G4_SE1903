@@ -72,7 +72,7 @@ if (databaseName == null) {
             response.sendRedirect("SaleSphere");
         }
 
-        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+        if (!AccessControlUtil.hasPermission(request, "AddExportReceipt")) {
             response.sendRedirect("loginEmployee.jsp");
             return;
         }

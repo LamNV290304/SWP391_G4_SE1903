@@ -65,7 +65,7 @@ public class AddImportReceipt extends HttpServlet {
             response.sendRedirect("SaleSphere");
         }
 
-        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+        if (!AccessControlUtil.hasPermission(request, "AddImportReceipt")) {
             response.sendRedirect("loginEmployee.jsp");
             return;
         }
@@ -75,14 +75,6 @@ public class AddImportReceipt extends HttpServlet {
             ShopDAO shopDao = new ShopDAO(conn);
             SupplierDAO supDAO = new SupplierDAO(conn);
             ProductDAO ProDAO = new ProductDAO(conn);
-if (databaseName == null) {
-            response.sendRedirect("SaleSphere");
-        }
-
-        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
-            response.sendRedirect("loginEmployee.jsp");
-            return;
-        }
             request.setAttribute("listEmp", empDao.getAllEmployee());
             request.setAttribute("listSup", supDAO.getAllSuppliers());
             request.setAttribute("listShop", shopDao.getAllShops());
@@ -172,14 +164,6 @@ if (databaseName == null) {
 
             ProductDAO productDAO = new ProductDAO(conn);
             ShopDAO shopDAO = new ShopDAO(conn);
-            if (databaseName == null) {
-            response.sendRedirect("SaleSphere");
-        }
-
-        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
-            response.sendRedirect("loginEmployee.jsp");
-            return;
-        }
             // Tạo đối tượng phiếu nhập
             ImportReceipt receipt = new ImportReceipt();
             receipt.setTypeID(Integer.parseInt(code)); // Tên sản phẩm không cần ở đây

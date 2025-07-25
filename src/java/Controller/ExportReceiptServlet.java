@@ -8,6 +8,7 @@ import Context.DBContext;
 import Dal.*;
 import Models.ExportReceipt;
 import Models.ExportReceiptDetail;
+import Utils.AccessControlUtil;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -39,6 +40,14 @@ public class ExportReceiptServlet extends HttpServlet {
         try {
             response.setContentType("text/html;charset=UTF-8");
             String databaseName = (String) request.getSession().getAttribute("databaseName");
+             if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
+
+        if (!AccessControlUtil.hasPermission(request, "ExportReceiptServlet")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
             DBContext connection = new DBContext(databaseName);
             ShopDAO shopDAO = new ShopDAO(connection.getConnection());
             TypeExportReceiptDAO typeDAO = new TypeExportReceiptDAO(connection.getConnection());
@@ -149,6 +158,7 @@ request.getRequestDispatcher("ExportReceipt.jsp").forward(request, response);
         String action = request.getParameter("action");
         String receiptIdRaw = request.getParameter("receiptId");
 String databaseName = (String) request.getSession().getAttribute("databaseName");
+
         if (action != null && receiptIdRaw != null) {
             try (Connection conn = new DBContext(databaseName).getConnection()) {
                 ExportReceiptDAO exportReceiptDAO = new ExportReceiptDAO(conn);

@@ -60,15 +60,7 @@ public class PaymentVoucherServlet extends HttpServlet {
             response.sendRedirect("SaleSphere");
         }
 
-        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
-            response.sendRedirect("loginEmployee.jsp");
-            return;
-        }
-            if (databaseName == null) {
-            response.sendRedirect("SaleSphere");
-        }
-
-        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+        if (!AccessControlUtil.hasPermission(request, "PaymentVoucherServlet")) {
             response.sendRedirect("loginEmployee.jsp");
             return;
         }

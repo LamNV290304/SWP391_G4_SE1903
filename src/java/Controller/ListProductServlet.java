@@ -108,7 +108,7 @@ public class ListProductServlet extends HttpServlet {
             response.sendRedirect("SaleSphere");
         }
 
-        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+        if (!AccessControlUtil.hasPermission(request, "ListProductServlet")) {
             response.sendRedirect("loginEmployee.jsp");
             return;
         }
@@ -179,14 +179,6 @@ LocalDateTime localDateTime = utilDate.toInstant()
     // Khởi tạo DAO
     String databaseName = (String) request.getSession().getAttribute("databaseName");
     DBContext dBContext = new DBContext(databaseName);
-    if (databaseName == null) {
-            response.sendRedirect("SaleSphere");
-        }
-
-        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
-            response.sendRedirect("loginEmployee.jsp");
-            return;
-        }
     ProductDAO productDAO = new ProductDAO(dBContext.getConnection());
 
     // Lấy sản phẩm cũ để giữ lại ảnh nếu không chọn ảnh mới

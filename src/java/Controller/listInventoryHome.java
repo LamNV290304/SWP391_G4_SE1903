@@ -42,7 +42,7 @@ String databaseName = (String) request.getSession().getAttribute("databaseName")
             response.sendRedirect("SaleSphere");
         }
 
-        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+        if (!AccessControlUtil.hasPermission(request, "listInventoryHome")) {
             response.sendRedirect("loginEmployee.jsp");
             return;
         }
@@ -69,9 +69,48 @@ String databaseName = (String) request.getSession().getAttribute("databaseName")
         }
       */
        // request.setAttribute("totalCost", cost);
+       // Kiểm tra nếu là yêu cầu export Excel
+    String export = request.getParameter("export");
+    if ("excel".equalsIgnoreCase(export)) {
+        exportToExcel(response, inventoryList);
+        return;
+    }
         request.setAttribute("inventoryList", inventoryList);
         request.getRequestDispatcher("listInventory.jsp").forward(request, response);
     } 
+private void exportToExcel(HttpServletResponse response, List<Inventory> inventoryList) throws IOException {
+    response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    response.setHeader("Content-Disposition", "attachment; filename=InventoryList.xlsx");
+
+    try (org.apache.poi.xssf.usermodel.XSSFWorkbook workbook = new org.apache.poi.xssf.usermodel.XSSFWorkbook()) {
+        org.apache.poi.ss.usermodel.Sheet sheet = workbook.createSheet("Inventory");
+
+        // Header
+        org.apache.poi.ss.usermodel.Row header = sheet.createRow(0);
+        header.createCell(0).setCellValue("STT");
+        header.createCell(1).setCellValue("Tên sản phẩm");
+        header.createCell(2).setCellValue("Số lượng");
+        header.createCell(3).setCellValue("Giá nhập");
+
+        // Data
+        int rowIndex = 1;
+        for (Inventory item : inventoryList) {
+            org.apache.poi.ss.usermodel.Row row = sheet.createRow(rowIndex++);
+            row.createCell(0).setCellValue(rowIndex - 1);
+            row.createCell(1).setCellValue(item.getProduct().getProductName());
+            row.createCell(2).setCellValue(item.getQuantity());
+            if (item.getProduct().getImportPrice() != null) {
+    row.createCell(3).setCellValue(item.getProduct().getImportPrice().doubleValue());
+} else {
+    row.createCell(3).setCellValue("N/A"); // hoặc ghi 0.0 nếu bạn muốn
+}
+
+        }
+
+        // Ghi ra output stream
+        workbook.write(response.getOutputStream());
+    }
+}
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /** 

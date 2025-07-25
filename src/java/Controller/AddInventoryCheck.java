@@ -63,7 +63,7 @@ public class AddInventoryCheck extends HttpServlet {
             response.sendRedirect("SaleSphere");
         }
 
-        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+        if (!AccessControlUtil.hasPermission(request, "AddInventoryCheck")) {
             response.sendRedirect("loginEmployee.jsp");
             return;
         }
@@ -152,14 +152,7 @@ public class AddInventoryCheck extends HttpServlet {
         try {
             String databaseName = (String) request.getSession().getAttribute("databaseName");
             response.setContentType("text/html;charset=UTF-8");
-            if (databaseName == null) {
-            response.sendRedirect("SaleSphere");
-        }
-
-        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
-            response.sendRedirect("loginEmployee.jsp");
-            return;
-        }
+            
             Connection conn = new DBContext(databaseName).getConnection();
             InventoryCheckDAO inventoryCheckDao = new InventoryCheckDAO(conn);
             InventoryDAO inventoryDAO = new InventoryDAO(conn);

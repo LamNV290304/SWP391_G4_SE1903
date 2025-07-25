@@ -124,7 +124,7 @@ String databaseName = (String) request.getSession().getAttribute("databaseName")
             response.sendRedirect("SaleSphere");
         }
 
-        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+        if (!AccessControlUtil.hasPermission(request, "UpdateExceiptReceipt")) {
             response.sendRedirect("loginEmployee.jsp");
             return;
         }
