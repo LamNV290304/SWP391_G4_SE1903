@@ -168,8 +168,7 @@ public final class DatabaseHelper {
             CreatedDate DATETIME DEFAULT GETDATE(),
             CreatedBy NVARCHAR(100),
         	Birthday DATE
-        );
-                                 
+        );      
         CREATE TABLE Promotion (
             PromotionID INT PRIMARY KEY IDENTITY(1,1),
             PromotionName NVARCHAR(255) NOT NULL,
