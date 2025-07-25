@@ -140,6 +140,7 @@ public class ShowDetailEmployee extends HttpServlet {
             EmployeeDAO dao = new EmployeeDAO(conn);
             dao.updateEmployee(employee);
 
+            request.getSession().setAttribute("successMessage", "Cập nhập thông tin thành công");
             response.sendRedirect("ShowDetailEmployee?id=" + id);
 
         } catch (Exception e) {

@@ -29,7 +29,10 @@
                     <!-- Content wrapper -->
                     <div class="content-wrapper">
                         <div class="container-xxl flex-grow-1 container-p-y">
-
+                            <c:if test="${not empty sessionScope.successMessage}">
+                                <div class="alert alert-success">${sessionScope.successMessage}</div>
+                                <c:remove var="successMessage" scope="session"/>
+                            </c:if>
                             <div class="card mb-4">
                                 <h5 class="card-header">Chi tiết nhân viên</h5>
                                 <div class="card-body">
