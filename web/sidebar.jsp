@@ -185,6 +185,7 @@
         </c:if>
 
 
+
         <c:if test="${sessionScope.grantedPages['InventoryCheckServlet']}">
             <li class="menu-item">
                 <a href="InventoryCheckServlet" class="menu-link">
@@ -197,10 +198,8 @@
 
         <!-- Forms -->
         <c:if test="${sessionScope.grantedPages['InvoiceServlet'] 
-                      or sessionScope.grantedPages['StatisticServlet']
                       or sessionScope.grantedPages['LoyalCustomerServlet']
-                      or sessionScope.grantedPages['PromotionServlet']
-                      or sessionScope.grantedPages['BirthdayReportServlet']}">
+                      or sessionScope.grantedPages['PromotionServlet']}">
               <li class="menu-item">
                   <a href="javascript:void(0);" class="menu-link menu-toggle">
                       <i class="menu-icon tf-icons bx bx-detail"></i>
@@ -211,13 +210,6 @@
                           <li class="menu-item">
                               <a href="InvoiceServlet" class="menu-link">
                                   <div data-i18n="Vertical Form">Danh sách hóa đơn</div>
-                              </a>
-                          </li>
-                      </c:if>
-                      <c:if test="${sessionScope.grantedPages['StatisticServlet']}">
-                          <li class="menu-item">
-                              <a href="StatisticServlet" class="menu-link">
-                                  <div data-i18n="Horizontal Form">Thống kê nhân viên bán hàng</div>
                               </a>
                           </li>
                       </c:if>
@@ -235,6 +227,25 @@
                               </a>
                           </li>
                       </c:if>
+                  </ul>
+              </li>
+        </c:if>
+
+        <c:if test="${sessionScope.grantedPages['StatisticServlet']
+                      or sessionScope.grantedPages['BirthdayReportServlet']}">
+              <li class="menu-item">
+                  <a href="javascript:void(0);" class="menu-link menu-toggle">
+                      <i class="menu-icon tf-icons bx bx-detail"></i>
+                      <div data-i18n="Form Layouts">Thông kê</div>
+                  </a>
+                  <ul class="menu-sub">
+                      <c:if test="${sessionScope.grantedPages['StatisticServlet']}">
+                          <li class="menu-item">
+                              <a href="StatisticServlet" class="menu-link">
+                                  <div data-i18n="Horizontal Form">Thống kê nhân viên bán hàng</div>
+                              </a>
+                          </li>
+                      </c:if>
                       <c:if test="${sessionScope.grantedPages['BirthdayReportServlet']}">
                           <li class="menu-item">
                               <a href="BirthdayReportServlet" class="menu-link">
@@ -245,8 +256,6 @@
                   </ul>
               </li>
         </c:if>
-
-
 
         <c:if test="${sessionScope.grantedPages['ShopItemServlet'] 
                       or sessionScope.grantedPages['ItemCategoryServlet'] 
