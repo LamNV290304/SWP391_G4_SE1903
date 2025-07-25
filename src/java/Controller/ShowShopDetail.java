@@ -65,12 +65,14 @@ public class ShowShopDetail extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            int shopOwnerId = Integer.parseInt(request.getParameter("Id"));
+            ShopOwner shop = (ShopOwner) request.getSession().getAttribute("shopOwner");
             
-            if (shopOwnerId != 1) {
+            if (shop.getId() != 1) {
                 response.sendRedirect(request.getContextPath() + "/SaleSphere");
                 return;
             }
+            
+            int shopOwnerId = Integer.parseInt(request.getParameter("Id"));     
             
             ShopOwnerDAO shopOwnerDAO = new ShopOwnerDAO(DBContext.getCentralConnection());
             ShopOwner shopOwner = shopOwnerDAO.getShopOwnerById(shopOwnerId);
