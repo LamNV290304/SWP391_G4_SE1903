@@ -112,8 +112,6 @@ public class Login extends HttpServlet {
                 request.getRequestDispatcher("ShowServicePackage").forward(request, response);
                 return;
             }
-            
-            System.out.println("uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
 
             EmployeeDAO employeeDAO = new EmployeeDAO(con);
             Employee employee = employeeDAO.findEmployeeByUsernameAndPassword(username, password);
