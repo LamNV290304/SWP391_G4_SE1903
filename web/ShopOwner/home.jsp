@@ -155,7 +155,7 @@
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label">Thời hạn (ngày)</label>
-                                                <input type="number" name="durationInDays" class="form-control" required />
+                                                <input type="number" name="durationInDays" class="form-control" required min="0"/>
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label">Giá</label>
