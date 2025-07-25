@@ -24,8 +24,23 @@ import java.util.List;
  */
 public class PromotionServlet extends HttpServlet {
 
-    DBContext db = new DBContext("ShopDB_SWPP");
-    private PromotionDAO promotionDAO = new PromotionDAO(db.getConnection());
+  
+    private PromotionDAO promotionDAO;
+
+     public boolean init(HttpServletRequest request, HttpServletResponse response) {
+        String databaseName = (String) request.getSession().getAttribute("databaseName");
+        if (databaseName == null) {
+            try {
+                request.getRequestDispatcher("login.jsp").forward(request, response);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return false;
+        }
+        DBContext connection = new DBContext(databaseName);
+        promotionDAO = new PromotionDAO(connection.getConnection());
+        return true;
+    }
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

@@ -112,6 +112,8 @@ public class Login extends HttpServlet {
                 request.getRequestDispatcher("ShowServicePackage").forward(request, response);
                 return;
             }
+            
+            System.out.println("uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
 
             EmployeeDAO employeeDAO = new EmployeeDAO(con);
             Employee employee = employeeDAO.findEmployeeByUsernameAndPassword(username, password);
@@ -123,24 +125,11 @@ public class Login extends HttpServlet {
             }
 
             DBContext connection = new DBContext(databaseName);
-            NotiDAO notiDAO = new NotiDAO(connection.getConnection());
-            //view for Noti
-            Vector<Noti> vectorNoti = notiDAO.getAllNoti("SELECT * FROM [dbo].[Noti] "
-                    + "Where IsRead = 0"
-                    + "ORDER BY [CreatedDate] DESC");
-
-            request.getSession().setAttribute("sizeNoti", vectorNoti.size());
-            vectorNoti = notiDAO.getAllNoti("SELECT Top 5 * FROM [dbo].[Noti] "
-                    + "ORDER BY [CreatedDate] DESC");
-            //set time for Noti
-            Map<Integer, Integer> mapNotiDate = notiDAO.MapListNotiDate();
 
             PermissionDAO permissionDAO = new PermissionDAO(DBContext.getCentralConnection());
             Map<String, Boolean> grantedPages = permissionDAO.getGrantedPageMapByRoleId(employee.getRoleId());
             
             request.getSession().setAttribute("grantedPages", grantedPages);
-            request.getSession().setAttribute("mapNotiDate", mapNotiDate);
-            request.getSession().setAttribute("vectorNoti", vectorNoti);
             request.getSession().setAttribute("Employee", employee);
             request.getRequestDispatcher("Home").forward(request, response);
 

@@ -176,10 +176,6 @@
         <servlet-class>Controller.AddInventoryProduct</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>CustomerServlet</servlet-name>
-        <servlet-class>Controller.CustomerServlet</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>listInventoryHome</servlet-name>
         <servlet-class>Controller.listInventoryHome</servlet-class>
     </servlet>
