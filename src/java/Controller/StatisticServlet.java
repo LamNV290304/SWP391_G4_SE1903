@@ -14,6 +14,7 @@ import Dal.InvoiceDetailDAO;
 import Dal.ShopDAO;
 import Models.Employee;
 import Models.Shop;
+import Utils.AccessControlUtil;
 
 import Utils.ExcelExporter;
 import java.io.IOException;
@@ -37,7 +38,6 @@ import java.util.ArrayList;
 
 import java.util.List;
 
-
 /**
  *
  * @author duckh
@@ -54,22 +54,29 @@ public class StatisticServlet extends HttpServlet {
     private static final Logger LOGGER = Logger.getLogger(StatisticServlet.class.getName());
     private static final int DEFAULT_RECORDS_PER_PAGE = 5;
 
-    public boolean init(HttpServletRequest request, HttpServletResponse response) {
-        String databaseName = (String) request.getSession().getAttribute("databaseName");
-        if (databaseName == null) {
-            try {
-                request.getRequestDispatcher("login.jsp").forward(request, response);
-            } catch (Exception ex) {
-                ex.printStackTrace();
+    public boolean init(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        try {
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
+            if (databaseName == null) {
+                response.sendRedirect("SaleSphere");
+                return false;
             }
+            if (!AccessControlUtil.hasPermission(request, "StatisticServlet")) {
+                response.sendRedirect("loginEmployee.jsp");
+                return false;
+            }
+
+            DBContext connection = new DBContext(databaseName);
+
+            idetailDAO = new InvoiceDetailDAO(connection.getConnection());
+            iDAO = new InvoiceDAO(connection.getConnection());
+            eDAO = new EmployeeDAO(connection.getConnection());
+            sDAO = new ShopDAO(connection.getConnection());
+            exDAO = new ExportStatisticDAO(connection.getConnection());
+        } catch (Exception ex) {
+            ex.printStackTrace();
             return false;
         }
-        DBContext connection = new DBContext(databaseName);
-        idetailDAO = new InvoiceDetailDAO(connection.getConnection());
-        iDAO = new InvoiceDAO(connection.getConnection());
-        eDAO = new EmployeeDAO(connection.getConnection());
-        sDAO = new ShopDAO(connection.getConnection());
-        exDAO = new ExportStatisticDAO(connection.getConnection());
         return true;
     }
 
@@ -185,7 +192,7 @@ public class StatisticServlet extends HttpServlet {
                 endDate = Timestamp.valueOf(endDateParam + " 23:59:59");
             } else if (selectedMonthParam != null && !selectedMonthParam.isEmpty()) {
                 int month = Integer.parseInt(selectedMonthParam);
-                int currentYear = LocalDate.now().getYear(); 
+                int currentYear = LocalDate.now().getYear();
                 YearMonth yearMonth = YearMonth.of(currentYear, month);
                 startDate = Timestamp.valueOf(yearMonth.atDay(1).atStartOfDay());
                 endDate = Timestamp.valueOf(yearMonth.atEndOfMonth().atTime(23, 59, 59));
@@ -357,7 +364,7 @@ public class StatisticServlet extends HttpServlet {
             selectedEmployeeIdParam = "all";
         }
         request.setAttribute("selectedEmployeeId", selectedEmployeeIdParam);
-        request.setAttribute("selectedMonth", selectedMonthParam); 
+        request.setAttribute("selectedMonth", selectedMonthParam);
 
         int currentPage = 1;
         try {
@@ -784,11 +791,11 @@ public class StatisticServlet extends HttpServlet {
             if (shopIdParam != null && !shopIdParam.isEmpty()) {
                 try {
                     shopId = Integer.parseInt(shopIdParam);
-                    request.setAttribute("shopId", shopId); 
-     
+                    request.setAttribute("shopId", shopId);
+
                 } catch (NumberFormatException e) {
-                     request.setAttribute("errorMessage", "Shop ID không hợp lệ.");
-                 
+                    request.setAttribute("errorMessage", "Shop ID không hợp lệ.");
+
                     return;
                 }
             }
@@ -809,7 +816,7 @@ public class StatisticServlet extends HttpServlet {
                 }
             } else {
                 request.setAttribute("errorMessage", "Bạn không có quyền export toàn bộ thống kê");
-                
+
                 return;
             }
         } else if (selectedEmployeeIdParam != null && !selectedEmployeeIdParam.isEmpty()) {
@@ -891,15 +898,15 @@ public class StatisticServlet extends HttpServlet {
                 ExcelExporter.exportSaleProductStatistics(soldList, totalQuantity, totalAmount, out);
 
             } else {
-                      request.setAttribute("errorMessage", "Loại thống kê không hợp lệ hoặc vai trò không được hỗ trợ.");
-                      
-                      return;
-              
+                request.setAttribute("errorMessage", "Loại thống kê không hợp lệ hoặc vai trò không được hỗ trợ.");
+
+                return;
+
             }
 
         } catch (Exception e) {
             Logger.getLogger(StatisticServlet.class.getName()).log(Level.SEVERE, "Lỗi khi xuất file Excel", e);
-              request.setAttribute("errorMessage", "Lỗi khi tạo file Excel.");
+            request.setAttribute("errorMessage", "Lỗi khi tạo file Excel.");
             request.getRequestDispatcher("sale_statistics.jsp").forward(request, response);
         }
     }

@@ -8,6 +8,7 @@ import Models.Promotion;
 import Context.DBContext;
 import Dal.PromotionDAO;
 import Models.Category;
+import Utils.AccessControlUtil;
 import java.sql.Date;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -17,6 +18,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -24,21 +27,27 @@ import java.util.List;
  */
 public class PromotionServlet extends HttpServlet {
 
-  
     private PromotionDAO promotionDAO;
 
-     public boolean init(HttpServletRequest request, HttpServletResponse response) {
-        String databaseName = (String) request.getSession().getAttribute("databaseName");
+    public boolean init(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        try{
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
         if (databaseName == null) {
-            try {
-                request.getRequestDispatcher("login.jsp").forward(request, response);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            response.sendRedirect("SaleSphere");
+             return false;
+        }
+        if (!AccessControlUtil.hasPermission(request, "PromotionServlet")) {
+            response.sendRedirect("loginEmployee.jsp");
             return false;
         }
+       
         DBContext connection = new DBContext(databaseName);
         promotionDAO = new PromotionDAO(connection.getConnection());
+        
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
         return true;
     }
 
@@ -50,6 +59,9 @@ public class PromotionServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        if (!init(request, response)) {
+            return;
+        }
         String action = request.getParameter("action");
         if (action == null) {
             action = "list";
@@ -76,6 +88,9 @@ public class PromotionServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        if (!init(request, response)) {
+            return;
+        }
         String action = request.getParameter("action");
         try {
             switch (action) {

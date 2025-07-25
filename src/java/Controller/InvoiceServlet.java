@@ -21,6 +21,7 @@ import Models.Product;
 import Models.Inventory;
 import Models.Shop;
 import Models.VATRate;
+import Utils.AccessControlUtil;
 import Utils.JspStringRender;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -58,16 +59,18 @@ public class InvoiceServlet extends HttpServlet {
     private CustomerDAO cDAO;
     private VATRateDAO vatRateDAO;
 
-    private boolean initDAOs(HttpServletRequest request, HttpServletResponse response) {
-        String databaseName = (String) request.getSession().getAttribute("databaseName");
+       public boolean initDAOs(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        try{
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
         if (databaseName == null) {
-            try {
-                request.getRequestDispatcher("login.jsp").forward(request, response);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            response.sendRedirect("SaleSphere");
+             return false;
+        }
+        if (!AccessControlUtil.hasPermission(request, "InvoiceServlet")) {
+            response.sendRedirect("loginEmployee.jsp");
             return false;
         }
+       
         DBContext connection = new DBContext(databaseName);
 
         idao = new InvoiceDAO(connection.getConnection());
@@ -78,8 +81,14 @@ public class InvoiceServlet extends HttpServlet {
         pDAO = new ProductDAO(connection.getConnection());
         cDAO = new CustomerDAO(connection.getConnection());
         vatRateDAO = new VATRateDAO(connection.getConnection());
+        
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
         return true;
     }
+  
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -852,12 +861,12 @@ public class InvoiceServlet extends HttpServlet {
 
             InvoiceDetail detail = new InvoiceDetail(invoiceID, productID, unitPrice, quantity, discount);
             detail.setShopID(shopID);
-//            Employee loggedInEmployee = (Employee) request.getSession().getAttribute("Employee");
-//            if (loggedInEmployee.getRole().getId() != 3) {
-//                request.setAttribute("errorMessage", "Bạn không có quyền tạo hóa đơn theo cách này. Chỉ nhân viên thu ngân mới được phép.");
-//                listInvoices(request, response);
-//                return;
-//            }
+            Employee loggedInEmployee = (Employee) request.getSession().getAttribute("Employee");
+            if (loggedInEmployee.getRole().getId() != 3) {
+                request.setAttribute("errorMessage", "Bạn không có quyền tạo hóa đơn theo cách này. Chỉ nhân viên thu ngân mới được phép.");
+                listInvoices(request, response);
+                return;
+            }
             boolean success = idetail.addInvoiceDetailAndUpdateInventory(detail, shopID);
 
             if (success) {
@@ -1037,12 +1046,12 @@ public class InvoiceServlet extends HttpServlet {
 
         Employee loggedInEmployee = (Employee) session.getAttribute("Employee");
 //
-//        // Xác nhận RoleID của Cashier. Giả sử 2 là Cashier.
-//        if (loggedInEmployee.getRole().getId() != 3) {
-//            request.setAttribute("errorMessage", "Bạn không có quyền tạo hóa đơn theo cách này. Chỉ nhân viên thu ngân mới được phép.");
-//            listInvoices(request, response);
-//            return;
-//        }
+        // Xác nhận RoleID của Cashier. Giả sử 2 là Cashier.
+        if (loggedInEmployee.getRole().getId() == 4) {
+            request.setAttribute("errorMessage", "Bạn không có quyền thực hiện.");
+            listInvoices(request, response);
+            return;
+        }
 
         try {
             int defaultCustomerID = cDAO.getGuestCustomerID();
@@ -1080,6 +1089,19 @@ public class InvoiceServlet extends HttpServlet {
     private void deleteInvoice(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String invoiceIDParam = request.getParameter("invoiceID");
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("Employee") == null) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
+          Employee loggedInEmployee = (Employee) session.getAttribute("Employee");
+//
+        // Xác nhận RoleID của Cashier. Giả sử 2 là Cashier.
+        if (loggedInEmployee.getRole().getId() == 4) {
+            request.setAttribute("errorMessage", "Bạn không có quyền thực hiện.");
+            listInvoices(request, response);
+            return;
+        }
         if (invoiceIDParam == null || invoiceIDParam.trim().isEmpty()) {
             response.sendRedirect("InvoiceServlet?action=list");
             return;
@@ -1118,11 +1140,11 @@ public class InvoiceServlet extends HttpServlet {
     private void showManageInvoiceDetailForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
           Employee loggedInEmployee = (Employee) request.getSession().getAttribute("Employee");
-//            if (loggedInEmployee.getRole().getId() != 3) {
-//                request.setAttribute("errorMessage", "Bạn không có quyền tạo hóa đơn theo cách này. Chỉ nhân viên thu ngân mới được phép.");
-//                listInvoices(request, response);
-//                return;
-//            }
+            if (loggedInEmployee.getRole().getId() == 4) {
+                request.setAttribute("errorMessage", "Bạn không có quyền thực hiện.");
+                listInvoices(request, response);
+                return;
+            }
         String editDetailIdParam = request.getParameter("editDetailID");
         String invoiceIdParam = request.getParameter("invoiceID");
         String newCustomerIDParam = request.getParameter("newCustomerID");
@@ -1367,11 +1389,11 @@ public class InvoiceServlet extends HttpServlet {
     private void listInvoiceDetail(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
          Employee loggedInEmployee = (Employee) request.getSession().getAttribute("Employee");
-//            if (loggedInEmployee.getRole().getId() != 3) {
-//                request.setAttribute("errorMessage", "Bạn không có quyền xem chi tiết hóa đơn theo cách này. Chỉ nhân viên thu ngân mới được phép.");
-//                listInvoices(request, response);
-//                return;
-//            }
+            if (loggedInEmployee.getRole().getId() == 4) {
+                request.setAttribute("errorMessage", "Bạn không có quyền thực hiện.");
+                listInvoices(request, response);
+                return;
+            }
         String invoiceIDParam = request.getParameter("invoiceID");
 
         if (invoiceIDParam == null || invoiceIDParam.trim().isEmpty()) {

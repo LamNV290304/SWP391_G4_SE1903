@@ -2,6 +2,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <!DOCTYPE html>
+<c:if test="${empty sessionScope.Employee}">
+    <c:redirect url="loginEmployee.jsp"/>
+</c:if>
 <html lang="en" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default"
       data-assets-path="${pageContext.request.contextPath}/assets/"
       data-template="vertical-menu-template-free">
@@ -40,7 +43,7 @@
                                             <label for="endDate" class="form-label">Đến ngày:</label>
                                             <input type="date" class="form-control" id="endDate" name="endDate" value="${endDate}" />
                                         </div>
-                                        
+
                                         <div class="col-md-3 mb-3">
                                             <label for="selectedMonth" class="form-label">Tháng:</label>
                                             <select class="form-select" id="selectedMonth" name="selectedMonth">
@@ -61,7 +64,7 @@
                                             <button type="submit" class="btn btn-primary">Tìm kiếm</button>
                                             <a href="LoyalCustomerServlet">Đặt lại</a>
                                         </div>
-                                        
+
                                     </form>
                                 </div>
                             </div>
@@ -141,32 +144,32 @@
         <script src="${pageContext.request.contextPath}/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
         <script src="${pageContext.request.contextPath}/assets/vendor/js/menu.js"></script>
         <script src="${pageContext.request.contextPath}/assets/js/main.js"></script>
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    const selectedMonthSelect = document.getElementById('selectedMonth');
-                    const startDateInput = document.getElementById('startDate');
-                    const endDateInput = document.getElementById('endDate');
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const selectedMonthSelect = document.getElementById('selectedMonth');
+                const startDateInput = document.getElementById('startDate');
+                const endDateInput = document.getElementById('endDate');
 
 
-                    selectedMonthSelect.addEventListener('change', function () {
-                        if (this.value !== "") {
-                            startDateInput.value = '';
-                            endDateInput.value = '';
-                        }
-                    });
-
-                    startDateInput.addEventListener('change', function () {
-                        if (this.value !== "") {
-                            selectedMonthSelect.value = '';
-                        }
-                    });
-
-                    endDateInput.addEventListener('change', function () {
-                        if (this.value !== "") {
-                            selectedMonthSelect.value = '';
-                        }
-                    });
+                selectedMonthSelect.addEventListener('change', function () {
+                    if (this.value !== "") {
+                        startDateInput.value = '';
+                        endDateInput.value = '';
+                    }
                 });
-            </script>
+
+                startDateInput.addEventListener('change', function () {
+                    if (this.value !== "") {
+                        selectedMonthSelect.value = '';
+                    }
+                });
+
+                endDateInput.addEventListener('change', function () {
+                    if (this.value !== "") {
+                        selectedMonthSelect.value = '';
+                    }
+                });
+            });
+        </script>
     </body>
 </html>

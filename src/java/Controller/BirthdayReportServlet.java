@@ -9,6 +9,7 @@ import Dal.CustomerDAO;
 import Dal.PromotionDAO;
 import Models.Customer;
 import Models.Promotion;
+import Utils.AccessControlUtil;
 import Utils.MailSender;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -35,22 +36,29 @@ public class BirthdayReportServlet extends HttpServlet {
     private CustomerDAO cDAO;
     private PromotionDAO pDAO;
 
-    public boolean init(HttpServletRequest request, HttpServletResponse response) {
-        String databaseName = (String) request.getSession().getAttribute("databaseName");
+       public boolean init(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        try{
+            String databaseName = (String) request.getSession().getAttribute("databaseName");
         if (databaseName == null) {
-            try {
-                request.getRequestDispatcher("login.jsp").forward(request, response);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            response.sendRedirect("SaleSphere");
+             return false;
+        }
+        if (!AccessControlUtil.hasPermission(request, "BirthdayReportServlet")) {
+            response.sendRedirect("loginEmployee.jsp");
             return false;
         }
+       
         DBContext connection = new DBContext(databaseName);
         cDAO = new CustomerDAO(connection.getConnection());
         pDAO = new PromotionDAO(connection.getConnection());
-
+        
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
         return true;
     }
+ 
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -61,6 +69,9 @@ public class BirthdayReportServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        if (!init(request, response)) {
+            return;
+        }
         try {
             String start = request.getParameter("startDate");
             String end = request.getParameter("endDate");
@@ -82,7 +93,7 @@ public class BirthdayReportServlet extends HttpServlet {
                 monthFilter = today.getMonthValue();
             }
 
-            // ✅ SỬA Ở ĐÂY
+         
             List<Customer> customers = cDAO.getCustomersByMonthAndKeyword(monthFilter, searchKeyword);
 
             request.setAttribute("selectedMonth", monthFilter);
@@ -99,6 +110,9 @@ public class BirthdayReportServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        if (!init(request, response)) {
+            return;
+        }
         try {
             String[] selectedIds = request.getParameterValues("selectedIds");
             String monthParam = request.getParameter("month");
