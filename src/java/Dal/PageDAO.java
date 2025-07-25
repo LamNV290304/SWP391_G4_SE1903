@@ -8,6 +8,7 @@ import java.sql.*;
 import Models.Pages;
 import java.sql.Connection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -23,9 +24,9 @@ public class PageDAO {
     }
 
     public Map<String, Pages> getAllPages() throws SQLException {
-        Map<String, Pages> pages = new HashMap<>();
+        Map<String, Pages> pages = new LinkedHashMap<>();
 
-        String sql = "SELECT * FROM Pages";
+        String sql = "SELECT * FROM Pages ORDER BY TRY_CAST([Group] AS INT);";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
 
