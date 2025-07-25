@@ -9,6 +9,7 @@ import Context.DBContext;
 import Dal.*;
 import Models.Category;
 import Models.Unit;
+import Utils.AccessControlUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -62,7 +63,14 @@ public class ListCategoryUnitServlet extends HttpServlet {
          DBContext db = new DBContext(databaseName);
         CategoryDAO categoryDAO = new CategoryDAO(db.getConnection());
         UnitDAO unitDAO = new UnitDAO(db.getConnection());
+if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
 
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
         List<Category> categoryList = categoryDAO.getAllCategories();
         List<Unit> unitList = unitDAO.getAllActiveUnits();
 

@@ -7,6 +7,7 @@ package Controller;
 import Context.DBContext;
 import Dal.*;
 import Models.PaymentVoucher;
+import Utils.AccessControlUtil;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -40,6 +41,14 @@ public class AddPaymentVoucherServlet extends HttpServlet {
         try {
             String databaseName = (String) request.getSession().getAttribute("databaseName");
             Connection conn = new DBContext(databaseName).getConnection();
+            if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
+
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
             EmployeeDAO empDao = new EmployeeDAO(conn);
             TypeReceiptVoucherDAO typeDao = new TypeReceiptVoucherDAO(conn);
             ShopDAO shopDao = new ShopDAO(conn);

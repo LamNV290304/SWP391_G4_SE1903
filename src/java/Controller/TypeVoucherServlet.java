@@ -8,6 +8,7 @@ package Controller;
 import Context.DBContext;
 import java.io.IOException;
 import Dal.*;
+import Utils.AccessControlUtil;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import jakarta.servlet.ServletException;
@@ -37,6 +38,14 @@ public class TypeVoucherServlet extends HttpServlet {
             response.setContentType("text/html;charset=UTF-8");
             String databaseName = (String) request.getSession().getAttribute("databaseName");
             Connection conn = new DBContext(databaseName).getConnection();
+            if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
+
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
             TypeReceiptVoucherDAO thuDAO = new TypeReceiptVoucherDAO(conn);   // DAO cho phiếu thu
             TypePaymentVoucherDAO chiDAO = new TypePaymentVoucherDAO(conn);   // DAO cho phiếu chi
             
@@ -76,6 +85,14 @@ public class TypeVoucherServlet extends HttpServlet {
            String action = request.getParameter("action");
 String databaseName = (String) request.getSession().getAttribute("databaseName");
         try (Connection conn = new DBContext(databaseName).getConnection()) {
+            if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
+
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
             TypeReceiptVoucherDAO receiptDAO = new TypeReceiptVoucherDAO(conn);
             TypePaymentVoucherDAO paymentDAO = new TypePaymentVoucherDAO(conn);
 

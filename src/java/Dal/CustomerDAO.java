@@ -285,6 +285,46 @@ public class CustomerDAO {
             return false;
         }
     }
+public List<Customer> getCustomersByShopAndDateRange(int shopId, Date fromDate, Date toDate) {
+    List<Customer> customers = new ArrayList<>();
+
+    String sql = "SELECT DISTINCT c.CustomerID, c.CustomerName, c.Phone, c.Email, c.Address, "
+           + "c.Status, c.CreatedDate, c.CreatedBy "
+           + "FROM Customer c "
+           + "JOIN Invoice i ON c.CustomerID = i.CustomerID "
+           + "WHERE i.InvoiceDate BETWEEN ? AND ? ";
+
+    if (shopId > 0) {
+        sql += "AND i.ShopID = ? ";
+    }
+
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setDate(1, fromDate);
+        ps.setDate(2, toDate);
+        if (shopId > 0) {
+            ps.setInt(3, shopId);
+        }
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            Customer c = new Customer(
+                    rs.getInt("CustomerID"),
+                    rs.getString("CustomerName"),
+                    rs.getString("Phone"),
+                    rs.getString("Email"),
+                    rs.getString("Address"),
+                    rs.getBoolean("Status"),
+                    rs.getTimestamp("CreatedDate"),
+                    rs.getString("CreatedBy")
+            );
+            customers.add(c);
+        }
+    } catch (SQLException e) {
+        Logger.getLogger(CustomerDAO.class.getName()).log(Level.SEVERE, null, e);
+    }
+
+    return customers;
+}
 
     public static void main(String[] args) {
         DBContext connection = new DBContext("SWP1");

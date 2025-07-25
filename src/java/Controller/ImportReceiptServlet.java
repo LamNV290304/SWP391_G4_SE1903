@@ -7,6 +7,7 @@ package Controller;
 import Context.DBContext;
 import Dal.*;
 import Models.*;
+import Utils.AccessControlUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -42,6 +43,14 @@ public class ImportReceiptServlet extends HttpServlet {
             String databaseName = (String) request.getSession().getAttribute("databaseName");
             response.setContentType("text/html;charset=UTF-8");
             DBContext connection = new DBContext(databaseName);
+            if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
+
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
             Connection conn = connection.getConnection();
             ImportReceiptDAO dao = new ImportReceiptDAO(conn);
             ImportReceiptDetailDAO detailDao = new ImportReceiptDetailDAO(conn);
@@ -123,7 +132,15 @@ public class ImportReceiptServlet extends HttpServlet {
         String action = request.getParameter("action");
         String receiptIdRaw = request.getParameter("receiptId");
 String databaseName = (String) request.getSession().getAttribute("databaseName");
-        if (action != null && receiptIdRaw != null) {
+        if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
+
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
+if (action != null && receiptIdRaw != null) {
             try (Connection conn = new DBContext(databaseName).getConnection()) {
                 ImportReceiptDAO importReceiptDAO = new ImportReceiptDAO(conn);
                 ImportReceiptDetailDAO detailDAO = new ImportReceiptDetailDAO(conn);

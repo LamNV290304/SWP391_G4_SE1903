@@ -14,6 +14,7 @@ import Dal.ShopDAO;
 import Models.ImportReceipt;
 import Models.ImportReceiptDetail;
 import Models.Inventory;
+import Utils.AccessControlUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -117,7 +118,14 @@ public class UpdateImportReceipt extends HttpServlet {
         double value = Double.parseDouble(request.getParameter("Total"));
 String databaseName = (String) request.getSession().getAttribute("databaseName");
         try (Connection conn = new DBContext(databaseName).getConnection()) {
+if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
 
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
             ImportReceiptDAO receiptDAO = new ImportReceiptDAO(conn);
             InventoryDAO inventoryDAO = new InventoryDAO(conn);
 

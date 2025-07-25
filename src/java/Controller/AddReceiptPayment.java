@@ -19,6 +19,7 @@ import Dal.TypeReceiptVoucherDAO;
 import Dal.CustomerDAO;
 import Dal.PaymentMethodDAO;
 import Models.ReceiptVoucher;
+import Utils.AccessControlUtil;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -48,6 +49,14 @@ public class AddReceiptPayment extends HttpServlet {
     throws ServletException, IOException {
         try {
             String databaseName = (String) request.getSession().getAttribute("databaseName");
+            if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
+
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
             Connection conn = new DBContext(databaseName).getConnection();
             EmployeeDAO empDao = new EmployeeDAO(conn);
             TypeReceiptVoucherDAO typeDao = new TypeReceiptVoucherDAO(conn);
@@ -97,6 +106,14 @@ public class AddReceiptPayment extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         String databaseName = (String) request.getSession().getAttribute("databaseName");
+        if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
+
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
          try (Connection conn = new DBContext(databaseName).getConnection()) {
             String shopID_raw = request.getParameter("shopID");
             String employeeID_raw = request.getParameter("employeeID");

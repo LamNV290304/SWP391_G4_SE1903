@@ -13,6 +13,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -113,7 +116,30 @@ public class ImportReceiptDAO {
         }
         return null;
     }
+public double getImportAmountByShopAndDateRange(int shopId, Date fromDate, Date toDate) {
+    double total = 0;
+    String sql = "SELECT SUM(TotalAmount) " +
+                 "FROM ImportReceipt " +
+                 "WHERE ReceiptDate BETWEEN ? AND ? " +
+                 "AND (? = 0 OR ShopID = ?)";
 
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setDate(1, new java.sql.Date(fromDate.getTime()));
+        ps.setDate(2, new java.sql.Date(toDate.getTime()));
+        ps.setInt(3, shopId);
+        ps.setInt(4, shopId);
+
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                total = rs.getDouble(1);
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return total;
+}
     // Xóa phiếu nhập
     public boolean deleteImportReceipt(int id) {
         String sql = "DELETE FROM ImportReceiptDetail WHERE ImportReceiptID = ?;\n"

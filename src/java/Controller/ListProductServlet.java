@@ -13,6 +13,7 @@ import Models.Employee;
 import Models.Product;
 import Models.Unit;
 import Models.User;
+import Utils.AccessControlUtil;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -103,7 +104,14 @@ public class ListProductServlet extends HttpServlet {
 
         // Kết nối DB và gọi DAO
         String databaseName = (String) request.getSession().getAttribute("databaseName");
-        
+        if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
+
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
         DBContext db = new DBContext(databaseName);
         
         ProductDAO productDAO = new ProductDAO(db.getConnection());
@@ -171,6 +179,14 @@ LocalDateTime localDateTime = utilDate.toInstant()
     // Khởi tạo DAO
     String databaseName = (String) request.getSession().getAttribute("databaseName");
     DBContext dBContext = new DBContext(databaseName);
+    if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
+
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
     ProductDAO productDAO = new ProductDAO(dBContext.getConnection());
 
     // Lấy sản phẩm cũ để giữ lại ảnh nếu không chọn ảnh mới

@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
 import Context.DBContext;
 import Dal.*;
 import Models.PaymentVoucher;
+import Utils.AccessControlUtil;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -55,6 +56,22 @@ public class PaymentVoucherServlet extends HttpServlet {
         try {
             String databaseName = (String) request.getSession().getAttribute("databaseName");
             response.setContentType("text/html;charset=UTF-8");
+            if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
+
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
+            if (databaseName == null) {
+            response.sendRedirect("SaleSphere");
+        }
+
+        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+            response.sendRedirect("loginEmployee.jsp");
+            return;
+        }
             Connection conn = new DBContext(databaseName).getConnection();
             TypeReceiptVoucherDAO thuDAO = new TypeReceiptVoucherDAO(conn);   // DAO cho phiếu thu
             TypePaymentVoucherDAO chiDAO = new TypePaymentVoucherDAO(conn);   // DAO cho phiếu chi

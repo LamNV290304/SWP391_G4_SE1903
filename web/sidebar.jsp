@@ -196,7 +196,6 @@
 
 
         <!-- Forms -->
-        <!-- Forms -->
         <c:if test="${sessionScope.grantedPages['InvoiceServlet'] 
                       or sessionScope.grantedPages['StatisticServlet']
                       or sessionScope.grantedPages['LoyalCustomerServlet']
