@@ -47,7 +47,7 @@ public class ImportReceiptServlet extends HttpServlet {
             response.sendRedirect("SaleSphere");
         }
 
-        if (!AccessControlUtil.hasPermission(request, "ImportReceiptServlet ")) {
+        if (!AccessControlUtil.hasPermission(request, "ImportReceiptServlet")) {
             response.sendRedirect("loginEmployee.jsp");
             return;
         }

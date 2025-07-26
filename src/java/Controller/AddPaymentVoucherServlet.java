@@ -50,7 +50,7 @@ public class AddPaymentVoucherServlet extends HttpServlet {
             return;
         }
             EmployeeDAO empDao = new EmployeeDAO(conn);
-            TypeReceiptVoucherDAO typeDao = new TypeReceiptVoucherDAO(conn);
+            TypePaymentVoucherDAO typeDao = new TypePaymentVoucherDAO(conn);
             ShopDAO shopDao = new ShopDAO(conn);
             CustomerDAO cusDao = new CustomerDAO(conn);
             PaymentMethodDAO pmDao = new PaymentMethodDAO(conn);
