@@ -120,7 +120,10 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                                             </div>
                                             <div>
                                                 <label for="note" class="form-label">Ghi chú</label>
-                                                <textarea class="form-control" id="note" name="note" rows="3"></textarea>
+                                                <textarea class="form-control" id="note" name="note" rows="3"
+          required pattern=".*\\S.*"
+          title="Ghi chú không được để trống hoặc chỉ chứa khoảng trắng"></textarea>
+
                                             </div>
                                         </div>
                                     </div>
@@ -271,6 +274,16 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
     <script src="assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
     <script src="assets/vendor/js/menu.js"></script> <!-- Xử lý toggle -->
     <script src="assets/js/main.js"></script> <!-- Main logic -->
+<script>
+    document.querySelector("form").addEventListener("submit", function (e) {
+        const mainNote = document.getElementById("note");
+        if (!mainNote.value.trim()) {
+            alert("Ghi chú không được để trống.");
+            mainNote.focus();
+            e.preventDefault();
+        }
+    });
+</script>
 
 </body>
 </html>

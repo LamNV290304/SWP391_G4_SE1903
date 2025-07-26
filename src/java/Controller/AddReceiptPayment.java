@@ -53,7 +53,7 @@ public class AddReceiptPayment extends HttpServlet {
             response.sendRedirect("SaleSphere");
         }
 
-        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+        if (!AccessControlUtil.hasPermission(request, "AddReceiptPayment ")) {
             response.sendRedirect("loginEmployee.jsp");
             return;
         }
@@ -110,7 +110,7 @@ public class AddReceiptPayment extends HttpServlet {
             response.sendRedirect("SaleSphere");
         }
 
-        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+        if (!AccessControlUtil.hasPermission(request, "AddReceiptPayment ")) {
             response.sendRedirect("loginEmployee.jsp");
             return;
         }

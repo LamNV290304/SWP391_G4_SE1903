@@ -118,6 +118,13 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                                         <div class="col-md-2">
                                             <button type="submit" class="btn btn-primary">Lọc</button>
                                             <a href="listInventoryHome" class="btn btn-secondary">Reset</a>
+                                            <form method="get" action="listInventoryHome" class="d-inline">
+    <input type="hidden" name="export" value="excel" />
+    <button type="submit" class="btn btn-success btn-sm">
+        <i class="bx bx-download me-1"></i> Xuất Excel
+    </button>
+</form>
+
                                         </div>
                                     </form>
 

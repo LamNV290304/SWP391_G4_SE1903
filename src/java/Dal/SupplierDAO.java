@@ -111,7 +111,7 @@ public class SupplierDAO {
 
     // Xoá nhà cung cấp
     public boolean deleteSupplier(int id) {
-        String sql = "DELETE FROM Supplier WHERE SupplierID = ?";
+        String sql = "UPDATE Supplier SET  Status = 0 WHERE SupplierID = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             return ps.executeUpdate() > 0;

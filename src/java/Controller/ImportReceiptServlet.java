@@ -47,7 +47,7 @@ public class ImportReceiptServlet extends HttpServlet {
             response.sendRedirect("SaleSphere");
         }
 
-        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
+        if (!AccessControlUtil.hasPermission(request, "ImportReceiptServlet ")) {
             response.sendRedirect("loginEmployee.jsp");
             return;
         }
@@ -132,14 +132,6 @@ public class ImportReceiptServlet extends HttpServlet {
         String action = request.getParameter("action");
         String receiptIdRaw = request.getParameter("receiptId");
 String databaseName = (String) request.getSession().getAttribute("databaseName");
-        if (databaseName == null) {
-            response.sendRedirect("SaleSphere");
-        }
-
-        if (!AccessControlUtil.hasPermission(request, "AddEmployee")) {
-            response.sendRedirect("loginEmployee.jsp");
-            return;
-        }
 if (action != null && receiptIdRaw != null) {
             try (Connection conn = new DBContext(databaseName).getConnection()) {
                 ImportReceiptDAO importReceiptDAO = new ImportReceiptDAO(conn);
